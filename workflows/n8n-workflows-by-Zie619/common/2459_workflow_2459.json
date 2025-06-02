@@ -1,0 +1,390 @@
+{
+  "meta": {
+    "instanceId": "ecec1cfe760b632dcb0132ecf2ac7c047c6f290f3f4a5640e2e2466f0269ccaf"
+  },
+  "nodes": [
+    {
+      "id": "a30e02b0-b807-4a4c-b2a6-19bacf5f2f8f",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        800,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "558afdb5-7311-48f1-9464-01b6933eaffe",
+      "name": "Get Meta BG",
+      "type": "n8n-nodes-base.editImage",
+      "position": [
+        1300,
+        60
+      ],
+      "parameters": {
+        "operation": "information"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66bf1414-725b-40e3-be08-76f02a5d130f",
+      "name": "Nest Top Meta",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1480,
+        320
+      ],
+      "parameters": {
+        "options": {
+          "includeBinary": true
+        },
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2fb3fd91-c13d-45ce-a7ec-612319a008fc",
+              "name": "metaTop",
+              "type": "object",
+              "value": "={{ $json }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "29e77ce2-15a0-47a8-8b1c-8f457ae435c6",
+      "name": "Nest Bg Meta",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1480,
+        60
+      ],
+      "parameters": {
+        "options": {
+          "includeBinary": true
+        },
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2fb3fd91-c13d-45ce-a7ec-612319a008fc",
+              "name": "metaBg",
+              "type": "object",
+              "value": "={{ $json }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "dcdf4737-f881-4414-8fdb-1ce334e60093",
+      "name": "Calculate Center",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2280,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n\n  const centerX = ($input.item.json.metaBg.size.width + $input.item.json.metaTop.size.width) / 2;\n  const centerY = ($input.item.json.metaBg.size.height + $input.item.json.metaTop.size.height) / 2;\n\n  $input.item.json.center = { x: centerX, y: centerY };\n\nreturn $input.item"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b146616-cbc7-4e21-a899-46fdc8e5c914",
+      "name": "Get Logo for the Watermark",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1100,
+        320
+      ],
+      "parameters": {
+        "url": "https://cloud.let-the-work-flow.com/workflow-data/logo-shadow.png",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7167d1b8-f0c4-4068-b5c8-bb23d5a5a589",
+      "name": "Get the Image for Background",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1100,
+        60
+      ],
+      "parameters": {
+        "url": "https://cloud.let-the-work-flow.com/workflow-data/robot-1.png",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "df6b4e01-76aa-42dd-bf1f-8eb259cd4079",
+      "name": "Wait for both Images and merge Binary in one Item",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1980,
+        180
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "mergeByPosition"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "d5161149-275c-4e2d-9d55-7f1c18716933",
+      "name": "Rename Image Binary Top Image",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1660,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "$input.item.binary.top = $input.item.binary.data;\ndelete $input.item.binary.data;\nreturn $input.item;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "90b0e990-d330-4875-b492-28d52019784d",
+      "name": "Rename Image Binary Background Image",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1660,
+        60
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "$input.item.binary.bg = $input.item.binary.data;\ndelete $input.item.binary.data;\nreturn $input.item;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a2b3eaa3-61bb-4e91-a225-b6a9b5dd725c",
+      "name": "Get Meta Top",
+      "type": "n8n-nodes-base.editImage",
+      "position": [
+        1300,
+        320
+      ],
+      "parameters": {
+        "operation": "information"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "46b4e344-8ea6-4d87-9dc3-c3d80f17a9d5",
+      "name": "Let \"top\" overlay \"bg\"",
+      "type": "n8n-nodes-base.editImage",
+      "position": [
+        2600,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "format": "jpeg",
+          "fileName": "out.png"
+        },
+        "operation": "composite",
+        "positionX": "={{ $json.center.x - $json.metaTop.size.width }}",
+        "positionY": "={{ $json.center.y - $json.metaTop.size.height }}",
+        "dataPropertyName": "bg",
+        "dataPropertyNameComposite": "top"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee7787f1-c717-416c-b076-18200e3109a0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        -69.74382694102701
+      ],
+      "parameters": {
+        "width": 820.7320856852112,
+        "height": 612.1135700636542,
+        "content": "## 배경 이미지를 검색하고 파일에서 메타를 가져오세요  \n### 크기처럼, \"Top Image\" 즉 \"Watermark\" 즉 \"Overlay\"를 \"Background\"-Image 위에 올바르게 배치하기 위해"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "80925b86-42dc-4cf9-8a3b-b8df913d4d8c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2180,
+        60
+      ],
+      "parameters": {
+        "width": 296.5141962579569,
+        "height": 568.2663488290325,
+        "content": "## \"Top\" 이미지의 위치 계산\n\n우리는 \"Top\" 이미지를 \"Background\" 이미지의 정중앙에 배치하고 싶습니다. 하지만 작업의 원점은 상단 왼쪽 모서리입니다.\n\n필요에 따라 조정할 수 있습니다. 예를 들어, 오버레이 이미지의 크기를 조정하거나, 어떤 모서리에 배치할 수 있습니다. 공식을 필요에 맞게 조정하세요.\n\n**⚠️ 제한:** 배경 이미지를 덮는 이미지는 배경 이미지의 크기보다 작거나 같아야 제대로 작동합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "89dafe6a-d49a-43f7-94d2-3c5de5b67c9f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2520,
+        360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 257.68541919015513,
+        "height": 99.86957475347333,
+        "content": "### 🖼️ Binary Property *bg*는 이제 합성 이미지여야 하며 *top*에 의해 오버레이되어야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "384bd626-fdbb-4073-ad9d-671b4aefe19e",
+      "name": "Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        301.53703835383794,
+        -60
+      ],
+      "parameters": {
+        "width": 448.40729941128825,
+        "height": 745.9248098393447,
+        "content": "## 지침\n\n이 자동화는 `background` 이미지를 다른 이미지와 오버레이하여 워터마크나 로고를 쉽게 추가할 수 있습니다.\n\n이 자동화를 사용하면 **워터마크**를 추가하기 위해 이미지를 로고의 투명 버전과 오버레이할 수 있습니다. 로고를 **특정 모서리에 배치**하고 싶다면 코드 노드에서 오버레이 이미지의 위치를 _조정_하세요.\n\n### 작동 원리\n\n1. 두 이미지를 다운로드하여 이진 파일을 처리할 수 있습니다(원본을 수정할 수 있음).\n2. 각 이미지의 차원을 중점으로 메타데이터를 추출합니다.\n3. 오버레이 이미지의 위치를 계산합니다(기본값: 배경 이미지의 정중앙).\n4. 두 이미지를 *합성*합니다.\n\n### 제한 사항 및 최적화 기회\n\n1. 오버레이 이미지는 배경 이미지와 동일하거나 작아야 제대로 정렬됩니다.\n2. 오버레이 이미지는 자동으로 배경 이미지의 비율에 맞게 조정되지 않습니다.\n\n![이미지](https://cloud.let-the-work-flow.com/logo-64.png)  \n워크플로우를 즐기세요! ❤️  \n[워크플로우](https://let-the-work-flow.com) — 워크플로우 자동화 및 개발"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Meta BG": {
+      "main": [
+        [
+          {
+            "node": "Nest Bg Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Meta Top": {
+      "main": [
+        [
+          {
+            "node": "Nest Top Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nest Bg Meta": {
+      "main": [
+        [
+          {
+            "node": "Rename Image Binary Background Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nest Top Meta": {
+      "main": [
+        [
+          {
+            "node": "Rename Image Binary Top Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Center": {
+      "main": [
+        [
+          {
+            "node": "Let \"top\" overlay \"bg\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Logo for the Watermark": {
+      "main": [
+        [
+          {
+            "node": "Get Meta Top",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the Image for Background": {
+      "main": [
+        [
+          {
+            "node": "Get Meta BG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Image Binary Top Image": {
+      "main": [
+        [
+          {
+            "node": "Wait for both Images and merge Binary in one Item",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Get the Image for Background",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Logo for the Watermark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Image Binary Background Image": {
+      "main": [
+        [
+          {
+            "node": "Wait for both Images and merge Binary in one Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for both Images and merge Binary in one Item": {
+      "main": [
+        [
+          {
+            "node": "Calculate Center",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

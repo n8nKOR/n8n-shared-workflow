@@ -1,0 +1,495 @@
+{
+  "id": "ly8aZhPk5ZI8uB0Y",
+  "meta": {
+    "instanceId": "8931e7db592c2960ce253801ea290c1dc66e447734ce3d968310365665cefc80",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Discord MCP Server",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "6e87d612-3006-4683-b978-87718f89257d",
+      "name": "Send Discord Message to Channel",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        360,
+        280
+      ],
+      "webhookId": "90b1dca9-c742-4c7e-aef3-ba5a47c5f86d",
+      "parameters": {
+        "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Channel', ``, 'string') }}"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "32a17a73-8953-4474-a49f-9d1cc0cc3eb2",
+      "name": "Add Role To Member",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        -200,
+        560
+      ],
+      "webhookId": "e41a85ec-3f16-44fc-ad87-4617c0d0f1c0",
+      "parameters": {
+        "role": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Role', ``, 'string') }}",
+        "userId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('User', ``, 'string') }}"
+        },
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "resource": "member",
+        "operation": "roleAdd"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "688ea823-b8ea-4bbf-96cb-a64925fc29a9",
+      "name": "Remove Role from member",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        -20,
+        560
+      ],
+      "webhookId": "e41a85ec-3f16-44fc-ad87-4617c0d0f1c0",
+      "parameters": {
+        "role": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Role', ``, 'string') }}",
+        "userId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('User', ``, 'string') }}"
+        },
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "resource": "member",
+        "operation": "roleRemove"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1d8a14f1-8e63-4112-8076-15b4408c844f",
+      "name": "Discord MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        20,
+        -280
+      ],
+      "webhookId": "404f083e-f3f4-4358-83ef-9804099ee253",
+      "parameters": {
+        "path": "404f083e-f3f4-4358-83ef-9804099ee253"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67602807-3126-4564-8fed-912551eb824b",
+      "name": "Get channels of server by server ID",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        420,
+        20
+      ],
+      "webhookId": "73c49e13-24e9-4481-902d-a5f3e1f50032",
+      "parameters": {
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "options": {},
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5f1c3039-7042-48b8-997c-12bcaa6a1256",
+      "name": "Get members of server by server ID",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        -80,
+        20
+      ],
+      "webhookId": "ebd6d7dd-bcfa-4546-b48d-5e7862129caa",
+      "parameters": {
+        "after": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "options": {},
+        "resource": "member",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ece7a065-36bb-4667-aa61-610e54f0b22d",
+      "name": "Send DM and Wait for reply",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        -280,
+        280
+      ],
+      "webhookId": "90b1dca9-c742-4c7e-aef3-ba5a47c5f86d",
+      "parameters": {
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('User', ``, 'string') }}"
+        },
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {},
+        "resource": "message",
+        "operation": "sendAndWait",
+        "responseType": "freeText"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c37d0478-5b00-4d21-b0fd-7e2fa34708ec",
+      "name": "Send to Channel and Wait for Reply",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        580,
+        280
+      ],
+      "webhookId": "90b1dca9-c742-4c7e-aef3-ba5a47c5f86d",
+      "parameters": {
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Channel', ``, 'string') }}"
+        },
+        "operation": "sendAndWait",
+        "responseType": "freeText"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fb8091b5-114b-422e-be5a-6413d9aec599",
+      "name": "Send DM to User",
+      "type": "n8n-nodes-base.discordTool",
+      "position": [
+        -60,
+        280
+      ],
+      "webhookId": "90b1dca9-c742-4c7e-aef3-ba5a47c5f86d",
+      "parameters": {
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('User', ``, 'string') }}"
+        },
+        "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Server', ``, 'string') }}"
+        },
+        "options": {},
+        "resource": "message"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6f61b18a-8d96-4acb-994a-45ef32c10f16",
+      "name": "Get Discord Server IDs",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        180,
+        -60
+      ],
+      "parameters": {
+        "url": "https://discord.com/api/v10/users/@me/guilds",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "toolDescription": "Retrieves the ID of each discord server the bot is in.",
+        "nodeCredentialType": "discordBotApi"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "SJhr2V3Xw4B3fVqW",
+          "name": "Gopher"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3fe9b9ab-d9c8-4414-b3a4-01dace75da77",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        -60
+      ],
+      "parameters": {
+        "height": 600,
+        "content": "이것은 당신의 디스코드 봇이 현재 속한 모든 서버를 가져옵니다. 봇이 하나 이상의 서버에 있다면, 어떤 서버인지 알려주거나 최소한 힌트를 주어야 합니다. 그렇지 않으면 걸릴 수 있습니다. 자연어 요청을 통해 채널을 지정하면, 모델이 get channel 노드를 통해 서버의 채널을 계속 시도하거나 올바른 하나에 도달하기 전에 포기할 수 있습니다.\n\n노트: 이것은 내장된 \"Discord tool\"이 아닌, 동일한 Discord 봇 인증을 사용하는 커스텀 API 호출입니다. n8n이 제공하는 15개의 포함된 도구를 훨씬 넘어가는 것을 권장합니다. 이것은 *쉽게* 할 수 있으며, n8n으로 할 수 있는 일에는 문자 그대로 제한이 없습니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c886422d-f034-49dc-ad77-bc6e1cd495a8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        280
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 240,
+        "content": "이 노드들은 당신의 봇에서 채널로 기본 메시지를 보내거나, 메시지를 보내고 인간(HITL)의 응답을 기다립니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "36d5bcc3-f9f2-4161-83d8-d76083ea9e8c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        280
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 240,
+        "content": "이 노드들은 당신의 봇에서 사용자로 기본 메시지를 DM으로 보내거나, DM을 보내고 인간(HITL)의 응답을 기다립니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65b6d13e-6f97-4b4c-9a0d-85b07b666c81",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        560
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 360,
+        "content": "프로그래밍 방식의 역할 추가 및 제거는 디스코드에서 사용할 수 있는 수많은 도구/API 호출 중 단지 두 가지 예일 뿐입니다.\n\n스팸, 모더레이터 남용, 또는 원하는 다른 것을 모니터링하고, 확인할 수 있을 때까지 권한을 제거하여 자동으로 응답할 수 있습니다.\n\n디스코드 웹훅, 기존의 다른 작업 흐름, 또는 상상할 수 있는 다른 것을 포함한 놀라운 작업 흐름을 만들 수 있으며, 새 작업 흐름이나 기존 작업 흐름의 MCP 클라이언트 노드를 통해 봇에서 몇 분 만에 실행할 수 있습니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e39211f7-7471-4b0b-a253-79b1e3026354",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        -60
+      ],
+      "parameters": {
+        "width": 280,
+        "content": "우리가 상호작용하고 싶은 서버의 서버 ID를 얻으면, 봇이 볼 수 있는 서버의 모든 멤버를 가져올 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "84f36c6d-c990-48d0-9328-32a40c803956",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -60
+      ],
+      "parameters": {
+        "width": 280,
+        "content": "서버 ID를 얻으면, 상호작용하고 싶은 서버의 봇이 볼 수 있는 모든 채널을 가져올 수 있습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bedf1c45-22f0-422c-8d77-ab058c1cceab",
+  "connections": {
+    "Send DM to User": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Role To Member": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Discord Server IDs": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Role from member": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send DM and Wait for reply": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Discord Message to Channel": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get members of server by server ID": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Channel and Wait for Reply": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get channels of server by server ID": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

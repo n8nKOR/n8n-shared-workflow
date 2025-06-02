@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Split Up Binary Data",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "functionCode": "let results = [];\n\nfor (item of items) {\n    for (key of Object.keys(item.binary)) {\n        results.push({\n            json: {\n                fileName: item.binary[key].fileName\n            },\n            binary: {\n                data: item.binary[key],\n            }\n        });\n    }\n}\n\nreturn results;"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Download Example Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        460,
+        300
+      ],
+      "parameters": {
+        "url": "https://static.thomasmartens.eu/n8n/three_more_files.zip",
+        "options": {},
+        "responseFormat": "file"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Decompress Example Data",
+      "type": "n8n-nodes-base.compression",
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        120
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 360,
+        "content": "## 예제 데이터\n첫 번째 두 노드는 간단히 예제 데이터를 가져와 작업할 수 있게 합니다.\n\n실제 세계에서, 당신은 아마도 들어오는 이메일, 업로드된 FTP 파일 또는 비슷한 것을 대신 처리할 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        120
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 360,
+        "content": "## 변환\n여기서 마법이 일어나는 곳입니다. 들어오는 파일들은 개별 항목으로 분할되며, 각 항목은 `data` 키 아래에 하나의 이진 데이터 객체를 가집니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Download Example Data": {
+      "main": [
+        [
+          {
+            "node": "Decompress Example Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Download Example Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decompress Example Data": {
+      "main": [
+        [
+          {
+            "node": "Split Up Binary Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

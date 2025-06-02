@@ -1,0 +1,172 @@
+{
+  "meta": {
+    "instanceId": "f4f5d195bb2162a0972f737368404b18be694648d365d6c6771d7b4909d28167",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "9a8d7d07-a1b3-4bca-8e77-10da3a2abc45",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -160,
+        0
+      ],
+      "webhookId": "7f35a3a8-54c3-49d7-879d-6c3429f0e5da",
+      "parameters": {
+        "path": "retell-dynamic-variables",
+        "options": {
+          "ipWhitelist": "100.20.5.228"
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79e77d72-6e13-428c-ad10-58e6930e2d90",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"call_inbound\": {\n    \"dynamic_variables\": {\n        \"first_name\": \"{{ $json['First Name'] }}\",\n        \"last_name\": \"{{ $json['Last name'] }}\",\n        \"email\": \"{{ $json['E-Mail'] }}\",\n        \"variable_1\": \"{{ $json['User Variable 1'] }}\",\n        \"variable_2\": \"{{ $json['User Variable 2']}}\"\n    },\n    \"metadata\": {\n    }\n  }\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "10919781-9750-417f-bba6-293bf99dbc3e",
+      "name": "Get user in DB by Phone Number",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        140,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.body.call_inbound.from_number }}",
+              "lookupColumn": "Phone Number"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU/edit#gid=0",
+          "cachedResultName": "Users"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU/edit?usp=drivesdk",
+          "cachedResultName": "Retell sample UserDB"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ufBkeygvc1l17m5N",
+          "name": "Baptiste AS - Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "de9a2ff5-690e-4e1e-ab5c-5a8825986871",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 601,
+        "height": 1105,
+        "content": "## Retell의 Inbound 호출 웹후크 처리\n\n## 개요\n- 이 워크플로는 n8n을 사용하여 Retell 에이전트 빌더가 [동적 변수](https://docs.retellai.com/build/dynamic-variables)를 쉽게 채우는 방법을 제공합니다.\n- 이 워크플로는 전화번호를 기반으로 Google Sheet에서 사용자 정보를 가져와 Retell에 전송합니다.\n- 이는 Retell의 [Inbound Webhook Call](https://docs.retellai.com/features/inbound-call-webhook)을 기반으로 합니다.\n- Retell은 프롬프트나 대화 흐름 빌더를 기반으로 음성 호출을 간단하게 처리하는 음성 에이전트를 생성할 수 있는 서비스입니다.\n\n## 전제 조건\n- [Retell AI 계정](https://www.retellai.com/)을 보유하세요.\n- [Retell 에이전트 생성](https://docs.retellai.com/get-started/quick-start)\n- [전화번호 구매](https://docs.retellai.com/deploy/purchase-number)하고 에이전트와 연관지으세요.\n- Google Sheets를 생성하세요 - 예를 들어, [이 샘플의 복사본](https://docs.google.com/spreadsheets/d/1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU/edit?usp=sharing)을 만드세요.\n- Google Sheet에는 최소 하나의 열에 전화번호가 있어야 합니다. 나머지 열은 Retell 에이전트의 동적 변수를 채우는 데 사용됩니다.\n- 모든 필드는 Retell에 문자열로 반환됩니다(변수는 텍스트로 대체됨).\n\n## 작동 원리\n- Retell로부터 웹후크 호출이 수신됩니다. 이는 허용된 IP 주소로 필터링됩니다.\n- 웹후크 호출에서 데이터를 추출하여 Google Sheets에서 해당 사용자를 검색합니다.\n- 응답 데이터를 Retell이 예상하는 형식에 맞게 포맷팅합니다.\n- Retell은 이 데이터를 사용하여 프롬프트의 [동적 변수](https://docs.retellai.com/build/dynamic-variables#dynamic-variables)를 대체합니다.\n\n## 사용 방법\n스크린샷 설명을 참조하세요!\n- 웹후크 이름을 설정하세요(POST로 유지).\n- Webhook URL을 복사하세요(예: `https://your-instance.app.n8n.cloud/webhook/retell-dynamic-variables`)하고 Retell 인터페이스에 붙여넣으세요. \"Phone Numbers\"로 이동하여 전화번호를 클릭하고 \"Add an inbound webhook\"을 활성화하세요.\n- 프롬프트(예: \"welcome message\")에서 변수를 이 구문으로 사용하세요: `{{variable_name}}` (자세한 내용은 [Retell의 문서](https://docs.retellai.com/build/dynamic-variables)를 참조).\n- 이러한 변수는 Google Sheet의 데이터로 동적으로 대체됩니다.\n\n## 주의 사항\n- Google Sheets에서 전화번호는 '+'로 시작해야 합니다.\n- 전화번호는 예제처럼 '+'와 확장번호를 포함하고 공백 없이 형식화해야 합니다.\n- 어떤 데이터베이스든 사용할 수 있습니다. Google Sheets를 본인 것으로 대체하세요. 다만, 전화번호 형식을 일관되게 유지하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55b087bf-d51f-4660-94c7-3742915ff79b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 300,
+        "content": "필요한 경우 경로를 변경하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd6a7c81-5125-4f46-a1ba-86029d3a0eda",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 300,
+        "content": "자신의 Google Sheets로 대체하세요, Retell Agent의 동적 변수를 포함하여."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7105c832-ffbe-4d36-90ec-b8c868388c4e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 300,
+        "content": "응답을 Retell의 동적 변수에 맞게 조정하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get user in DB by Phone Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get user in DB by Phone Number": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

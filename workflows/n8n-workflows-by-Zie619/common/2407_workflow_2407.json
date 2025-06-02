@@ -1,0 +1,411 @@
+{
+  "meta": {
+    "instanceId": "bb6a1286a4ce98dce786d6c2748b867c1252d53458c87d87fbf6824b862d4c9c"
+  },
+  "nodes": [
+    {
+      "id": "faade37e-908d-494c-af74-93c8f01adcc5",
+      "name": "Everyday at 7PM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        440,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 19 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4abddfea-fee9-419c-92c4-3055faa2dd09",
+      "name": "Airtable Get Today's Orders",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        900,
+        520
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appdtUVSpfWswMwNC",
+          "cachedResultUrl": "https://airtable.com/appdtUVSpfWswMwNC",
+          "cachedResultName": "Untitled Base"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblu6F5rLbR3Axtgj",
+          "cachedResultUrl": "https://airtable.com/appdtUVSpfWswMwNC/tblu6F5rLbR3Axtgj",
+          "cachedResultName": "orders"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "=AND(time < \"{{ $json.now }}\", time > \"{{ $json.yesterday }}\")"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "uSxVhc7fcMM7uPM2",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ea29159e-3674-4385-a0bd-2a9df7d7117c",
+      "name": "Yesterday Date",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        660,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// Create a new date object for yesterday, 7pm\nconst yesterday = new Date();\nyesterday.setDate( new Date().getDate() - 1); \nyesterday.setHours(19, 0, 0, 0);\nconst isoString = yesterday.toISOString();\nreturn {yesterday:isoString, now:new Date().toISOString()}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8254aa63-2682-4c48-8843-c93830c724de",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        1120,
+        520
+      ],
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\" />\n</head>\n<body>\n  <table>\n    <tr> \n      {{ Object.keys($input.first().json).map(propname=>'<td>'+propname+'</td>').join('')  \n      }}\n    </tr>\n      \n    {{ $input.all().map(order=>{\n        \n        return \"<tr>\"+Object.values(order.json).map(prop=>{\n            return \"<td>\"+prop+\"</td>\"\n          }).join('') +\"</tr>\"\n      }).join('') \n    }}\n  </table>\n</body>\n</html>\n\n<style>\n.container {\n  background-color: #ffffff;\n  text-align: center;\n  padding: 16px;\n  border-radius: 8px;\n}\n\nh1 {\n  color: #ff6d5a;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 8px;\n}\n\nh2 {\n  color: #909399;\n  font-size: 18px;\n  font-weight: bold;\n  padding: 8px;\n}\n</style>\n"
+      },
+      "executeOnce": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5e9f6ad7-e4fc-41e3-991b-cae9210dfb71",
+      "name": "Set Order Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        660,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c2f9e3c-696a-466a-8bfe-5c8aa942c9ab",
+              "name": "time",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "id": "5618b2a7-8149-469d-87ee-535f1adac121",
+              "name": "orderID",
+              "type": "string",
+              "value": "={{ $json.body.orderID }}"
+            },
+            {
+              "id": "dc31db55-24e4-468f-a9fd-456298f5e5ab",
+              "name": "orderPrice",
+              "type": "number",
+              "value": "={{ $json.body.orderPrice }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "68eaa8f7-3b67-484e-8bad-87e621adc1df",
+      "name": "Send to Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1340,
+        520
+      ],
+      "parameters": {
+        "sendTo": "axelrose20272027@gmail.com",
+        "message": "={{ $json.html }}",
+        "options": {},
+        "subject": "Daily Order Summary"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qMvN3j2E5MFAguNF",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9f22bedc-fbe1-421b-8212-189c7d436cab",
+      "name": "Store Order",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        900,
+        220
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appdtUVSpfWswMwNC",
+          "cachedResultUrl": "https://airtable.com/appdtUVSpfWswMwNC",
+          "cachedResultName": "Untitled Base"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblu6F5rLbR3Axtgj",
+          "cachedResultUrl": "https://airtable.com/appdtUVSpfWswMwNC/tblu6F5rLbR3Axtgj",
+          "cachedResultName": "orders"
+        },
+        "columns": {
+          "value": {
+            "orderID": 0,
+            "customerID": 0,
+            "orderPrice": 0
+          },
+          "schema": [
+            {
+              "id": "time",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "orderID",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "orderID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customerID",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "customerID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "orderPrice",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "orderPrice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "orderStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "orderStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {
+          "typecast": true
+        },
+        "operation": "create"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "uSxVhc7fcMM7uPM2",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "6ace0e8f-85e1-45bc-ae81-331c5722ef46",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        160
+      ],
+      "parameters": {
+        "width": 857.9236217062975,
+        "height": 220.18022408852067,
+        "content": "새 주문이 웹훅으로 POST를 통해 {orderID, orderPrice} 매개변수와 함께 보내집니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6907ae8d-90b7-4e07-883d-3ebd4440d811",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        460
+      ],
+      "parameters": {
+        "width": 1202.2434730902464,
+        "height": 235.62797364881823,
+        "content": "매일 요약이 이메일로 오후 7시에 보내집니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "848c6acb-2f9c-4d85-8349-a4a31204922b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 607.7708924207209,
+        "height": 893.1187181589532,
+        "content": "# Airtable을 사용한 일일 주문 집계  \n### 이 워크플로는 주문 데이터가 생성되는 대로 수집한 후, 매일 말에 모든 주문의 요약 이메일을 테이블 형식으로 보냅니다.\n\n## 설정:  \n 1. Airtable에 새 테이블을 만들고, 필드 *time*을 날짜 유형으로, *orderID*을 숫자 유형으로, *orderPrice*을 숫자 유형으로 설정합니다.  \n 2. 아직 생성하지 않았다면 https://airtable.com/create/tokens/new에서 새 액세스 토큰을 생성합니다. 토큰에 *data.records:read*, *data.records:write*, *schema.bases:read* 스코프를 부여하고, 주문을 저장할 테이블에 액세스 권한을 부여합니다. 토큰이 포함된 팝업 창이 나타납니다. 이 토큰을 사용하여 `Store Order` 및 `Airtable Get Today's Orders` 노드에서 `Create New Credential` > `Access Token`을 만듭니다.  \n 3. https://developers.google.com/workspace/guides/create-credentials에 설명된 대로 Gmail에 대한 액세스 자격 증명을 생성합니다. *client_secret.json*의 자격 증명을 `Send to Gmail` 노드에 사용합니다.  \n 4. `Store Order` 노드에서 *Base*와 *Table*을 주문을 저장할 Airtable 계정의 데이터베이스와 테이블로 변경합니다. 이 값들을 `Airtable Get Today's Orders` 노드에서도 동일하게 사용합니다.  \n 5. 시스템에서 주문이 생성될 때마다 주문 소프트웨어에서 Webhook에 POST 요청을 보냅니다. 각 요청에는 *'orderID'*와 *'orderPrice'* 필드가 포함된 단일 주문이 포함되어야 합니다(또는 `Set Order Fields`를 편집하여 저장할 수 있는 수신 필드를 선택합니다).  \n 6. 이메일 전송 일정을 `매일 오후 7시`에서 원하는 시간으로 변경합니다.  \n\n## 테스트:  \n- 워크플로를 활성화합니다.  \n- `Webhook` 노드에서 *Production URL*을 복사합니다.  \n- 다음 CURL 요청을 제공된 URL에 보냅니다:  \n` curl -X POST   -H \"Content-Type: application/json\"   -d '{\"orderID\": 12345, \"orderPrice\": 99.99}' YOUR_URL_HERE`  \n- *Node executed successfully*라고 표시되어야 합니다. 이제 Airtable을 확인하여 주문이 올바른 위치에 저장되었는지 확인합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9a5ef05-beba-480f-967e-840cf1b71248",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        240
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 170,
+        "height": 80,
+        "content": "새 주문!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0f433e34-79cd-42d0-9b56-4a306eb91907",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        540
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 170,
+        "height": 80,
+        "content": "오후 7시예요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb9c4b49-ee1f-4233-8277-4c35fb423fde",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        440,
+        220
+      ],
+      "webhookId": "e9e62c98-390d-4d16-bc77-a13b043bf1cf",
+      "parameters": {
+        "path": "e9e62c98-390d-4d16-bc77-a13b043bf1cf",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Send to Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Order Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yesterday Date": {
+      "main": [
+        [
+          {
+            "node": "Airtable Get Today's Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Everyday at 7PM": {
+      "main": [
+        [
+          {
+            "node": "Yesterday Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Order Fields": {
+      "main": [
+        [
+          {
+            "node": "Store Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable Get Today's Orders": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,506 @@
+{
+  "id": "ZkIH2ygj2BNSfMOh",
+  "meta": {
+    "instanceId": "ac63467607103d9c95dd644384984672b90b1cb03e07edbaf18fe72b2a6c45bb",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Dynamic Form with AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5893c244-22b0-4699-a286-0ce121ccc427",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -340,
+        240
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "1OMpAMAKR9l3eUDI",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e7e333d4-42e5-4e6a-b78b-a3a45c31f37c",
+      "name": "Clarification Questions",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        1100,
+        -60
+      ],
+      "webhookId": "61936e5d-a2d3-447f-bf2f-722be2e1eb17",
+      "parameters": {
+        "options": {},
+        "defineForm": "json",
+        "jsonOutput": "={{ $json.data }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b2bbc17-0e74-499d-ac6f-6c94ce3eb5ee",
+      "name": "Get Basic Information",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -880,
+        -60
+      ],
+      "webhookId": "5256b332-3d3c-486a-8449-85fa44961bb8",
+      "parameters": {
+        "options": {},
+        "formTitle": "Get in Touch",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "John Smith",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "placeholder": "Company Limited",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Job Title",
+              "placeholder": "CEO",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email",
+              "placeholder": "john.smith@company.com",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b2eb9da9-571d-44ee-9944-a787f8d6cd50",
+      "name": "Get Business Overview",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        -640,
+        -60
+      ],
+      "webhookId": "16216db0-6150-4ac7-b1f7-7fd6c2eb74c5",
+      "parameters": {
+        "options": {},
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Please describe your current situation and why you are interested in automating with AI",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93c96c45-9512-46c2-9fe0-c4558b93e9d6",
+      "name": "End Form",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        1320,
+        -60
+      ],
+      "webhookId": "eb756213-2fae-4b29-85b3-727d3cf53b90",
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "completionTitle": "Form Completed",
+        "completionMessage": "Thank you for answering these questions. We'll be in touch soon!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "123b688b-adae-4fe2-85cf-fc066175d96f",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -120,
+        240
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"response\": [\n    {\n      \"question\": \"What is the biggest challenge facing their business at present?\",\n      \"has_been_answered\": false,\n      \"reasoning\": \"put your reason here\"\n    },\n    {\n      \"question\": \"Does the company have any existing automation workflows already in place?\",\n      \"has_been_answered\": true,\n      \"reasoning\": \"put your reason here\"\n    },\n    {\n      \"question\": \"Is the respondent a decision-maker in the business? (This can be inferred from their job title if it indicates a leadership position such as CEO, Founder, Director, etc.)\",\n      \"has_been_answered\": false,\n      \"reasoning\": \"put your reason here\"\n    },\n    {\n      \"question\": \"Which specific business functions or departments are they looking to automate? (Examples: Sales, Marketing, HR, Finance, Customer Service, Supply Chain, etc.)\",\n      \"has_been_answered\": true,\n      \"reasoning\": \"put your reason here\"\n    },\n    {\n      \"question\": \"What does their current IT infrastructure look like?\",\n      \"has_been_answered\": false,\n      \"reasoning\": \"put your reason here\"\n    }\n  ]\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3a2d86a3-62ed-4003-a012-bfdabc9eafc8",
+      "name": "Remove Already Answered Questions",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        340,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "40bc4f8b-7fd3-4149-af5d-aca71eb9b034",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.has_been_answered }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a97d53ae-1649-4809-8793-5e4a815016cb",
+      "name": "Analyse Response",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -280,
+        -60
+      ],
+      "parameters": {
+        "text": "=## Analysis Task\n\nAnalyze the following customer response to the question \"Please describe your current situation and why you are interested in automating with AI.\" \n\nCustomer Information:\n- Job Title: {{ $('Get Basic Information').item.json['Job Title'] }}\n- Response: {{ $json['Please describe your current situation and why you are interested in automating with AI'] }}\n\n## Required Information\nIdentify whether the customer's response clearly addresses each of these critical questions:\n\n1. What specific goals are you looking to achieve with automation?\n2. Does the company have any existing automation workflows already in place?\n3. Is the respondent a decision-maker in the business? (This can be inferred from their job title if it indicates a leadership position such as CEO, Founder, Director, etc.)\n4. Which specific business functions or departments are you looking to automate? (Examples: Sales, Marketing, HR, Finance, Customer Service, Supply Chain, etc.)\n5. What does your current IT infrastructure look like?\n\n## Output Format\nAnalyse each question with whether you believe that the question has already been answered. Go step by step and use reasoning. ",
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "12b8cc80-ff5e-4ebd-a72d-2629f743355e",
+      "name": "Split Out Analysis",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        120,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output.response"
+      },
+      "notesInFlow": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "c28929cf-7590-4e32-be20-f9065920ed80",
+      "name": "Prepare For Form Generation",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        580,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae1dbc1e-6005-4b5e-acbe-c3fda6d4413f",
+              "name": "fieldLabel",
+              "type": "string",
+              "value": "={{ $json.question }}"
+            },
+            {
+              "id": "c46276bc-018e-4edb-82e0-f6a4dc9d4953",
+              "name": "requiredField",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "b060ed04-a99c-475b-a5b6-6cb5d57ea2ff",
+              "name": "fieldType",
+              "type": "string",
+              "value": "textarea"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "33d55396-e716-41c5-bf25-d0bfcfadf167",
+      "name": "Aggregate For Form Generation",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        840,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15b39119-08d6-45bf-9323-09fa5b59a64e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1660,
+        -300
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 780,
+        "content": "# OpenAI를 사용한 동적으로 생성된 폼으로 중복 질문 피하기  \n## 대상 사용자  \n이 워크플로는 가능한 한 많은 데이터를 캡처하는 폼과 미리 정의된 질문에 대한 답변을 요구하면서도 중복 질문을 피하여 사용자 경험을 최적화하는 사람들을 위해 제작되었습니다.  \n## 사용 사례  \n정보를 캡처하는 폼을 만들 때, 사용자가 큰 개방형 질문에 긴 답변을 입력할 수 있는 기회를 주는 것이 유용할 수 있습니다. 그런 다음 특정 질문에 답변을 얻기 위해 더 자세히 파고들고 싶습니다. 이 과정에서 중복 질문을 하지 않도록 합니다. 이 특정 시나리오는 AI 컨설팅 회사에서 리드를 캡처하는 것을 상상합니다.  \n## 기능  \n이 워크플로는 사용자가 기본 정보를 입력하고 개방형 질문을 답변하도록 요구합니다. 다음 페이지의 특정 질문은 개방형 질문에서 답변되지 않은 것들만 포함됩니다.  \n## 작동 원리  \n1. 개방형 질문(및 관련 기본 정보)은 LLM에 의해 분석되어 특정 질문 중 답변되지 않은 것을 결정합니다. 체인 오브 소스(Chain-of-thought) 추론이 사용되며, 출력 구조는 **Structured Output Parser**로 지정됩니다.  \n2. 이미 답변된 질문은 노드에서 필터링됩니다. 나머지 항목은 폼의 마지막 페이지를 생성하는 데 사용됩니다.  \n3. 사용자가 최종 페이지를 채운 후, 폼 완료 페이지를 표시합니다.  \n## 다음 단계  \n- 폼 소유자에게 이메일을 보내는 추가 노드 추가  \n- 폼 응답을 분석하는 후속 LLM 호출 추가 - 자격이 되는 응답은 약속 예약 기회를 제공해야 함"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e9270776-97f0-4aa4-8797-92a235f7760e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -940,
+        -300
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 140,
+        "content": "## 설정\n1. 사용자의 **OpenAI** 자격 증명을 추가하세요\n2. **기본 정보 가져오기** 노드로 가서 **테스트 단계**를 클릭하세요\n3. 일반적인 용례를 테스트하기 위해 양식을 완료하세요\n4. 사용 사례에 맞게 **응답 분석**의 프롬프트를 수정하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6db4d121-f08a-4509-82fd-5d91d1dcbc82",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -940,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 240,
+        "content": "1. 초기 양식 페이지"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3ecaaf11-8bc7-415e-8eb3-245f7bcedda7",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 620,
+        "content": "2. 응답 분석"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1e2e100e-ac64-45b1-aa3b-318996783a79",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        140
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 240,
+        "content": "이 서브노드를 다른 언어 모델을 사용하도록 바꾸세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f92fbb-7f41-4e02-9316-06e7480c0306",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        -160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 240,
+        "content": "사용 사례에 맞게 프롬프트를 수정하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1bcca0c9-a4b3-493f-a188-7ecc00fec36e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 260,
+        "content": "3. 청소 분석"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ffcee0f4-364b-46a5-9deb-cbd005a3b6fc",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 260,
+        "content": "4. 최종 양식 페이지 생성 및 종료 양식"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "336f5d17-d556-4e9f-8785-9c55c0b5d918",
+  "connections": {
+    "End Form": {
+      "main": [
+        []
+      ]
+    },
+    "Analyse Response": {
+      "main": [
+        [
+          {
+            "node": "Split Out Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyse Response",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Analysis": {
+      "main": [
+        [
+          {
+            "node": "Remove Already Answered Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Basic Information": {
+      "main": [
+        [
+          {
+            "node": "Get Business Overview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Business Overview": {
+      "main": [
+        [
+          {
+            "node": "Analyse Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clarification Questions": {
+      "main": [
+        [
+          {
+            "node": "End Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Analyse Response",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare For Form Generation": {
+      "main": [
+        [
+          {
+            "node": "Aggregate For Form Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate For Form Generation": {
+      "main": [
+        [
+          {
+            "node": "Clarification Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Already Answered Questions": {
+      "main": [
+        [
+          {
+            "node": "Prepare For Form Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

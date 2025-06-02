@@ -1,0 +1,198 @@
+{
+  "id": "81aN6oJGMho5kCvQ",
+  "meta": {
+    "instanceId": "32e39908afbcb49d79cc3b05576c030ecc2871395b7aec4e0fdc88778498f80e"
+  },
+  "name": "OpenAI ImageGen1 Template",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "179754ad-eae5-447a-b225-46145370e79b",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -440,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/images/edits",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data0"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $('When chat message received').item.json.chatInput }}"
+            },
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "n",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            },
+            {
+              "name": "quality",
+              "value": "high"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openAIKey }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0aca28af-1325-4391-bee6-3ab636c34f6a",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -220,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7bc8dbf1-eb81-4f9b-9563-7ae568034221",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -860,
+        80
+      ],
+      "webhookId": "449bbfbc-0523-406f-94a2-089bca9d7295",
+      "parameters": {
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": "*"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "79b3e008-758c-4c24-adac-eb514fedf2c8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -440
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 460,
+        "content": "### 🖼️ **OpenAI ImageGen v1** API로 이미지를 편집하세요\n\n1. **조직 확인**  \n   OpenAI 플랫폼에 로그인하여 조직이 확인되었는지 확인하세요:  \n   [OpenAI 설정 → 조직](https://platform.openai.com/settings/organization/general)\n\n2. **API 키 추가**  \n   n8n 자격 증명에서 유효한 **OpenAI 비밀 키**를 `API_KEY` 필드에 붙여넣으세요.\n\n3. **“Open Chat” 실행**  \n   **`Open Chat`** 노드를 트리거하고, **텍스트 프롬프트**와 **소스 이미지**를 제공한 다음 실행하세요.\n\n4. **미리보기 및 자동화**  \n   새 이미지가 **`Convert to File`** 노드에 나타납니다. 여기서 다음을 할 수 있습니다:  \n   - 이메일로 보내기  \n   - S3, Supabase 또는 기타 저장소에 푸시  \n   - Slack, Discord 등에 직접 게시\n\n> *팁 — 추가 n8n 노드를 체인하여 워터마크, 크기 조정 또는 소셜 미디어 게시를 자동으로 예약하세요.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b75f205-dcfb-4c43-b8bf-942419b96633",
+      "name": "API KEY",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -640,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b943d609-b213-4531-912f-e721db4d2cc7",
+              "name": "openAIKey",
+              "type": "string",
+              "value": "sk-proj-..."
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fb19daaf-a425-4d0c-9141-fefee17be117",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        40,
+        -440
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 1380,
+        "content": "[![AI-이미지 캐시 머신 – 배너](https://public-files.gumroad.com/r2rfepypwzxebylbzutm7lk577m7)](https://drauscher.gumroad.com/l/PremiumAISaaSTemplateBeginnerFriendlyCustomizable)\n\n\n\n### 이는 우리 더 큰 ⭐ AI 이미지 캐시 머신 템플릿 ⭐의 핵심일 뿐입니다.\n\n## 🚀 이번 주말에 **AI-이미지 캐시 머신**을 출시하세요\n\n**커스터마이즈 가능 · 초보자 친화적**\n\n💸 **특별 여름 딜 — 10% 할인 코드 `SUMMER25` (단 €5+)**\n\n[템플릿 Gumroad에서 구매하기 →](https://drauscher.gumroad.com/l/PremiumAISaaSTemplateBeginnerFriendlyCustomizable)\n\n---\n\n### 왜 좋아할지\n- **플러그 앤 플레이 앱** – Vercel의 Next.js 프런트엔드, Supabase, Stripe, n8n 및 OpenAI와 연결됨  \n- **노코드 자동화** – n8n 워크플로우를 드래그 앤 드롭으로 지불 후 이미지를 즉시 제공  \n- **내장 지불 기능** – Stripe 키 + 웹훅 포함, 배포 즉시 요금 청구 시작  \n- **스케일 가능한 저장소** – 개인 Supabase 버킷이 모든 고객 이미지를 안전하게 보관  \n- **소스 소유** – MIT 라이선스로 수정, 브랜딩, 재판매 가능, 락인 없음  \n\n> **라이브로 시도해보세요:** **Pixarify Online** – 템플릿 작동을 확인하세요!  \n\n---\n\n### 포함된 내용\n- 프로덕션 준비 **프런트엔드 UI** (Next.js + Tailwind)  \n- 사전 구성된 **n8n 백엔드** Stripe 웹훅으로 트리거됨  \n- 단계별 **PDF 설정 가이드**  \n- 샘플 환경 파일 (`.env.example`)  \n\n---\n\n### 3단계 빠른 설정\n1. **리포 클론** 및 `vercel deploy` 실행 — 5분 만에 라이브 사이트  \n2. **Stripe + OpenAI 키 붙여넣기**  \n3. **n8n 워크플로우 활성화** — AI 이미지를 즉시 판매 시작"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e7f19b0-042a-4c63-9375-36d62290eb3e",
+  "connections": {
+    "API KEY": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "API KEY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

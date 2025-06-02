@@ -1,0 +1,1358 @@
+{
+  "meta": {
+    "instanceId": "03e9d14e9196363fe7191ce21dc0bb17387a6e755dcc9acc4f5904752919dca8"
+  },
+  "nodes": [
+    {
+      "id": "363be6de-5e8d-46b2-a31f-6f7bc204c986",
+      "name": "Trigger on New Email",
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "disabled": true,
+      "position": [
+        -760,
+        1400
+      ],
+      "parameters": {
+        "output": "raw",
+        "filters": {
+          "foldersToInclude": [
+            "AQMkADM5MWVmZWEwLTQ4OTMtNGMyYy1iOWUxLTQ4N2M1YmU0ODJjNQAuAAADWJOZOf0oRkGpsGIMN2VBCwEAbttrza1gUEiEMFJJPqIeZQAAAgEMAAAA"
+          ]
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "vTCK0oVQ0WjFrI5H",
+          "name": "Outlook Credential"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0da8b1ab-6dbe-41b7-92f1-6e8637d082cb",
+      "name": "Retrieve Headers of Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -560,
+        1400
+      ],
+      "parameters": {
+        "url": "=https://graph.microsoft.com/v1.0/me/messages/{{ $json.id }}?$select=internetMessageHeaders",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "microsoftOutlookOAuth2Api"
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "vTCK0oVQ0WjFrI5H",
+          "name": "Outlook Credential"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2f28e47d-f010-4f0b-bbe4-074bbdf39a45",
+      "name": "Extract Received Headers",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        80,
+        1460
+      ],
+      "parameters": {
+        "jsCode": "// Extract the headers array from the JSON\nconst headers = $('Set Headers').item.json.headers;\n\n// Filter headers where the name is \"Received\"\nconst receivedHeaders = headers.filter(header => header.name === \"Received\");\n\n// Return the filtered headers\nreturn receivedHeaders;\n"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "530fd9c3-94c2-4d5e-a686-57738cc10ae6",
+      "name": "Remove Extra Received Headers",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        300,
+        1460
+      ],
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9942704e-e0ac-42e9-b714-b2bdb3117c02",
+      "name": "Extract Original From IP",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        500,
+        1460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5f740d1f-de62-4fe0-aa20-625063344c07",
+              "name": "extractedfromip",
+              "type": "string",
+              "value": "={{ $json.value.replace(/\\b(127\\.(?:\\d{1,3}\\.){2}\\d{1,3})|(10\\.(?:\\d{1,3}\\.){2}\\d{1,3})|(172\\.(?:1[6-9]|2[0-9]|3[0-1])\\.\\d{1,3}\\.\\d{1,3})|(192\\.168\\.\\d{1,3}\\.\\d{1,3})\\b/g, \"\").match(/(\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}))|:)))(%.+)?\\s*)|(\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[.]){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b)/)[0] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6093bcd2-1101-4685-8d2c-751dd451afc4",
+      "name": "Query IP Quality Score API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        980,
+        1360
+      ],
+      "parameters": {
+        "url": "=https://ipqualityscore.com/api/json/ip/Mlg6aZdzI1mVehUD3Z5Ak5Vl4yNN7P8v/{{ $('Extract Original From IP').item.json.extractedfromip }}?strictness=1&allow_public_access_points=true&lighter_penalties=true",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "feb4203c-4f9b-456c-9640-82ce8f6f550f",
+      "name": "Query IP API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1180,
+        1360
+      ],
+      "parameters": {
+        "url": "=http://ip-api.com/json/{{ $('Extract Original From IP').item.json.extractedfromip }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f628e421-4cb5-4612-83c2-bde0f4f57367",
+      "name": "Authentication-Results Header?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1440,
+        1600
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ead2b640-ad80-4189-a692-ae454723fd85",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Set Headers').item.json.headers.some(header => header.name === \"Authentication-Results\") }}",
+              "rightValue": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8616ecd3-1c71-49ff-a32c-4b09f3214edb",
+      "name": "Extract Authentication-Results Header",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1720,
+        1360
+      ],
+      "parameters": {
+        "jsCode": "// Extract the headers array from the JSON\nconst headers = $('Set Headers').item.json.headers;\n\n// Filter headers where the name is \"Received\"\nconst receivedHeaders = headers.filter(header => header.name === \"Authentication-Results\");\n\n// Return the filtered headers\nreturn receivedHeaders;\n"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "7d3a37dc-6bbe-4c3b-9c2c-c9d2c1c24213",
+      "name": "Received-SPF Header?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1700,
+        2220
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a38ebc9b-f896-4432-81fb-4f3db98f3409",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Set Headers').item.json.headers.some(header => header.name === \"Received-SPF\") }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f1ca55fb-07d8-4825-8850-f5a3c58e358a",
+      "name": "DKIM-Signature Header?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1700,
+        2620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a38ebc9b-f896-4432-81fb-4f3db98f3409",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Set Headers').item.json.headers.some(header => header.name === \"DKIM-Signature\") }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "df19f38c-b263-4b97-bd22-adc8ff44f631",
+      "name": "Set SPF Value",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2480,
+        2140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "179c48eb-97e5-48ab-82b8-ef4269f11366",
+              "name": "spfvalue",
+              "type": "string",
+              "value": "={{ $json.data.last().value.toLowerCase().includes('fail') ? \"fail\" : $json.data.last().value.toLowerCase().includes('pass') ? \"pass\" : \"unknown\"}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "1613d276-3ec4-44b2-91ca-f76985e1b4c2",
+      "name": "Extract Received-SPF Header",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1940,
+        2140
+      ],
+      "parameters": {
+        "jsCode": "// Extract the headers array from the JSON\nconst headers = $('Set Headers').item.json.headers;\n\n// Filter headers where the name is \"Received\"\nconst receivedHeaders = headers.filter(header => header.name === \"Received-SPF\");\n\n// Return the filtered headers\nreturn receivedHeaders;\n"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "47697f60-99e7-4c91-ab7c-7f966b1b5307",
+      "name": "DKIM Signature Found",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2480,
+        2520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae3158bf-3d91-4a61-a58c-c151362e52d7",
+              "name": "dkimvalue",
+              "type": "string",
+              "value": "=found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2383e7b4-fe13-4c36-80a3-67ba3f02ce1d",
+      "name": "DMARC Header?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1700,
+        3060
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a38ebc9b-f896-4432-81fb-4f3db98f3409",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Set Headers').item.json.headers.some(header => header.name === \"dmarc\") }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2c41e06d-0dc1-474e-a13f-302fc3e4d4ad",
+      "name": "No DMARC Header",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2480,
+        3160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae3158bf-3d91-4a61-a58c-c151362e52d7",
+              "name": "dmarcvalue",
+              "type": "string",
+              "value": "=not found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "81bd5082-634b-4f0e-951f-1374573fc6c0",
+      "name": "Extract DMARC Header",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2120,
+        2960
+      ],
+      "parameters": {
+        "jsCode": "// Extract the headers array from the JSON\nconst headers = $('Set Headers').item.json.headers;\n\n// Filter headers where the name is \"Received\"\nconst receivedHeaders = headers.filter(header => header.name === \"dmarc\");\n\n// Return the filtered headers\nreturn receivedHeaders;\n"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "55a5745c-2c73-492c-b63c-20936043b0b6",
+      "name": "Set DMARC Value",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2480,
+        2960
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "179c48eb-97e5-48ab-82b8-ef4269f11366",
+              "name": "spfvalue",
+              "type": "string",
+              "value": "={{ $json.value.toLowerCase().includes('pass') ? \"pass\" : $json.value.toLowerCase().includes('fail') ? \"fail\" : \"unknown\"}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "48a5b283-7aa4-4e10-b784-fcce25465fc0",
+      "name": "Original IP Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        700,
+        1460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1c27e7ba-d243-4673-b1cc-608c35951168",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.extractedfromip?.toBoolean() }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "75818bdc-3ffb-42a7-a0a3-93fc413b757f",
+      "name": "No DKIM Signature Found",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2480,
+        2720
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae3158bf-3d91-4a61-a58c-c151362e52d7",
+              "name": "dkimvalue",
+              "type": "string",
+              "value": "not found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "17bc160b-618f-4893-80c8-4e4c2638adc3",
+      "name": "Determine Auth Values",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2040,
+        1360
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd0b3f49-fe38-4686-a1f5-bc03a145adef",
+              "name": "spfvalue",
+              "type": "string",
+              "value": "={{ $json.value.toLowerCase().includes('spf=pass') ? \"pass\" : $json.value.toLowerCase().includes('spf=fail') ? \"fail\" : $json.value.toLowerCase().includes('spf=neutral') ? \"neutral\" : \"unknown\" }}"
+            },
+            {
+              "id": "6aa90f4d-773e-475f-8cbc-fe5c4fe93653",
+              "name": "dkimvalue",
+              "type": "string",
+              "value": "={{ $json.value.toLowerCase().includes('dkim=pass') ? \"pass\" : $json.value.toLowerCase().includes('dkim=fail') ? \"fail\" : $json.value.toLowerCase().includes('dkim=temperror') ? \"error\" : \"unknown\" }}"
+            },
+            {
+              "id": "d3b7b0c1-0680-4cb9-b376-d365e5602a29",
+              "name": "dmarcvalue",
+              "type": "string",
+              "value": "={{ $json.value.toLowerCase().includes('dmarc=pass') ? \"pass\" : $json.value.toLowerCase().includes('dmarc=fail') ? \"fail\" : \"unknown\" }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8ee70aff-0907-44f5-b675-1de26660c2e3",
+      "name": "No SPF Found",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2480,
+        2320
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae3158bf-3d91-4a61-a58c-c151362e52d7",
+              "name": "spfvalue",
+              "type": "string",
+              "value": "not found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a658b7d1-ec0e-40c9-a6c6-1f81e776fcfb",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2840,
+        1600
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "bb688aec-d7ae-4e5a-ac38-a8d9554966bd",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        3000,
+        1600
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e393c3b1-b756-44a8-ac3c-b2d9e15f4f47",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        980,
+        1600
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d651412c-9e58-4ef6-a6eb-6556647a7223",
+      "name": "Format Webhook Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3400,
+        1460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": []
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "03c70339-8e92-4d62-b346-7e669c83d338",
+      "name": "Format Individual Auth Outputs",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3180,
+        1600
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f466a9d-e8a1-4095-918c-89fd8e3dae57",
+              "name": "spf",
+              "type": "string",
+              "value": "={{ $json.data[0].spfvalue }}"
+            },
+            {
+              "id": "797b0e35-9a2e-4261-8741-a8d636e0d1ae",
+              "name": "dkim",
+              "type": "string",
+              "value": "={{ $json.data[1].dkimvalue }}"
+            },
+            {
+              "id": "8b6f9dda-081d-45b6-98a9-04a96642800b",
+              "name": "dmarc",
+              "type": "string",
+              "value": "={{ $json.data[2].dmarcvalue }}"
+            },
+            {
+              "id": "6d24a794-0d06-4f12-8bfb-cc3c71720a1b",
+              "name": "initialIP",
+              "type": "string",
+              "value": "={{ $('Extract Original From IP').item.json.extractedfromip || 'Originating IP Not Found'}}"
+            },
+            {
+              "id": "e9ec6f54-0ef7-451b-bbeb-8bb9291e4bcd",
+              "name": "organization",
+              "type": "string",
+              "value": "={{ $('Query IP API').item.json.org || \"No Organization Found\" }}"
+            },
+            {
+              "id": "719b8414-72e1-4916-855b-00abdfc8e776",
+              "name": "country",
+              "type": "string",
+              "value": "={{ $('Query IP API').item.json.country || \"No Country Found\" }}"
+            },
+            {
+              "id": "ab0dc08c-ba54-4e2c-b4df-9f23d36cb350",
+              "name": "city",
+              "type": "string",
+              "value": "={{ $('Query IP API').item.json.city || \"No City Found\" }}"
+            },
+            {
+              "id": "f8214eea-dfb6-4fe1-8e45-e0b8d3d44ee3",
+              "name": "recentSpamActivity",
+              "type": "string",
+              "value": "={{ $('Query IP Quality Score API').item.json.fraud_score>=85 ? \"Identified spam in the last 48 hours\" : $('Query IP Quality Score API').item.json.fraud_score>=75 ? \"Identified spam in the last month\" : \"Not associated with recent spam\" }}"
+            },
+            {
+              "id": "fe3488b2-ad00-45ad-b947-ca2dc4242363",
+              "name": "ipSenderReputation",
+              "type": "string",
+              "value": "={{ $('Query IP Quality Score API').item.json.fraud_score>=85 ? \"Bad\" : $('Query IP Quality Score API').item.json.fraud_score>=75 ? \"Poor\" : $('Gmail - Query IP Quality Score API').item.json.fraud_score>=50 ? \"Suspicious\" : $('Query IP Quality Score API').item.json.fraud_score>=11 ? \"OK\" : $('Query IP Quality Score API').item.json.fraud_score<11 ? \"Good\" : \"Unknown\"}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "762153b7-0364-498f-9dba-547d676b9d74",
+      "name": "Format Combined Auth Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2400,
+        1360
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f466a9d-e8a1-4095-918c-89fd8e3dae57",
+              "name": "spf",
+              "type": "string",
+              "value": "={{ $json.spfvalue }}"
+            },
+            {
+              "id": "797b0e35-9a2e-4261-8741-a8d636e0d1ae",
+              "name": "dkim",
+              "type": "string",
+              "value": "={{ $json.dkimvalue }}"
+            },
+            {
+              "id": "8b6f9dda-081d-45b6-98a9-04a96642800b",
+              "name": "dmarc",
+              "type": "string",
+              "value": "={{ $json.dmarcvalue }}"
+            },
+            {
+              "id": "6d24a794-0d06-4f12-8bfb-cc3c71720a1b",
+              "name": "initialIP",
+              "type": "string",
+              "value": "={{ $('Extract Original From IP').item.json.extractedfromip || 'Originating IP Not Found'}}"
+            },
+            {
+              "id": "e9ec6f54-0ef7-451b-bbeb-8bb9291e4bcd",
+              "name": "organization",
+              "type": "string",
+              "value": "={{ $('Query IP API').item.json.org || \"No Organization Found\" }}"
+            },
+            {
+              "id": "719b8414-72e1-4916-855b-00abdfc8e776",
+              "name": "country",
+              "type": "string",
+              "value": "={{ $('Query IP API').item.json.country || \"No Country Found\" }}"
+            },
+            {
+              "id": "ab0dc08c-ba54-4e2c-b4df-9f23d36cb350",
+              "name": "city",
+              "type": "string",
+              "value": "={{ $('Query IP API').item.json.city || \"No City Found\" }}"
+            },
+            {
+              "id": "f8214eea-dfb6-4fe1-8e45-e0b8d3d44ee3",
+              "name": "recentSpamActivity",
+              "type": "string",
+              "value": "={{ $('Query IP Quality Score API').item.json.fraud_score>=85 ? \"Identified spam in the last 48 hours\" : $('Query IP Quality Score API').item.json.fraud_score>=75 ? \"Identified spam in the last month\" : \"Not associated with recent spam\" }}"
+            },
+            {
+              "id": "fe3488b2-ad00-45ad-b947-ca2dc4242363",
+              "name": "ipSenderReputation",
+              "type": "string",
+              "value": "={{ $('Query IP Quality Score API').item.json.fraud_score>=85 ? \"Bad\" : $('Query IP Quality Score API').item.json.fraud_score>=75 ? \"Poor\" : $('Query IP Quality Score API').item.json.fraud_score>=50 ? \"Suspicious\" : $('Query IP Quality Score API').item.json.fraud_score>=11 ? \"OK\" : $('Query IP Quality Score API').item.json.fraud_score<11 ? \"Good\" : \"Unknown\"}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "391615b6-4996-4687-a07c-3f9af1246840",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3620,
+        1460
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ff28eb77-d095-440e-a95f-9f3727a3c219",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -780,
+        2140
+      ],
+      "webhookId": "da28e0c6-ebe2-43e7-92fe-dde3278746a9",
+      "parameters": {
+        "path": "da28e0c6-ebe2-43e7-92fe-dde3278746a8",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "80d4ce98-c26b-4f14-9058-6dda098f4f14",
+      "name": "Set Headers",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -100,
+        1460
+      ],
+      "parameters": {
+        "options": {},
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fddadcd8-ecaf-4fb3-bd38-12d6e48124be",
+      "name": "Aggregate Received-SPF Headers",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2140,
+        2140
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "175f81f1-f5ff-4170-9496-7adae5351ff4",
+      "name": "Set Headers Here",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -360,
+        1400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5bf15ec1-a009-4473-a3da-fca15a6cd29a",
+              "name": "headers",
+              "type": "array",
+              "value": "={{ $json.internetMessageHeaders }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6aa1040e-1c57-4ef3-9a06-9e25ca66247f",
+      "name": "Set Webhook Headers Here",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -380,
+        2140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "80d3bf91-ce79-44b7-b8d6-a612ef810891",
+              "name": "headers",
+              "type": "array",
+              "value": "={{ $json.body.headers }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6d177ff6-333f-40af-87ee-28f5808b90b6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        849.3566000559811
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 635.6437587743126,
+        "height": 738.7992581051316,
+        "content": "## **이메일 헤더 분석 워크플로우 테스트**\n\n이 워크플로의 이 섹션은 타사 플랫폼용 API로 배포하기 전에 Outlook 이메일 클라이언트와 올바르게 작동하는지 확인하기 위한 테스트 목적으로 설계되었습니다. 프로세스는 `Trigger on New Email` 노드에서 시작되며, 이 노드는 Outlook 사서함의 지정된 폴더를 모니터링하고 새 이메일이 도착할 때마다 워크플로를 트리거합니다. 매 분마다 폴링하도록 구성되어 있어 들어오는 이메일의 적시 감지와 처리를 보장합니다.\n\n이메일이 감지되면, `Retrieve Headers of Email` 노드가 Microsoft Graph API를 사용하여 새 이메일의 상세 헤더를 가져옵니다. 이러한 헤더에는 이메일의 출처와 합법성을 분석하는 데 필수적인 중요한 메타데이터, 예를 들어 라우팅 정보와 인증 결과가 포함되어 있습니다.\n\n마지막으로, `Set Headers Here` 노드가 이메일 헤더를 'headers'라는 배열로 표준화된 형식으로 추출하고 정리합니다. 이 구조화된 형식은 워크플로의 후속 섹션에서 이메일 데이터를 추가 처리할 수 있도록 준비합니다. 이러한 단계를 검증하여 워크플로가 올바르게 작동하는지 확인한 후에 더 넓은 용도로 통합할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4347e3ac-6268-4f47-9ffa-d6cfdb9db6fe",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        1597.2834217449708
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 635.6437587743126,
+        "height": 722.658386273084,
+        "content": "![](https://uploads.n8n.io/templates/n8n.png)\n\n## **웹훅 통합 프로덕션**\n\n이 섹션은 워크플로를 프로덕션으로 전환하여, 타사 플랫폼에서 받은 이메일 헤더를 분석하는 API로 기능하게 합니다. 이 웹훅 기능을 이용하려면, 워크플로를 **활성화**하는 것이 필수적입니다. 왜냐하면 웹훅은 워크플로가 활성 상태일 때만 응답하기 때문입니다.\n\n`Webhook1` 노드는 지정된 경로에서 들어오는 HTTP POST 요청을 수신합니다. 웹훅이 트리거되면, 타사 플랫폼에서 보내는 헤더를 포함한 이메일 데이터를 포함한 페이로드를 수신하고 처리합니다. 이는 워크플로가 외부 시스템과 동적으로 작동할 수 있게 합니다.\n\n`Set Webhook Headers Here` 노드는 수신된 이메일 데이터를 가져와 페이로드의 본문에서 `headers` 배열을 추출합니다. 이는 들어오는 데이터를 올바르게 형식화하여 워크플로의 후속 단계에서 처리할 수 있게 합니다.\n\n워크플로를 활성화하고 외부 시스템과 통합하여, 사용자는 프로덕션 환경에서 이메일 헤더 분석을 원활하게 자동화할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "166afae1-13f7-4c61-b605-751e2692f272",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -195.35026277953466,
+        1001.1991904481583
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 869.3564073187465,
+        "height": 626.9566677129526,
+        "content": "## **이메일 헤더 추출 및 처리**\n\n이 섹션은 들어오는 이메일 데이터의 헤더를 처리하여 중요한 정보를 추출합니다. 특히 발신 IP 주소에 중점을 두고 있습니다. 워크플로는 `Set Headers` 노드부터 시작하여, 이전 노드에서 제공된 헤더를 분석을 위해 준비합니다.\n\n`Extract Received Headers` 노드는 헤더를 필터링하여 \"Received\"로 표시된 헤더를 분리합니다. 이 헤더들은 이메일이 지나온 서버를 기록하여, 그 경로를 추적할 수 있게 합니다. 다음으로, `Remove Extra Received Headers` 노드는 가장 최근의 \"Received\" 헤더에 초점을 맞추어, 일반적으로 이메일 발신자의 발신 IP 주소를 포함합니다.\n\n`Extract Original From IP` 노드를 사용하여 워크플로는 정규 표현식을 적용하여 유지된 헤더에서 IP 주소를 추출합니다. 이를 통해 내부 또는 사설 IP 주소는 제거되며, 관련된 외부 IP 주소만 식별됩니다.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a676cc11-c48d-4160-a60f-5a2cce1ecc94",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        686.9090848322476,
+        800.8639469405958
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 922.1859426288208,
+        "height": 965.2875565450952,
+        "content": "## **IP 주소 분석 및 인증 결과 확인**\n\n이 섹션은 원본 IP 주소를 분석하고 필수 이메일 인증 헤더의 존재를 확인하는 데 중점을 둡니다. 워크플로는 `Original IP Found?` 노드에서 시작하여 추출된 IP 주소가 유효하고 비어 있지 않은지 평가합니다. 유효한 IP 주소가 발견되면 워크플로가 계속 진행됩니다. 그렇지 않으면 `No Operation, do nothing` 노드를 트리거하여 추가 처리를 중지합니다.\n\n`Query IP Quality Score API` 노드는 IP Quality Score 서비스와 상호작용하여 IP의 평판을 평가합니다. 이 분석은 IP가 스팸, 사기 또는 기타 악의적인 활동과 관련되어 있는지 식별합니다. 결과는 발신자의 신뢰성을 결정하는 데 도움이 됩니다.\n\n다음으로, `Query IP API` 노드는 IP 주소에 대한 추가 맥락 정보를 제공합니다. 여기에는 지리적 세부 정보(예: 국가, 도시)와 IP와 관련된 조직이 포함됩니다. 이 정보는 분석을 풍부하게 하여 발신자의 기원에 대한 통찰력을 제공합니다.\n\n`Authentication-Results Header?` 노드는 이메일에 \"Authentication-Results\" 헤더의 존재를 확인합니다. 이 헤더는 수신 이메일 서버에서 수행된 SPF, DKIM 및 DMARC 검사 결과를 나타냅니다. 존재하는 경우, 워크플로는 후속 섹션에서 헤더를 추가 분석합니다.\n\nIP 주소를 검증하고 그 평판을 분석하여, 이 섹션은 워크플로에서 앞으로 진행하기 전에 이메일의 합법성에 대한 포괄적인 이해를 보장합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "999b7855-b515-45b7-a560-55882555a2c2",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1622.1779104636253,
+        911.7549500344078
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1016.1357697283069,
+        "height": 619.3441192962306,
+        "content": "![](https://uploads.n8n.io/templates/n8n.png)  \n## **인증 결과 추출 및 평가**\n\n헤더가 발견되면, 워크플로우는 `Extract Authentication-Results Header` 노드로 진행하여 관련 헤더를 분리하고 그 내용을 추출합니다. 이는 워크플로우가 인증 결과를 체계적으로 구문 분석할 수 있게 합니다.\n\n다음으로, `Determine Auth Values` 노드가 추출된 데이터를 처리하여 SPF, DKIM, DMARC의 상태를 결정합니다. 각 결과를 헤더에 포함된 정보에 따라 `pass`, `fail`, `neutral`, `error`, 또는 `unknown`으로 분류합니다. 이 단계는 이메일의 인증 프로토콜 준수 여부를 명확히 이해할 수 있게 합니다.\n\n마지막으로, `Format Combined Auth Output` 노드가 인증 결과를 이전 단계에서 얻은 기원 IP, 발신자 조직, 지리적 위치 등의 다른 관련 메타데이터와 결합합니다. 또한, IP Quality Score API의 데이터를 사용하여 IP의 평판과 최근 스팸 활동을 평가합니다. 이 구조화된 출력은 이메일의 보안 및 합법성을 포괄적으로 보여주며, 외부 시스템과의 통합이나 보고 도구에 적합합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2fefb66-8325-4d00-932b-292b353f7b2f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2660,
+        890.7472796133279
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1285.8545784346588,
+        "height": 909.4741259295762,
+        "content": "## **결과 결합 및 웹훅 응답**\n\n이 최종 섹션은 이전 노드의 결과를 통합하고 웹훅 응답을 통해 데이터를 전달할 준비를 합니다. 모든 인증 검사와 메타데이터를 일관된 출력으로 집계합니다.\n\n프로세스는 `Merge` 노드에서 시작하여 SPF, DKIM, DMARC 평가의 데이터 스트림을 결합합니다. 집계된 데이터는 `Aggregate` 노드에 의해 처리되어 결과를 통합된 데이터셋으로 구성합니다.\n\n다음으로, `Format Individual Auth Outputs` 노드는 통합된 데이터를 구조화된 JSON 객체로 포맷팅합니다. 이 출력에는 SPF, DKIM, DMARC 결과뿐만 아니라 원본 IP 주소, 보낸 사람의 조직, 지리적 위치, IP 평판, 최근 스팸 활동과 같은 추가 메타데이터가 포함됩니다. 각 필드는 외부 시스템과의 호환성을 보장하기 위해 명확하게 라벨링됩니다.\n\n포맷팅된 출력은 `Format Webhook Output` 노드로 전달되어 웹훅 응답 구조를 최종화합니다. `Respond to Webhook` 노드는 이 구조화된 응답을 호출 시스템으로 보냅니다. 이는 타사 플랫폼과의 원활한 통합을 가능하게 하여 결과를 추가 분석이나 자동화에 사용할 수 있게 합니다.\n\n모든 인증 데이터를 결합하고 포맷팅하여 이 섹션은 워크플로가 소비 시스템에 명확하고 실행 가능한 통찰을 제공하여 이메일 분석 파이프라인을 완료합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c2592a3-3550-428c-9622-b1e95ad28d4f",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        1540
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1016.1357697283069,
+        "height": 1788.2607166792513,
+        "content": "## **SPF, DKIM 및 DMARC 준수 평가**\n\n이 섹션은 SPF, DKIM 및 DMARC 헤더에 대한 세부 분석과 검증에 중점을 둡니다. 각 인증 메커니즘은 상태를 결정하기 위해 평가되며, 이메일의 합법성과 보안 프로토콜 준수에 대한 중요한 통찰을 제공합니다.\n\n워크플로는 `Received-SPF Header?` 노드에서 시작하여 \"Received-SPF\" 헤더의 존재를 확인합니다. 헤더가 발견되면 워크플로는 `Extract Received-SPF Header` 노드로 이동하여 SPF 검증 결과를 분리합니다. 이러한 결과는 `Aggregate Received-SPF Headers` 노드를 통해 집계 및 분석되며, 최종 결과는 `Set SPF Value` 노드에 기록됩니다. SPF 헤더가 발견되지 않으면 워크플로는 이 부재를 `No SPF Found` 노드를 통해 기록합니다.\n\n`DKIM-Signature Header?` 노드는 DKIM 검증에 대해 유사한 기능을 수행하며, DKIM 서명의 존재를 확인합니다. 헤더가 발견되면 `DKIM Signature Found` 노드가 이를 확인하고, 발견되지 않으면 `No DKIM Signature Found` 노드가 이를 처리합니다.\n\n`DMARC Header?` 노드는 DMARC 헤더의 존재를 확인하여 도메인의 게시된 DMARC 정책 준수를 나타냅니다. 헤더가 존재하면 워크플로는 `Extract DMARC Header` 및 `Set DMARC Value` 노드를 통해 이를 추출하고 평가합니다. 헤더가 누락된 경우 `No DMARC Header` 노드가 이 정보를 기록합니다.\n\n이러한 헤더를 체계적으로 평가하여 워크플로는 이메일의 인증 상태에 대한 포괄적인 이해를 제공합니다. 이 세부 분석은 발신자 인증 설정의 잠재적 위조나 오작동을 탐지하여 이메일 보안을 강화합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Set Webhook Headers Here",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Format Individual Auth Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Headers": {
+      "main": [
+        [
+          {
+            "node": "Extract Received Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No SPF Found": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query IP API": {
+      "main": [
+        [
+          {
+            "node": "Authentication-Results Header?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DMARC Header?": {
+      "main": [
+        [
+          {
+            "node": "Extract DMARC Header",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No DMARC Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set SPF Value": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No DMARC Header": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Set DMARC Value": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Set Headers Here": {
+      "main": [
+        [
+          {
+            "node": "Set Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Original IP Found?": {
+      "main": [
+        [
+          {
+            "node": "Query IP Quality Score API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DKIM Signature Found": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract DMARC Header": {
+      "main": [
+        [
+          {
+            "node": "Set DMARC Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Received-SPF Header?": {
+      "main": [
+        [
+          {
+            "node": "Extract Received-SPF Header",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No SPF Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger on New Email": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Headers of Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Auth Values": {
+      "main": [
+        [
+          {
+            "node": "Format Combined Auth Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Webhook Output": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DKIM-Signature Header?": {
+      "main": [
+        [
+          {
+            "node": "DKIM Signature Found",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No DKIM Signature Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No DKIM Signature Found": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract Original From IP": {
+      "main": [
+        [
+          {
+            "node": "Original IP Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Received Headers": {
+      "main": [
+        [
+          {
+            "node": "Remove Extra Received Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Authentication-Results Header?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Webhook Headers Here": {
+      "main": [
+        [
+          {
+            "node": "Set Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Headers of Email": {
+      "main": [
+        [
+          {
+            "node": "Set Headers Here",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query IP Quality Score API": {
+      "main": [
+        [
+          {
+            "node": "Query IP API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Received-SPF Header": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Received-SPF Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Combined Auth Output": {
+      "main": [
+        [
+          {
+            "node": "Format Webhook Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Extra Received Headers": {
+      "main": [
+        [
+          {
+            "node": "Extract Original From IP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Received-SPF Headers": {
+      "main": [
+        [
+          {
+            "node": "Set SPF Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authentication-Results Header?": {
+      "main": [
+        [
+          {
+            "node": "Extract Authentication-Results Header",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Received-SPF Header?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "DKIM-Signature Header?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "DMARC Header?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Individual Auth Outputs": {
+      "main": [
+        [
+          {
+            "node": "Format Webhook Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Authentication-Results Header": {
+      "main": [
+        [
+          {
+            "node": "Determine Auth Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

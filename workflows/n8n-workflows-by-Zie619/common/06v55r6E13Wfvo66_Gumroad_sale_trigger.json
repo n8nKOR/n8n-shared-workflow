@@ -1,0 +1,275 @@
+{
+  "id": "06v55r6E13Wfvo66",
+  "meta": {
+    "instanceId": "dfec462482c1b16c8ef1928d51584c7f0ae64b3bfaa72e08675b15754b903bd2",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Gumroad sale trigger",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "789f1dec-d2d2-4e09-9530-719d354d259c",
+      "name": "Assign to group",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        140,
+        -280
+      ],
+      "parameters": {
+        "url": "=https://connect.mailerlite.com/api/subscribers/{{ $json.id }}/groups/152489030254069581",
+        "method": "POST",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mailerLiteApi"
+      },
+      "credentials": {
+        "mailerLiteApi": {
+          "id": "i9V49FSxbwJhAGfI",
+          "name": "Mailer Lite account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "53c0df02-5571-485c-91ce-6be2f62fd6d6",
+      "name": "Gumroad Sale Trigger",
+      "type": "n8n-nodes-base.gumroadTrigger",
+      "position": [
+        -520,
+        -280
+      ],
+      "webhookId": "06a01b99-cbf1-4694-8502-94ac51670ba4",
+      "parameters": {
+        "resource": "sale"
+      },
+      "credentials": {
+        "gumroadApi": {
+          "id": "wgjGSvLjsRBJImsQ",
+          "name": "Gumroad account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee782134-e2d4-4f8b-a9d9-a09a919577ab",
+      "name": "append row in CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        480,
+        -280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $('Gumroad Sale Trigger').item.json.sale_timestamp }}",
+            "email": "={{ $('Gumroad Sale Trigger').item.json.email }}",
+            "country": "={{ $('Gumroad Sale Trigger').item.json.ip_country }}",
+            "product name": "={{ $('Gumroad Sale Trigger').item.json.product_name }}"
+          },
+          "schema": [
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "product name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XYMstoZ4j3O5T-UYz21ky7P5bkUtzYXQGYCQTRVWCI4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1XYMstoZ4j3O5T-UYz21ky7P5bkUtzYXQGYCQTRVWCI4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XYMstoZ4j3O5T-UYz21ky7P5bkUtzYXQGYCQTRVWCI4/edit?usp=drivesdk",
+          "cachedResultName": "Gumroad sales CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ou2SgvNZctBeYWT5",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "98ff519b-3065-4c6b-bdeb-2d9095e3f52a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        -540
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 460,
+        "content": "## 새로운 Gumroad 판매에 대한 트리거\n\n### 요구사항\n- Gumroad 계정\n- 제품을 나열함. 우리는 우리 것을 [여기](https://1node.gumroad.com/l/topaitools)에서 사용했습니다\n- 설정 > 고급으로 이동하여 새 애플리케이션을 생성하세요\n\n### 설정\n- 이 Gumroad 판매 트리거에 액세스 토큰을 붙여넣으세요\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5ccfe9f-c56c-4394-bebf-1f7438a0dcdf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -660
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 580,
+        "content": "## MailerLite 뉴스레터 연결\n\n### 요구사항\n- [Mailerlite](https://www.mailerlite.com/a/Kr9Yplim6ZhV) 계정\n- 구독자 그룹 생성\n- 통합 메뉴에서 새 API 생성\n\n### 설정\n- 먼저 간단한 MailerLite 노드를 사용하여 구독자를 생성해야 합니다.\n- 두 번째 노드에서 [해당 구독자를 그룹에 할당](https://developers.mailerlite.com/docs/groups.html#assign-subscriber-to-a-group)하는 엔드포인트를 호출하세요. MailerLite에서 수동으로 생성한 그룹입니다. 예를 들어, 그룹 이름을 \"Gumroad\"로 지정했습니다.\n- 그룹 ID를 얻기 위해 [\"그룹 목록\" 엔드포인트](https://developers.mailerlite.com/docs/groups.html#list-all-groups)를 호출하는 노드를 실행하고, 이를 URL에 추가했습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4cea86a-494f-4c3c-9743-3e8eca461a04",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 380,
+        "content": "## CRM에 로드\n### 요구사항\n- Google Sheets에 대한 API와 자격 증명을 설정하세요. n8n 문서를 [여기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googlesheets/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.googleSheets)에서 찾을 수 있습니다.\n- 이전에 수집한 원하는 데이터를 사용하여 테이블에 행을 추가하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e81b7ae0-510e-454e-82ff-6d42bde9e81a",
+      "name": "add subscriber to MailerLite",
+      "type": "n8n-nodes-base.mailerLite",
+      "position": [
+        -60,
+        -280
+      ],
+      "parameters": {
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "customFieldsUi": {
+            "customFieldsValues": [
+              {
+                "value": "={{ $json.ip_country }}",
+                "fieldId": "country"
+              }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "mailerLiteApi": {
+          "id": "i9V49FSxbwJhAGfI",
+          "name": "Mailer Lite account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9cc00d13-81d9-4584-9066-4b00b2ff7a47",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -60
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 520,
+        "height": 180,
+        "content": "## 구독자를 그룹에 할당하는 이유는 무엇인가요?  \nMailerLite에서 새로운 구독자가 그룹에 추가되면 새로운 이메일 시퀀스가 시작되도록 자동화를 설정할 수 있습니다. 이는 이 사용자에게 특정 빈도로 여러 이메일을 보낼 수 있게 합니다.  \n\n이것은 사용자를 귀하의 제품이나 서비스와 상호작용하도록 유도하는 매우 강력한 기능입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3b94b27b-05cc-4996-9f1f-33ba7c3632ae",
+  "connections": {
+    "Assign to group": {
+      "main": [
+        [
+          {
+            "node": "append row in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gumroad Sale Trigger": {
+      "main": [
+        [
+          {
+            "node": "add subscriber to MailerLite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add subscriber to MailerLite": {
+      "main": [
+        [
+          {
+            "node": "Assign to group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

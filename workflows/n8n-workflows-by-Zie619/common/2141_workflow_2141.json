@@ -1,0 +1,287 @@
+{
+  "meta": {
+    "instanceId": "257476b1ef58bf3cb6a46e65fac7ee34a53a5e1a8492d5c6e4da5f87c9b82833",
+    "templateId": "2141"
+  },
+  "nodes": [
+    {
+      "id": "ec952e64-698b-4e3a-a82d-4474a3bf8b6b",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        900,
+        460
+      ],
+      "webhookId": "0f85cfa2-29d7-48c8-bea1-298a61a07b77",
+      "parameters": {
+        "path": "slack-trigger",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c6bc7004-9bec-48a3-99f2-e0d89e32730c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 446,
+        "height": 321,
+        "content": "## 필요한 사전 작업: Slack App 추가\n1. https://api.slack.com/apps를 방문하여 `New App`을 클릭하고 이름과 워크스페이스를 선택하세요.\n2. `OAuth & Permissions`를 클릭하고 Scopes -> Bot Token Scopes로 스크롤하세요.\n3. `chat:write` 스코프를 추가하세요.\n4. `Slash Commands`로 이동하여 `Create New Command`를 클릭하세요.\n5. 명령어로 `/idea`를 사용하세요.\n6. **Webhook** 노드에서 테스트 URL을 복사하여 `Request URL`에 넣으세요.\n7. 설명과 사용 힌트에 적절한 내용을 추가하세요.\n8. `Install app`으로 이동하여 설치를 클릭하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8850a88-b91a-4496-b8d2-a391f17e67ad",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        198.48837209302332
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 331,
+        "height": 404.36834060988355,
+        "content": "## 설정\n1. Google Sheets 문서를 만들고, 'Name'과 'Creator' 열을 추가하세요.\n2. Google Sheets 자격증명을 추가하세요.\n3. 아래의 설정 노드를 채우세요.\n4. Slack 앱을 만드세요 (*다른 스티키 보기*)\n5. 'Test' 워크플로를 클릭하고, Slack에서 /idea 댓글을 사용하세요.\n6. 워크플로를 활성화하고, 웹훅의 프로덕션 URL로 요청 URL을 교환하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1814a18-9301-4e86-9023-e16c5704db65",
+      "name": "Set me up",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1220,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9bcc3fa7-a09e-48f0-b4ff-2c78264dec2d",
+              "name": "Google Sheets URL",
+              "type": "string",
+              "value": "https://docs.google.com/spreadsheets/d/17mugx8JYjbxaTMK9aqDkJywbc0NlNmStGYq-M5fKmG8/edit#gid=0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "4824c23f-6477-4ee7-a6a0-2b83eaf61430",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 224.48192284396475,
+        "content": "여기에서 /bug 또는 /pain처럼 더 많은 명령어를 쉽게 지원할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f8966efa-0576-48b9-89fe-bf49f10d703b",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1520,
+        460
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "New idea",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Webhook').item.json.body.command }}",
+                    "rightValue": "/idea"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Add more here",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "25221a2c-18e9-47f6-a112-0edc85b63cda",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Webhook').item.json.body.command }}",
+                    "rightValue": "/some-other-command"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "1caf810e-8b40-4430-8840-8e17a176b67a",
+      "name": "Add to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1780,
+        360
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $('Webhook').item.json.body.text }}",
+            "Creator": "={{ $('Webhook').item.json.body.user_name }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Creator",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Creator",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Name"
+          ]
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17mugx8JYjbxaTMK9aqDkJywbc0NlNmStGYq-M5fKmG8/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $json['Google Sheets URL'] }}"
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "51f80b29-4b8c-4e2a-9da9-a7409763af0c",
+      "name": "Hidden message to Slack to add feature details",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2000,
+        360
+      ],
+      "parameters": {
+        "url": "={{ $('Webhook').item.json.body.response_url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=Thanks for adding the idea `{{ $('Webhook').item.json[\"body\"][\"text\"] }}` <@{{$('Webhook').item.json[\"body\"][\"user_id\"]}}> :rocket: Please make sure to add some details and a hypothesis to it to make it easier for us to work with it.\n\n:point_right: <{{ $('Set me up').item.json[\"Google Sheets URL\"] }}|Add your details here>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Add to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set me up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set me up": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Hidden message to Slack to add feature details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

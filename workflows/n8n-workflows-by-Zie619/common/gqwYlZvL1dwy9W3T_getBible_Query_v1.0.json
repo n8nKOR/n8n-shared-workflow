@@ -1,0 +1,153 @@
+{
+  "id": "gqwYlZvL1dwy9W3T",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "getBible Query v1.0",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "37e21e75-6f18-45fc-9b74-860c1e095b83",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -320
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 1720,
+        "content": "# GetBible 쿼리 워크플로 문서\n\n## 개요\n\n**GetBibleQuery** 워크플로는 제공된 참조에 기반하여 성경을 검색하도록 설계된 모듈식 및 독립형 워크플로입니다. 이는 구조화된 JSON 객체를 입력으로 받아 참조를 추출하고, 해당 성경을 API에서 직접 검색한 것과 같은 형식으로 반환하는 중간 계층으로 작용합니다.\n\n이 워크플로는 매우 적응력이 강하며, 성경 참조를 동적으로 가져와야 하는 다양한 프로젝트에 통합할 수 있습니다.\n\n## JSON 입력 구조\n\n워크플로는 다음 매개변수를 포함한 JSON 객체를 기대합니다:\n\n- 참조는 책 이름, 장, 구절(들)을 포함해야 합니다. \n- 여러 구절은 쉼표로 구분할 수 있습니다(예: `John 3:16,18`).\n- 범위는 대시로 지정할 수 있습니다(예: `John 3:16-18`).\n- 사용할 성경 [번역](https://api.getbible.net/v2/translations.json).\n- API 버전(v2)을 지정합니다.\n\n### 예시 JSON 입력:\n\n```json\n{\n  \"참조\": [\n      \"1 John 3:16\",\n      \"Jn 3:16\",\n      \"James 3:16\",\n      \"Rom 3:16\"\n  ],\n  \"번역\": \"kjv\",\n  \"버전\": \"v2\"\n}\n```\n\n### API 응답 형식\n\n이 워크플로가 반환하는 응답은 원본 API에 직접 요청한 것과 동일한 형식을 따릅니다. 이는 표준 API 응답에 의존하는 프로젝트와의 호환성을 보장합니다.\n\n예시 JSON 응답(이 워크플로에서):\n```json\n{\n  \"결과\": {\n    \"kjv_62_3\": {\n      \"번역\": \"King James Version\",\n      \"약어\": \"kjv\",\n      \"lang\": \"en\",\n      \"언어\": \"English\",\n      \"방향\": \"LTR\",\n      \"인코딩\": \"UTF-8\",\n      \"책_nr\": 62,\n      \"책_이름\": \"1 John\",\n      \"장\": 3,\n      \"이름\": \"1 John 3\",\n      \"ref\": [\n        \"1 John 3:16\"\n      ],\n      \"구절들\": [\n        {\n          \"장\": 3,\n          \"구절\": 16,\n          \"이름\": \"1 John 3:16\",\n          \"텍스트\": \"Hereby perceive we the love of God, because he laid down his life for us: and we ought to lay down our lives for the brethren.\"\n        }\n      ]\n    }\n  }\n}\n```\n\n## 통합 및 사용\n\nGetBible 쿼리 워크플로는 성경 검색이 필요한 모든 프로젝트에 쉽게 통합할 수 있도록 설계되었습니다. 적절한 JSON 객체를 입력으로 전달하기만 하면 요청된 성경 구절을 반환합니다.\n\n## 지원\n\n질문이나 추가 지원이 필요하시면, [지원 데스크](https://git.vdm.dev/getBible/support) 또는 [API 문서](https://getbible.net/docs)를 방문해 주세요.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d5da846-fd1b-48f6-8199-2f9a3a4c99b5",
+      "name": "Entry",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"references\": [\n      \"1 John 3:16\",\n      \"Jn 3:16\",\n      \"James 3:16\",\n      \"Rom 3:16\"\n  ],\n  \"translation\": \"kjv\",\n  \"version\": \"v2\"\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "17444cd4-4ec3-4d8f-9f9d-29369632c420",
+      "name": "ModelJson",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Loop over input items and process the 'references' field\nfor (let item of $input.all()) {\n  // Check if 'references' exists and is an array\n  if (Array.isArray(item.json.references)) {\n    item.json.references = item.json.references.join('; ');\n  } else {\n    // Handle cases where 'references' is missing or not an array\n    item.json.references = 'John 3:16';\n  }\n}\n\n// Return the modified items\nreturn $input.all();"
+      },
+      "executeOnce": true,
+      "retryOnFail": false,
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b392423f-22d7-4b3f-8e25-9c703c33c78d",
+      "name": "API Query to GetBible",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        460,
+        0
+      ],
+      "parameters": {
+        "url": "=https://query.getbible.net/{{ $json.version || 'v2' }}/{{ $json.translation || 'kjv' }}/{{ $json.references }}",
+        "options": {}
+      },
+      "executeOnce": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "e55d8b82-a30a-4ed9-a28f-ae2d9808422c",
+      "name": "Map API Respons to Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        680,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "360a59c4-5e4c-43b8-8b0b-bb121054a709",
+              "name": "result",
+              "type": "object",
+              "value": "={{ $json }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "pinData": {
+    "Entry": [
+      {
+        "json": {
+          "version": "v2",
+          "references": [
+            "1 John 3:16",
+            "Jn 3:16",
+            "James 3:16",
+            "Rom 3:16"
+          ],
+          "translation": "kjv"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "saveExecutionProgress": false
+  },
+  "versionId": "c8a37d01-c65f-4975-878a-20ed73c42b6b",
+  "staticData": null,
+  "connections": {
+    "Entry": {
+      "main": [
+        [
+          {
+            "node": "ModelJson",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ModelJson": {
+      "main": [
+        [
+          {
+            "node": "API Query to GetBible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Query to GetBible": {
+      "main": [
+        [
+          {
+            "node": "Map API Respons to Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

@@ -1,0 +1,225 @@
+{
+  "id": "O2R3U22TB968fWUo",
+  "meta": {
+    "instanceId": "cb484ba7b742928a2048bf8829668bed5b5ad9787579adea888f05980292a4a7"
+  },
+  "name": "Generate google meet links in slack",
+  "tags": [
+    {
+      "id": "GkyPPgldsTmLDY6O",
+      "name": "createdBy:JC",
+      "createdAt": "2024-02-29T21:51:58.448Z",
+      "updatedAt": "2024-02-29T21:51:58.448Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "5577aaf6-f682-49c3-9d21-f819151f77c5",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        300,
+        480
+      ],
+      "webhookId": "f442a7bb-451e-4371-8b7a-614caa0e04dd",
+      "parameters": {
+        "path": "slack-meet-trigger",
+        "options": {},
+        "httpMethod": "POST",
+        "responseData": "noData",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "018c32c7-c3eb-4679-8064-ab92bb62cac5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        142
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 463.09809221779403,
+        "height": 482.56534054190786,
+        "content": "### 1. 설정: Slack 앱 추가  \n**a.** https://api.slack.com/apps를 방문하여 `New App`을 클릭하고 이름과 작업 영역을 선택하세요.  \n**b.** `OAuth & Permissions`를 클릭하고 아래로 스크롤하여 Scopes -> Bot token Scopes로 이동하세요.  \n**c.** `chat:write` 스코프와 `chat:write.public`을 추가하세요.  \n**d.** `Slash Commands`로 이동하여 `Create New Command`를 클릭하세요.  \n**e.** 명령어로 `/meet`를 사용하세요.  \n**f.** 슬래시 명령어 내의 `Request URL`에 **Webhook** 노드의 프로덕션 URL을 복사하세요.  \n**g.** 관련 설명과 사용 힌트를 추가하세요.  \n**h.** `Install app`으로 이동하여 설치하세요.  \n**i.** 앱 배포에 대해 걱정하지 마세요. 그것은 슬랙 스토어에 앱을 게시하려는 경우에만 해당합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bfa07d4-ef3e-4ec4-91a2-ca94e2346299",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 291.779972644588,
+        "height": 192.66150688057675,
+        "content": "### 2. 설정: Google 인증 & 캘린더\n\n**a.** [문서](https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/)를 방문하여 Google 인증 자격 증명 설정 단계를 따르세요\n\n**b.** Google Meet 링크를 생성할 캘린더를 선택하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aab60499-7123-43c0-8f99-d0eade0f5672",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        238
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 292.3392628968803,
+        "height": 192.92455101677126,
+        "content": "3. 설정: Slack 노드 인증 구성 및 메시지\n\na. Slack 계정을 연결하세요\n\nb. 메시지 텍스트를 구성하세요. 회의 링크를 출력하기 위해 hangoutLink 표현을 포함하세요\n\n👇"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a15fc232-ec8e-4dfb-add7-2a3c27c5a232",
+      "name": "Create event with google meet link",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        740,
+        480
+      ],
+      "parameters": {
+        "end": "={{ $now.plus({minutes: 15}) }}",
+        "start": "={{ $now }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "additionalFields": {
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          }
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57c2d5b8-f5d7-4db1-9e13-48265d174679",
+      "name": "Send msg with Google meet link",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1060,
+        480
+      ],
+      "parameters": {
+        "text": "=Join me here: {{ $('Create event with google meet link').item.json.hangoutLink }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Webhook').item.json.body.channel_id }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "898b9681-c532-490e-aea2-a4f693b52f35",
+      "name": "Delete temporary calendar event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        1400,
+        480
+      ],
+      "parameters": {
+        "eventId": "={{ $('Create event with google meet link').item.json[\"id\"] }}",
+        "options": {},
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "operation": "delete"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec70003a-6dea-4c1b-a16e-e64a206aba16",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        -20
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 459.2991776576996,
+        "height": 146.4269155371431,
+        "content": "## Slack 명령어로 Google Meet 링크 생성  \nSlack에서 직접 즉시 Google Meet 링크를 생성하여 모든 채널 참가자에게 보내기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eee48232-8477-4bfb-8164-bfaf66062071",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 292.3392628968803,
+        "height": 192.92455101677126,
+        "content": "3. 설정: Google 캘린더 계정 선택  \na. 초기 이벤트를 생성하는 데 사용하는 동일한 캘린더를 선택하세요"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "09457e4b-ccba-497f-b046-3529edc7b332",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create event with google meet link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send msg with Google meet link": {
+      "main": [
+        [
+          {
+            "node": "Delete temporary calendar event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create event with google meet link": {
+      "main": [
+        [
+          {
+            "node": "Send msg with Google meet link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

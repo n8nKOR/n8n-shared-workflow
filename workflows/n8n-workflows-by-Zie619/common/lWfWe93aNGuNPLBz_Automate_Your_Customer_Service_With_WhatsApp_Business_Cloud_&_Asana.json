@@ -1,0 +1,161 @@
+{
+  "id": "lWfWe93aNGuNPLBz",
+  "meta": {
+    "instanceId": "9fd9ca4c1981198aec5412811736ddc08ea74ed6ff5bea7bfdaf584bc90b5d4c"
+  },
+  "name": "Automate Your Customer Service With WhatsApp Business Cloud & Asana",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "9d2a824a-6344-499e-a28a-454cf27b18e1",
+      "name": "n8n Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        40,
+        620
+      ],
+      "webhookId": "15e05cd5-c58d-4bf2-8358-f0cd1917334f",
+      "parameters": {
+        "path": "15e05cd5-c58d-4bf2-8358-f0cd1917334f",
+        "options": {},
+        "formTitle": "Contact Us!",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Whats is your Name?",
+              "requiredField": true
+            },
+            {
+              "fieldType": "number",
+              "fieldLabel": "What is your Phone Number?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your problem?",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ac7cca4a-e42b-4eaa-bd8b-121c27b4f976",
+      "name": "WhatsApp Business Cloud",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        800,
+        480
+      ],
+      "parameters": {
+        "textBody": "=Hello {{ $json[\"Whats is your Name?\"] }},\n\nThank you for filling out the contact form.\nOur customer support team will get back to you as soon as possible.",
+        "operation": "send",
+        "phoneNumberId": "YOUR_PHONE_NUMBER",
+        "additionalFields": {},
+        "recipientPhoneNumber": "=+{{ $json['What is your Phone Number?'] }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "76a1a4d6-241d-4167-a7b6-3e8552752b2a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        40,
+        20
+      ],
+      "parameters": {
+        "width": 835.3263974964024,
+        "height": 399.17043043523586,
+        "content": "## 설정\n\n**양식 생성 및 통합**\n- n8n 기본 양식이나 Typeform 같은 서비스를 사용하고 이를 통합할 수 있습니다.\n- 전화번호 필드를 이름 변경하면, \"WhatsApp Business Cloud\" 노드에서도 이를 변경해야 합니다.\n- 사람들이 전화번호를 다른 형식(예: 텍스트)으로 입력하도록 허용하면, 추가 데이터 변환 노드를 추가해야 할 수 있습니다.\n\n**WhatsApp Business Cloud 자격 증명 및 전화번호 추가**\n- \"WhatsApp Business Cloud\" 노드로 이동하여 자격 증명을 추가하세요.\n- 플레이스홀더를 WhatsApp Business Cloud 전화번호로 교체하세요.\n\n**텍스트 본문을 원하는 대로 변경하세요**\n- 현재 텍스트 본문은 연락 양식 확인입니다. 이를 원하는 대로 변경하여 사용 사례에 맞게 조정할 수 있습니다.\n\n**Asana 자격 증명 및 작업 공간 ID 추가**\n- \"Asana\" 노드로 이동하여 자격 증명을 추가하세요.\n- 플레이스홀더를 Asana 작업 공간 ID로 교체하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3259ab56-8e5b-480a-b037-a23872bd9cbd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        580
+      ],
+      "parameters": {
+        "width": 393.38103690955325,
+        "height": 218.49276831296547,
+        "content": "## 데이터 입력\n**폼 제출**\n\n이 워크플로에 데이터를 가져오는 기본 방법은 n8n 기본 폼 제출입니다. \n\n기술적으로는 이미 사용 중인 Typeform과 유사한 다른 폼 제출 서비스에서 데이터를 가져오도록 변경할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71310c11-bb13-4b97-a183-da9a5e0ee007",
+      "name": "Asana",
+      "type": "n8n-nodes-base.asana",
+      "position": [
+        800,
+        820
+      ],
+      "parameters": {
+        "name": "=Support Ticket -  {{ $json.submittedAt }}",
+        "workspace": "YOUR_WORKSPACE_ID",
+        "otherProperties": {
+          "notes": "={{ $json['What is your problem?'] }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3827e54a-bc87-4fa3-933f-0d1619d85697",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        420
+      ],
+      "parameters": {
+        "width": 472.6712339560175,
+        "height": 271.78617944255603,
+        "content": "확인 메시지  \nWhatsApp Business Cloud  \n\n이 워크플로우에서 고객에게 메시지를 보내는 기본 방법은 WhatsApp입니다.  \n\n고객이 이메일을 선호하는 경우, 이 기능을 이 워크플로우에 추가할 수 있습니다.  \n\n폼을 변경하여 사용자의 메일을 얻고, SMTP 서버 또는 메일 전송 제공자와 통합하면 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "299327d9-18e1-41e2-975a-4808d6b542bb",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        780
+      ],
+      "parameters": {
+        "width": 472.6712339560175,
+        "height": 206.79421465037234,
+        "content": "## 작업 관리  \n**Asana**  \n\n이 워크플로우에서 지원 티켓을 저장하는 기본 방법은 Asana입니다.  \n\n팀이 다른 작업 관리 소프트웨어를 사용한다면, 이 노드를 교체할 수 있습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1aedd3d7-f980-46dd-ac0b-af085e3dcf05",
+  "connections": {
+    "n8n Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Asana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

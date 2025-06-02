@@ -1,0 +1,355 @@
+{
+  "meta": {
+    "instanceId": "82a17fa4a0b8e81bf77e5ab999d980f392150f2a9541fde626dc5f74857b1f54"
+  },
+  "nodes": [
+    {
+      "id": "814ab819-7a0d-4647-a8e2-56d90616b4b2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        962,
+        306
+      ],
+      "parameters": {
+        "width": 307,
+        "height": 1003.1537835638735,
+        "content": "### 내용에 따라 스위치\n0 = 명령어에 \"marketing\" 단어가 포함된 경우\n1 = 명령어에 \"sales\" 단어가 포함된 경우\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c263242-1369-4cd5-83b7-4e2e8ffe99bb",
+      "name": "Keep only messages from a specific chat id",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        480,
+        520
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.message.chat.id }}",
+              "value2": null,
+              "operation": "equal"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8dd8b974-bfdc-4a80-bb94-3d5994872f70",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        311
+      ],
+      "parameters": {
+        "height": 382,
+        "content": "### 명령에 따라 스위치  \n0 = /stop  \n1 = /start"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd76d706-01df-453d-b8ad-d3ad1b379fb4",
+      "name": "Deactivate the marketing workflow",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        1380,
+        480
+      ],
+      "parameters": {
+        "operation": "deactivate",
+        "workflowId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "hHsMs7R7sstUSWGD",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c976ca-e78f-4b0a-8337-45c66939d30c",
+      "name": "Deactivate the sales workflow",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        1380,
+        680
+      ],
+      "parameters": {
+        "operation": "deactivate",
+        "workflowId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "hHsMs7R7sstUSWGD",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8187bb9d-685b-4955-b7e0-3375a9461bc8",
+      "name": "Activate the marketing workflow",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        1380,
+        940
+      ],
+      "parameters": {
+        "operation": "activate",
+        "workflowId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "",
+          "__regex": ".*/workflow/([0-9a-zA-Z]{1,})"
+        }
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "hHsMs7R7sstUSWGD",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "87d219be-77d0-4e29-9137-d55bdfae4aa7",
+      "name": "Switch depending on content (activate)",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1040,
+        960
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value2": "usdc",
+              "operation": "contains",
+              "outputKey": "0"
+            },
+            {
+              "value2": "hsuite",
+              "operation": "contains",
+              "outputKey": "1"
+            }
+          ]
+        },
+        "value1": "={{ $json.message.text }}",
+        "dataType": "string"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fa5f346d-5ad2-4ef3-b715-e45ffb7dfd29",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        740
+      ],
+      "parameters": {
+        "width": 846,
+        "height": 575.2554922701386,
+        "content": "# Telegram N8N 워크플로우 (비)활성화기\n\n## 이것은 무엇을 하는가?\n이 워크플로우는 Telegram을 통해 워크플로우를 빠르게 활성화하거나 비활성화하는 데 도움이 됩니다. 때때로 워크플로우에 문제가 발생했을 때 PC에 접근할 수 없을 수 있습니다. 저처럼 Telegram을 통해 오류 보고를 받는다면, 긴급 상황에서 즉시 대응할 수 있습니다. 워크플로우의 이름을 '/stop'과 함께 보내기만 하면 워크플로우를 비활성화하거나, '/start'으로 재활성화할 수 있습니다. 예를 들어 '/stop marketing'.\n\n단계별 가이드: https://watch.screencastify.com/v/uWQ88gZKj57WTGOOqSW2 (6분)\n\n## 지침\n1. Telegram API 키를 botfather(https://t.me/botfather)를 통해 생성한 후, Telegram 자격 증명에 추가합니다.\n2. N8N 노드의 경우, n8n 인스턴스에서 설정으로 이동한 후 'n8N API'로 가서 'API 키 생성'을 합니다.\n3. 봇에 명령을 보낼 수 있는 사람만 명령을 보낼 수 있도록 하려면, 새로 생성한 봇과의 DM 채팅 ID를 가져와야 합니다. Telegram 트리거를 열고 '이벤트 수신'을 클릭합니다.\n4. Telegram에서 봇에게 직접 메시지를 보내면, Telegram 노드가 트리거됩니다.\n5. 필터 노드로 이동하여, Telegram 노드의 테스트 이벤트에서 얻은 데이터로 필터링할 채팅 ID를 입력합니다.\n6. 첫 번째 Switch 노드에서 명령어를 찾을 수 있습니다. 이 경우 '/start'과 '/stop'입니다. 이 명령어로 시작하는 메시지를 봇에게 보내면 다음 Switch 노드로 이동합니다.\n7. 다음으로, 메시지가 어떤 다른 단어를 포함하는지 확인합니다. 예를 들어, 'marketing'과 'sales'를 사용했으며, 각각 마케팅과 세일즈 워크플로우에 해당합니다.\n8. 마지막 노드에서 워크플로우를 활성화하거나 비활성화합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d16753af-c1d7-4b60-89da-82432a0b06c1",
+      "name": "Receive commands from Telegram",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        260,
+        520
+      ],
+      "webhookId": "5fe48950-9a59-4b47-b568-6d2f4c624288",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "Wn8jg2h69jw2f9Pu",
+          "name": "Telegram account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83a5dc1b-00c9-46b2-9941-78f42d2e06e5",
+      "name": "Activate the sales workflow",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        1380,
+        1160
+      ],
+      "parameters": {
+        "operation": "activate",
+        "workflowId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "",
+          "__regex": ".*/workflow/([0-9a-zA-Z]{1,})"
+        }
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "hHsMs7R7sstUSWGD",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2bf6ebf2-f94e-4359-bea8-a041bf669644",
+      "name": "Switch depending on command",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        720,
+        520
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value2": "/stop",
+              "operation": "startsWith",
+              "outputKey": "0"
+            },
+            {
+              "value2": "/start",
+              "operation": "startsWith",
+              "outputKey": "1"
+            }
+          ]
+        },
+        "value1": "={{ $json.message.text }}",
+        "dataType": "string"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a6888317-39b5-4b3d-97a8-c9bf0e90eddb",
+      "name": "Switch depending on content (deactivate)",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1040,
+        500
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value2": "marketing",
+              "operation": "contains",
+              "outputKey": "0"
+            },
+            {
+              "value2": "sales",
+              "operation": "contains",
+              "outputKey": "1"
+            }
+          ]
+        },
+        "value1": "={{ $json.message.text }}",
+        "dataType": "string"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "connections": {
+    "Switch depending on command": {
+      "main": [
+        [
+          {
+            "node": "Switch depending on content (deactivate)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch depending on content (activate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive commands from Telegram": {
+      "main": [
+        [
+          {
+            "node": "Keep only messages from a specific chat id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch depending on content (activate)": {
+      "main": [
+        [
+          {
+            "node": "Activate the marketing workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Activate the sales workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch depending on content (deactivate)": {
+      "main": [
+        [
+          {
+            "node": "Deactivate the marketing workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deactivate the sales workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep only messages from a specific chat id": {
+      "main": [
+        [
+          {
+            "node": "Switch depending on command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

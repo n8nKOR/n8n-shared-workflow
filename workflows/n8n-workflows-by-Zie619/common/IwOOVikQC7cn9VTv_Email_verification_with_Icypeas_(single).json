@@ -1,0 +1,149 @@
+{
+  "id": "IwOOVikQC7cn9VTv",
+  "meta": {
+    "instanceId": "a897062ac3223eacd9c7736276b653c446bc776a63cde2a42a2949ad984f7092"
+  },
+  "name": "Email verification with Icypeas (single)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "83105cfd-9107-4dae-8282-07c6594ebbd2",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1460,
+        460
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7146ee71-e4fc-4c1f-bdbd-af1466525fef",
+      "name": "Run email verification (single)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2180,
+        460
+      ],
+      "parameters": {
+        "url": "={{ $json.api.url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "=uyqsdqkudhfiqudhfiqduhfiqdhfqif@gmail.com"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ROCK-TIMESTAMP",
+              "value": "={{ $json.api.timestamp }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KGXtUrqC6lNLwW2w",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "1e004997-dfc6-45ad-9351-9a096cb4c991",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        200
+      ],
+      "parameters": {
+        "height": 250.2614840989399,
+        "content": "## Icypeas를 사용한 이메일 검증 (단일)\n\n이 워크플로우는 Icypeas를 사용하여 이메일 검증을 수행하는 방법을 보여줍니다. https://icypeas.com을 방문하여 계정을 생성하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c56e06c9-971b-47ea-9c23-af639933479b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1607,
+        276
+      ],
+      "parameters": {
+        "width": 506,
+        "height": 1030,
+        "content": "## 귀하의 Icypeas 계정에 인증\n\n이 코드 노드는 귀하의 API 키, API 시크릿, 및 사용자 ID를 사용하여 Icypeas 계정과 연결을 설정합니다.\n\n이 노드를 열고 따옴표 안에 API 키, API 시크릿, 및 사용자 ID를 삽입하세요. 이러한 자격 증명은 Icypeas 프로필에서 https://app.icypeas.com/bo/profile 에서 찾을 수 있습니다. 변경해야 할 부분의 추출 예시는 다음과 같습니다:\n\nconst API_KEY = \"**PUT_API_KEY_HERE**\";\nconst API_SECRET = \"**PUT_API_SECRET_HERE**\";\nconst USER_ID = \"**PUT_USER_ID_HERE**\";\n\n코드의 다른 줄은 변경하지 마세요.\n\n자체 호스팅 사용자인 경우, 크립토 모듈을 활성화하기 위해 다음 단계를 따르세요:\n\n1. n8n 인스턴스에 접근:\n웹 브라우저에서 n8n 인스턴스의 URL로 이동하여 로그인하세요. 예: http://your-n8n-instance.com.\n\n2. 설정으로 이동:\n우측 상단의 사용자 이름 클릭 후 \"Settings\"를 선택하세요.\n\n3. 일반 설정 선택:\n왼쪽 메뉴에서 \"General\"을 클릭하세요.\n\n4. 크립토 모듈 활성화:\n\"Additional Node Packages\" 섹션으로 스크롤하여 \"crypto\" 옵션 옆의 체크박스를 선택하세요.\n\n5. 변경 사항 저장:\n페이지 하단의 \"Save\"를 클릭하여 변경 사항을 적용하세요.\n\n이 단계를 따르신 후, 크립토 모듈이 자체 호스팅 n8n 인스턴스에서 활성화되어야 합니다. 변경 사항을 저장하고 필요에 따라 n8n 인스턴스를 재시작하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0b0425b7-52e7-4d4c-8c7f-6fb4821b9ce1",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2113,
+        280
+      ],
+      "parameters": {
+        "width": 492,
+        "height": 748,
+        "content": "## Icypeas 계정의 이메일 확인 수행\n\n이 노드는 본문 섹션에 제공한 이메일을 Icypeas를 사용하여 확인하기 위해 HTTP 요청(POST)을 실행합니다.\n\n### HTTP Request 노드에서 자격 증명 생성 필요 :\n\n➔ 헤더 인증 자격 증명에서, - 새 자격 증명 생성 -을 클릭합니다.\n➔ 이름 섹션에 “Authorization”를 작성합니다.\n➔ 값 섹션에서, 표현식을 선택합니다(필드 위 오른쪽에 위치하며, 그 위에 호버하면 나타납니다) 그리고 {{ $json.api.key + ':' + $json.api.signature }}를 작성합니다.\n➔ 그런 다음 “Save”를 클릭하여 변경 사항을 저장합니다.\n\n### 이메일 확인을 위해 :\n\n➔ 본문 매개변수 섹션으로 이동합니다,\n➔ 새 매개변수를 생성합니다,\n➔ 이름 필드에 \"email\"을 입력합니다.\n➔ 확인할 이메일을 값 필드에 넣습니다.\n\n결과를 여기에서 찾을 수 있습니다: https://app.icypeas.com/bo/singlesearch?task=email-verification."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7784528c-863c-4940-9fe2-f257884a6a73",
+      "name": "Authenticates to your Icypeas account",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1800,
+        460
+      ],
+      "parameters": {
+        "jsCode": "const BASE_URL = \"https://app.icypeas.com\";\nconst PATH = \"/api/email-verification\";\nconst METHOD = \"POST\";\n\n// Change here\nconst API_KEY = \"PUT_API_KEY_HERE\";\nconst API_SECRET = \"PUT_API_SECRET_HERE\";\nconst USER_ID = \"PUT_USER_ID_HERE\";\n////////////////\n\nconst genSignature = (\n    path,\n    method,\n    secret,\n    timestamp = new Date().toISOString()\n) => {\n    const Crypto = require('crypto');\n    const payload = `${method}${path}${timestamp}`.toLowerCase();\n    const sign = Crypto.createHmac(\"sha1\", secret).update(payload).digest(\"hex\");\n\n    return sign;\n};\n\nconst fullPath = `${BASE_URL}${PATH}`;\n$input.first().json.api = {\n  timestamp: new Date().toISOString(),\n  secret: API_SECRET,\n  key: API_KEY,\n  userId: USER_ID,\n  url: fullPath,\n};\n$input.first().json.api.signature = genSignature(PATH, METHOD, API_SECRET, $input.first().json.api.timestamp);\nreturn $input.first();"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "39bdb71c-d7c4-4b1a-8e4f-938d30411190",
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Authenticates to your Icypeas account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticates to your Icypeas account": {
+      "main": [
+        [
+          {
+            "node": "Run email verification (single)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

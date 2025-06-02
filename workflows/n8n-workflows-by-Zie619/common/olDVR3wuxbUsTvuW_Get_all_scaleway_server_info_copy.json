@@ -1,0 +1,796 @@
+{
+  "id": "olDVR3wuxbUsTvuW",
+  "meta": {
+    "instanceId": "598c730c3a95b29c8be35b1b34a362ffa595154754b692ab1bb4baa1db7b1f33",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Get all scaleway server info copy",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "9da28130-ed83-4129-b65c-82969fe3126d",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2000,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "// Function to extract essential information from servers\nfunction extractServers(serversArray) {\n    let servers = [];\n\n    if (!Array.isArray(serversArray)) {\n        console.log(\"⚠️ Invalid data received:\", JSON.stringify(serversArray, null, 2));\n        return servers; // Returns an empty array if the data is not valid\n    }\n\n    serversArray.forEach(server => {\n        servers.push({\n            name: server.name || \"Unknown\",\n            tags: server.tags && server.tags.length > 0 ? server.tags.join(\", \") : \"No tags\",\n            public_ip: getPublicIPs(server),\n            type: server.commercial_type || server.offer_name || \"Unknown\", // Baremetal does not have commercial_type, but offer_name\n            state: server.state || server.status || \"Unknown\", // Baremetal uses status instead of state\n            zone: server.zone || \"Unknown\",\n            user: getUser(server) // User management\n        });\n    });\n\n    return servers;\n}\n\n// Function to extract the public IP (IPv4 prioritized, otherwise IPv6)\nfunction getPublicIPs(server) {\n    let ipv4 = null;\n    let ipv6 = null;\n\n    // Case for Compute instances (public_ips is an array)\n    if (server.public_ips && Array.isArray(server.public_ips)) {\n        server.public_ips.forEach(ip => {\n            if (ip.family === \"inet\" && !ipv4) ipv4 = ip.address;\n            if (ip.family === \"inet6\" && !ipv6) ipv6 = ip.address;\n        });\n    }\n\n    // Some instances have public_ip as a single object\n    if (server.public_ip && server.public_ip.address) {\n        if (server.public_ip.family === \"inet\" && !ipv4) ipv4 = server.public_ip.address;\n        if (server.public_ip.family === \"inet6\" && !ipv6) ipv6 = server.public_ip.address;\n    }\n\n    // Case for Baremetal servers (ips is an array)\n    if (server.ips && Array.isArray(server.ips)) {\n        server.ips.forEach(ip => {\n            if (ip.version === \"IPv4\" && !ipv4) ipv4 = ip.address;\n            if (ip.version === \"IPv6\" && !ipv6) ipv6 = ip.address;\n        });\n    }\n\n    // Returns IPv4 if available, otherwise IPv6, otherwise \"No IP\"\n    return ipv4 || ipv6 || \"No IP\";\n}\n\n// Function to retrieve the user\nfunction getUser(server) {\n    // For Compute instances, the \"user\" field sometimes exists\n    if (server.user) return server.user;\n\n    // For Baremetal servers, user info is often found in install.user\n    if (server.install && server.install.user) return server.install.user;\n\n    // Default value\n    return \"root\";\n}\n\n// Retrieve all input items (from Loop Over Zone Instance)\nlet inputItems = $input.all();\nlet allServers = [];\n\n// Iterate over each item and extract servers if they are contained in a \"servers\" property\ninputItems.forEach(item => {\n    if (item.json.servers && Array.isArray(item.json.servers)) {\n        allServers = allServers.concat(extractServers(item.json.servers));\n    } else {\n        // If the item does not have a \"servers\" property, attempt to process the object itself as a server\n        allServers = allServers.concat(extractServers([item.json]));\n    }\n});\n\n// Return the final result as items (JSON object per server)\nreturn allServers.map(server => ({ json: server }));\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "12e10b9e-99ca-4ab8-b90d-be318ba2f9ff",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6764348-1fa6-439e-9279-3b423c7c73af",
+              "name": "search_by",
+              "type": "string",
+              "value": "={{ $json.body.search_by }}"
+            },
+            {
+              "id": "5535e47b-c187-47eb-80af-bccb3972f4a5",
+              "name": "search",
+              "type": "string",
+              "value": "={{ $json.body.search }}"
+            },
+            {
+              "id": "b69ff3d1-885e-4145-a277-074b8e517aaf",
+              "name": "Scaleway-X-Auth-Token",
+              "type": "string",
+              "value": "<Your personal Scaleway X Auth Token>"
+            },
+            {
+              "id": "65ee376e-093f-4a8b-abe8-5d9173d26427",
+              "name": "ZONE_INSTANCE",
+              "type": "array",
+              "value": "[\"fr-par-1\", \"fr-par-2\", \"fr-par-3\", \"nl-ams-1\", \"nl-ams-2\", \"nl-ams-3\", \"pl-waw-1\", \"pl-waw-2\", \"pl-waw-3\"]"
+            },
+            {
+              "id": "9a9fff0b-f812-4bb1-800e-2376b39381ed",
+              "name": "ZONE_BAREMETAL",
+              "type": "string",
+              "value": "[\"fr-par-1\", \"fr-par-2\", \"nl-ams-1\", \"nl-ams-2\", \"pl-waw-2\", \"pl-waw-3\"]"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "20398633-d856-4700-98a9-1f722f3d2a8f",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2260,
+        -80
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7ee5d5ae-3a88-4bef-820d-979c26499cbd",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Edit Fields').first().json.search_by }}",
+                    "rightValue": "tags"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "eb879619-5b97-4402-b3de-3f98e0a7d0d3",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Edit Fields').first().json.search_by }}",
+                    "rightValue": "name"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "2d0b6397-e46d-484a-84a0-7af8d7345dea",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Edit Fields').first().json.search_by }}",
+                    "rightValue": "public_ip"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0ee8fb2d-cf38-4994-a49a-88c7482b46ab",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Edit Fields').first().json.search_by }}",
+                    "rightValue": "zone"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "04a298b2-2a22-433a-a8db-3902dcff0425",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Edit Fields').first().json.search_by }}",
+                    "rightValue": "null"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "ignoreCase": false,
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "f480f721-d2b3-49a4-9211-266af3e8fd42",
+      "name": "Code search Tags",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2680,
+        -500
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve all input items\nlet servers = $input.all();\n\n// Filter only servers with the tag \"STAGING\"\nlet filteredServers = servers.filter(server =>\n    server.json.tags && server.json.tags.includes($('Edit Fields').first().json.search)\n);\n\n// Return only servers that have \"search\" in the tags\nreturn filteredServers;\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "44ee26b2-1320-44a6-a705-ff102e789a9c",
+      "name": "Code search Name",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2680,
+        -340
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve all input items\nlet servers = $input.all();\n\n// Filter only servers with the tag \"STAGING\"\nlet filteredServers = servers.filter(server =>\n    server.json.name && server.json.name.includes($('Edit Fields').first().json.search)\n);\n\n// Return only servers that have \"search\" in the name\nreturn filteredServers;\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b8e5f1b5-09a0-42f8-a5d6-a10989cb9f81",
+      "name": "Code search public_ip",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2680,
+        -180
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve all input items\nlet servers = $input.all();\n\n// Filter only servers with the tag \"STAGING\"\nlet filteredServers = servers.filter(server =>\n    server.json.public_ip && server.json.public_ip.includes($('Edit Fields').first().json.search)\n);\n\n// Return only servers that have \"search\" in the public_ip\nreturn filteredServers;\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "1029d9bc-8d42-4038-9dfe-f8957e9115b6",
+      "name": "Code search zone",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2680,
+        -20
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve all input items\nlet servers = $input.all();\n\n// Filter only servers with the tag \"STAGING\"\nlet filteredServers = servers.filter(server =>\n    server.json.public_ip && server.json.public_ip.includes($('Edit Fields').first().json.search)\n);\n\n// Return only servers that have \"search\" in the public_ip\nreturn filteredServers;\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3dae20ba-07b2-4948-a58c-8b803f672dcb",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        660,
+        0
+      ],
+      "webhookId": "a6767312-3a4c-4819-b4fe-a03c9e0ade5c",
+      "parameters": {
+        "path": "a6767312-3a4c-4819-b4fe-a03c9e0ade5c",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "authentication": "basicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "YzpBkNOC0UnKboCn",
+          "name": "Endpoint Get server scalway info"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "65f62d8f-aead-47cb-a9df-105054d8b666",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2680,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"error\": \"no search by {{ $('Edit Fields').item.json.search_by }} available. You can search by : tags, name, public_ip, zone\"\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9d8db89d-c318-4078-9a3d-8bc10022d059",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2900,
+        -340
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3009a593-8a23-448c-b8fd-58c6fc4b77b3",
+      "name": "Respond to Webhook2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2900,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "27e1f543-c57c-4772-944b-d2207526dd9d",
+      "name": "Respond to Webhook3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2900,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "90e51c36-9888-4942-ad13-28fa90235d13",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2900,
+        -500
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "92ad3cf2-c3b3-4c42-9d1b-7d55f3e5ad56",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        -1240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1000,
+        "height": 1080,
+        "content": "# 기술 문서\n\n## 설명\n\n이 n8n 워크플로는 동적으로 정의된 영역에서 Scaleway 서버(인스턴스 및 베어메탈)의 정보를 검색합니다. Scaleway API에서 서버 세부 정보를 수집하여 단일 데이터셋으로 집계하고, 사용자 정의 기준(예: 이름, 태그, 공용 IP 주소 또는 영역)에 따라 결과를 필터링한 후 웹훅을 통해 데이터를 반환합니다.\n\n## 동작\n\n### 1. 워크플로 트리거\n\n- **웹훅 활성화:**\n  워크플로는 HTTP POST 요청을 수신하는 Webhook 노드에 의해 트리거됩니다. 이 요청은 기본 인증(basicAuth)을 사용하며 검색 매개변수를 포함합니다:\n  - `search_by`: 필터 유형(예: \"tags\", \"name\", \"public_ip\" 또는 \"zone\").\n  - `search`: 서버 데이터를 필터링할 키워드.\n\n### 2. 서버 정보 검색\n\n- **Scaleway API에 대한 HTTP 요청:**\n  워크플로는 Scaleway API의 두 가지 주요 엔드포인트에 HTTP GET 요청을 보냅니다:\n  - **인스턴스 엔드포인트:** `ZONE_INSTANCE` 변수에 지정된 영역에서 서버 인스턴스를 검색합니다.\n  - **베어메탈 엔드포인트:** `ZONE_BAREMETAL` 변수에 정의된 영역에서 베어메탈 서버 정보를 검색합니다.\n  - **헤더 및 인증:**\n    각 요청은 `X-Auth-Token` 헤더와 `Content-Type: application/json` 헤더를 보내며, API로부터 JSON 응답을 기대합니다.\n\n### 3. 데이터 처리\n\n- **영역 분할 및 반복:**\n  - `Split Out ZONE_INSTANCE` 노드가 미리 정의된 영역 목록을 분할하여 각 영역을 별도로 처리합니다.\n  - `Loop Over Zone Instance` 노드가 영역을 반복합니다. `If ZONE_BAREMETAL in ZONE_INSTANCE` 노드가 현재 영역이 베어메탈 서버용으로 구성되었는지 확인하여, 그렇다면 해당 베어메탈 API 요청으로 흐름을 유도하고, 그렇지 않으면 인스턴스 요청으로 유도합니다.\n  - **데이터 집계 및 구조화:**\n    `Code` 노드가 각 영역의 응답을 집계합니다. 이 노드는:\n    - 들어오는 항목을 반복합니다.\n    - 도우미 함수(`extractServers`, `getPublicIPs`, `getUser`)를 사용하여 이름, 태그, 공용 IP, 서버 유형, 상태, 영역, 사용자와 같은 핵심 정보를 추출하고 정규화합니다.\n    - 구조화된 서버 정보를 통합된 배열로 결합하여 추가 처리를 위해 준비합니다.\n\n### 4. 동적 필터링\n\n- **검색 기준 정의:**\n  `Set` 노드가 들어오는 검색 매개변수(`search_by` 및 `search`)와 구성 세부 사항(예: Scaleway 인증 토큰 및 적용 가능한 영역 목록)을 캡처합니다.\n  - **필터 유형에 따른 라우팅:**\n    `Switch` 노드가 `search_by` 값을 분석하여 집계된 서버 데이터를 다음 중 하나의 전용 `Code` 노드로 라우팅합니다:\n    - `tags`\n    - `name`\n    - `public_ip`\n    - `zone`\n  - **오류 처리:**\n    `search_by` 값이 유효한 필터와 일치하지 않으면, 유효한 필터 옵션을 나열하는 JSON 오류 메시지를 반환하는 전용 노드를 통해 오류 응답이 생성됩니다.\n\n### 5. 웹훅을 통한 응답\n\n- **필터링된 데이터 반환:**\n  필터링된 서버 데이터는 각 필터 유형의 출력을 처리하는 여러 `Respond to Webhook` 노드를 통해 요청자에게 반환됩니다.\n  - **오류 응답:**\n    유효한 검색 기준이 제공되지 않은 경우, 워크플로는 유효한 필터(`tags`, `name`, `public_ip`, 및 `zone`)를 나타내는 오류 JSON 응답을 보냅니다.\n\n## 예시 사용법\n\n애플리케이션이나 다른 워크플로에서 이 워크플로를 사용하려면, 웹훅 엔드포인트에 다음과 유사한 JSON 페이로드를 포함한 POST 요청을 보냅니다:\n\n```json\n{\n  \"search_by\": \"tags\",\n  \"search\": \"Apiv1\"\n}\n```\n\n성공적으로 실행되면, 워크플로는 서버 객체가 포함된 JSON 배열을 반환합니다. 각 객체는 다음과 같은 속성을 포함합니다:\n- `name`\n- `tags`\n- `public_ip`\n- `type`\n- `state`\n- `zone`\n- `user`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0fc94a1e-2cb3-47d7-a198-a053b2bed8e4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        520
+      ],
+      "parameters": {
+        "width": 960,
+        "height": 660,
+        "content": "# 외부 앱 또는 다른 워크플로우에서의 사용\n\n이 워크플로우의 이 부분을 귀하의 애플리케이션 또는 다른 워크플로우에 통합하려면:\n\n1. **POST 요청 보내기:**\n   Get Scalway Machines 노드의 엔드포인트(노드 아래에 표시됨)를 사용하여 검색 기준을 포함하는 POST 요청을 보냅니다. 예를 들어:\n\n   ```json\n   {\n     \"search_by\": \"tags\",\n     \"search\": \"Apiv1\"\n   }\n   ```\n\n2. **결과 처리:**\n   Loop Over Items 노드가 각 응답 항목을 반복하여 한 번의 실행으로 여러 서버나 레코드를 처리할 수 있습니다.\n\n3. **필터링된 데이터 수신:**\n   반환된 데이터(각 항목이 서버를 나타냄)는 귀하의 애플리케이션이나 워크플로우에서 추가 처리할 수 있으며, Scaleway 서버 정보를 빠르고 자동으로 검색하고 필터링하는 방법을 제공합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d54772b2-40e7-43ff-9c4c-d4bbf176c3c2",
+      "name": "Get Scalway Machines",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1400,
+        1020
+      ],
+      "parameters": {
+        "url": "https://sup-n8n.unipile.com/webhook/209dd6cb-76cf-4841-8c79-cea45a742b39",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "search_by",
+              "value": "Available filters (name, tags, public_ip, zone) or null if you don't want to apply a filter"
+            },
+            {
+              "name": "search",
+              "value": "Your search keyword"
+            }
+          ]
+        },
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "YzpBkNOC0UnKboCn",
+          "name": "Endpoint Get server scalway info"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "710b2503-ccb9-42d2-877a-034082a6fef8",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1600,
+        1020
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "387d2a3d-8f2c-47be-a4c6-73ac110b03d0",
+      "name": "Respond to Webhook4",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2680,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "09f05bba-5fe3-4e3f-b5e6-b6f75eb9400d",
+      "name": "Get scw instance by zone",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1560,
+        80
+      ],
+      "parameters": {
+        "url": "=https://api.scaleway.com/instance/v1/zones/{{ $('Split Out ZONE_INSTANCE').item.json.ZONE_INSTANCE }}/servers",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Auth-Token",
+              "value": "={{ $('Edit Fields').item.json['Scalway-X-Auth-Token'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "541d8cd6-f7db-49a1-b527-235813b82737",
+      "name": "Loop Over Zone Instance",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1360,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "be293c2d-bd39-46f5-8c09-766cc145f8b7",
+      "name": "Get scw baremetal by zone",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2000,
+        80
+      ],
+      "parameters": {
+        "url": "=https://api.scaleway.com/baremetal/v1/zones/{{ $('Split Out ZONE_INSTANCE').item.json.ZONE_INSTANCE }}/servers",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Auth-Token",
+              "value": "={{ $('Edit Fields').item.json['Scalway-X-Auth-Token'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b12396b5-8fd6-4b06-8c41-0a14d2382937",
+      "name": "Split Out ZONE_INSTANCE",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "ZONE_INSTANCE"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b96d5ee0-db41-4ea8-a23f-2db3cea63a3c",
+      "name": "If ZONE_BAREMETAL in ZONE_INSTANCE",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1780,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "874626f1-ecf5-42c4-86fe-01a9c68cbb1a",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              },
+              "leftValue": "={{ $('Edit Fields').item.json.ZONE_BAREMETAL }}",
+              "rightValue": "={{ $('Loop Over Zone Instance').item.json.ZONE_INSTANCE }}"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "30234c35-1788-4857-bc58-c1a581be318f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 580,
+        "height": 380,
+        "content": "# Scaleway-X-Auth-Token 필드 교체\n\n워크플로가 올바르게 작동하도록 하려면, 다음을 해야 합니다:\n\n1. 워크플로에서 Edit Fields 노드를 엽니다.\n2. Scaleway-X-Auth-Token 필드를 찾아 개인 Scaleway 토큰을 입력합니다 (기본 값을 교체).\n3. 토큰이 아직 없는 경우:\n   - Scaleway 콘솔에 로그인합니다.\n   - [Scaleway 문서](https://www.scaleway.com/en/developers/api/)를 따라 새 API 토큰을 생성합니다.\n   - 생성된 토큰을 복사하여 Scaleway-X-Auth-Token 필드에 붙여넣습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "K3TJbThVR2T5RU8o",
+    "executionOrder": "v1"
+  },
+  "versionId": "b38207e8-da63-462c-ac51-925d029d5a1f",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code search Tags",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code search Name",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code search public_ip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code search zone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out ZONE_INSTANCE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code search Name": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code search Tags": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code search zone": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Scalway Machines": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code search public_ip": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Zone Instance": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get scw instance by zone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out ZONE_INSTANCE": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Zone Instance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get scw instance by zone": {
+      "main": [
+        [
+          {
+            "node": "If ZONE_BAREMETAL in ZONE_INSTANCE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get scw baremetal by zone": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Zone Instance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If ZONE_BAREMETAL in ZONE_INSTANCE": {
+      "main": [
+        [
+          {
+            "node": "Get scw baremetal by zone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Zone Instance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

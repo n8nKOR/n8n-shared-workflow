@@ -1,0 +1,1223 @@
+{
+  "id": "cpuFyJYHKmjHTncz",
+  "meta": {
+    "instanceId": "2cb7a61f866faf57392b91b31f47e08a2b3640258f0abd08dd71f087f3243a5a",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Adaptive RAG",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "856bd809-8f41-41af-8f72-a3828229c2a5",
+      "name": "Query Classification",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Classify a query into one of four categories: Factual, Analytical, Opinion, or Contextual.\n        \nReturns:\nstr: Query category",
+      "position": [
+        380,
+        -20
+      ],
+      "parameters": {
+        "text": "=Classify this query: {{ $('Combined Fields').item.json.user_query }}",
+        "options": {
+          "systemMessage": "You are an expert at classifying questions. \n\nClassify the given query into exactly one of these categories:\n- Factual: Queries seeking specific, verifiable information.\n- Analytical: Queries requiring comprehensive analysis or explanation.\n- Opinion: Queries about subjective matters or seeking diverse viewpoints.\n- Contextual: Queries that depend on user-specific context.\n\nReturn ONLY the category name, without any explanation or additional text."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "cc2106fc-f1a8-45ef-b37b-ab981ac13466",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        740,
+        -40
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Factual",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "87f3b50c-9f32-4260-ac76-19c05b28d0b4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.trim() }}",
+                    "rightValue": "Factual"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Analytical",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "f8651b36-79fa-4be4-91fb-0e6d7deea18f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.trim() }}",
+                    "rightValue": "Analytical"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Opinion",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "5dde06bc-5fe1-4dca-b6e2-6857c5e96d49",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.trim() }}",
+                    "rightValue": "Opinion"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Contextual",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "bf97926d-7a0b-4e2f-aac0-a820f73344d8",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.trim() }}",
+                    "rightValue": "Contextual"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 0
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "63889cad-1283-4dbf-ba16-2b6cf575f24a",
+      "name": "Factual Strategy - Focus on Precision",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Retrieval strategy for factual queries focusing on precision.",
+      "position": [
+        1140,
+        -780
+      ],
+      "parameters": {
+        "text": "=Enhance this factual query: {{ $('Combined Fields').item.json.user_query }}",
+        "options": {
+          "systemMessage": "=You are an expert at enhancing search queries.\n\nYour task is to reformulate the given factual query to make it more precise and specific for information retrieval. Focus on key entities and their relationships.\n\nProvide ONLY the enhanced query without any explanation."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "020d2201-9590-400d-b496-48c65801271c",
+      "name": "Analytical Strategy - Comprehensive Coverage",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Retrieval strategy for analytical queries focusing on comprehensive coverage.",
+      "position": [
+        1140,
+        -240
+      ],
+      "parameters": {
+        "text": "=Generate sub-questions for this analytical query: {{ $('Combined Fields').item.json.user_query }}",
+        "options": {
+          "systemMessage": "=You are an expert at breaking down complex questions.\n\nGenerate sub-questions that explore different aspects of the main analytical query.\nThese sub-questions should cover the breadth of the topic and help retrieve comprehensive information.\n\nReturn a list of exactly 3 sub-questions, one per line."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "c35d1b95-68c8-4237-932d-4744f620760d",
+      "name": "Opinion Strategy - Diverse Perspectives",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Retrieval strategy for opinion queries focusing on diverse perspectives.",
+      "position": [
+        1140,
+        300
+      ],
+      "parameters": {
+        "text": "=Identify different perspectives on: {{ $('Combined Fields').item.json.user_query }}",
+        "options": {
+          "systemMessage": "=You are an expert at identifying different perspectives on a topic.\n\nFor the given query about opinions or viewpoints, identify different perspectives that people might have on this topic.\n\nReturn a list of exactly 3 different viewpoint angles, one per line."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "363a3fc3-112f-40df-891e-0a5aa3669245",
+      "name": "Contextual Strategy - User Context Integration",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Retrieval strategy for contextual queries integrating user context.",
+      "position": [
+        1140,
+        840
+      ],
+      "parameters": {
+        "text": "=Infer the implied context in this query: {{ $('Combined Fields').item.json.user_query }}",
+        "options": {
+          "systemMessage": "=You are an expert at understanding implied context in questions.\n\nFor the given query, infer what contextual information might be relevant or implied but not explicitly stated. Focus on what background would help answering this query.\n\nReturn a brief description of the implied context."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "45887701-5ea5-48b4-9b2b-40a80238ab0c",
+      "name": "Chat",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -280,
+        120
+      ],
+      "webhookId": "56f626b5-339e-48af-857f-1d4198fc8a4d",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7f7df364-4829-4e29-be3d-d13a63f65b8f",
+      "name": "Factual Prompt and Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1540,
+        -780
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4a28ac2-4a56-46f6-8b86-f5d1a34b2ced",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "7aa6ce13-afbf-4871-b81c-6e9c722a53dc",
+              "name": "prompt",
+              "type": "string",
+              "value": "You are a helpful assistant providing factual information. Answer the question based on the provided context. Focus on accuracy and precision. If the context doesn't contain the information needed, acknowledge the limitations."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "590d8667-69eb-4db2-b5be-714c602b319a",
+      "name": "Contextual Prompt and Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1540,
+        840
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4a28ac2-4a56-46f6-8b86-f5d1a34b2ced",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "7aa6ce13-afbf-4871-b81c-6e9c722a53dc",
+              "name": "prompt",
+              "type": "string",
+              "value": "You are a helpful assistant providing contextually relevant information. Answer the question considering both the query and its context. Make connections between the query context and the information in the provided documents. If the context doesn't fully address the specific situation, acknowledge the limitations."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fa3228ee-62d8-4c02-9dca-8a1ebc6afc74",
+      "name": "Opinion Prompt and Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4a28ac2-4a56-46f6-8b86-f5d1a34b2ced",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "7aa6ce13-afbf-4871-b81c-6e9c722a53dc",
+              "name": "prompt",
+              "type": "string",
+              "value": "You are a helpful assistant discussing topics with multiple viewpoints. Based on the provided context, present different perspectives on the topic. Ensure fair representation of diverse opinions without showing bias. Acknowledge where the context presents limited viewpoints."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c769a76a-fb26-46a1-a00d-825b689d5f7a",
+      "name": "Analytical Prompt and Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1540,
+        -240
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4a28ac2-4a56-46f6-8b86-f5d1a34b2ced",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "7aa6ce13-afbf-4871-b81c-6e9c722a53dc",
+              "name": "prompt",
+              "type": "string",
+              "value": "You are a helpful assistant providing analytical insights. Based on the provided context, offer a comprehensive analysis of the topic. Cover different aspects and perspectives in your explanation. If the context has gaps, acknowledge them while providing the best analysis possible."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fcd29f6b-17e8-442c-93f9-b93fbad7cd10",
+      "name": "Gemini Classification",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        360,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash-lite"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0828ee3-f184-41f5-9a25-0f1059b03711",
+      "name": "Gemini Factual",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1120,
+        -560
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "98f9981d-ea8e-45cb-b91d-3c8d1fe33e25",
+      "name": "Gemini Analytical",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1120,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c85f270d-3224-4e60-9acf-91f173dfe377",
+      "name": "Chat Buffer Memory Analytical",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1280,
+        -20
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Combined Fields').item.json.chat_memory_key }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c39ba907-7388-4152-965a-e28e626bc9b2",
+      "name": "Chat Buffer Memory Factual",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1280,
+        -560
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Combined Fields').item.json.chat_memory_key }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "52dcd9f0-e6b3-4d33-bc6f-621ef880178e",
+      "name": "Gemini Opinion",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1120,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "147a709a-4b46-4835-82cf-7d6b633acd4c",
+      "name": "Chat Buffer Memory Opinion",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1280,
+        520
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Combined Fields').item.json.chat_memory_key }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "3cb6bf32-5937-49b9-acf7-d7d01dc2ddd1",
+      "name": "Gemini Contextual",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1120,
+        1060
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5916c4f1-4369-4d66-8553-2fff006b7e69",
+      "name": "Chat Buffer Memory Contextual",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1280,
+        1060
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Combined Fields').item.json.chat_memory_key }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d33377c2-6b98-4e4d-968f-f3085354ae50",
+      "name": "Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "position": [
+        2060,
+        200
+      ],
+      "parameters": {
+        "modelName": "models/text-embedding-004"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32d9a0c0-0889-4cb2-a088-8ee9cfecacd3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 520,
+        "content": "사실 기반 전략  \n정확한 사실과 수치를 검색하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "064a4729-717c-40c8-824a-508406610a13",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 520,
+        "content": "분석 전략  \n**주제에 대한 포괄적인 다루기와 다양한 측면 탐구를 제공합니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fd52a28-44bc-4dfd-bdb7-90987cc2f4fb",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 520,
+        "content": "## 의견 전략\n\n**주관적인 문제에 대한 다양한 관점을 모으다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3797b21f-cc2a-4210-aa63-6d181d413c5e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 520,
+        "content": "## 문맥적 전략  \n**사용자 특정 맥락을 통합하여 검색을 미세 조정하십시오.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16fa1531-9fb9-4b12-961c-be12e20b2134",
+      "name": "Concatenate Context",
+      "type": "n8n-nodes-base.summarize",
+      "position": [
+        2440,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "document.pageContent",
+              "separateBy": "other",
+              "aggregation": "concatenate",
+              "customSeparator": "={{ \"\\n\\n---\\n\\n\" }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4d6147d1-7a3d-42ab-b23f-cdafe8ea30b0",
+      "name": "Retrieve Documents from Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        2080,
+        -20
+      ],
+      "parameters": {
+        "mode": "load",
+        "topK": 10,
+        "prompt": "={{ $json.prompt }}\n\nUser query: \n{{ $json.output }}",
+        "options": {},
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Combined Fields').item.json.vector_store_id }}"
+        }
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "mb8rw8tmUeP6aPJm",
+          "name": "QdrantApi account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7e68f9cb-0a0d-4215-8083-3b9ef92cd237",
+      "name": "Set Prompt and Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1880,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d782243-0571-4845-b8fe-4c6c4b55379e",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "547091fb-367c-44d4-ac39-24d073da70e0",
+              "name": "prompt",
+              "type": "string",
+              "value": "={{ $json.prompt }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0c623ca1-da85-48a3-9d8b-90d97283a015",
+      "name": "Gemini Answer",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        2720,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2zwuT5znDglBrUCO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fab91e48-1c62-46a8-b9fc-39704f225274",
+      "name": "Answer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2760,
+        -20
+      ],
+      "parameters": {
+        "text": "=User query: {{ $('Combined Fields').item.json.user_query }}",
+        "options": {
+          "systemMessage": "={{ $('Set Prompt and Output').item.json.prompt }}\n\nUse the following context (delimited by <ctx></ctx>) and the chat history to answer the user query.\n<ctx>\n{{ $json.concatenated_document_pageContent }}\n</ctx>"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "d69f8d62-3064-40a8-b490-22772fbc38cd",
+      "name": "Chat Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        2900,
+        200
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Combined Fields').item.json.chat_memory_key }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a399f8e6-fafd-4f73-a2de-894f1e3c4bec",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1800,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 580,
+        "content": "## 적응형 검색 수행  \n**쿼리와 컨텍스트를 모두 고려하여 문서 찾기.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f10fe70-1af8-47ad-a9b5-2850412c43f8",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2640,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 580,
+        "content": "사용자에게 답변하며 검색 맥락을 통합"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5cd0dd02-65f4-4351-aeae-c70ecf5f1d66",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3120,
+        -20
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4c56ef8f-8fce-4525-bb87-15df37e91cc4",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 580,
+        "content": "## 사용자 쿼리 분류\n**쿼리를 네 가지 카테고리 중 하나로 분류하세요: 사실적, 분석적, 의견, 또는 맥락적.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3ef73405-89de-4bed-9673-90e2c1f2e74b",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -280,
+        -140
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "user_query"
+            },
+            {
+              "name": "chat_memory_key"
+            },
+            {
+              "name": "vector_store_id"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0785714f-c45c-4eda-9937-c97e44c9a449",
+      "name": "Combined Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        40,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "90ab73a2-fe01-451a-b9df-bffe950b1599",
+              "name": "user_query",
+              "type": "string",
+              "value": "={{ $json.user_query || $json.chatInput }}"
+            },
+            {
+              "id": "36686ff5-09fc-40a4-8335-a5dd1576e941",
+              "name": "chat_memory_key",
+              "type": "string",
+              "value": "={{ $json.chat_memory_key || $('Chat').item.json.sessionId }}"
+            },
+            {
+              "id": "4230c8f3-644c-4985-b710-a4099ccee77c",
+              "name": "vector_store_id",
+              "type": "string",
+              "value": "={{ $json.vector_store_id || \"<ID HERE>\" }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "57a93b72-4233-4ba2-b8c7-99d88f0ed572",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        400
+      ],
+      "parameters": {
+        "width": 1280,
+        "height": 1300,
+        "content": "# 적응형 RAG 워크플로우\n\n이 n8n 워크플로우는 적응형 검색-증강 생성(Adaptive Retrieval-Augmented Generation, RAG) 접근 방식의 버전을 구현합니다. 사용자 쿼리를 분류하고, 쿼리 유형(사실적, 분석적, 의견, 또는 맥락적)에 따라 다양한 검색 및 생성 전략을 적용하여 Qdrant 벡터 저장소에 저장된 지식 기반에서 더 관련성 있고 맞춤형 답변을 제공합니다.\n\n## 작동 원리\n\n1.  **입력 트리거:**\n    * 워크플로우는 내장된 채팅 인터페이스를 통해 시작되거나 다른 n8n 워크플로우에 의해 트리거될 수 있습니다.\n    * 입력으로 `user_query`, `chat_memory_key`(대화 기록용), 및 `vector_store_id`(Qdrant 컬렉션 지정)를 기대합니다.\n    * `Set` 노드(`Combined Fields`)가 이러한 입력을 표준화합니다.\n\n2.  **쿼리 분류:**\n    * Google Gemini 에이전트(`Query Classification`)가 `user_query`를 분석합니다.\n    * 쿼리를 네 가지 카테고리 중 하나로 분류합니다:\n        * **사실적:** 구체적이고 검증 가능한 정보를 찾는 경우.\n        * **분석적:** 포괄적인 분석이나 설명이 필요한 경우.\n        * **의견:** 주관적인 문제에 대해 묻거나 다양한 관점을 찾는 경우.\n        * **맥락적:** 사용자 고유의 맥락이나 암시된 맥락에 의존하는 경우.\n\n3.  **적응형 전략 라우팅:**\n    * `Switch` 노드가 이전 단계의 분류 결과에 따라 워크플로우를 라우팅합니다.\n\n4.  **전략 구현(쿼리 적응):**\n    * 라우팅에 따라 특정 Google Gemini 에이전트가 쿼리를 적응하거나 접근 방식을 조정합니다:\n        * **사실적 전략:** 주요 엔티티에 초점을 맞춰 정밀성을 높이기 위해 쿼리를 재작성합니다(`Factual Strategy - Focus on Precision`).\n        * **분석적 전략:** 포괄적인 커버리지를 보장하기 위해 주요 쿼리를 여러 하위 질문으로 분해합니다(`Analytical Strategy - Comprehensive Coverage`).\n        * **의견 전략:** 쿼리와 관련된 다양한 잠재적 관점이나 각도를 식별합니다(`Opinion Strategy - Diverse Perspectives`).\n        * **맥락적 전략:** 쿼리에 효과적으로 답하기 위해 필요한 암시된 맥락을 유추합니다(`Contextual Strategy - User Context Integration`).\n    * 각 전략 경로는 적응 단계에 대한 자체 채팅 메모리 버퍼를 사용합니다.\n\n5.  **검색 프롬프트 및 출력 설정:**\n    * 원래 쿼리 분류에 기반하여 `Set` 노드(`Factual/Analytical/Opinion/Contextual Prompt and Output`, `Set Prompt and Output`에 연결됨)를 통해 준비합니다:\n        * 전략 단계의 출력(예: 재작성된 쿼리, 하위 질문, 관점).\n        * 쿼리 유형에 따라 최종 답변 생성 에이전트의 동작을 지시하는 맞춤형 시스템 프롬프트(예: 사실적의 경우 정밀도에 초점, 의견의 경우 다양한 관점을 제시).\n\n6.  **문서 검색(RAG):**\n    * `Retrieve Documents from Vector Store` 노드가 전략 단계의 적응된 쿼리/출력을 사용하여 지정된 Qdrant 컬렉션(`vector_store_id`)을 검색합니다.\n    * Google Gemini 임베딩을 사용하여 가장 관련성 높은 문서 청크를 검색합니다.\n\n7.  **맥락 준비:**\n    * 검색된 문서 청크의 내용을 연결(`Concatenate Context`)하여 단일 맥락 블록을 형성합니다.\n\n8.  **답변 생성:**\n    * 최종 `Answer` 에이전트(Google Gemini에 의해 구동됨)가 응답을 생성합니다.\n    * 사용:\n        * 5단계에서 설정된 맞춤형 시스템 프롬프트.\n        * 검색된 문서의 연결된 맥락(7단계).\n        * 원래 `user_query`.\n        * 공유된 채팅 기록(`Chat Buffer Memory`를 사용한 `chat_memory_key`).\n\n9.  **응답:**\n    * 생성된 답변은 `Respond to Webhook` 노드를 통해 사용자에게 전송됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bec8070f-2ce9-4930-b71e-685a2b21d3f2",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 580,
+        "content": "## ⚠️ 채팅 모드에서 사용 중인 경우\n\n`vector_store_id` 변수를 문서 검색을 수행하는 데 필요한 해당 Qdrant ID로 업데이트하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7d56eea8-a262-4add-a4e8-45c2b0c7d1a9",
+  "connections": {
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Combined Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Factual Strategy - Focus on Precision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analytical Strategy - Comprehensive Coverage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Opinion Strategy - Diverse Perspectives",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contextual Strategy - User Context Integration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve Documents from Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Answer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Factual": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Factual Strategy - Focus on Precision",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Opinion": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Opinion Strategy - Diverse Perspectives",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combined Fields": {
+      "main": [
+        [
+          {
+            "node": "Query Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Analytical": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analytical Strategy - Comprehensive Coverage",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Contextual": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Contextual Strategy - User Context Integration",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Answer",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concatenate Context": {
+      "main": [
+        [
+          {
+            "node": "Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Classification": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Classification": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Query Classification",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Prompt and Output": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Documents from Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Factual Prompt and Output": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opinion Prompt and Output": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Buffer Memory Factual": {
+      "ai_memory": [
+        [
+          {
+            "node": "Factual Strategy - Focus on Precision",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Buffer Memory Opinion": {
+      "ai_memory": [
+        [
+          {
+            "node": "Opinion Strategy - Diverse Perspectives",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analytical Prompt and Output": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contextual Prompt and Output": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Buffer Memory Analytical": {
+      "ai_memory": [
+        [
+          {
+            "node": "Analytical Strategy - Comprehensive Coverage",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Buffer Memory Contextual": {
+      "ai_memory": [
+        [
+          {
+            "node": "Contextual Strategy - User Context Integration",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Combined Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Documents from Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Concatenate Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Factual Strategy - Focus on Precision": {
+      "main": [
+        [
+          {
+            "node": "Factual Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opinion Strategy - Diverse Perspectives": {
+      "main": [
+        [
+          {
+            "node": "Opinion Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analytical Strategy - Comprehensive Coverage": {
+      "main": [
+        [
+          {
+            "node": "Analytical Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contextual Strategy - User Context Integration": {
+      "main": [
+        [
+          {
+            "node": "Contextual Prompt and Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

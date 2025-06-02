@@ -1,0 +1,401 @@
+{
+  "id": "vnhhf9aNsw0kzdBV",
+  "meta": {
+    "instanceId": "8fccc85e4982eaaf920505127420cfb3a600b56930a56e499973488bb6dc5e3a",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "CV Evaluation - Error Handling",
+  "tags": [
+    {
+      "id": "GLfSiUrpHvSix03S",
+      "name": "Error Handling",
+      "createdAt": "2025-03-03T17:54:29.858Z",
+      "updatedAt": "2025-03-03T17:54:29.858Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "e2fd6e88-ae06-48ea-a73f-8e523b747a33",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        -40,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6b75ee9b-4540-4199-a393-c3e2583fd6bb",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1360,
+        160
+      ],
+      "webhookId": "d9c9328c-5be7-4ebe-a20a-c025e52cdf46",
+      "parameters": {
+        "sendTo": "={{ $json.config.emailing.sendTo }}",
+        "message": "=<p>Workflow <a href=\"{{ $json.workflow.url }}\">{{ $json.workflow.id }}</a> ({{ $json.workflow.name }})<br/>\nhas triggered the error handling workflow <a href=\"{{ $json.errorHandlingWorkflow.url }}\">{{ $json.errorHandlingWorkflow.id }}</a> ({{ $json.errorHandlingWorkflow.name }})<br/>\nwith the error details below.</p>\n{{ $json.html }}\n<h2>Error handling JSON (complete error handling data)</h2>\n<pre>\n{{ JSON.stringify({\n  execution: $json.execution,\n  trigger: $json.trigger,\n  workflow: $json.workflow,\n  errorHandlingWorkflow: $json.errorHandlingWorkflow,\n}, null, 2) }}\n</pre>",
+        "options": {
+          "senderName": "={{ $json.config.emailing.senderName }}"
+        },
+        "subject": "=Workflow {{ $json.workflow.id }} ({{ $json.workflow.name }}) {{ $json.workflow.isExecutionError ? \"execution error\" : \"trigger failure\" }}: {{ $json.execution.error.message || $json.trigger.error.message }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DsQxovsVtYdErSwk",
+          "name": "Gmail m42g@g"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2a3fd36f-a04b-4b43-bc5a-ac9d18adea82",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1160,
+        160
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b93cf843-42a2-4f64-873a-afdef2451934",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        120,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "dotNotation": true
+        },
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53ac5417-db98-41e5-bc6d-acb6dd1fec42",
+              "name": "config.appUrl",
+              "type": "string",
+              "value": "https://YourAccountName.app.n8n.cloud/"
+            },
+            {
+              "id": "0f85c65a-80bb-4977-90b9-1b4e741b5f70",
+              "name": "config.emailing.sendTo",
+              "type": "string",
+              "value": "recipient@gmail.com"
+            },
+            {
+              "id": "138c091f-7cd4-453a-9c75-5d193b617a39",
+              "name": "config.emailing.senderName",
+              "type": "string",
+              "value": "Marvin the Yeoman Warder"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5da22c60-fa54-4ddf-add8-f2b26610ef92",
+      "name": "Constants",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        280,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "dotNotation": true
+        },
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d69f8081-b58c-4283-a424-a2804c51258a",
+              "name": "workflow.url",
+              "type": "string",
+              "value": "={{ $json.config.appUrl + \"workflow/\" + $json.workflow.id }}"
+            },
+            {
+              "id": "735040f7-8f6e-4bda-a1be-e7784132ead8",
+              "name": "workflow.isExecutionError",
+              "type": "boolean",
+              "value": "={{ Boolean($json.execution) }}"
+            },
+            {
+              "id": "9206cdcc-4387-47e9-902e-f7d6b1f6893f",
+              "name": "errorHandlingWorkflow.id",
+              "type": "string",
+              "value": "={{ $workflow.id }}"
+            },
+            {
+              "id": "21de1fda-f4e4-4aef-afee-e3d7e6635f42",
+              "name": "errorHandlingWorkflow.name",
+              "type": "string",
+              "value": "={{ $workflow.name }}"
+            },
+            {
+              "id": "651ff8f3-be7b-4990-8248-38383f6d5f6a",
+              "name": "errorHandlingWorkflow.url",
+              "type": "string",
+              "value": "={{ $json.config.appUrl + \"workflow/\" + $workflow.id }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a3e45087-e799-4b1b-b420-8d106bdd6daf",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        460,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a757d78d-799b-401b-8c01-3103fddfe757",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.workflow.isExecutionError }}",
+              "rightValue": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "249a330d-1e9f-412c-a067-c96fbbcd1e6f",
+      "name": "HTML for Execution Error",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        660,
+        -140
+      ],
+      "parameters": {
+        "html": "<h2>Execution details</h2>\n<p>See execution details at <a href=\"{{ $json.execution.url }}\">{{ $json.execution.url }}</a></p>\n<p>Execution id: {{ $json.execution.id }}</p>\n<p>retryOf: {{ $json.execution.retryOf }}</p>\n<p>lastNodeExecuted: {{ $json.execution.lastNodeExecuted }}</p>\n<p>mode: {{ $json.execution.mode }}</p>\n<p>Message: {{ $json.execution.error.message }}</p>\n<h3>Stack trace</h3>\n<pre>\n{{ $json.execution.error.stack }}\n</pre>"
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "cc9e2e40-7858-4d86-bfda-65b4ad9f6ada",
+      "name": "HTML for Trigger Error",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        660,
+        40
+      ],
+      "parameters": {
+        "html": "<h2>Trigger failure details</h2>\n<p>A trigger on main workflow has thrown an error.</p>\n<h3>Mode</h3>\n<p>{{ $json.trigger.mode }}</p>\n<h3>Error</h3>\n<p>Message: {{ $json.trigger.error.message }}</p>\n<p>DateTime: {{ DateTime.fromMillis($json.trigger.error.timestamp) }}</p>\n<p>Name: {{ $json.trigger.error.name }}</p>\n<p>Description: {{ $json.trigger.error.description }}</p>\n<p>Context:<br/>\n<pre>{{ JSON.stringify($json.trigger.error.context, null, 2) }}</pre></p>\n\n<h3>Cause</h3>\n<p>Message: {{ $json.trigger.error.cause.message }}</p>\n<p>Name: {{ $json.trigger.error.cause.name }}</p>\n<p>Code:{{ $json.trigger.error.cause.code }} </p>\n<p>Status: {{ $json.trigger.error.cause.status }}</p>\n<h3>Stack trace</h3>\n<pre>\n{{ $json.trigger.error.cause.stack }}\n</pre>"
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "865dc047-69fc-4409-888b-701468746945",
+      "name": "KeepEitherOfHTMLs",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        900,
+        -40
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {
+          "includeUnpaired": true
+        },
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "4d975de4-b458-43ac-9bfd-d6ab8205dc9a",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        100,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "e85a2fd7-eaff-4390-93ed-27c038aab890",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 380,
+        "content": "## 구성\n\n정의\n- n8n 앱의 기본 URL\n- 알림 수신자 이메일\n- 발신자 이름"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "efedfd1a-8e4f-44cb-aa0b-e10608f2328d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -1000
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1060,
+        "height": 820,
+        "content": "## Gmail을 통해 워크플로 오류(실행 및 트리거 수준 오류) 시 이메일 보내기\n\n이 오류 처리 워크플로는 워크플로 오류 발생 시 세부 사항과 함께 Gmail을 통해 이메일을 보냅니다.\n\nhttps://n8n.io/workflows/696-send-email-via-gmail-on-workflow-error/를 확장하여 트리거 수준 오류도 포함하는 기능을 추가합니다.\n\n---\n\n### 기능\n- 주요 워크플로 트리거 및 실행 시 오류에 대한 알림을 받습니다.\n- 제목 줄에는 실패한 워크플로 ID, 이름, 오류 소스(실행 또는 트리거), 오류 메시지가 포함됩니다.\n- 본문에는 실패한 워크플로와 오류 처리 워크플로에 대한 링크, 실행 또는 트리거 오류 세부 사항이 포함됩니다.\n- 본문에는 **`Error Trigger`**에서 오류를 설명하는 기계 판독 가능하고 풍부한 JSON도 포함됩니다.\n\n이 **오류 처리 워크플로**를 원하는 만큼 많은 워크플로에 사용하세요.\n\n---\n\n### 구성\n- 이 워크플로를 작업 영역에 복사하고, 선택적으로 주요 워크플로가 포함된 프로젝트 아래로 이동하세요.\n- 이 **오류 처리 워크플로** 설정에서 **이 워크플로는 다음에 의해 호출될 수 있음**을 적절히 설정하세요.\n- **`Config`** 노드에서 앱 URL, 알림 수신자 이메일, 발신자 이름(받은 편지함에서 필터를 구축하는 데 유용함)을 정의하세요.\n- **`Gmail`** 노드에서 자격 증명을 생성하고 선택하세요.\n- 주요 워크플로 설정에서 이 오류 처리 워크플로를 **Error Workflow** 필드에 선택하세요([방법...](https://docs.n8n.io/flow-logic/error-handling/#create-and-set-an-error-workflow))\n\n---\n\n### 관련 리소스\n- [n8n Error Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.errortrigger/) 문서.\n\n---\n\n### 작성자\n- community.n8n.io에서 [Olek](https://community.n8n.io/u/olek/summary)에 연락하세요.\n- n8n 제작자 허브에서 [Olek](https://n8n.io/creators/olek/)을 확인하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "98d42327-3d06-4fc0-a31c-64114ae5cfc2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -40
+      ],
+      "parameters": {
+        "height": 380,
+        "content": "## Gmail 자격 증명  \n여기에 귀하의 Gmail 계정 자격 증명을 설정하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "aef68c1b-3efa-4f48-97ba-23c686cb7683",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTML for Execution Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML for Trigger Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Constants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Constants": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KeepEitherOfHTMLs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML for Trigger Error": {
+      "main": [
+        [
+          {
+            "node": "KeepEitherOfHTMLs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTML for Execution Error": {
+      "main": [
+        [
+          {
+            "node": "KeepEitherOfHTMLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

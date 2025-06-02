@@ -1,0 +1,398 @@
+{
+  "id": "QqbYH25we4JDZrZD",
+  "meta": {
+    "instanceId": "31e69f7f4a77bf465b805824e303232f0227212ae922d12133a0f96ffeab4fef"
+  },
+  "name": "🔍🛠️ Tavily Search & Extract - Template",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e029204b-2e05-4262-b464-7c1b3a995f91",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -940
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 520,
+        "height": 940,
+        "content": "## Tavily API 검색 엔드포인트\n\n**기본 URL**: `https://api.tavily.com/search`  \n**방법**: POST\n\n### 필수 매개변수\n- `query`: 검색 쿼리 문자열  \n- `api_key`: Tavily API 키\n\n### 선택 매개변수\n- `search_depth`: \"basic\" 또는 \"advanced\" (기본값: \"basic\")  \n- `topic`: \"general\" 또는 \"news\" (기본값: \"general\")  \n- `max_results`: 반환할 결과의 최대 수 (기본값: 5)  \n- `include_images`: 쿼리 관련 이미지를 포함 (기본값: false)  \n- `include_answer`: AI 생성 답변 포함 (기본값: false)  \n- `include_raw_content`: 구문 분석된 HTML 콘텐츠 포함 (기본값: false)  \n- `include_domains`: 포함할 도메인 목록  \n- `exclude_domains`: 제외할 도메인 목록  \n- `time_range`: 시간 범위로 필터링 (\"day\", \"week\", \"month\", \"year\")  \n- `days`: 뉴스 결과에 대한 과거 일수 (기본값: 3)\n\n### 예시 요청\n```json\n{\n    \"api_key\": \"tvly-YOUR_API_KEY\",\n    \"query\": \"Who is Leo Messi?\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": false,\n    \"include_images\": true,\n    \"max_results\": 5\n}\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c47edec-6c6e-460d-b098-f9a26caa5f8e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -940
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 640,
+        "height": 720,
+        "content": "## Tavily API 추출 엔드포인트\n\n**기본 URL**: `https://api.tavily.com/extract`\n\n**메서드**: POST\n\n### 필수 매개변수\n- `urls`: 단일 URL 문자열 또는 URL 배열\n- `api_key`: 귀하의 Tavily API 키\n\n### 선택적 매개변수\n- `include_images`: 추출된 이미지를 포함 (기본값: false)\n\n### 예시 요청\n```json\n{\n    \"api_key\": \"tvly-YOUR_API_KEY\", \n    \"urls\": [\n        \"https://en.wikipedia.org/wiki/Artificial_intelligence\",\n        \"https://en.wikipedia.org/wiki/Machine_learning\"\n    ]\n}\n```\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cacae1d1-c9ec-4c2f-ba5d-f782257697cc",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -940
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 540,
+        "content": "## Tavily API 문서\n\nTavily REST API는 LLM 에이전트를 위한 강력한 검색 엔진인 Tavily Search와 LLMs에 최적화된 고급 웹 스크래핑 솔루션인 Tavily Extract에 원활한 액세스를 제공합니다.\n\nhttps://docs.tavily.com/docs/rest-api/examples\n\nhttps://docs.tavily.com/docs/rest-api/api-reference#parameters\n\nTavily API는 검색과 데이터 추출을 위한 두 가지 주요 엔드포인트를 제공합니다.\n\nAPI는 JSON 응답을 반환하며, 다음을 포함합니다:\n\n- 제목, URL 및 내용을 포함한 검색 결과\n- 지정된 URL에서 추출된 원시 내용\n- 응답 시간 측정항목\n- 실패한 요청에 대한 오류 메시지\n\n**주의**: 응답에서 실패한 결과를 확인한 후 처리하도록 오류 처리를 해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16e977f4-e72d-474c-a04b-3f3ad51cc322",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -360
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 360,
+        "content": "## Tavily 사용 사례\n\n📜 Tavily API를 데이터 강화에 사용하는 이유?\n\nhttps://docs.tavily.com/docs/use-cases/data-enrichment\n\n💡 Tavily API를 회사 연구에 사용하는 이유?\n\nhttps://docs.tavily.com/docs/use-cases/company-research\n\n🔍 GPT 연구자\n\nhttps://docs.tavily.com/docs/gpt-researcher/introduction"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e4d0b3c-761d-42b9-bbbe-6ceb366fdc6f",
+      "name": "Tavily Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -580,
+        -180
+      ],
+      "parameters": {
+        "url": "https://api.tavily.com/search",
+        "body": "={\n    \"api_key\": \"tvly-YOUR_API_KEY\",\n    \"query\": \"What is n8n?\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": false,\n    \"include_images\": true,\n    \"include_image_descriptions\": true,\n    \"include_raw_content\": false,\n    \"max_results\": 5,\n    \"include_domains\": [],\n    \"exclude_domains\": []\n}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "47c0bfcf-a187-4b15-b208-2458c934d5f7",
+      "name": "Tavily Extract",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        40,
+        -400
+      ],
+      "parameters": {
+        "url": "https://api.tavily.com/extract",
+        "body": "={\n    \"api_key\": \"tvly-YOUR_API_KEY\",\n    \"urls\": [\n        \"https://en.wikipedia.org/wiki/Artificial_intelligence\"\n    ]\n}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "47791d39-087b-4104-aa0d-ef98deee945c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1940,
+        -1020
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 1020,
+        "content": "## Tavily API 개요  \nhttps://docs.tavily.com/docs/welcome  \n\nTavily API는 AI 에이전트 및 LLM 애플리케이션을 위해 특별히 제작된 전문 검색 엔진을 제공하며, 두 가지 주요 엔드포인트를 제공합니다:  \n\n## 검색 엔드포인트  \n\n검색 엔드포인트는 지능형 웹 검색을 가능하게 하며:  \n\n**주요 기능**  \n- 쿼리 기반 검색으로 깊이 조정 가능(\"basic\" 또는 \"advanced\")  \n- 일반 또는 뉴스 콘텐츠에 대한 주제 필터링  \n- 결과 수량 및 콘텐츠 유형 제어  \n- 도메인 포함/제외 기능  \n- 시간 범위 필터링 및 뉴스 날짜 제한  \n\n## 추출 엔드포인트  \n\n추출 엔드포인트는 콘텐츠 검색에 중점을 두며:  \n\n**주요 기능**  \n- 단일 또는 배치 URL 처리  \n- 원시 콘텐츠 추출  \n- 선택적 이미지 추출  \n- 구조화된 응답 형식  \n\n## 구현 이점  \n\n**AI 통합 측면**  \n- RAG(Retrieval Augmented Generation) 최적화  \n- 검색, 스크래핑 및 필터링을 한 번의 API 호출로 처리  \n- 응답 형식 사용자 정의 가능  \n- 내장 콘텐츠 관련성 점수 매기기  \n\n**기술적 이점**  \n- JSON 응답 형식  \n- 실패한 요청에 대한 오류 처리  \n- 응답 시간 측정  \n- 유연한 콘텐츠 필터링 옵션  \n\n이 API는 지능형 처리 및 필터링을 통해 고품질, 관련성 있는 결과를 보장하면서 실시간 웹 데이터를 AI 애플리케이션에 쉽게 통합하도록 설계되었습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "76b291bc-8c34-44f1-b366-09c9f51089e2",
+      "name": "Get Top Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -700,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a73e848c-f7e7-4b3a-ae99-930c577b47be",
+              "name": "results",
+              "type": "object",
+              "value": "={{ $json.results.first() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4b098e57-eff2-4e70-9429-23b5c3d936c2",
+      "name": "Tavily Extract Top Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -480,
+        140
+      ],
+      "parameters": {
+        "url": "https://api.tavily.com/extract",
+        "body": "={\n    \"api_key\": \"{{ $('Tavily API Key').item.json.api_key }}\",\n    \"urls\": [\n        \"{{ $json.results.url }}\"\n    ]\n}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f593e164-1c9d-46e6-a619-39fe621c829f",
+      "name": "Filter > 90%",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -920,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8fd0cfc4-7adc-45f9-a278-d217e362ebfb",
+              "name": "results",
+              "type": "array",
+              "value": "={{ $json.results.filter(item => item.score > 0.80) }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fadd100c-0335-42c2-9c3d-48e6d17eb2f9",
+      "name": "Tavily Search Topic",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1140,
+        140
+      ],
+      "parameters": {
+        "url": "https://api.tavily.com/search",
+        "body": "={\n    \"api_key\": \"{{ $json.api_key }}\",\n    \"query\": \"{{ $('Provide search topic via Chat window').item.json.chatInput }}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": false,\n    \"include_images\": true,\n    \"include_image_descriptions\": true,\n    \"include_raw_content\": false,\n    \"max_results\": 5,\n    \"include_domains\": [],\n    \"exclude_domains\": []\n}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1bc5a21f-0f96-4951-9c88-0bec00b9c586",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -240,
+        300
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "jEMSvKmtYfzAkhe6",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "994bb3ee-598b-4d3f-bcfc-16c9cca36657",
+      "name": "Summarize Web Page Content",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -260,
+        140
+      ],
+      "parameters": {
+        "text": "=Summarize this web content and provide in Markdown format:  {{ $json.results[0].raw_content }}",
+        "promptType": "define"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "d5520da7-f6bc-470e-ab96-e04097041f08",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1800,
+        "height": 400,
+        "content": "타빌리 검색 및 추출 AI 요약 예제"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9bd6c18e-aabf-4719-b9c4-ac91b36891a1",
+      "name": "Tavily API Key",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1360,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "035660a9-bb58-4ecb-bad3-7f4d017fa69f",
+              "name": "api_key",
+              "type": "string",
+              "value": "tvly-YOUR_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "41f36ad7-7a2b-4732-89ec-fe6500768631",
+      "name": "Provide search topic via Chat window",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -1580,
+        140
+      ],
+      "webhookId": "6b8f316b-776e-429a-8699-55f230c3a168",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0213756a-35c4-46a8-9b79-2e8a81852177",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1420,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 80,
+        "content": "타빌리 API 키  \nhttps://app.tavily.com/home"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e1f22fbb-9663-405c-b7b1-7e8b2d54ad0f",
+  "connections": {
+    "Filter > 90%": {
+      "main": [
+        [
+          {
+            "node": "Get Top Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Top Result": {
+      "main": [
+        [
+          {
+            "node": "Tavily Extract Top Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily API Key": {
+      "main": [
+        [
+          {
+            "node": "Tavily Search Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Web Page Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily Search Topic": {
+      "main": [
+        [
+          {
+            "node": "Filter > 90%",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily Extract Top Search": {
+      "main": [
+        [
+          {
+            "node": "Summarize Web Page Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Provide search topic via Chat window": {
+      "main": [
+        [
+          {
+            "node": "Tavily API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

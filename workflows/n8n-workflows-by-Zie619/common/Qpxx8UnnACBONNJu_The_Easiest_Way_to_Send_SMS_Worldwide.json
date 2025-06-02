@@ -1,0 +1,149 @@
+{
+  "id": "Qpxx8UnnACBONNJu",
+  "meta": {
+    "instanceId": "a4bfc93e975ca233ac45ed7c9227d84cf5a2329310525917adaf3312e10d5462",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "The Easiest Way to Send SMS Worldwide",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "807bfde2-a20e-41ad-87c5-70bcd31e3dcc",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -300,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "369069a8-0b79-4e5a-9a89-4bccafdea247",
+      "name": "Send SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        140,
+        -100
+      ],
+      "parameters": {
+        "url": "https://rest.clicksend.com/v3/sms/send",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"messages\": [\n        {\n            \"source\": \"php\",\n            \"body\": \"{{ $json.sms }}\",\n            \"to\": \"{{ $json.to }}\"\n        }\n    ]\n}\n",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": " application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "UwsDe2JxT39eWIvY",
+          "name": "ClickSend API"
+        },
+        "httpHeaderAuth": {
+          "id": "M8w41EP0NFUSBShY",
+          "name": "ClickSend API"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "41989686-d6ca-4bb9-bece-4ef8ed37f485",
+      "name": "Set SMS data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b4c4e62d-b09d-4f71-a48a-c1ea451aed6e",
+              "name": "sms",
+              "type": "string",
+              "value": "Hi, this is my first message"
+            },
+            {
+              "id": "371aff94-147e-4241-823a-a5f6e7f7e68e",
+              "name": "to",
+              "type": "string",
+              "value": "+39xxxxxxxx"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "dd218cae-e928-4a63-953f-faae5ac794bf",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        -520
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 180,
+        "content": "## 1단계\n[ClickSend에 여기에서 등록하세요](https://clicksend.com/?u=586989) 그리고 API 키를 얻고 2유로의 무료 크레딧을 받으세요\n\n“Send SMS” 노드에서 등록한 사용자 이름과 제공된 API 키를 비밀번호로 사용하여 “Basic Auth”를 생성하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "61665d97-5ccc-4206-8577-95acf3e4c0d4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        -300
+      ],
+      "parameters": {
+        "width": 400,
+        "content": "## 2단계\n\n노드 \"Set SMS data\"에 메시지의 텍스트와 수신자를 추가하세요. 수신자에는 국제 접두사(예: +39)와 공백 없는 전화번호를 포함하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "840e10d6-a142-4897-9a10-9164a6b7e2c2",
+  "connections": {
+    "Set SMS data": {
+      "main": [
+        [
+          {
+            "node": "Send SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set SMS data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

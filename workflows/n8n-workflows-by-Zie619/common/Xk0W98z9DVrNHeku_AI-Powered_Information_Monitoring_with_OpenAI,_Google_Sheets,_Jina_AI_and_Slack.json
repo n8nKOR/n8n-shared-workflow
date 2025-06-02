@@ -1,0 +1,1024 @@
+{
+  "id": "Xk0W98z9DVrNHeku",
+  "meta": {
+    "instanceId": "b9faf72fe0d7c3be94b3ebff0778790b50b135c336412d28fd4fca2cbbf8d1f5",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI-Powered Information Monitoring with OpenAI, Google Sheets, Jina AI and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "704de862-43e5-4322-ae35-45b505e68bb6",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        4220,
+        380
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAi Connection"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "eaae54b0-0500-47a7-ad8f-097e0882d21c",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        4180,
+        -120
+      ],
+      "parameters": {
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an AI assistant responsible for summarizing articles **in English** and formatting them into Slack-compatible messages.  \nYour job is to create a clear and concise summary following the guidelines below and format it in Slack-specific Markdown format.  \n\n---\n\n## 1. Title with Link  \n\n- Format the article title as a **clickable link** using Slack's Markdown syntax:  \n  `<URL|*Title of the article*>`.  \n- The title should be clear and engaging to encourage readers to click.  \n\n---\n\n## 2. Section Headings  \n\n- Use **bold text** to introduce different sections of the summary by wrapping the text with `*` symbols.  \n- Ensure headings are descriptive and guide the reader through the content effectively.  \n\n---\n\n## 3. Key Points  \n\n- Present key insights using **bullet points**, using the `•` symbol for listing important information.  \n- Each point should be concise, informative, and directly related to the article's topic.  \n\n---\n\n## 4. Content Summary  \n\n- Provide a brief but comprehensive overview of the article's content.  \n- Use plain text and line breaks to separate paragraphs for improved readability.  \n- Focus on the most important aspects without unnecessary details.  \n\n---\n\n## 5. Context and Relevance  \n\n- Explain why the article is important and how it relates to the reader's interests.  \n- Highlight its relevance to ongoing trends or industry developments.  \n\n---\n\n## Message Structure  \n\nThe output should follow this structured format:  \n\n1. **Title with link** – Present the article as a clickable link formatted in Slack Markdown.  \n2. **Summary sections** – Organized under clear headings to enhance readability.  \n3. **Key insights** – Presented as bullet points for quick scanning.  \n4. **Contextual analysis** – A brief explanation of the article's relevance and importance.  \n\n---\n\n## Slack Markdown Formatting Guide  \n\nEnsure the message follows Slack's Markdown syntax for proper display:  \n\n- **Bold text:** Use `*bold text*`.  \n- **Italic text:** Use `_italic text_`.  \n- **Bullet points:** Use `•` or `-` for lists.  \n- **Links:** Format as `<URL|*text*>` to create clickable links.  \n- **Line breaks:** Use a blank line to separate paragraphs for readability.  \n\n---\n\n## Example of Slack-formatted Output  \n\n🔔 *New article from n8n Blog*  \n\n<https://blog.n8n.io/self-hosted-ai/|*Introducing the Self-hosted AI Starter Kit: Run AI locally for privacy-first solutions*>  \n\n*Summary of the article*  \nn8n has launched the Self-hosted AI Starter Kit, a Docker Compose template designed to simplify the deployment of local AI tools. This initiative addresses the growing need for on-premise AI solutions that enhance data privacy and reduce reliance on external APIs. The starter kit includes tools like Ollama, Qdrant, and PostgreSQL, providing a foundation for building self-hosted AI workflows. While it's tailored for proof-of-concept projects, users can customize it to fit specific requirements.  \n\n*Key Points*  \n• The Self-hosted AI Starter Kit facilitates quick setup of local AI environments using Docker Compose.  \n• It includes preconfigured AI workflow templates and essential tools such as Ollama, Qdrant, and PostgreSQL.  \n• Running AI on-premise offers benefits like improved data privacy and cost savings by minimizing dependence on external API calls.  \n• The kit is designed for easy deployment on local machines or personal cloud instances like Digital Ocean and runpod.io.  \n• n8n emphasizes the flexibility of their platform, allowing integration with over 400 services, including Google, Slack, Twilio, and JIRA, to streamline AI application development.  \n\n*Context and Relevance*  \nThis article introduces a practical solution for organizations and developers seeking to implement AI workflows locally. By providing a ready-to-use starter kit, n8n addresses common challenges associated with setting up and maintaining on-premise AI systems, promoting greater control over data and potential cost efficiencies.\n \n---\n\nEnsure that the message is formatted according to Slack's requirements to improve readability and engagement.  \n"
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "a3a10ccd-26f9-4b05-a79f-8754f619c153",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -840,
+        120
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "54ed8957-39be-4ad4-bea7-f56308d75a91",
+      "name": "RSS Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "onError": "continueRegularOutput",
+      "position": [
+        800,
+        120
+      ],
+      "parameters": {
+        "url": "={{ $json.rss_feed_url }}",
+        "options": {
+          "ignoreSSL": false
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1ec53a9a-ca21-4da2-ab94-55b863a27aff",
+      "name": "Relevance Classification for Topic Monitoring",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "position": [
+        2380,
+        -20
+      ],
+      "parameters": {
+        "options": {
+          "fallback": "discard"
+        },
+        "inputText": "={{ $json.title }}\n{{ $json.contentSnippet }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "relevant",
+              "description": "Articles related to artificial intelligence (AI), data science, machine learning, algorithms, big data, or innovations in these fields."
+            },
+            {
+              "category": "not_relevant",
+              "description": "Articles not directly related to  artificial intelligence (AI), data science, machine learning, algorithms, big data, or innovations in these fields."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "840431b1-cf2e-45e2-a79c-cab90f46a452",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 960,
+        "content": "## LLM 호출 1 - 기사 주제 관련성 분류  \n\n이 **LLM 호출**은 웹사이트에 게시된 기사가 모니터링하고 싶은 **주제와 관심사**에 **관련성**이 있는지 **분류**하는 데 사용됩니다.  \n이는 **RSS Read** 노드에서 검색된 **제목**과 **콘텐츠 스니펫**을 분석합니다.  \n\n이 템플릿에서 모니터링되는 기사는 **데이터와 AI**와 관련이 있습니다.  \n분류는 **두 카테고리**로 이루어지며, 이를 노드의 **Categories** 섹션 아래 **Description** 필드에서 수정해야 합니다:\n\n### Relevant  \n`Description`: **[모니터링하고 싶은 주제]**와 관련된 기사.  \n\n### Not Relevant  \n`Description`: **[모니터링하고 싶은 주제]**와 직접적으로 관련되지 않은 기사.\n\n기본적으로 이 템플릿은 인공 지능(AI), 데이터 과학, 머신 러닝, 알고리즘, 빅 데이터, 및 이 분야의 혁신과 관련된 주제를 모니터링합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7dbc2246-9e1a-4c2e-a051-703e10e5fa0e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4020,
+        -660
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 680,
+        "content": "## LLM 호출 2 - 요약 및 Slack Markdown 형식으로\n\n이 노드는 **OpenAI의 GPT-4o-mini 모델**을 사용하여 **기사 내용을 요약**하며, Jina AI에서 제공된 **Markdown 텍스트**를 Slack 내에서 가독성을 높이기 위해 **Slack Markdown**으로 형식화합니다.  \n\n### 맞춤 설정  \n\n이 노드의 **System Prompt**를 귀하의 요구사항에 더 잘 맞게 수정하는 방법에 대한 두 가지 예를 들어보겠습니다:  \n\n- **언어 맞춤 설정:**  \n  LLM이 특정 언어(예: 프랑스어 또는 이탈리아어)로 요약을 생성하도록 지시하기 위해 **System Prompt**를 수정할 수 있습니다.  \n  그러나 모델이 **요약, 형식화, 번역**을 동시에 처리하면서 높은 출력 품질을 유지할 수 없다면, **번역 전용 LLM 노드**를 추가하는 옵션을 고려하세요.\n\n- **요약 구조 변경:**  \n  요약의 구조를 귀하가 선호하는 형식과 스타일에 더 잘 맞게 수정하기 위해 프롬프트를 조정할 수 있습니다.\n\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b472f924-81d9-4b99-8620-d95b286800c5",
+      "name": "Google Sheets - Get RSS Feed url followed",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        260,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit#gid=0",
+          "cachedResultName": "rss_feed"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit?usp=drivesdk",
+          "cachedResultName": "Template - AI-Powered Information Monitoring"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c2a571f0-614f-41cf-b0b0-db4c714a8ab8",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 960,
+        "content": "## Google Sheets - 구독한 RSS 피드 URL 가져오기  \n이 노드는 **행을 가져옵니다** 구독한 **RSS 피드 URL**이 포함된 Google Sheet에서.  \n실행당 한 번만 실행되도록 구성되어 있으므로, 이전 노드가 많은 항목을 출력하더라도 이 노드는 한 번만 실행됩니다.  \n\n시트에 **더 많은 URL을 추가**할 수 있지만, **더 많은 RSS 피드를 구독**하면 **LLM API 사용 비용**이 증가한다는 점을 유의하세요 (예: OpenAI).  \n\n이 워크플로에서 사용할 **Google Sheet 템플릿**을 복사할 수 있습니다 [여기](https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/).  \n(*이 템플릿은 이전 노드에서 사용된 것과 동일합니다.*)\n\n이 노드에서, 복사한 **Google Sheet 템플릿**의 **\"rss_feed\"** 시트를 선택해야 합니다.  \n이 시트에는 워크플로가 처리할 RSS 피드 URL 목록이 포함되어 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90e34a2f-f326-4c83-ae26-d8f38d983c21",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 960,
+        "content": "## RSS 읽기  \n이 노드는 **읽습니다** RSS 피드를.  \nRSS URL은 **가져옵니다** 당신이 **Google Sheets**에 입력한 데이터에서, 그래서 제공된 URL이 실제로 **유효한 RSS 피드**인지 확인하세요.  \n\n### RSS 피드가 무엇인가요?  \n**RSS 피드**는 **웹 피드**로, 사용자들이 웹사이트, 예를 들어 **뉴스 사이트**나 **블로그**에서 **자동으로 업데이트를 받을 수 있게** 하는 **표준화된 형식**입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06c22fcc-6fb6-4646-8cd2-3e2c48a56fbc",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2940,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 960,
+        "height": 500,
+        "content": "## Jina AI - URL 읽기\n\n이 노드는 **Jina AI API를 사용**하여 이전 단계에서 **\"relevant\"으로 분류된** 기사의 **콘텐츠를 검색**합니다.  \n이 프로세스가 **웹 스크래핑을 포함**하므로, 귀하의 국가에서 **스크래핑 규정**을 준수하도록 하세요.  \n\n### Jina AI란?  \n**Jina AI**는 웹페이지 콘텐츠를 **추출**하여 **LLM 처리에 적합한 형식**으로 변환하는 API입니다. 예를 들어 **Markdown**과 같습니다.  \n\n여기에서 [여기](https://jina.ai/) 계정을 만들 수 있으며, 테스트를 위해 **1,000,000개의 무료 토큰**을 받을 수 있습니다.  \n그러나 서비스는 **API 키 없이** (계정 없이)도 사용할 수 있지만, **줄어든 RPM (분당 요청 수)**로 사용할 수 있습니다.  \n이 워크플로우의 경우, 기본 RPM 제한이 일반적으로 충분할 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3f8a0ce3-d7b3-400b-bc03-1a233f441429",
+      "name": "Slack1",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4940,
+        -120
+      ],
+      "webhookId": "",
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0898R9G7JP",
+          "cachedResultName": "topic-monitoring"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "",
+          "name": "slack-topic-monitoring"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "6920300f-fd0e-41dc-adf6-ed5a3a267b3f",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 960,
+        "content": "## 구글 시트 - 기사 모니터링 데이터베이스  \n이 노드는 워크플로우에 의해 **이미 모니터링되고 요약된** 기사가 포함된 구글 시트에서 **행을 검색**합니다.  \n모니터링하는 RSS 피드에 따라 **URL이 피드에 오랫동안 남아 있을 수 있습니다**, 그리고 동일한 URL을 **두 번 모니터링**하고 싶지 않습니다.  \n이 워크플로우에서 복사하여 사용할 수 있는 **구글 시트 템플릿**을 [여기](https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit?gid=1966921272#gid=1966921272)에서 찾을 수 있습니다.  \n\n이 노드에서, 귀하의 **구글 시트 템플릿 복사본**에서 **\"article_database\"** 시트를 선택해야 합니다.  \n이 시트는 워크플로우에 의해 처리된 기사를 저장하고 관리하는 데 사용됩니다.  \n\n## 필드 설정 - existing_url  \n\n이 노드는 구글 시트 데이터베이스의 **\"article_url\"** 값으로 **\"existing_url\"** 필드를 설정합니다.  \n워크플로우의 **첫 번째 실행** 동안, 이 필드는 **구글 시트에 아직 기사가 없기 때문에 비어 있을** 것입니다.  \n이 경우 오류가 발생할 수 있지만, 워크플로우는 **중단 없이 계속 실행**될 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "204aab36-1081-4d6e-b3a3-2fc03b6a1a10",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 980,
+        "height": 960,
+        "content": "## 기존 URL을 필터링하는 코드 노드\n\n이 코드 노드는 **아직 AI에 의해 요약되지 않은** URL을 필터링합니다.  \n그 출력은:\n\n- 새 URL이 발견되면 RSS Read 스키마를 따르는 **URL 목록**입니다.\n- RSS 피드에 새로운 기사가 없을 경우 **\"message\"**라는 항목으로 값 **\"No new articles found\"**입니다.\n\n---\n\n## IF 노드\n\n이 노드의 조건은: `{{ $json.message }}` *에 **\"No new articles found\"**가 *아님*입니다.\n\n- **False** → 워크플로우가 \"No Operation, do nothing\" 노드를 실행합니다.\n- **True** → 워크플로우가 웹 개발 산업 모니터링을 위한 새로운 기사를 처리합니다.\n\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef83c5f9-12a7-4924-9356-d1307fc8f279",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2940,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 960,
+        "height": 580,
+        "content": "## 필드 설정 - 관련되지 않은 기사  \n\n이 노드는 Google Sheet에 추가할 데이터를 다음 필드를 정의하여 준비합니다:  \n\n- **`article_url`** – 기사의 URL.  \n- **`summarized`** – 항상 `\"NO (not relevant)\"`으로 설정되며, **\"not_relevant\"** 경로에 속합니다.  \n- **`website`** – 기사 URL이 게시된 웹사이트.  \n- **`fetched_at`** – 워크플로우에서 URL이 처리된 타임스탬프.  \n  > *(노트: 이 타임스탬프는 **Schedule Trigger** 노드에서 얻은 시나리오가 트리거된 시점을 반영하며, 정확한 가져오기 시간을 의미하지 않습니다.)*  \n- **`publish_date`** – 기사가 게시된 날짜.  \n\n---\n\n## Google Sheets - 관련되지 않은 기사 추가  \n\n이 노드는 준비된 데이터를 복사된 Google Sheet 템플릿의 **\"article_database\"** 시트에 추가합니다.  \n이 노드를 구성할 때 **\"article_database\"** 시트를 선택해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10af053d-23f6-416b-9fe2-874dfc2ec7aa",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4020,
+        80
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 600,
+        "height": 440,
+        "content": "## OpenAI 채팅 모델  \n\n이 노드는 처리에 사용할 **AI 모델**을 지정합니다.  \n기본 모델은 **GPT-4o-mini**로, 이 작업에 대해 **테스트**되었으며 잘 작동하는 것으로 입증되었습니다.  \n\n**GPT-4o-mini**는 **비용 효율적**인 모델로, **성능과 저렴함** 사이의 좋은 균형을 제공하여 높은 비용을 발생시키지 않고 정기적으로 사용하기에 적합합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67e6b0f9-32fc-4dcf-ae1b-effe11b31cd1",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4680,
+        -640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 680,
+        "content": "## Slack - 기사 요약 보내기  \n\n이 노드는 지정된 Slack 채널에 메시지를 게시하며, LLM에 의해 생성된 출력이 포함됩니다.  \n\n더 나은 조직과 접근성을 위해, 주제 모니터링을 위해 특별히 전용 Slack 채널을 사용하는 것이 권장됩니다.  \n이로 인해 팀 구성원들이 다른 논의를 어지럽이지 않고 관련 요약에 쉽게 접근할 수 있습니다.  \n\n\n### 왜 Slack Tool Calling을 사용하지 않나요?  \n\n광범위한 테스트 후, 이전 노드의 출력이 매우 효과적임이 입증되었으며, tool calling이나 AI agent를 사용할 필요가 없습니다. 😀  \n것들을 간단하게 유지하면 워크플로를 간소화하고 복잡성을 줄입니다.  \n\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "afe7643d-618b-4798-851e-b8b9d024e792",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4700,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1260,
+        "height": 560,
+        "content": "## 필드 설정 - 관련 기사  \n\n이 노드는 Google Sheet에 추가할 데이터를 다음 필드를 정의하여 준비합니다:  \n\n- **`article_url`** – 기사의 URL입니다.  \n- **`summarized`** – 항상 `\"YES\"`로 설정되며, **\"relevant\"** 경로를 따르기 때문입니다.  \n- **`summary`** – Slack에 게시된 기사 요약입니다.  \n- **`website`** – 기사가 게시된 원본 웹사이트입니다.  \n- **`fetched_at`** – URL이 워크플로우에서 처리된 시점을 나타내는 타임스탬프입니다.  \n  > *(노트: 이 타임스탬프는 실제 가져온 시간ではなく, Google Sheets에 데이터가 추가된 시점을 반영합니다.)*  \n- **`publish_date`** – 기사가 게시된 날짜입니다.  \n\n---\n\n## Google Sheets - 관련 기사 추가\n\n이 노드는 준비된 데이터를 복사한 Google Sheet 템플릿의 **\"article_database\"** 시트에 추가합니다.  \n이 노드를 구성할 때 **\"article_database\"** 시트를 선택해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e87619df-48e3-4ef8-83c7-1695746e2b92",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        -280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 600,
+        "content": "## 스케줄러  \n이 **트리거**는 **스케줄러**로, **워크플로우**가 실행되는 **빈도**를 정의합니다.  \n기본적으로, **템플릿**은 **매 1시간마다**로 설정되어 있으며, 이는 **워크플로우**가 **매 시간마다** **새로운 기사**가 추가되었는지 **당신이 팔로우하는 RSS 피드**를 확인한다는 의미입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2bcd684-abd9-4f47-bf4c-12eac379432d",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1900,
+        -720
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 780,
+        "height": 1300,
+        "content": "# 워크플로우 개요\n\n## 법적 규정 확인:\n이 워크플로우는 스크래핑을 포함하므로, 시작하기 전에 귀하의 국가의 법적 규정을 준수하는지 확인하세요. 안전하게 하는 것이 낫습니다!\n\n## 📌 목적  \n이 워크플로우는 **자동화되고 AI 기반의 주제 모니터링**을 가능하게 하며, **간결한 기사 요약**을 **Slack 채널**에 **구조화되고 쉽게 읽을 수 있는 형식**으로 직접 전달합니다.  \n사용자들이 여러 소스를 수동으로 확인하지 않고도 관심 있는 특정 주제에 대해 쉽게 정보를 얻을 수 있도록 하며, **시간 효율적이고 집중된** 모니터링 경험을 보장합니다.  \n\n**시작하려면, 이 워크플로우에 필요한 Google Sheets 템플릿을 [여기](https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY)에서 복사하세요.**  \n\n\n## 🎯 대상 사용자  \n이 워크플로우는 다음을 위해 설계되었습니다:  \n- **업계 전문가**들이 해당 분야의 주요 발전을 추적하기 위해.  \n- **연구 팀**들이 특정 주제에 대한 최신 인사이트를 필요로 할 때.  \n- **회사**들이 팀에게 관련 콘텐츠로 정보를 제공하기 위해.  \n\n## ⚙️ 작동 원리  \n1. **트리거:** **스케줄러**가 정기적인 간격(기본: 매 시간)으로 워크플로우를 시작합니다.  \n2. **데이터 검색:**  \n   - **RSS Read** 노드를 사용하여 RSS 피드를 가져옵니다.  \n   - 중복을 피하기 위해 **Google Sheets**에서 이전에 모니터링된 기사를 확인합니다.  \n3. **콘텐츠 처리:**  \n   - 기사의 관련성을 **OpenAI (GPT-4o-mini)**를 사용하여 평가합니다.  \n   - 관련 기사를 **Jina AI**를 사용하여 콘텐츠를 추출합니다.  \n   - 요약을 생성하고 Slack에 맞게 형식화합니다.  \n4. **출력:**  \n   - 요약을 지정된 Slack 채널에 게시합니다.  \n   - 기사 메타데이터를 **Google Sheets**에 저장하여 추적합니다.  \n\n## 🛠️ 주요 API 및 노드 사용  \n- **스케줄러 노드:** 워크플로우를 주기적으로 트리거합니다.  \n- **RSS Read:** 정의된 RSS 피드에서 최신 기사를 가져옵니다.  \n- **Google Sheets:** 모니터링된 기사를 저장하고 피드 URL을 관리합니다.  \n- **OpenAI API (GPT-4o-mini):** 기사 관련성을 분류하고 요약을 생성합니다.  \n- **Jina AI API:** 관련 기사의 전체 콘텐츠를 추출합니다.  \n- **Slack API:** Slack 채널에 형식화된 메시지를 게시합니다.  \n\n---\n\n이 워크플로우는 관심 주제에 대해 **효율적이고 지능적인 방법**으로 정보를 유지할 수 있도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d72f505d-2bbf-41db-b404-8a61b8c21452",
+      "name": "Google Sheets - Get article monitored database",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -400,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1966921272,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit#gid=1966921272",
+          "cachedResultName": "article_database"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit?usp=drivesdk",
+          "cachedResultName": "Template - AI-Powered Information Monitoring"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "08eae799-2682-4d49-81fa-2127a65d887b",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        120
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve data from RSS feed and Google Sheets\nconst rssItems = items; // Contains RSS articles\nconst sheetItems = $items(\"Set field - existing_url\", 0);\n\n// Extract the links of articles present in Google Sheets\nconst existingUrls = sheetItems.map(entry => entry.json.existing_url);\n\n// Filter RSS articles to keep only those not present in Google Sheets\nconst newArticles = rssItems.filter(rssItem => {\n    return !existingUrls.includes(rssItem.json.link);\n});\n\n// If new articles are found, return them\nif (newArticles.length > 0) {\n    return newArticles;\n}\n\n// If no new articles, return an informational message\nreturn [{ json: { message: \"No new articles found.\" } }];\n\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9f2d2c87-460b-4872-9538-519d26524475",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1960,
+        240
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e9ebbce6-a3b4-4f89-9908-3d9b2dd42f44",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1640,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bad6fc33-2e1e-4169-9893-d284c6c68288",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "No new articles found."
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6e2c820d-27da-4d3b-844c-581fb266e04a",
+      "name": "Jina AI - Read URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3240,
+        -120
+      ],
+      "parameters": {
+        "url": "=https://r.jina.ai/{{ $json.link }}",
+        "options": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "3f942518-f75b-4d03-9cd1-b275ad3b91cd",
+      "name": "Set field - existing_url",
+      "type": "n8n-nodes-base.set",
+      "onError": "continueRegularOutput",
+      "position": [
+        -180,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07799638-55d7-42a9-b1f7-fea762cfa2f1",
+              "name": "existing_url",
+              "type": "string",
+              "value": "={{ $json.article_url.extractUrl() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "baef0ff9-8bf5-4ecf-9300-0adbad0d1a07",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2400,
+        300
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAi Connection"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ccbfe5fc-2e87-4fff-b23d-0c4c6ebd3648",
+      "name": "Set fields - Not relevant articles",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3060,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3fbf5256-f06b-450a-adf7-65591a19c7dd",
+              "name": "article_url",
+              "type": "string",
+              "value": "={{ $json.link }}"
+            },
+            {
+              "id": "02f506cf-28fe-46ef-b97e-7ec938805151",
+              "name": "summarized",
+              "type": "string",
+              "value": "NO (not relevant)"
+            },
+            {
+              "id": "552efef4-63cb-448b-bb0c-30ae9666f310",
+              "name": "website",
+              "type": "string",
+              "value": "={{ $('Google Sheets - Get RSS Feed url followed').item.json.website }}"
+            },
+            {
+              "id": "096acb35-4e9e-48fd-8e61-8ceb525591fa",
+              "name": "fetched_at",
+              "type": "string",
+              "value": "={{$now}}"
+            },
+            {
+              "id": "427243d1-01c4-458a-9626-75366e4264cd",
+              "name": "publish_date",
+              "type": "string",
+              "value": "={{ $('Relevance Classification for Topic Monitoring').item.json.pubDate.toDateTime().format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0dbcc872-9afa-4e2c-be24-82d3a2457dd0",
+      "name": "Google Sheets - Add relevant articles",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3480,
+        480
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "article_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summarized",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "summarized",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fetched_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "fetched_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "publish_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "publish_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1966921272,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit#gid=1966921272",
+          "cachedResultName": "article_database"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit?usp=drivesdk",
+          "cachedResultName": "Template - AI-Powered Information Monitoring"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "0c7024b6-dfac-4e97-9d42-198fff6bcc47",
+      "name": "Google Sheets - Add relevant article",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        5660,
+        520
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "article_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summarized",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "summarized",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fetched_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "fetched_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "publish_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "publish_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1966921272,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit#gid=1966921272",
+          "cachedResultName": "article_database"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F2FzWt9FMkA5V5i9d_hBJRahLDvxs3DQBOLkLYowXbY/edit?usp=drivesdk",
+          "cachedResultName": "Template - AI-Powered Information Monitoring"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e1266606-eaee-4077-be7e-6f08ae9bae39",
+      "name": "Set Fields - Relevant Articles",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4900,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3fbf5256-f06b-450a-adf7-65591a19c7dd",
+              "name": "article_url",
+              "type": "string",
+              "value": "={{ $('Relevance Classification for Topic Monitoring').item.json.link }}"
+            },
+            {
+              "id": "02f506cf-28fe-46ef-b97e-7ec938805151",
+              "name": "summarized",
+              "type": "string",
+              "value": "YES"
+            },
+            {
+              "id": "e23059bd-8bb2-439a-85bd-f9e191930d1e",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "552efef4-63cb-448b-bb0c-30ae9666f310",
+              "name": "website",
+              "type": "string",
+              "value": "={{ $('Google Sheets - Get RSS Feed url followed').item.json.website }}"
+            },
+            {
+              "id": "096acb35-4e9e-48fd-8e61-8ceb525591fa",
+              "name": "fetched_at",
+              "type": "string",
+              "value": "={{$now}}"
+            },
+            {
+              "id": "427243d1-01c4-458a-9626-75366e4264cd",
+              "name": "publish_date",
+              "type": "string",
+              "value": "={{ $('Relevance Classification for Topic Monitoring').item.json.pubDate.toDateTime().format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dcc84e7c-aa42-4d0f-8522-84fdf8bea0bc",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Relevance Classification for Topic Monitoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Slack1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Fields - Relevant Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Get article monitored database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jina AI - Read URL": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Relevance Classification for Topic Monitoring",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set field - existing_url": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Get RSS Feed url followed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields - Relevant Articles": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Add relevant article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set fields - Not relevant articles": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Add relevant articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Add relevant article": {
+      "main": [
+        []
+      ]
+    },
+    "Google Sheets - Get RSS Feed url followed": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relevance Classification for Topic Monitoring": {
+      "main": [
+        [
+          {
+            "node": "Jina AI - Read URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set fields - Not relevant articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Get article monitored database": {
+      "main": [
+        [
+          {
+            "node": "Set field - existing_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

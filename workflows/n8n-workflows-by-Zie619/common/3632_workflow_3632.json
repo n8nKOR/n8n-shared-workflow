@@ -1,0 +1,598 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9"
+  },
+  "nodes": [
+    {
+      "id": "fcbf7023-7e12-49d8-9c7d-4cb431c79905",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        460,
+        260
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "operation"
+            },
+            {
+              "name": "tableName"
+            },
+            {
+              "name": "values",
+              "type": "object"
+            },
+            {
+              "name": "where",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "58c93321-ded9-48c1-812f-c35d160e257b",
+      "name": "Operation",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        640,
+        260
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "READ",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "81b134bc-d671-4493-b3ad-8df9be3f49a6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "read"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "INSERT",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8d57914f-6587-4fb3-88e0-aa1de6ba56c1",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "insert"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "UPDATE",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7c38f238-213a-46ec-aefe-22e0bcb8dffc",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "update"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "865ae43a-14ec-4aac-9396-d0aef1ab4a75",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 660,
+        "content": "## 1. MCP Server Trigger 설정\n\n[MCP Server Trigger에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35551851-319a-47cf-87cd-a63b128300cc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        -100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 720,
+        "content": "## 2. 원시 SQL 문 사용 방지를 통해 보안 유지\n[코드 노드에 대해 자세히 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/)\n\n에이전트가 전체 원시 SQL 문을 제공하도록 하는 것이 더 쉽지만,\n이는 최악의 경우 데이터가 모르게 유출되거나 삭제될 수 있는 실제 보안 위험에 당신이나 당신의 조직을 노출시킬 수 있습니다.\n\n에이전트가 쿼리의 매개변수만 제공하도록 강제하는 것은\n이 위험에 대해 어느 정도 방어할 수 있게 하며, SQL 인젝션 공격에 대한 최선의 관행으로 쿼리 매개변수를 사용할 수 있게 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95c35568-e447-4634-afe8-c902ba5c7d2f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -220
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 100,
+        "content": "항상 서버를 인증하세요! 프로덕션으로 가기 전에, 항상 MCP 서버 트리거에서 인증을 활성화하는 것이 권고됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d0f98f8-043a-459c-8b77-634e06ee0f57",
+      "name": "SQLite MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -160,
+        60
+      ],
+      "webhookId": "3124a4cd-4e93-4c1b-b4db-b5599f4889b1",
+      "parameters": {
+        "path": "3124a4cd-4e93-4c1b-b4db-b5599f4889b1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f313137-eb8f-429b-a6c9-7b17e067dc5e",
+      "name": "CreateRecord",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        940,
+        260
+      ],
+      "parameters": {
+        "jsCode": "const sqlite3 = require('sqlite3').verbose();\nconst { promisify } = require('util');\n\nconst db = new sqlite3.Database('/home/node/test.db');\nconst run = promisify(db.run.bind(db));\n\nconst { json } = $input.first();\n\n\nlet output = '';\nconst statement = [\n  `INSERT INTO ${json.tableName}`,\n  `   (${Object.keys(json.values).join(',')})`,\n  `VALUES`,\n  `  (${Object.keys(json.values).map(_ => '?').join(',')})`\n].join(' ');\nconst params = Object.values(json.values);\n\ntry {\n  await run(statement.trim(), params);\n  output = { output: 'ok', error: null };\n} catch (err) {\n  output = { output: null, error: err };\n} finally {\n  await db.close();\n}\n\nreturn output;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2530656-bbf4-4316-8b8e-c5d27865e45f",
+      "name": "UpdateRecord",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        940,
+        440
+      ],
+      "parameters": {
+        "jsCode": "const sqlite3 = require('sqlite3').verbose();\nconst { promisify } = require('util');\n\nconst db = new sqlite3.Database('/home/node/test.db');\nconst run = promisify(db.run.bind(db));\n\nconst { json } = $input.first();\n\nlet output = '';\nconst statement = [\n  `UPDATE ${json.tableName}`,\n  `SET`,\n  `${Object.keys(json.values)\n    .map(key => `${key} = ?`)\n    .join(',')}`,\n  `WHERE`,\n  `${Object.keys(json.where)\n     .map((key,idx) => `${key} = ?`)\n     .join(' AND ')}`\n].join(' ');\nconst params = [ ...Object.values(json.values), ...Object.values(json.where)];\n\ntry {\n  await run(statement, params);\n  output = { output: 'ok', error: null };\n} catch (err) {\n  output = { output: null, error: err };\n} finally {\n  await db.close();\n}\n\nreturn output;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8c1b8bcb-20f1-4ef9-b646-9d89177651dd",
+      "name": "ReadRecords",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        940,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const sqlite3 = require('sqlite3').verbose();\nconst { promisify } = require('util');\n\nconst db = new sqlite3.Database('/home/node/test.db');\nconst all = promisify(db.all.bind(db));\n\nconst { json } = $input.first();\n\nlet output = '';\nconst statement = [\n  `SELECT * FROM ${json.tableName}`,\n  json?.where && Object.keys(json?.where).length > 0\n    ? `WHERE ` + Object.keys(json.where)\n        .map((key,idx) => `${key} = $${idx+1}`)\n        .join(' AND ')\n    : ''\n].join(' ');\nconst params = json.where ? Object.values(json.where) : undefined;\n\ntry {\n  \n  const results = await all(statement.trim(), params);\n\n  output = { output: [].concat(results), error: null };\n} catch (err) {\n  output = { output: null, error: err };\n} finally {\n  await db.close();\n}\n\nreturn output"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "87df3eed-b4d5-4a9c-bd82-0ad455449cd2",
+      "name": "DescribeTables",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "position": [
+        -160,
+        340
+      ],
+      "parameters": {
+        "name": "describeTable",
+        "jsCode": "const sqlite3 = require('sqlite3').verbose();\nconst { promisify } = require('util');\n\nconst db = new sqlite3.Database('/home/node/test.db');\nconst all = promisify(db.all.bind(db));\n\nlet output = '';\ntry {\n  const rows = await all(`PRAGMA table_info(${query.tableName})`);\n  const results = rows.map((col) => (\n    `${col.name} | ${col.type} | NOT NULL: ${col.notnull} | Default: ${col.dflt_value}`\n  )).join('\\n');\n  \n  output = { output: [].concat(results), error: null };\n} catch (err) {\n  output = { output: null, error: err };\n} finally {\n  await db.close();\n}\n\nreturn JSON.stringify(output);",
+        "schemaType": "manual",
+        "description": "Call this tool to describe a table's schema.",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"tableName\"],\n  \"properties\": {\n    \"tableName\": {\n      \"type\": \"string\",\n      \"description\": \"Name of the table\"\n    }\n  }\n}",
+        "specifyInputSchema": true
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4a0ba0d0-4955-44fd-92de-ad031ebb64cb",
+      "name": "ListTables",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "position": [
+        -260,
+        240
+      ],
+      "parameters": {
+        "name": "listTables",
+        "jsCode": "const sqlite3 = require('sqlite3').verbose();\nconst { promisify } = require('util');\n\nconst db = new sqlite3.Database('/home/node/test.db');\nconst all = promisify(db.all.bind(db));\n\nlet output = '';\ntry {\n  const rows = await all(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`, []);\n  const results = rows.map((row) => row.name).join('\\n');\n  \n  output = { output: [].concat(results), error: null };\n} catch (err) {\n  output = { output: null, error: err };\n} finally {\n  await db.close();\n}\n\nreturn JSON.stringify(output);",
+        "description": "Call this tool to list all available tables in the SQLite Database."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "69e8e720-7e91-4b46-8db5-1afdf1f3dbe0",
+      "name": "CreateRecords",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -40,
+        440
+      ],
+      "parameters": {
+        "name": "CreateRecords",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Call this tool to create a row in a SQLite table.",
+        "workflowInputs": {
+          "value": {
+            "where": "={{ {} }}",
+            "values": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values', `An object of key-value pair where key represents the column name.`, 'string') }}",
+            "operation": "insert",
+            "tableName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tableName', `table to insert into`, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tableName",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tableName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "object",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "where",
+              "type": "object",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "where",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "f2e18ae5-89a0-4d61-805b-e777f11300a2",
+      "name": "UpdateRows",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        100,
+        360
+      ],
+      "parameters": {
+        "name": "updateRows",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Call this tool to create a row in a table.",
+        "workflowInputs": {
+          "value": {
+            "where": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('where', `An object of key-value pair where key represents the column name.`, 'string') }}",
+            "values": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values', `An object of key-value pair where key represents the column name.`, 'string') }}",
+            "operation": "update",
+            "tableName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tableName', `table to update`, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tableName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "tableName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "where",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "where",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "22645721-1b66-4a36-9be5-f1e5edde30f8",
+      "name": "ReadRows",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        180,
+        240
+      ],
+      "parameters": {
+        "name": "readRows",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Call this tool to read one or more rows in a table",
+        "workflowInputs": {
+          "value": {
+            "where": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('where', `An object of key-value pair where key represents the column name.`, 'string') }}",
+            "values": "={}",
+            "operation": "read",
+            "tableName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('tableName', `table to read from`, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tableName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "tableName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "where",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "where",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2176742a-5a28-41c6-9cd7-ac3229ddcdb6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -800
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 1360,
+        "content": "## 시도해 보세요!\n\n**노트: 이 템플릿은 자가 호스팅 N8N 인스턴스 전용입니다.**\n\n### 이 n8n은 간단한 SQLite MCP 서버를 구축하여 로컬 데이터베이스 작업을 수행하고 이를 비즈니스 인텔리전스에 사용하는 방법을 보여줍니다.\n\n이 MCP 예제는 공식 MCP 참조 구현을 기반으로 하며, 여기에서 확인할 수 있습니다 - https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite\n\n### 작동 원리\n* MCP 서버 트리거가 사용되며, 5개의 도구에 연결됩니다: 2개의 코드 노드와 3개의 커스텀 워크플로우.\n* 2개의 코드 노드 도구는 SQLLite3 라이브러리를 사용하며, 간단한 읽기 전용 쿼리이므로 코드 노드 도구를 간단히 사용할 수 있습니다.\n* 3개의 커스텀 워크플로우 도구는 선택, 삽입 및 업데이트 쿼리에 사용되며, 이러한 작업은 더 많은 주의가 필요합니다.\n* 에이전트가 원시 SQL 쿼리를 사용하는 것이 더 쉽지만, 매개변수만 허용하는 것이 조금 더 안전할 수 있습니다. 커스텀 워크플로우 도구를 통해 도구 입력에 대한 제한된 스키마를 정의하여 SQL 문을 직접 구성할 수 있습니다.\n* 3개의 커스텀 워크플로우 도구는 이 템플릿의 동일한 \"워크플로우 실행\" 트리거를 트리거하며, 스위치를 통해 작업을 올바른 핸들러로 라우팅합니다.\n* 마지막으로, 코드 노드를 사용하여 선택, 삽입 및 업데이트 작업을 처리합니다. 응답은 MCP 클라이언트로 다시 보내집니다.\n\n### 사용 방법\n* 이 SQLite MCP 서버는 호환되는 MCP 클라이언트가 SQLite 데이터베이스를 관리할 수 있도록 선택, 생성 및 업데이트 작업을 지원합니다. 이 서버를 사용하기 전에 SQLite 데이터베이스를 준비해야 합니다.\n* MCP 클라이언트를 연결하려면 n8n 지침을 따르세요 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/#integrating-with-claude-desktop\n* MCP 클라이언트에서 다음 쿼리를 시도해 보세요:\n  * \"비즈니스 인사이트를 저장할 테이블을 생성하고 다음을 추가하세요...\"\n  * \"현재 소매 트렌드에 대한 비즈니스 인사이트는 무엇인가요?\"\n  * \"지난 주에 가장 많은 비즈니스 인사이트를 기여한 사람은 누구인가요?\"\n\n### 요구 사항\n* 데이터베이스를 위한 SQLite.\n* MCP 클라이언트 또는 에이전트(예: Claude Desktop) - https://claude.ai/download\n\n### 이 워크플로우 사용자화\n* 스키마나 테이블의 범위가 너무 넓다면, 비즈니스 작업에 특정한 목적으로 제한해 보세요. 예를 들어, HR 테이블만 쿼리 및 편집하도록 제한한 후 해당 부서의 사람들에게 액세스 제공.\n* 프로덕션 환경에서 이 MCP 서버를 공유하기 전에 자격 증명을 요구하도록 설정하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a9a4763-2952-4d95-8f35-25238affa049",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 100,
+        "content": "### 자체 호스팅 전용\n이 템플릿은 자체 호스팅된 n8n 인스턴스에서만 작동합니다. 디스크에 있는 데이터베이스 파일을 읽기 때문입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "ReadRows": {
+      "ai_tool": [
+        [
+          {
+            "node": "SQLite MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operation": {
+      "main": [
+        [
+          {
+            "node": "ReadRecords",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CreateRecord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "UpdateRecord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListTables": {
+      "ai_tool": [
+        [
+          {
+            "node": "SQLite MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateRows": {
+      "ai_tool": [
+        [
+          {
+            "node": "SQLite MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreateRecords": {
+      "ai_tool": [
+        [
+          {
+            "node": "SQLite MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DescribeTables": {
+      "ai_tool": [
+        [
+          {
+            "node": "SQLite MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,457 @@
+{
+  "id": "0uon02fOzPkLcG6G",
+  "meta": {
+    "instanceId": "bb9853d4d7d87207561a30bc6fe4ece20b295264f7d27d4a62215de2f3846a56",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Lead Qualification with BatchData",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "376bc838-013e-4033-a508-d27a2a64d792",
+      "name": "CRM New Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2560,
+        600
+      ],
+      "webhookId": "8fb37aae-df12-40eb-81ea-0e5022e1f988",
+      "parameters": {
+        "path": "crm-new-lead",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ca36d9f-7682-4a08-9fff-1674b36e07e4",
+      "name": "Webhook Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2720,
+        160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 620,
+        "content": "# 웹훅 설정 지침\n\n1. 이 웹훅 URL을 복사하여 CRM을 구성하여 여기에 알림을 보내도록 하세요\n2. 예상되는 페이로드 형식:\n   ```\n   {\n     \"leadId\": \"123\",\n     \"crmApiUrl\": \"https://your-crm-api.com/api/v1\",\n     \"address\": \"123 Main St\",\n     \"city\": \"Anytown\",\n     \"state\": \"CA\",\n     \"zipcode\": \"90210\"\n   }\n   ```\n3. 모든 필드가 속성 확인을 위해 필요합니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "961b3c4c-5b58-439e-9c8c-cc6e9774ebe7",
+      "name": "Fetch Lead Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2180,
+        600
+      ],
+      "parameters": {
+        "url": "={{ $json.crmApiUrl }}/leads/{{ $json.leadId }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "3549918e-cea8-467e-90d0-3661a5f54ae9",
+      "name": "CRM API Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2280,
+        160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 620,
+        "content": "# CRM API 구성\n\n1. 사용자의 CRM API에 대한 HTTP Header Auth 자격 증명을 생성하세요  \n2. 필요한 인증 헤더를 포함하세요 (예: 'Authorization: Bearer YOUR_TOKEN')  \n3. 이 노드는 웹훅에서 리드 ID를 사용하여 포괄적인 리드 데이터를 가져옵니다  \n4. CRM API가 속성 확인에 필요한 주소 정보를 반환하도록 하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25445c3c-adf0-41d7-8f5f-c0fabc297658",
+      "name": "BatchData Property Lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1840,
+        600
+      ],
+      "parameters": {
+        "url": "https://api.batchdata.com/api/v1/property/search",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "address",
+              "value": "={{ $json.address }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ $json.city }}"
+            },
+            {
+              "name": "state",
+              "value": "={{ $json.state }}"
+            },
+            {
+              "name": "zipcode",
+              "value": "={{ $json.zipcode }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "85808ecf-e5b0-4d36-a2c3-66c26bb2a191",
+      "name": "BatchData API Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1960,
+        160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 620,
+        "content": "# BATCHDATA API 설정\n\n1. BatchData.com에서 계정을 만들어 API 키를 얻으세요  \n2. 'x-api-key: YOUR_BATCHDATA_API_KEY'으로 HTTP Header Auth 자격 증명을 설정하세요  \n3. 이 API 호출은 리드의 주소 정보를 사용하여 부동산 세부 사항을 확인합니다  \n4. 예상 응답에는 부동산 가치, 크기, 나이, 그리고 소유권 상태가 포함됩니다  \n5. 필요에 따라 BatchData의 문서를 기반으로 API 엔드포인트를 조정하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "389e2f49-9ed4-4017-8002-ac86e1001ed9",
+      "name": "Score And Qualify Lead",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1480,
+        620
+      ],
+      "parameters": {
+        "jsCode": "// Initialize lead score\nlet score = 0;\nlet qualificationStatus = \"not qualified\";\nlet qualificationNotes = [];\n\n// Get property data from BatchData response\nconst propertyData = $input.first().json;\nconst leadData = $input.first().json;\n\n// Check if property exists\nif (propertyData.success === true && propertyData.data) {\n  const property = propertyData.data;\n  \n  // Score based on property value\n  if (property.estimatedValue > 750000) {\n    score += 30;\n    qualificationNotes.push(\"High-value property: $\" + property.estimatedValue);\n  } else if (property.estimatedValue > 500000) {\n    score += 20;\n    qualificationNotes.push(\"Mid-high value property: $\" + property.estimatedValue);\n  } else if (property.estimatedValue > 350000) {\n    score += 10;\n    qualificationNotes.push(\"Average value property: $\" + property.estimatedValue);\n  }\n  \n  // Score based on property size\n  if (property.squareFootage > 3000) {\n    score += 15;\n    qualificationNotes.push(\"Large property: \" + property.squareFootage + \" sq ft\");\n  } else if (property.squareFootage > 2000) {\n    score += 10;\n    qualificationNotes.push(\"Mid-size property: \" + property.squareFootage + \" sq ft\");\n  }\n  \n  // Score based on property age\n  const currentYear = new Date().getFullYear();\n  const propertyAge = currentYear - property.yearBuilt;\n  \n  if (propertyAge < 5) {\n    score += 15;\n    qualificationNotes.push(\"New construction: \" + property.yearBuilt);\n  } else if (propertyAge < 20) {\n    score += 10;\n    qualificationNotes.push(\"Relatively new property: \" + property.yearBuilt);\n  }\n  \n  // Other factors to consider\n  if (property.ownerOccupied === false) {\n    score += 15;\n    qualificationNotes.push(\"Investment property (not owner-occupied)\");\n  }\n  \n  if (property.lotSize > 0.5) {\n    score += 10;\n    qualificationNotes.push(\"Large lot size: \" + property.lotSize + \" acres\");\n  }\n  \n  // Determine qualification status based on score\n  if (score >= 50) {\n    qualificationStatus = \"high-value\";\n  } else if (score >= 30) {\n    qualificationStatus = \"qualified\";\n  } else if (score >= 15) {\n    qualificationStatus = \"potential\";\n  }\n  \n  // Combine all data for CRM update\n  const enrichedData = {\n    leadId: leadData.leadId,\n    score: score,\n    qualificationStatus: qualificationStatus,\n    qualificationNotes: qualificationNotes.join(\", \"),\n    propertyData: {\n      estimatedValue: property.estimatedValue,\n      squareFootage: property.squareFootage,\n      yearBuilt: property.yearBuilt,\n      lotSize: property.lotSize,\n      bedrooms: property.bedrooms,\n      bathrooms: property.bathrooms,\n      ownerOccupied: property.ownerOccupied,\n      lastSaleDate: property.lastSaleDate,\n      lastSalePrice: property.lastSalePrice\n    }\n  };\n  \n  return enrichedData;\n} else {\n  // If property data not found\n  qualificationNotes.push(\"Property data not found or verification failed\");\n  \n  return {\n    leadId: leadData.leadId,\n    score: 0,\n    qualificationStatus: \"unverified\",\n    qualificationNotes: qualificationNotes.join(\", \"),\n    propertyData: null\n  };\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f33f6442-5e8b-4aab-b5ff-d37d062a5cfa",
+      "name": "Lead Scoring Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1580,
+        -280
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 1060,
+        "content": "# 리드 스코어링 알고리즘\n\n이 함수는 부동산 기반 리드에 대한 정교한 스코어링 시스템을 구현합니다:\n\n### 스코어링 요인\n- **부동산 가치**\n  - $750k 초과: 30점\n  - $500k 초과: 20점\n  - $350k 초과: 10점\n\n- **면적**\n  - 3000 sq ft 초과: 15점\n  - 2000 sq ft 초과: 10점\n\n- **부동산 연령**\n  - 5년 미만: 15점\n  - 20년 미만: 10점\n\n- **기타 요인**\n  - 투자 부동산: 15점\n  - 넓은 부지 (>0.5 에이커): 10점\n\n### 자격 임계값\n- **고가치**: 50점 이상\n- **자격 있음**: 30-49점\n- **잠재적**: 15-29점\n- **자격 없음**: 15점 미만\n- **미확인**: 부동산 데이터 없음\n\n스코어링 값을 그리고 임계값을 귀하의 특정 비즈니스 요구사항에 맞게 사용자 정의하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9bcb2af-6ccc-4f9e-9926-765df4f36809",
+      "name": "Update CRM Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1120,
+        620
+      ],
+      "parameters": {
+        "url": "={{ $json.crmApiUrl }}/leads/{{ $json.leadId }}",
+        "method": "PUT",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "score",
+              "value": "={{ $json.score }}"
+            },
+            {
+              "name": "qualificationStatus",
+              "value": "={{ $json.qualificationStatus }}"
+            },
+            {
+              "name": "qualificationNotes",
+              "value": "={{ $json.qualificationNotes }}"
+            },
+            {
+              "name": "propertyValue",
+              "value": "={{ $json.propertyData.estimatedValue }}"
+            },
+            {
+              "name": "squareFootage",
+              "value": "={{ $json.propertyData.squareFootage }}"
+            },
+            {
+              "name": "yearBuilt",
+              "value": "={{ $json.propertyData.yearBuilt }}"
+            },
+            {
+              "name": "bedrooms",
+              "value": "={{ $json.propertyData.bedrooms }}"
+            },
+            {
+              "name": "bathrooms",
+              "value": "={{ $json.propertyData.bathrooms }}"
+            },
+            {
+              "name": "batchDataVerified",
+              "value": "={{ $json.propertyData !== null }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "3cfa64f8-527a-49d5-9787-156fe084f37c",
+      "name": "CRM Update Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 620,
+        "content": "# CRM 업데이트 구성\n\n1. 이 노드는 강화된 속성 데이터와 리드 자격 정보로 CRM을 업데이트합니다.\n2. 본문 매개변수에서 필드 이름을 CRM의 API 스키마와 일치하도록 조정하세요.\n3. 업데이트할 일반적인 필드에는:\n   - 리드 점수 및 자격 상태\n   - 속성 세부사항 (값, 크기, 침실/욕실)\n   - 확인 상태\n4. CRM이 PUT 대신 PATCH를 사용한다면, 메서드를 그에 따라 조정하세요.\n5. CRM 자격 증명이 리드 레코드를 업데이트할 수 있는 쓰기 액세스 권한을 가지고 있는지 확인하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8470bcf6-a539-4f75-8494-f76bcfc95f00",
+      "name": "Is High-Value Lead?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -760,
+        620
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.qualificationStatus }}",
+              "value2": "high-value"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da84ac21-fbb2-4640-8e92-f40b23d2fa0a",
+      "name": "Routing Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        160
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 620,
+        "content": "# 라우팅 로직\n\n이 조건부 노드는 리드의 자격에 따라 워크플로 경로를 결정합니다:\n\n- **TRUE Path (Top)**: 고가치 리드를 즉시 후속 조치로 라우팅합니다\n- **FALSE Path (Bottom)**: 표준 리드를 알림만으로 라우팅합니다\n\n조건을 수정하여 다음에 기반하여 다양한 경로를 만들 수 있습니다:\n- 점수 임계값 (예: >30 포인트)\n- 속성 특성 (예: 속성 가치 >$1M)\n- 지리적 타겟팅 (예: 특정 우편 번호)\n- 리드 소스 (예: 추천 vs. 웹 리드)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c7772695-cda1-4483-a961-7468fd075c55",
+      "name": "Create Immediate Follow-up Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -180,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $json.crmApiUrl }}/tasks",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "immediate-followup"
+            },
+            {
+              "name": "leadId",
+              "value": "={{ $json.leadId }}"
+            },
+            {
+              "name": "priority",
+              "value": "high"
+            },
+            {
+              "name": "dueDate",
+              "value": "={{ $now.format(\"YYYY-MM-DD\") }}"
+            },
+            {
+              "name": "note",
+              "value": "High-value lead with property value of ${{ $json.propertyData.estimatedValue }}. Immediate follow-up required."
+            },
+            {
+              "name": "assignedTo",
+              "value": "senior-agent"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "2fd15500-7314-4910-b822-c3d9de4166df",
+      "name": "Follow-up Task Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -140
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 420,
+        "height": 640,
+        "content": "# 고가치 리드 처리\n\n1. 이 노드는 프리미엄 리드에 대한 긴급 후속 작업을 생성합니다\n2. CRM/작업 시스템의 API에 맞게 매개변수를 커스터마이즈하세요:\n   - 할당자 (현재 \"senior-agent\")\n   - 우선순위 수준 및 작업 유형\n   - 마감일 형식\n   - 작업 설명\n3. 대안 접근법:\n   - 영업 관리자에게 이메일 알림 보내기\n   - Salesforce 기회 생성하기\n   - SMS 알림 트리거하기\n   - 특별 후속 캠페인에 추가하기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0d0d4e2e-b040-45d1-8a4c-e775520a4bbc",
+      "name": "Send Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -60,
+        860
+      ],
+      "webhookId": "dc308b09-6aea-41be-96c4-c322cfc8ed8f",
+      "parameters": {
+        "text": "=High-value lead alert: {{ $json.leadId }}\nProperty Value: ${{ $json.propertyData.estimatedValue }}\nScore: {{ $json.score }}\nQualification Notes: {{ $json.qualificationNotes }}",
+        "select": "channel",
+        "channelId": "high-value-leads",
+        "otherOptions": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "de158d72-7472-4075-ba57-13916739d24b",
+      "name": "Notification Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        520
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 460,
+        "height": 500,
+        "content": "# 알림 구성\n\n1. n8n의 자격 증명 관리자에 Slack 자격 증명을 설정하세요\n2. Slack 작업 공간과 일치하도록 채널 ID를 업데이트하세요\n3. 알림 형식과 내용을 사용자 정의하세요\n4. 대체 옵션:\n   - 이메일 알림으로 대체\n   - Microsoft Teams 사용\n   - Twilio를 통해 SMS 경고 보내기\n   - 전용 대시보드에 게시\n   - 모니터링 시스템에 로그"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1433b56d-3d8e-465a-bccc-c2dece4d6a1c",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3200,
+        260
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 400,
+        "content": "# BatchData 리드 자격 확인 워크플로우\n\n이 워크플로우는 BatchData의 Property Lookup API와 통합하여 부동산 데이터를 기반으로 리드를 확인, 보강 및 자격을 부여합니다. 새로운 리드가 CRM에 추가될 때, 워크플로우는 다음을 수행합니다:\n\n1. 리드의 주소 정보를 검색합니다\n2. BatchData의 API를 사용하여 부동산 세부 사항을 확인합니다\n3. 부동산 특성을 기반으로 리드를 점수화하고 자격을 부여합니다\n4. 보강된 데이터와 자격 상태로 CRM을 업데이트합니다\n5. 고가치 리드를 즉시 후속 조치를 위해 라우팅합니다\n\n## 설정 체크리스트\n- [ ] CRM API 자격 증명 구성\n- [ ] BatchData API 키 설정\n- [ ] Slack/알림 자격 증명 구성\n- [ ] 점수화 임계값 사용자 정의\n- [ ] CRM 필드 매핑 조정\n- [ ] 샘플 리드 데이터로 테스트"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d914c2d9-b2af-4c00-b5cd-7ed80d713cb0",
+  "connections": {
+    "Fetch Lead Data": {
+      "main": [
+        [
+          {
+            "node": "BatchData Property Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CRM Lead": {
+      "main": [
+        [
+          {
+            "node": "Is High-Value Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is High-Value Lead?": {
+      "main": [
+        [
+          {
+            "node": "Create Immediate Follow-up Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM New Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score And Qualify Lead": {
+      "main": [
+        [
+          {
+            "node": "Update CRM Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BatchData Property Lookup": {
+      "main": [
+        [
+          {
+            "node": "Score And Qualify Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

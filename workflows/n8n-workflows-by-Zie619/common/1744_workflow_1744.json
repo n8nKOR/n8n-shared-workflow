@@ -1,0 +1,205 @@
+{
+  "nodes": [
+    {
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1140,
+        780
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        760
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 400,
+        "content": "## 2. 고급 방법: 표현 사용\n이 `Set` 노드에서, 다음 형식에 대해 [Luxon expressions](https://docs.n8n.io/code-examples/expressions/luxon/)를 사용하여 날짜를 설정합니다:\n\n지금 - `{{$now}}`\n초 포함 현재 시간 - `{{$now.toLocaleString(DateTime.TIME_WITH_SECONDS)}}`\n오늘 - `{{$today}}`\n내일 - `{{$today.plus({days: 1})}}`\n1시간 전 - `{{$now.minus({hours: 1})}}`\n요일 이름 - `{{$today.weekdayLong}}`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        780
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 100,
+        "content": "`Execute Workflow` 버튼을 클릭하고 노드에 더블 클릭하여 입력 및 출력 항목을 보세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "12 Hours from now",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1520,
+        580
+      ],
+      "parameters": {
+        "value": "={{$now}}",
+        "action": "calculate",
+        "options": {},
+        "duration": 12,
+        "timeUnit": "hours"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        400
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 340,
+        "content": "## 1. 간단한 방법: 날짜 및 시간 노드 사용  \n날짜 및 시간 노드 내에 두 가지 작업이 사용 가능합니다:  \n1. 날짜 계산 - 분, 시간, 일 등을 더하거나 빼기  \n2. 날짜 형식 지정"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1980,
+        860
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 320,
+        "content": "### 2.1 기존 시간 문자열 작업\n항목이 노드 사이를 이동할 때, n8n은 날짜를 ISO 문자열로 저장합니다. 이것은 데이터를 다시 날짜로 처리하기 위해 `DateTime.fromISO('yyyy-mm-dd')`를 사용하여 변환해야 한다는 의미입니다. 그렇게 하면, 다음과 같은 날짜와 시간 함수를 다시 적용할 수 있습니다: `{{DateTime.fromISO($json[\"Now\"]).toFormat('yyyy LLL dd')}}`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Set times",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1520,
+        1020
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Now",
+              "value": "={{$now}}"
+            },
+            {
+              "name": "Current time with seconds",
+              "value": "={{$now.toLocaleString(DateTime.TIME_WITH_SECONDS)}}"
+            },
+            {
+              "name": "Today",
+              "value": "={{$today}}"
+            },
+            {
+              "name": "Tomorrow",
+              "value": "={{$today.plus({days: 1})}}"
+            },
+            {
+              "name": "One hour from now",
+              "value": "={{$now.minus({hours: 1})}}"
+            },
+            {
+              "name": "Weekday",
+              "value": "={{$today.weekdayLong}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Edit times",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2080,
+        1020
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Current time",
+              "value": "={{DateTime.fromISO($json[\"Now\"])}}"
+            },
+            {
+              "name": "Current time formatted",
+              "value": "={{DateTime.fromISO($json[\"Now\"]).toFormat('yyyy LLL dd')}}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Format - MMMM DD YY",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1760,
+        580
+      ],
+      "parameters": {
+        "value": "={{$now}}",
+        "options": {},
+        "toFormat": "MMMM DD YYYY"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Set times": {
+      "main": [
+        [
+          {
+            "node": "Edit times",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "12 Hours from now": {
+      "main": [
+        [
+          {
+            "node": "Format - MMMM DD YY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Set times",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "12 Hours from now",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

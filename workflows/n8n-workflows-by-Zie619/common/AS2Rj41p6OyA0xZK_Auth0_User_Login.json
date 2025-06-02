@@ -1,0 +1,423 @@
+{
+  "id": "AS2Rj41p6OyA0xZK",
+  "meta": {
+    "instanceId": "7858a8e25b8fc4dae485c1ef345e6fe74effb1f5060433ef500b4c186c965c18",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Auth0 User Login",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "25022573-c99e-40d2-88e2-a0e7a9780181",
+      "name": "Request Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1260,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $json.domain }}/oauth/token",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"grant_type\": \"authorization_code\",\n  \"code\": \"{{ $json.query.code }}\",\n  \"client_id\": \"{{ $json.client_id }}\",\n  \"client_secret\": \"{{ $json.client_secret }}\",\n  \"redirect_uri\": \"{{ $json.my_server }}\",\n  \"audience\": \"{{ $json.domain }}/api/v2/\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "233d69ed-d835-4022-815e-e786706ec78a",
+      "name": "Get Userinfo",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1500,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $('Set Application Details1').item.json.domain }}/userinfo",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "860e8a20-f6a3-4c8e-be71-361e6f1f8641",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        720,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fa80ac35-7029-4507-b5ea-845bec07b672",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{$json.query.code}}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7c4e15c7-2ee0-4c54-8255-e7cc250e718a",
+      "name": "No Code Found",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        880,
+        540
+      ],
+      "parameters": {
+        "errorMessage": "Couldn't get authorization code!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e0b2ff5-47ce-4199-bdd2-e31a4d32fd15",
+      "name": "Open Auth Webpage",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1020,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "redirectURL": "={{ $json.domain }}/authorize?response_type=code&scope=openid+email+profile+image+name&client_id={{ $json.client_id }}&redirect_uri={{ $json.my_server }}/webhook/receive-token",
+        "respondWith": "redirect"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d790ce47-725a-4a69-b66f-f7e80e2d9e5e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        80
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 238.05017098334866,
+        "height": 140.50170983348636,
+        "content": "또한 authorize URL의 끝에 &connection=github를 추가하여 사용자가 Github, Facebook 등을 통해 로그인하도록 할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c5bb01a-0fed-4783-b18d-d8f7e818371c",
+      "name": "Set Application Details",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        780,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "003d523a-5e14-4a5a-aed6-f72c3fce6e6d",
+              "name": "domain",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "7db513f3-55f6-4bab-92b0-e62d0b7f05a1",
+              "name": "client_id",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "52da7d5d-6683-4cf9-a7de-c2ab2ce48f3d",
+              "name": "my_server",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8ced9fb6-fd49-4d57-8d74-b04e45b6c216",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -456.1003419666973
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 623.7263504769883,
+        "height": 397.87914003146636,
+        "content": "## 1. 먼저, https://auth0.com으로 이동하여 Single Page Application을 생성하세요. Dashboard/Applications에서 새 앱 설정을 클릭하세요. 첫 번째 단계는 허용된 콜백 URL에 다음을 추가하는 것입니다:\nhttp://localhost:5678, http://localhost:5678/webhook/receive-token\n\n### (n8n을 로컬에서 실행하지 않는 경우, localhost를 n8n을 실행하는 서버로 대체하세요. **Set Application Details**의 'my_server' 필드에서도 대체해야 합니다)\n\n## 같은 설정 페이지에서, 애플리케이션의 Domain, Client_ID, 및 Client_Secret을 가져오세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "94155312-1230-4c13-9104-5e26a6f68e91",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -40
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 437.4336297478876,
+        "height": 107.35461655041311,
+        "content": "이 단계는 사용자에게 인증 페이지를 반환하고, Gmail을 사용하거나 새 계정을 만들어 로그인할 수 있게 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a7bcabf-1cc0-43e5-8f52-cc3f2781150f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -40
+      ],
+      "parameters": {
+        "width": 1296.8510714753793,
+        "height": 256.53228919365705,
+        "content": "## 1단계: 인증"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e7560d6-4c26-4e80-ad62-07a674e928f9",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        260
+      ],
+      "parameters": {
+        "width": 1302.371850917427,
+        "height": 444.78164181462137,
+        "content": "## 2단계: 액세스 토큰 가져오기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "97c8bc77-bc7d-4be2-9858-668c5e325f49",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        560.9464093496792
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 327.74230574931124,
+        "height": 144.40136786678917,
+        "content": "Step 1이 성공적이었다면, Auth0는 자동으로 콜백에서 코드와 함께 Step 2를 호출할 것입니다. 이 코드는 액세스 토큰을 생성하는 데 사용되며, 이 토큰으로 사용자가 합법적이고 이메일이 확인되었는지 검증할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe103ba1-8143-482c-846f-0f381ca2661a",
+      "name": "Set Application Details1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1000,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "003d523a-5e14-4a5a-aed6-f72c3fce6e6d",
+              "name": "domain",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "7db513f3-55f6-4bab-92b0-e62d0b7f05a1",
+              "name": "client_id",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "52da7d5d-6683-4cf9-a7de-c2ab2ce48f3d",
+              "name": "my_server",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "d339dd3d-ed57-4b0f-81c6-a8f5f7c474fb",
+              "name": "client_secret",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b3bb59b8-16fc-483d-ae8d-ec3e65c3326d",
+      "name": "/login",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        540,
+        40
+      ],
+      "webhookId": "046e2370-0ae1-4d64-be9b-cbb0545de323",
+      "parameters": {
+        "path": "login",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79825832-6d06-4a48-aa0a-bad3d52ab2c1",
+      "name": "/receive-token",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        540,
+        320
+      ],
+      "webhookId": "7bd9ea5a-c354-41c0-9d17-4a02ca8e3055",
+      "parameters": {
+        "path": "receive-token",
+        "options": {},
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b9406ef0-3567-46da-9989-d7f458ad73fb",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 426.62126002791706,
+        "height": 393.48225931142105,
+        "content": "## 2. Set Application Details와 Set Application Details1을 채우세요\n\n## 3. **https://<n8n server address>/webhook/login!에서 로그인하세요**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7d2f0dad-3951-49e2-9467-03124dbc52ba",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Set Application Details1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Code Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "/login": {
+      "main": [
+        [
+          {
+            "node": "Set Application Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "/receive-token": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Access Token": {
+      "main": [
+        [
+          {
+            "node": "Get Userinfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Application Details": {
+      "main": [
+        [
+          {
+            "node": "Open Auth Webpage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Application Details1": {
+      "main": [
+        [
+          {
+            "node": "Request Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

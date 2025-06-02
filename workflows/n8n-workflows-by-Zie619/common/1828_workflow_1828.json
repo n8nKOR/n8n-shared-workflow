@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "instanceId": "237600ca44303ce91fa31ee72babcdc8493f55ee2c0e8aa2b78b3b4ce6f70bd9"
+  },
+  "nodes": [
+    {
+      "id": "40216649-af2c-44df-83c6-75afe75dcdaf",
+      "name": "On new event",
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "position": [
+        400,
+        240
+      ],
+      "webhookId": "28087fc9-e623-48fe-949e-e002cbc7a817",
+      "parameters": {
+        "events": [
+          "invitee.created"
+        ]
+      },
+      "credentials": {
+        "calendlyApi": {
+          "id": "38",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "46914a34-984e-4736-b2a3-6e97555b73c7",
+      "name": "Create/update contact",
+      "type": "n8n-nodes-base.mautic",
+      "position": [
+        620,
+        240
+      ],
+      "parameters": {
+        "email": "={{$node[\"On new event\"].json[\"payload\"][\"email\"]}}",
+        "options": {},
+        "firstName": "={{$json[\"payload\"][\"name\"]}}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "mauticApi": {
+          "id": "34",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df809a8d-7b05-4ecc-a022-7bb12842b4bc",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        180
+      ],
+      "parameters": {
+        "width": 313,
+        "height": 229,
+        "content": "### 새로운 Calendly 이벤트에서 Mautic 연락처 생성/업데이트\n\n1. `새로운 이벤트`가 새로운 Calendly 이벤트를 트리거합니다.\n2. `생성/업데이트 연락처`는 Mautic에서 연락처를 생성하거나 연락처의 이름을 업데이트합니다. 만약 연락처의 이메일이 이미 Mautic에 있다면, 이름이 새로운 이름으로 덮어씌워집니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "On new event": {
+      "main": [
+        [
+          {
+            "node": "Create/update contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

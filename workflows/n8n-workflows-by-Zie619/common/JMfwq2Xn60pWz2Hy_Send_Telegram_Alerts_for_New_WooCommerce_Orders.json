@@ -1,0 +1,165 @@
+{
+  "id": "JMfwq2Xn60pWz2Hy",
+  "meta": {
+    "instanceId": "2e75c9fb3cdcf631da470c0180f0739986baa0ee860de53281e9edc3491b82a3",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Send Telegram Alerts for New WooCommerce Orders",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "bc66fcc7-55d4-46b3-929a-6e4359733601",
+      "name": "Check if Order Status is Processing",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        260,
+        760
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0509abb0-c655-49de-8f2c-c4649b478983",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.body.status }}",
+              "rightValue": "processing"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "99ecb702-0264-4aeb-8b15-4383b97bc5ee",
+      "name": "Design Message Template",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        740
+      ],
+      "parameters": {
+        "jsCode": "// Data extraction and processing for order details\nconst lineItems = $json.body.line_items;\n\n// Getting the total amount directly from WooCommerce\nconst totalAmount = parseInt($json.body.total).toLocaleString();\n\n// Constructing the product message in the desired format\nconst filteredItems = lineItems.map(item => {\n  const name = item.name;\n  const quantity = item.quantity;\n  return `🔹 ${name}<b> (${quantity} items)</b>`;\n}).join('\\n');  // Separating each product with a new line\n\n// Getting the order creation date and time\nlet dateCreated = new Date($json.body.date_created_gmt || new Date());\n\n// Directly using the server's local time (no timezone conversion)\nlet formattedDate = dateCreated.toLocaleString('en-US', {\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric',\n  hour: '2-digit',\n  minute: '2-digit',\n  hour12: false\n});\n\n// Constructing other parts of the message in an organized manner\nconst orderInfo = `\n\n🆔 <b>Order ID:</b> ${$json.body.id}\n\n👦🏻 <b>Customer Name:</b> ${$json.body.billing.first_name} ${$json.body.billing.last_name}\n\n💵 <b>Amount:</b> ${totalAmount}\n\n📅 <b>Order Date:</b>\n➖ ${formattedDate}\n\n🏙 <b>City:</b> ${$json.body.billing.city}\n\n📞 <b>Phone:</b> ${$json.body.billing.phone}\n\n✍🏻 <b>Order Note:</b>\n${$json.body.customer_note || 'No notes'}\n\n📦 <b>Ordered Products:</b>\n\n${filteredItems}\n`;\n\n// Returning the final message\nreturn {\n  orderMessage: orderInfo.trim()  // Remove extra spaces from the beginning and end of the message\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c2c49759-5309-42bc-872d-7b34faf34f62",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        540
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1035.4009739750634,
+        "height": 868.2813781621796,
+        "content": "## ⚙️ 설정 지침\n\n### 1. 🛒 **WooCommerce Webhook 구성**\n- WordPress 대시보드에서 **WooCommerce ➡️ Settings ➡️ Advanced ➡️ Webhooks**로 이동합니다.\n- ➕ **Add Webhook**을 클릭합니다.\n- **Status**를 **Active**로 설정합니다.\n- **Topic**을 **Order updated**로 선택합니다.\n- 이 워크플로의 🔗 Webhook 노드에서 **Webhook URL**을 복사하여 **Delivery URL** 필드에 붙여넣습니다.\n- 💾 **Save Webhook**을 클릭합니다.\n\n### 2. 🤖 **Telegram 봇 생성**\n- **Telegram**을 열고 **@BotFather**와 채팅을 시작합니다.\n- **/newbot** 명령어를 보내고 지시를 따라 봇을 생성합니다.\n- **BotFather**에서 제공하는 **API Token**을 복사합니다.\n\n### 3. 🔑 **n8n에서 Telegram 자격 증명 설정**\n- **n8n**에서 **Credentials**로 이동합니다.\n- ➕ **Create**를 클릭하고 **Telegram Bot**을 선택합니다.\n- 이전에 복사한 **API Token**을 붙여넣습니다.\n- 자격 증명을 **Save**합니다.\n\n### 4. ✏️ **Telegram 노드 구성**\n- 📨 **Send Order Notification to Telegram** 노드를 엽니다.\n- **Telegram 자격 증명**을 선택합니다.\n- 알림을 받을 **Chat ID**를 입력합니다.  \n  **팁**: **@userinfobot**을 Telegram에서 사용하여 **Chat ID**를 찾습니다.\n\n### 5. 🚀 **워크플로 활성화 및 테스트**\n- 워크플로가 🟢 **Active** 상태인지 확인합니다.\n- **WooCommerce 스토어**에서 새 주문을 합니다.\n- 주문 상태를 **\"Processing\"**으로 업데이트합니다.\n- **주문 세부 정보**가 포함된 **Telegram 알림**을 받아야 합니다!\n\n## 💡 메모\n- 🖋️ **Design Message Template** 노드에서 메시지 형식을 사용자 정의하여 필요한 추가 주문 세부 정보를 포함합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5555e7ff-46d9-4b91-a42c-4d83fc9b5edb",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        300
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1040.2541837971148,
+        "height": 216.11554963705538,
+        "content": "## 📦 새로운 WooCommerce 주문에 대한 텔레그램 알림 보내기\n\n📝 **설명**  \n이 워크플로는 **WooCommerce 주문** 상태가 \"처리 중\"으로 업데이트될 때마다 자동으로 **텔레그램 알림**을 보냅니다. 주문이 이행될 준비가 되면 즉시 업데이트를 원하는 **온라인 스토어 소유자**들에게 완벽합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "acde9b85-4ae7-462f-91c0-13a4209fb013",
+      "name": "Receive WooCommerce Order",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        20,
+        760
+      ],
+      "webhookId": "9aeff297-db6b-4c69-93bf-21b194ef115c",
+      "parameters": {
+        "path": "9aeff297-db6b-4c69-93bf-21b194ef115c",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5605e14d-a125-41c1-b7e8-cc1feeb6a1e1",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        720,
+        740
+      ],
+      "parameters": {
+        "text": "{{ $json.orderMessage }}",
+        "chatId": "<Your-Chat-ID>",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": true
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f1a12e0e-e2a2-4eea-b7a6-cc4c7439bef9",
+  "connections": {
+    "Design Message Template": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive WooCommerce Order": {
+      "main": [
+        [
+          {
+            "node": "Check if Order Status is Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Order Status is Processing": {
+      "main": [
+        [
+          {
+            "node": "Design Message Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

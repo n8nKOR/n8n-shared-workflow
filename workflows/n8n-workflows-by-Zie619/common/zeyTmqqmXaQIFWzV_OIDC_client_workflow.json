@@ -1,0 +1,461 @@
+{
+  "id": "zeyTmqqmXaQIFWzV",
+  "meta": {
+    "instanceId": "11f0bca80fdd47e21bd156f4266eada6e64a6bc4c37f34dc8ae14ccf768e9285"
+  },
+  "name": "OIDC client workflow",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "da0c6b83-9c8c-431b-beaa-66b5343b21c5",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        80,
+        680
+      ],
+      "webhookId": "891ad1cd-6a50-4a88-8789-95680c78f14c",
+      "parameters": {
+        "path": "891ad1cd-6a50-4a88-8789-95680c78f14c",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5c9d4f59-7980-4bee-8df6-cf9ca3eccde1",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        680
+      ],
+      "parameters": {
+        "jsCode": "let myCookies = {};\nlet cookies = [];\n\ncookies = $input.item.json.headers.cookie.split(';')\nfor (item of cookies ) {\n  myCookies[item.split('=')[0].trim()]=item.split('=')[1].trim();\n}\n\nreturn myCookies;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "7867d061-c0e3-4359-90ac-a4536c948db2",
+      "name": "user info",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1220,
+        760
+      ],
+      "parameters": {
+        "url": "={{ $('Set variables : auth, token, userinfo, client id, scope').item.json.userinfo_endpoint }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $json['access_token'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1,
+      "continueOnFail": true
+    },
+    {
+      "id": "df0e9896-0670-49cc-b7c6-140c234036b4",
+      "name": "send back login page",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1900,
+        980
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81f03c86-91fe-4960-b4c4-295252c7e8fc",
+      "name": "IF token is present",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        940,
+        820
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json['access_token'] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1,
+      "continueOnFail": true
+    },
+    {
+      "id": "5e2f87bd-9c1f-4e87-82df-1b3b3e98cbdb",
+      "name": "Welcome page",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        1720,
+        660
+      ],
+      "parameters": {
+        "html": "<!DOCTYPE html>\n\n<html>\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>My HTML document</title>\n</head>\n<body>\n  <div class=\"container\">\n    <h1>Welcome {{$('user info').item.json.email }} </h1>\n  </div>\n</body>\n</html>\n\n<style>\n.container {\n  background-color: #ffffff;\n  text-align: center;\n  padding: 16px;\n  border-radius: 8px;\n}\n\nh1 {\n  color: #ff6d5a;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 8px;\n}\n\nh2 {\n  color: #909399;\n  font-size: 18px;\n  font-weight: bold;\n  padding: 8px;\n}\n</style>\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c1448e12-4292-402b-bf9d-0ab555bbc734",
+      "name": "send back welcome page",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1920,
+        660
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e64ab13-4f23-4c85-a625-c456910a9472",
+      "name": "IF user info ok",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1400,
+        760
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.email }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1,
+      "continueOnFail": true
+    },
+    {
+      "id": "a96b170f-fbd8-4061-9619-bf9877e85495",
+      "name": "login form",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        1700,
+        980
+      ],
+      "parameters": {
+        "html": "<!-- Thanks to https://github.com/curityio/pkce-javascript-example/tree/master -->\n<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <title>Login</title>\n  </head>\n  <style>\n.container {\n  background-color: #ffffff;\n  text-align: center;\n  padding: 16px;\n  border-radius: 8px;\n}\n\nh1 {\n  color: #ff6d5a;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 8px;\n}\n\nh2 {\n  color: #909399;\n  font-size: 18px;\n  font-weight: bold;\n  padding: 8px;\n}\n</style>\n  <body>\n    <div id=\"result\"></div>\n    <script>\n    const authorizeEndpoint = \"{{ $('Set variables : auth, token, userinfo, client id, scope').item.json.auth_endpoint }}\";\n    const tokenEndpoint = \"{{ $('Set variables : auth, token, userinfo, client id, scope').item.json.token_endpoint }}\";\n    const clientId = \"{{ $('Set variables : auth, token, userinfo, client id, scope').item.json.client_id }}\";\n    const scope = \"{{ $('Set variables : auth, token, userinfo, client id, scope').item.json.scope }}\";\n    const usePKCE = {{ $('Set variables : auth, token, userinfo, client id, scope').item.json.PKCE }};\n        if (window.location.search) {\n            var args = new URLSearchParams(window.location.search);\n            var code = args.get(\"code\");\n\n            if (code) {\n                var xhr = new XMLHttpRequest();\n\n                xhr.onload = function() {\n                    var response = xhr.response;\n                    var message;\n\n                    if (xhr.status == 200) {\n                        message = \"Access Token: \" + response.access_token;\n                        document.cookie = \"access_token=\"+response.access_token;\n                        location.reload();\n                    }\n                    else {\n                        message = \"Error: \" + response.error_description + \" (\" + response.error + \")\";\n                    }\n\n                    document.getElementById(\"result\").innerHTML = message;\n                };\n                xhr.responseType = 'json';\n                xhr.open(\"POST\", tokenEndpoint, true);\n                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');\n                xhr.send(new URLSearchParams({\n                    client_id: clientId,\n                    code_verifier: window.sessionStorage.getItem(\"code_verifier\"),\n                    grant_type: \"authorization_code\",\n                    redirect_uri: location.href.replace(location.search, ''),\n                    code: code\n                }));\n            }\n        }\n        async function generateCodeChallenge(codeVerifier) {\n            var digest = await crypto.subtle.digest(\"SHA-256\",\n                new TextEncoder().encode(codeVerifier));\n\n            return btoa(String.fromCharCode(...new Uint8Array(digest)))\n                .replace(/=/g, '').replace(/\\+/g, '-').replace(/\\//g, '_')\n        }\n\n        function generateRandomString(length) {\n            var text = \"\";\n            var possible = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\";\n\n            for (var i = 0; i < length; i++) {\n                text += possible.charAt(Math.floor(Math.random() * possible.length));\n            }\n\n            return text;\n        }\n\n        if (!crypto.subtle) {\n            document.writeln('<p>' +\n                    '<b>WARNING:</b> The script will fall back to using plain code challenge as crypto is not available.</p>' +\n                    '<p>Javascript crypto services require that this site is served in a <a href=\"https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts\">secure context</a>; ' +\n                    'either from <b>(*.)localhost</b> or via <b>https</b>. </p>' +\n                    '<p> You can add an entry to /etc/hosts like \"127.0.0.1 public-test-client.localhost\" and reload the site from there, enable SSL using something like <a href=\"https://letsencrypt.org/\">letsencypt</a>, or refer to this <a href=\"https://stackoverflow.com/questions/46468104/how-to-use-subtlecrypto-in-chrome-window-crypto-subtle-is-undefined\">stackoverflow article</a> for more alternatives.</p>' +\n                    '<p>If Javascript crypto is available this message will disappear.</p>')\n        }\n\n      var codeVerifier = generateRandomString(64);\n\n            const challengeMethod = crypto.subtle ? \"S256\" : \"plain\"\n\n            Promise.resolve()\n                .then(() => {\n                    if (challengeMethod === 'S256') {\n                        return generateCodeChallenge(codeVerifier)\n                    } else {\n                        return codeVerifier\n                    }\n                })\n                .then(function(codeChallenge) {\n                    window.sessionStorage.setItem(\"code_verifier\", codeVerifier);\n\n                    var redirectUri = window.location.href.split('?')[0];\n                    var args = new URLSearchParams({\n                        response_type: \"code\",\n                        client_id: clientId,\n                        redirect_uri: redirectUri,\n                        scope: scope,\n                        state: generateRandomString(16)\n                    });\n                    if(usePKCE){\n                      args.append(\"code_challenge_method\", challengeMethod);\n                      args.append(\"code_challenge\", codeChallenge);\n                    }\n                window.location = authorizeEndpoint + \"?\" + args;\n            });\n    </script>\n  </body>\n</html>"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "12395c64-1c9d-4801-8229-57d982e4243f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        460
+      ],
+      "parameters": {
+        "width": 510,
+        "height": 207,
+        "content": "이 설정에서, 당신은 당신의 아이덴티티 제공자로부터 다음을 가져와야 합니다:\n- 인증 URL\n- 토큰 URL\n- 사용자 정보 URL\n- 이 플로우를 위해 생성한 클라이언트 ID\n- 사용할 스코프, 최소한 \"openid\" 스코프\nPKCE를 사용하지 않으려면, 다음을 채워야 합니다:\n- 클라이언트 시크릿\n- 리다이렉트 URI (웹훅 URI)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25e934b5-fcd6-49e1-bb33-955b5f3f34ca",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1640,
+        480
+      ],
+      "parameters": {
+        "content": "이 시점에서 사용자가 인증되었으며, 당신은 사용자 정보 결과로부터 그의 프로필에 접근할 수 있고, 계속해서 일을 진행합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9dab372a-3505-4be6-93bd-9e99fc71612c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        980
+      ],
+      "parameters": {
+        "width": 776,
+        "height": 336,
+        "content": "## Keycloak 빠른 설정\n1. Keycloak을 열기\n2. `Realm settings`으로 이동하여 `OpenID Endpoint Configuration` 열기\n3. 이것은 새 탭을 열 것입니다. `authorization_endpoint`, `token_endpoint` 및 `userinfo_endpoint`를 복사하여 `Set variables` 노드에 추가하세요\n4. `Clients`으로 이동하여 `Create client`를 클릭하세요. 거기서 원하는 이름을 선택하세요.\n5. 다음 단계, `Capability config`로 이동하여 `Client authentication`을 비활성화하세요. 오직 `Standard flow`만 체크되어 있어야 합니다.\n6. 다음 단계 `Login settings`으로 이동하세요. 거기서 이 워크플로의 Webhook URL을 `Valid redirect URIs` 필드에 복사하세요\n7. clientID를 `Set variables` 노드에 입력하세요\n\n이제 워크플로를 활성화하고 웹훅 URL을 방문하여 테스트할 수 있습니다. 더 자세한 설정 가이드는 설명에서 찾을 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e3afc62-52a9-402a-bde9-e8798d0fd4f6",
+      "name": "Set variables : auth, token, userinfo, client id, scope",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        320,
+        680
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "auth_endpoint",
+              "value": "Your value here"
+            },
+            {
+              "name": "token_endpoint",
+              "value": "Your value here"
+            },
+            {
+              "name": "userinfo_endpoint",
+              "value": "Your value here"
+            },
+            {
+              "name": "client_id",
+              "value": "name of your client"
+            },
+            {
+              "name": "scope",
+              "value": "openid"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "webhook uri"
+            },
+            {
+              "name": "client_secret",
+              "value": "secret of your client"
+            }
+          ],
+          "boolean": [
+            {
+              "name": "PKCE",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2d54c64a-ae45-480f-923f-63d6cb3fcdfc",
+      "name": "IF we have code in URI and not in PKCE mode",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        700,
+        680
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Webhook').item.json.query.code }}",
+              "operation": "isNotEmpty"
+            }
+          ],
+          "boolean": [
+            {
+              "value1": "={{ $('Set variables : auth, token, userinfo, client id, scope').item.json.PKCE }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99c8fa5d-3173-4371-9742-6014eca6e7fe",
+      "name": "get access_token from /token endpoint with code",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        940,
+        640
+      ],
+      "parameters": {
+        "url": "={{ $('Set variables : auth, token, userinfo, client id, scope').item.json.token_endpoint }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "name": "client_id",
+              "value": "={{ $('Set variables : auth, token, userinfo, client id, scope').item.json.client_id }}"
+            },
+            {
+              "name": "client_secret",
+              "value": "={{ $('Set variables : auth, token, userinfo, client id, scope').item.json.client_secret }}"
+            },
+            {
+              "name": "code",
+              "value": "={{ $('Webhook').item.json.query.code }}"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "={{ $('Set variables : auth, token, userinfo, client id, scope').item.json.redirect_uri }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d91ac207-6f83-42cd-9c9f-326b8c53c160",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "IF we have code in URI and not in PKCE mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set variables : auth, token, userinfo, client id, scope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "user info": {
+      "main": [
+        [
+          {
+            "node": "IF user info ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "login form": {
+      "main": [
+        [
+          {
+            "node": "send back login page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Welcome page": {
+      "main": [
+        [
+          {
+            "node": "send back welcome page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF user info ok": {
+      "main": [
+        [
+          {
+            "node": "Welcome page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "login form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF token is present": {
+      "main": [
+        [
+          {
+            "node": "user info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "login form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF we have code in URI and not in PKCE mode": {
+      "main": [
+        [
+          {
+            "node": "get access_token from /token endpoint with code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF token is present",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get access_token from /token endpoint with code": {
+      "main": [
+        [
+          {
+            "node": "user info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set variables : auth, token, userinfo, client id, scope": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

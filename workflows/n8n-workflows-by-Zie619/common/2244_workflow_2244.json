@@ -1,0 +1,247 @@
+{
+  "nodes": [
+    {
+      "id": "aea55995-2c2c-4f59-8b68-43fa1871bb4c",
+      "name": "Replace Images",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        860,
+        140
+      ],
+      "parameters": {
+        "url": "=https://slides.googleapis.com/v1/presentations/{{ $('Webhook').item.json[\"body\"][\"presentation_id\"] }}:batchUpdate ",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"requests\": [\n    {\n        \"replaceImage\": {\n          \"imageObjectId\": \"{{ $json.objectId }}\",\n          \"url\": \"{{ $('Webhook').item.json[\"body\"][\"image_url\"] }}\",\n          \"imageReplaceMethod\": \"CENTER_CROP\"\n        }\n    },\n    {\n      \"updatePageElementAltText\": {\n        \"objectId\": \"{{ $json.objectId }}\",\n        \"description\": \"{{ $('Webhook').item.json[\"body\"][\"image_key\"] }}\"\n      }\n    }\n  ]\n}  \n   ",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSlidesOAuth2Api"
+      },
+      "credentials": {
+        "googleSlidesOAuth2Api": {
+          "id": "XnM5YeAtI5QnYrMh",
+          "name": "Google Slides account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "92eeca3a-47b2-4daa-ac51-5b957c8d7d56",
+      "name": "Error Missing Fields",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        500,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 500
+        },
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"Missing fields.\"\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "14878542-6a42-4fe4-8dd6-328450a883eb",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1040,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Image replaced.\"\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ac42249b-3c7d-4ba1-be7d-ba6e1ae652cd",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -540
+      ],
+      "parameters": {
+        "width": 596.8395976509729,
+        "height": 654.4370838798395,
+        "content": "## Google Slides에서 이미지를 동적으로 교체하기\n이 워크플로우는 API 엔드포인트를 공개하여 Google Slides에서 이미지를 동적으로 교체할 수 있게 하며, 배경 업데이트나 클라이언트 로고와 같은 데크 프레젠테이션을 자동화하는 데 적합합니다.\n\n### 1단계: Google Slides에 키 식별자 설정하기\n교체할 이미지에 고유한 키 식별자를 추가합니다.\n1. 이미지를 클릭합니다.\n2. **형식 옵션**으로 이동한 후 **대체 텍스트**를 선택합니다.\n3. `client_logo` 또는 `background`와 같은 고유한 식별자를 입력합니다.\n\n### 2단계: POST 요청을 사용하여 이미지 업데이트하기\n다음 매개변수를 본문에 포함하여 워크플로우 엔드포인트에 POST 요청을 보냅니다:\n- `presentation_id`: Google Slides 프레젠테이션의 ID입니다.  \n  Google 프레젠테이션 URL에서 찾을 수 있습니다: `https://docs.google.com/presentation/d/{이 부분}/edit#slide=id.p`\n- `image_key`: 생성한 고유 식별자입니다.\n- `image_url`: 새 이미지의 URL입니다.\n\n이것으로 끝입니다! 제공된 URL의 새 이미지로 Google Slides 프레젠테이션의 지정된 이미지가 교체됩니다.\n\n이 워크플로우는 여러 슬라이드와 프레젠테이션에서 동일한 식별자를 사용할 수 있도록 유연하게 설계되었습니다. 슬라이드 자동화 프로세스를 간소화하기를 바랍니다!\n\n행복한 자동화!\nThe n8Ninja"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "735c5c4e-df8f-47ad-b0d7-ed57453a84d0",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        60,
+        160
+      ],
+      "webhookId": "df3b8b83-fd6d-40f8-be13-42bae85dcf63",
+      "parameters": {
+        "path": "replace-image-in-slide",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "22d1dd70-0716-4407-8e25-703355969e95",
+      "name": "Retrieve matching Images ObjectIds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        680,
+        140
+      ],
+      "parameters": {
+        "jsCode": "const key = $('Webhook').item.json.body.image_key;\n\nconst pageElements = $input\n  .all()\n  .flatMap(item => item.json.slides)\n  .flatMap(slide => slide.pageElements.filter(el => el.image && el.description === key));\n\nconst objectIds = pageElements.map(el => ({ objectId: el.objectId }));\n\nreturn objectIds"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f942a8de-9fa8-4855-9be1-4247bae887e5",
+      "name": "Retrieve All Slide Elements",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        500,
+        140
+      ],
+      "parameters": {
+        "url": "=https://slides.googleapis.com/v1/presentations/{{ $('Webhook').item.json.body.presentation_id }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSlidesOAuth2Api"
+      },
+      "credentials": {
+        "googleSlidesOAuth2Api": {
+          "id": "XnM5YeAtI5QnYrMh",
+          "name": "Google Slides account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ddcbe7ed-9abc-49ac-98e5-4d5222a641d4",
+      "name": "Check if all params are provided",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        260,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3272f7e8-4bc2-44bd-9760-437b2992e6e7",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.body.presentation_id }}",
+              "rightValue": ""
+            },
+            {
+              "id": "9e8abf56-622d-4704-95ea-c0f5f31683dd",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.body.image_key }}",
+              "rightValue": ""
+            },
+            {
+              "id": "d2cec4c9-2a90-4a24-ab6c-628689419698",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.body.image_url }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check if all params are provided",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Images": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve All Slide Elements": {
+      "main": [
+        [
+          {
+            "node": "Retrieve matching Images ObjectIds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if all params are provided": {
+      "main": [
+        [
+          {
+            "node": "Retrieve All Slide Elements",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Missing Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve matching Images ObjectIds": {
+      "main": [
+        [
+          {
+            "node": "Replace Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

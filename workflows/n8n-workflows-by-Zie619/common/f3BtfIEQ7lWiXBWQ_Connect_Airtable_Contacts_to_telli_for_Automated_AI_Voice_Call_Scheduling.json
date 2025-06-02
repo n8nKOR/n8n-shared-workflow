@@ -1,0 +1,200 @@
+{
+  "id": "f3BtfIEQ7lWiXBWQ",
+  "meta": {
+    "instanceId": "331d930239825586dfac8c04af3e03a7e86c895a3d1fbfa4ffab201148dc835e",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Connect Airtable Contacts to telli for Automated AI Voice Call Scheduling",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "9562ed92-f04e-44b8-b2f1-3c9032788826",
+      "name": "Airtable Trigger",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "position": [
+        -20,
+        0
+      ],
+      "parameters": {
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appjsUaPrbH6ph7cB"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblVXEWTj7dErmNsa"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerField": "=Created Time",
+        "authentication": "airtableTokenApi",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "fcsJcjY4luV2FD5O",
+          "name": "Airtable account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d40f78ab-f96f-44eb-a2ac-1b16a66f94cb",
+      "name": "Schedule Calls Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.telli.com/v1/schedule-call",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=contact_id",
+              "value": "={{ $json.contact_id }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "<YOUR-API-KEY>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b5d4b415-9363-4d2a-8689-4c789177d9c3",
+      "name": "Add contact request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.telli.com/v1/add-contact",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "=json",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "<YOUR-API-KEY>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "22680635-838a-48db-a300-1a280d45b0f9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -680
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1420,
+        "height": 2640,
+        "content": "# CRM 연락처를 telli에 업로드하여 AI 음성 에이전트 통화를 예약하세요\n\n## telli 및 AI 음성 에이전트 통화 소개\n\ntelli는 특정 고객 사용 사례에 맞춰 통화와 작업을 수행할 수 있는 AI 기반 음성 에이전트를 제공하는 혁신적인 플랫폼입니다. 이러한 AI 음성 에이전트는 약속 예약부터 고객 지원에 이르는 다양한 커뮤니케이션 작업을 효율적이고 자연스러운 대화 흐름으로 처리할 수 있습니다.\n\n이 템플릿은 Airtable을 CRM으로 사용하여 telli의 AI 음성 에이전트와 함께 아웃바운드 호출 프로세스를 자동화하려는 비즈니스 및 조직을 위한 것입니다. 이 템플릿은 CRM과 호출 시스템 간의 수동 호출 예약 및 데이터 전송 문제를 해결하여 시간을 절약하고 인적 오류를 줄여줍니다.\n\n### 전제 조건\n\n- telli 계정\n- 연락처 정보가 포함된 Airtable 베이스\n- n8n 인스턴스\n\n### 단계별 설정 가이드\n\n1. **n8n 설정**:\n   - n8n에서 새 워크플로를 생성합니다.\n   - CRM 테이블에 연결하기 위해 Airtable 노드를 추가합니다.\n\n2. **telli API 구성**:\n   - telli 대시보드에 로그인합니다.\n   - telli - 설정 - API/Webhooks에서 API 키를 찾아 복사합니다.\n\n3. **워크플로 구성**:\n   - n8n 워크플로에 두 개의 HTTP 요청 노드를 추가합니다.\n   - 두 POST 요청의 \"Authorization\" 헤더를 설정하고 값을 telli API 키로 교체합니다.\n   - 첫 번째 요청을 `/add-contact` 엔드포인트로 구성합니다.\n   - 두 번째 요청을 `/schedule-call` 엔드포인트로 설정합니다.\n\n4. **데이터 매핑**:\n   - Airtable 노드의 관련 필드를 telli API 요청에 매핑합니다.\n\n5. **테스트 및 활성화**:\n   - 워크플로를 테스트 실행합니다.\n   - 결과에 만족하면 워크플로를 활성화합니다.\n\n### API 엔드포인트 세부 사항\n\n#### 연락처 추가 엔드포인트\n\n- **URL**: `https://api.telli.com/v1/add-contact`\n- **Method**: POST\n- **Headers**:\n  - `Authorization: YOUR-API-KEY`\n  - `Content-Type: application/json`\n- **Payload**:\n```json\n{\n  \"external_contact_id\": \"string\",\n  \"salutation\": \"string\",\n  \"first_name\": \"string\",\n  \"last_name\": \"string\",\n  \"phone_number\": \"string\",\n  \"email\": \"jsmith@example.com\",\n  \"contact_details\": {},\n  \"timezone\": \"string\"\n}\n```\n\n#### 통화 예약 엔드포인트\n\n- **URL**: `https://api.telli.com/v1/schedule-call`\n- **Method**: POST\n- **Headers**:\n  - `Authorization: YOUR-API-KEY`\n  - `Content-Type: application/json`\n- **Payload**:\n```json\n{\n  \"contact_id\": TELLI-CONTACT-ID,\n  \"agent_id\": \"string\",\n  \"max_retry_days\": 123,\n  \"call_details\": {\n    \"message\": \"Hello, this is your friendly reminder!\",\n    \"questions\": [\n      {\n        \"fieldName\": \"email\",\n        \"neededInformation\": \"email of the customer\",\n        \"exampleQuestion\": \"What is your email address?\",\n        \"responseFormat\": \"email string\"\n      }\n    ]\n  },\n  \"override_from_number\": \"string\"\n}\n```\n\n### 사용 사례\n\n이 템플릿은 다음과 같은 다양한 시나리오에 적용할 수 있습니다:\n\n- **리드 자격 확인**: CRM에 새 리드가 입력되면 자동으로 통화를 예약합니다.\n- **약속 리마인더**: 다가오는 약속에 대한 클라이언트에게 통화를 설정합니다.\n- **고객 피드백**: 제품 배송 또는 서비스 완료 후 후속 통화를 예약합니다.\n\n### 여러 연락처 업로드\n\n대량 작업의 경우 두 가지 옵션이 있습니다:\n\n1. **Loop 노드**: n8n 워크플로에 Loop 노드를 포함하여 여러 연락처를 순차적으로 처리합니다.\n\n2. **배치 엔드포인트**: `/add-contact` 및 `/schedule-call` 대신 telli의 배치 엔드포인트를 사용합니다:\n   - `/add-contacts-batch`: 여러 연락처를 배열로 추가합니다.\n   - `/schedule-calls-batch`: 여러 통화를 한 번에 예약합니다.\n\n배치 엔드포인트 사용 예:\n```json\n{\n  \"contacts\": [\n    {\"name\": \"John Doe\", \"phone\": \"+1234567890\"},\n    {\"name\": \"Jane Smith\", \"phone\": \"+1987654321\"}\n  ]\n}\n```\n\n이 템플릿을 활용하면 Airtable CRM을 telli의 강력한 AI 음성 에이전트와 원활하게 통합하여 아웃바운드 호출 프로세스를 자동화하고 고객 커뮤니케이션 전략을 강화할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7c31d739-c1a6-4b2b-a99d-2ab69a82b944",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        160
+      ],
+      "parameters": {
+        "content": "CRM 노드\n\n리드나 일반 연락처에 대한 정보를 저장하는 테이블에 연결하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4cc74508-7323-4dce-b487-79404d9959bb",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -240
+      ],
+      "parameters": {
+        "height": 220,
+        "content": "telli에 연락처 추가\n\n여기서 telli의 API에 POST 요청을 수행하여 귀하의 CRM 연락처를 telli 시스템으로 가져옵니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef541141-1aa7-4f45-96a3-2169d609ff6d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        180
+      ],
+      "parameters": {
+        "height": 220,
+        "content": "## 새로운 연락처에 대한 통화 예약\n\n연락처가 추가된 직후에, 우리는 telli API에 또 다른 POST 요청을 수행하여 우리의 스마트 통화 전략에 기반한 통화를 예약합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7f4ed4a1-240c-45da-bc8c-940826d1a51a",
+  "connections": {
+    "Airtable Trigger": {
+      "main": [
+        [
+          {
+            "node": "Add contact request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add contact request": {
+      "main": [
+        [
+          {
+            "node": "Schedule Calls Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

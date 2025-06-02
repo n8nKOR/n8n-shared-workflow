@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "instanceId": "237600ca44303ce91fa31ee72babcdc8493f55ee2c0e8aa2b78b3b4ce6f70bd9"
+  },
+  "nodes": [
+    {
+      "id": "4da16859-d29b-4eb7-90a4-3904c1bfff68",
+      "name": "Create item",
+      "type": "n8n-nodes-base.mondayCom",
+      "position": [
+        620,
+        240
+      ],
+      "parameters": {
+        "name": "={{$node[\"On created contact\"].json[\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"firstname\"][\"value\"]}} {{$node[\"On created contact\"].json[\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"lastname\"][\"value\"]}}",
+        "boardId": "3461879764",
+        "groupId": "topics",
+        "resource": "boardItem",
+        "additionalFields": {
+          "columnValues": "={\n  \"email\": {\n    \"email\": \"{{$node[\"On created contact\"].json[\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"email\"][\"value\"]}}\",\n    \"text\" : \"{{$node[\"On created contact\"].json[\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"email\"][\"value\"]}}\"\n  }\n}"
+        }
+      },
+      "credentials": {
+        "mondayComApi": {
+          "id": "26",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "88655428-439e-4324-8d8f-865625650c7a",
+      "name": "On created contact",
+      "type": "n8n-nodes-base.mauticTrigger",
+      "position": [
+        400,
+        240
+      ],
+      "webhookId": "8c80d932-4c37-4ebe-92ad-e456249db2c5",
+      "parameters": {
+        "events": [
+          "mautic.lead_post_save_new"
+        ]
+      },
+      "credentials": {
+        "mauticApi": {
+          "id": "34",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bff916e6-2ddc-456b-a8fa-c8841f47abed",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        400
+      ],
+      "parameters": {
+        "width": 301,
+        "height": 309,
+        "content": "## Monday에 더 많은 필드를 추가하는 방법\n기본적으로, 이 `Create item` 노드는 항목의 이름과 이메일을 Monday에만 추가합니다(이메일 필드가 이미 생성되어 있는 경우).\n\n이상적으로는 이름과 이메일 외에 더 많은 필드를 공유하고 싶을 것입니다. [커뮤니티 토론 여기](https://community.n8n.io/t/change-multiple-column-values-with-monday/4262)를 참조하여 `Create item` Monday 노드에서 더 많은 열 값을 설정하는 방법에 대한 추가 정보를 확인하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "On created contact": {
+      "main": [
+        [
+          {
+            "node": "Create item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

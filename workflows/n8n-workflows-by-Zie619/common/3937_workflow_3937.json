@@ -1,0 +1,399 @@
+{
+  "meta": {
+    "instanceId": "95b3ab5a70ab1c8c1906357a367f1b236ef12a1409406fd992f60255f0f95f85",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "aec24e02-fc90-482f-98b0-ba1fe8e069ef",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 380,
+        "height": 880,
+        "content": "웹훅 호출 또는 메시지를 통한 데이터 수신"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16d48a81-06cf-4c58-8769-8e8fd90ed735",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 600,
+        "content": "데이터 필터링 및 메시지 확인"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b137f46c-2e00-42be-a708-b6d9e803cde7",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -240
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 560,
+        "content": "왓츠앱 메시지 템플릿 보내기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "661df01d-7f5c-429f-a1ea-c29278e76f29",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 300,
+        "content": "연락처 구독 및 태깅"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b44aba0c-1ecc-44f2-bd6c-66e903a0b5e7",
+      "name": "New message in WhatsApp",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "notes": "Listens for incoming WhatsApp messages. This serves as the entry point of the workflow, capturing the message content and sender details for routing decisions.",
+      "position": [
+        320,
+        140
+      ],
+      "webhookId": "e2861f19-0da7-4320-878c-6ec0e138a7d4",
+      "parameters": {
+        "options": {},
+        "updates": [
+          "messages"
+        ]
+      },
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "hGrWILflNJ7mqZq6",
+          "name": "Ricardo'S WhatsApp OAuth account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "018da945-7aca-45ca-a1dc-a25d6ed1eeb7",
+      "name": "Cancellation check",
+      "type": "n8n-nodes-base.switch",
+      "notes": "Evaluates incoming WhatsApp message content to determine if it begins with the keyword 'STOP' (ignoring whitespace and case). This allows routing messages either towards support or subscription logic.",
+      "position": [
+        780,
+        140
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fb517cd9-362b-4ea2-b9c0-7aaad80255b4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notStartsWith"
+                    },
+                    "leftValue": "={{ \n// Normalize the message content to lowercase and remove all spaces\n$json.messages[0].text.body.toLowerCase().replace(/\\s+/g, '') }}",
+                    "rightValue": "stop"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "55d55779-eb4d-4562-a462-8dbcfc85852d",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "leftValue": "={{ \n// Normalize the message content to lowercase and remove all spaces\n$json.messages[0].text.body.toLowerCase().replace(/\\s+/g, '') }}",
+                    "rightValue": "stop"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.2
+    },
+    {
+      "id": "7d13f787-95f7-4c13-8674-ef20c82e6fa1",
+      "name": "KlickTipp Outbound triggered",
+      "type": "CUSTOM.klicktippTrigger",
+      "notes": "Triggers this workflow when a relevant event occurs in KlickTipp. Used to initiate notifications via WhatsApp message templates when subscriber data changes or a specific event is captured.",
+      "position": [
+        320,
+        -140
+      ],
+      "webhookId": "ede76771-57d8-440e-8daf-73cc4c27b7cb",
+      "parameters": {},
+      "credentials": {
+        "klickTippApi": {
+          "id": "K9JyBdCM4SZc1cXl",
+          "name": "DEMO KlickTipp account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "964324f7-a818-46e6-b51f-181837479172",
+      "name": "Sending WhatsApp offer template",
+      "type": "n8n-nodes-base.whatsApp",
+      "notes": "Sends a WhatsApp message template when the KlickTipp trigger is activated. This is typically used to confirm an action, notify about updates, or alert based on subscriber activity.",
+      "position": [
+        1060,
+        -140
+      ],
+      "webhookId": "fd384a0a-0356-490c-bc7c-9be38ef7754f",
+      "parameters": {
+        "template": "offer_for_manual|de",
+        "components": {
+          "component": [
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ $json.CustomFieldFirstName }}"
+                  },
+                  {
+                    "text": "={{ $json.CustomField217373 }}"
+                  },
+                  {
+                    "text": "={{ $json.CustomField217511 }}"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "button",
+              "sub_type": "url",
+              "buttonParameters": {
+                "parameter": {
+                  "text": "={{ $json.CustomField218042 }}",
+                  "type": "text"
+                }
+              }
+            }
+          ]
+        },
+        "phoneNumberId": "114317595015150",
+        "recipientPhoneNumber": "={{ //Formats phone numbers by replacing the international dialing prefix eg. (0049) with the plus format (+49)\n$json.PhoneNumber.replace(/^00/, '+') }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "HqfpRQa1HyDz8IQI",
+          "name": "Ricardo's WhatsApp account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "629c4059-c03e-4b66-841e-674f03519a3f",
+      "name": "Sending WhatsApp auto-responder template",
+      "type": "n8n-nodes-base.whatsApp",
+      "notes": "Sends a WhatsApp template message to the sender when their message begins with 'STOP', signaling intent to reach support. Personalizes the message using the sender’s name.",
+      "position": [
+        1060,
+        140
+      ],
+      "webhookId": "632b8645-0d1c-479c-875b-b04e01dcff34",
+      "parameters": {
+        "template": "auto_forward_to_support|de",
+        "components": {
+          "component": [
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ \n// Insert the profile name of the contact to personalize the message\n$json.contacts[0].profile.name }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "phoneNumberId": "114317595015150",
+        "recipientPhoneNumber": "={{ \n// Extract the phone number of the sender from the message\n$json.messages[0].from }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "HqfpRQa1HyDz8IQI",
+          "name": "Ricardo's WhatsApp account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "a5142a5b-d0cc-4965-8462-588477641d3f",
+      "name": "Subscribe number to opt-out from WA messages",
+      "type": "CUSTOM.klicktipp",
+      "notes": "Subscribes the WhatsApp sender to the KlickTipp list using their phone number. Formats the number with a '+' prefix for compatibility with KlickTipp.",
+      "position": [
+        1060,
+        460
+      ],
+      "parameters": {
+        "listId": "358895",
+        "resource": "subscriber",
+        "operation": "subscribe",
+        "smsNumber": "={{\n// Add a \"+\" prefix to the WhatsApp ID to align with expected format in KlickTipp\n'+' + $json.contacts[0].wa_id }}"
+      },
+      "credentials": {
+        "klickTippApi": {
+          "id": "K9JyBdCM4SZc1cXl",
+          "name": "DEMO KlickTipp account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "3593831c-4c99-441b-9424-c59440feba3b",
+      "name": "Filter user messages",
+      "type": "n8n-nodes-base.filter",
+      "notes": "This node filters out the messages that come from users responding to automated messages. Otherwise automated messages would trigger the flow.",
+      "position": [
+        580,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c3399312-f3df-4a89-9ce4-3e7773b025fb",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.messages[0] }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "96d54af1-44c1-48c0-9bf3-269e2d084a5c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        660
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 988,
+        "height": 1109,
+        "content": "### 소개\n이 워크플로는 KlickTipp에 의해 트리거된 WhatsApp Business Cloud를 통해 개인화된 WhatsApp 메시지의 자동 전달을 가능하게 하며, 사용자의 응답을 처리하여 KlickTipp의 캠페인을 제어합니다. 이 설정은 생일 인사, 쿠폰 코드, 또는 사전 승인된 WhatsApp 템플릿을 사용하는 제품별 캠페인과 같은 용도로 이상적입니다.\n\n### 이점\n- **다채널 자동화**: WhatsApp 메시지로 이메일 캠페인을 강화하여 개봉률과 참여율을 높입니다.\n- **개인화된 연락**: 템플릿에 연락처별 정보를 동적으로 삽입할 수 있습니다. 예를 들어 이름, 제품, 또는 프로모션 링크.\n- **완전 통합**: n8n을 통해 KlickTipp과 WhatsApp을 연결하여 원활한 이벤트 기반 메시징을 제공합니다.\n\n### 주요 기능\n- **KlickTipp 트리거**: Outbound를 통해 연락처가 태그되면 워크플로가 시작됩니다.\n- **WhatsApp 템플릿 메시징 및 응답 처리**:\n  - 24시간 세션 외 메시지에 필요한 사전 승인된 WhatsApp 메시지 템플릿을 사용합니다.\n  - KlickTipp 커스텀 필드의 데이터를 사용하여 동적 플레이스홀더를 채웁니다. 예를 들어:\n    - 이름\n    - 제품 이름\n    - 할인 링크\n    - 발신자 이름\n  - \"지금 사용\"과 같은 CTA를 지원하며 동적 URL을 사용하여 기본 URL의 끝 부분을 제어할 수 있습니다.\n  - 연락처의 응답을 듣고 자동 응답으로 답하거나 KlickTipp에서 연락처를 태그합니다.\n\n#### 설정 지침\n1. n8n 인스턴스에서 KlickTipp 및 WhatsApp Business 노드를 설정합니다.\n2. KlickTipp 및 WhatsApp 계정을 인증합니다.\n3. 데이터 구조와 일치하는 필요한 커스텀 필드를 생성합니다.\n4. 워크플로에서 필드 할당을 확인하고 사용자 지정 양식 및 구독자 목록 설정에 맞게 조정합니다.\n\n커스텀 필드:\n   - `Whatsapp_Produkt/Dienstleistung` (줄)  \n   - `Whatsapp_Name/Unternehmen` (줄)  \n   - `Whatsapp_Link_Endung` (줄)\n\n### 테스트 및 배포:\n1. KlickTipp의 Outbound에서 활성화 태그를 트리거하거나 제안 템플릿 메시지에 응답하여 워크플로를 테스트합니다. 사전에 모든 필요한 데이터를 커스텀 필드에 채웁니다.\n2. WhatsApp에서 메시지 템플릿 수신 및 KlickTipp의 구독과 태그를 확인합니다.\n\n> ⚠️ *쿨다운 경고*: Outbound 트리거를 통해 반복 테스트할 경우 6시간 대기를 요구할 수 있으며, 캠페인을 통해 라우팅하면 쿨다운을 우회합니다.\n\n- **커스터마이제이션**: 제품 또는 대상 세그먼트별로 템플릿을 조정합니다. 사용자 지정 도메인 끝 부분을 사용하여 다른 제품 페이지로 리디렉션합니다. WhatsApp 가용성에 따라 사용자 세그먼테이션(예: WhatsApp 사용자가 아닌 경우 이메일로 대체).\n\n### 캠페인 확장 아이디어\n- KlickTipp 이메일 시리즈와 결합(예: 환영 메일 + WA 메시지).\n- 제품 기반 세그먼테이션 태그 추가(예: `product_X_interest`).\n- WhatsApp CTA의 클릭률 분석 및 A/B 메시지 변형 실험."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cancellation check": {
+      "main": [
+        [
+          {
+            "node": "Sending WhatsApp auto-responder template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Subscribe number to opt-out from WA messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter user messages": {
+      "main": [
+        [
+          {
+            "node": "Cancellation check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New message in WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Filter user messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KlickTipp Outbound triggered": {
+      "main": [
+        [
+          {
+            "node": "Sending WhatsApp offer template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

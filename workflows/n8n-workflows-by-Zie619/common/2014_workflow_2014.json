@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "instanceId": "257476b1ef58bf3cb6a46e65fac7ee34a53a5e1a8492d5c6e4da5f87c9b82833"
+  },
+  "nodes": [
+    {
+      "id": "f5c16b6d-b7b0-4b36-9e74-795a4f486604",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        360,
+        1700
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0cc486d8-397f-44b1-a23b-04d0c142a48d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        1420
+      ],
+      "parameters": {
+        "height": 259,
+        "content": "## Icypeas를 사용한 이메일 검색 (대량 검색)\n\n이 워크플로우는 Icypeas를 사용하여 이메일 검색 (대량 검색)을 수행하는 방법을 보여줍니다. https://icypeas.com을 방문하여 계정을 생성하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b932d050-4934-4f2f-a620-79f08b97c428",
+      "name": "Authenticates to your Icypeas account",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        860,
+        1700
+      ],
+      "parameters": {
+        "jsCode": "const API_BASE_URL = \"https://app.icypeas.com/api\";\nconst API_PATH = \"/bulk-search\";\nconst METHOD = \"POST\";\n\n// Change here\nconst API_KEY = \"PUT_API_KEY_HERE\";\nconst API_SECRET = \"PUT_API_SECRET_HERE\";\nconst USER_ID = \"PUT_USER_ID_HERE\";\n////////////////\n\nconst genSignature = (\n    url,\n    method,\n    secret,\n    timestamp = new Date().toISOString()\n) => {\n    const Crypto = require('crypto');\n    const payload = `${method}${url}${timestamp}`.toLowerCase();\n    const sign = Crypto.createHmac(\"sha1\", secret).update(payload).digest(\"hex\");\n\n    return sign;\n};\n\nconst apiUrl = `${API_BASE_URL}${API_PATH}`;\n\nconst data = $input.all().map((x) => [x.json.firstname, x.json.lastname, x.json.company]);\n$input.first().json.data = data;\n$input.first().json.api = {\n  timestamp: new Date().toISOString(),\n  secret: API_SECRET,\n  key: API_KEY,\n  userId: USER_ID,\n  url: apiUrl,\n};\n\n$input.first().json.api.signature = genSignature(apiUrl, METHOD, API_SECRET, $input.first().json.api.timestamp);\nreturn $input.first();"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35325df4-1d77-4200-9aca-a7f311f3857e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        1560
+      ],
+      "parameters": {
+        "height": 606.4963141641612,
+        "content": "## 귀하의 Google 스프레드시트 파일 읽기\n\n이 노드가 Google 스프레드시트를 읽습니다. 시트를 다음과 같이 만들어야 합니다:\n\n**첫 번째 열** : 헤더 : 성\n\n**첫 번째 열** : 헤더 : 이름\n\n**첫 번째 열** : 헤더 : 회사\n\n노드에서 파일의 경로와 귀하의 자격 증명을 지정하는 것을 잊지 마세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca04cf0b-59b6-4836-902f-2e93b6cbc3f5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        741.0092314499475,
+        1458.51011235955
+      ],
+      "parameters": {
+        "width": 392.0593078758952,
+        "height": 1203.3290499048028,
+        "content": "## Icypeas 계정에 인증합니다\n\n이 코드 노드는 API 키, API 시크릿, 그리고 사용자 ID를 사용하여 Icypeas 계정과 연결을 설정합니다.\n\n이 노드를 열고 따옴표 안에 API 키, API 시크릿, 그리고 사용자 ID를 삽입하세요. 이러한 자격 증명은 Icypeas 프로필에서 https://app.icypeas.com/bo/profile에서 찾을 수 있습니다. 변경해야 할 부분의 추출은 다음과 같습니다 :\n\nconst API_KEY = \"**PUT_API_KEY_HERE**\";\nconst API_SECRET = \"**PUT_API_SECRET_HERE**\";\nconst USER_ID = \"**PUT_USER_ID_HERE**\";\n\n코드의 다른 줄은 변경하지 마세요.\n\n자체 호스팅 사용자인 경우, 암호화 모듈을 활성화하기 위해 다음 단계를 따르세요 :\n\n1. n8n 인스턴스에 접근하기:\n웹 브라우저에서 n8n 인스턴스의 URL로 이동하여 로그인하세요. 예를 들어: http://your-n8n-instance.com.\n\n2. 설정으로 이동하기:\n우측 상단의 사용자 이름 클릭 후 \"Settings\"를 선택하세요.\n\n3. 일반 설정 선택하기:\n왼쪽 메뉴에서 \"General\"을 클릭하세요.\n\n4. 암호화 모듈 활성화하기:\n\"Additional Node Packages\" 섹션으로 스크롤하여 \"crypto\" 옵션 옆의 체크박스를 선택하여 암호화 모듈을 활성화하세요.\n\n5. 변경 사항 저장하기:\n페이지 하단에서 \"Save\"를 클릭하여 변경 사항을 적용하세요.\n\n이 단계를 따르면, 자체 호스팅 n8n 인스턴스의 암호화 모듈이 활성화됩니다. 변경 사항을 저장하고 필요에 따라 n8n 인스턴스를 재시작하여 변경 사항이 적용되도록 하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69e3246b-f490-43e7-94ae-566eb4faf6b9",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1133,
+        1460
+      ],
+      "parameters": {
+        "width": 328.8456933308303,
+        "height": 869.114109302513,
+        "content": "## 대량 이메일 검색을 수행합니다.\n\n이 노드는 이메일 주소를 검색하기 위해 HTTP 요청(POST)을 실행합니다.\n\n### HTTP Request 노드에서 자격 증명을 생성해야 합니다:\n\n➔ 헤더 인증 자격 증명에서 - 새 자격 증명 생성 -을 클릭합니다.\n➔ 이름 섹션에 “Authorization”를 작성합니다.\n➔ 값 섹션에서 표현식을 선택합니다(필드 위쪽 오른쪽에 위치하며, 그 위에 호버하면 나타납니다) 그리고 {{ $json.api.key + ':' + $json.api.signature }}를 작성합니다.\n➔ 그런 다음 “Save”를 클릭하여 변경 사항을 저장합니다.\n\n### 결과를 검색하려면:\n\n일정 시간이 지난 후, 다운로드 가능한 결과가 Icypeas 애플리케이션의 이 섹션에 사용할 수 있습니다: https://app.icypeas.com/bo/bulksearch?task=email-search, 그리고 no-reply@icypeas.com에서 이메일을 통해 검색 결과를 받을 수 있습니다. 이는 귀하의 검색 결과를 제공합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56abf128-57b3-4038-a262-38b09b3e3faf",
+      "name": "Reads lastname,firstname and company from your sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        580,
+        1700
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "f256a8e7-c8c6-4177-810e-f7af4961db05",
+      "name": "Run bulk search (email-search)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1200,
+        1700
+      ],
+      "parameters": {
+        "url": "={{ $json.api.url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "task",
+              "value": "=email-search"
+            },
+            {
+              "name": "name",
+              "value": "Test"
+            },
+            {
+              "name": "user",
+              "value": "={{ $json.api.userId }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ROCK-TIMESTAMP",
+              "value": "={{ $json.api.timestamp }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Reads lastname,firstname and company from your sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticates to your Icypeas account": {
+      "main": [
+        [
+          {
+            "node": "Run bulk search (email-search)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reads lastname,firstname and company from your sheet": {
+      "main": [
+        [
+          {
+            "node": "Authenticates to your Icypeas account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

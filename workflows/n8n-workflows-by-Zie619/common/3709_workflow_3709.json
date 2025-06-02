@@ -1,0 +1,458 @@
+{
+  "meta": {
+    "instanceId": "4de3652773c3e67f6210deb1e1d390d75b23715f2e2cca0340008f99419607e6"
+  },
+  "nodes": [
+    {
+      "id": "4c9256c8-8dd7-4e81-8aef-0789e6808808",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -260,
+        80
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1935ad6a-ade4-4073-9205-0c3dd1091c0f",
+      "name": "Set parameters for next run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1520,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const desired_path = $('Create desired path').item.json.desired_path;\ndesired_path.shift();\n\nreturn {\n  desired_path: desired_path,\n  google_drive_folder_id: $json.id,\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5d99a9c4-57c6-4052-b093-fb0c32d9ff56",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -40,
+        460
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "879b92ae-edab-4d73-96d0-4df36d12fbb2",
+      "name": "Dummy input data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -40,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "041e1077-f4dc-476f-b75a-6d60d9c8d0b9",
+              "name": "google_drive_folder_id",
+              "type": "string",
+              "value": "root"
+            },
+            {
+              "id": "843e3a7f-c59e-48c1-80f8-c9995515e340",
+              "name": "desired_path",
+              "type": "string",
+              "value": "testXavier/2024/Q4/03 Documenten"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "822d45f1-149d-430c-8daf-183998c01166",
+      "name": "Split the desired path",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        340,
+        260
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n$input.item.json.desired_path = $input.item.json.desired_path.split('/');\n\nreturn $input.item;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e2aba13a-fec6-4d1e-aa1c-af95d3f957ad",
+      "name": "Create desired path",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        260
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  google_drive_folder_id: $json.google_drive_folder_id,\n  desired_path: $json.desired_path,\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aa3f9b95-3197-4b89-bcb2-9e723b8496a0",
+      "name": "Check if top folder exists",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        800,
+        260
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.google_drive_folder_id }}"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {},
+        "resource": "fileFolder",
+        "queryString": "={{ $json.desired_path[0] }}"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Xk1mfDiQRaqwWUaU",
+          "name": "Google Drive account 2"
+        }
+      },
+      "typeVersion": 3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "969b7823-2720-45c5-b98c-1cc659fe62df",
+      "name": "If top folder doesn't exist",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1040,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "59e55ba1-5db4-455e-95a1-bb8e4c1d0d31",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2cd3932d-b066-438a-b968-4078dfc9dbe7",
+      "name": "Create new subfolder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1340,
+        240
+      ],
+      "parameters": {
+        "name": "={{ $('Create desired path').item.json.desired_path[0] }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create desired path').item.json.google_drive_folder_id }}"
+        },
+        "resource": "folder"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Xk1mfDiQRaqwWUaU",
+          "name": "Google Drive account 2"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "f9322682-b77f-4bad-8bbc-13868c126063",
+      "name": "If path has been completely created",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1740,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d95b4b2e-68c5-4d82-84af-a46fbb84035c",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.desired_path }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "94c4694b-0a32-4681-b977-c01e3232d9e8",
+      "name": "Return the ID of the last folder",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2040,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "692a23db-71c8-4154-af87-a0177045b63d",
+              "name": "google_drive_folder_id",
+              "type": "string",
+              "value": "={{ $('Set parameters for next run').item.json.google_drive_folder_id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5e9f327d-61bb-46af-b16b-21499f5c22e0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -80
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 880,
+        "content": "# Google Drive 폴더 경로로 생성\n\n이 워크플로우는 경로 문자열에서 중첩된 Google Drive 폴더를 생성하고, 최종 폴더의 ID를 즉시 사용하기 위해 반환합니다.\n\n다음 데이터를 사용하여 이 워크플로우를 직접 호출하여 다른 플로우에서 사용하세요:\n- `google_drive_folder_id` -> 추가 폴더를 생성할 폴더의 ID입니다. Drive의 루트 레벨에서 시작하려면 \"root\"을 사용하세요.\n- `desired_path` -> Google Drive에 생성할 폴더 구조입니다. 각 폴더는 슬래시로 구분되며, 예: `Projects/Clients/Reports`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35b3741f-465a-4846-9f62-4dedc40ca884",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        -20
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 80,
+        "content": "워크플로우를 위한 테스트 데이터  \n워크플로우를 테스트하고 싶을 경우 이 것을 사용하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b7fe210-d966-4988-aaf4-5e07567b3054",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        320
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 120,
+        "content": "## 다른 워크플로우에서 트리거됨  \n이 워크플로우는 다른 워크플로우에 의해 트리거되도록 의도되었습니다. 이 워크플로우를 복사/붙여넣기 하지 마세요. 유지보수와 최신 상태 유지에 더 어려움이 있을 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16477e77-656e-4bff-914f-633d61477d38",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        80
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1320,
+        "height": 120,
+        "content": "## 메인 루프\ndesired_path를 가져와서 부분으로 나눕니다. 예: `Projects/Clients/Reports`는 3개의 부분으로 변환됩니다: Projects, Clients, Reports.\n그런 다음 최상위 폴더가 존재하는지 확인하고, 존재하지 않으면 생성합니다. 이 과정을 모든 하위 폴더가 생성되고 올바르게 중첩될 때까지 반복합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57404f59-28b8-4969-b483-fb8a3320a592",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1980,
+        80
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 280,
+        "height": 120,
+        "content": "## 반환 데이터  \n여기에서 경로의 마지막 폴더 ID를 반환하므로, 새 파일을 업로드하기 시작할 수 있습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Dummy input data": {
+      "main": [
+        [
+          {
+            "node": "Split the desired path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create desired path": {
+      "main": [
+        [
+          {
+            "node": "Check if top folder exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create new subfolder": {
+      "main": [
+        [
+          {
+            "node": "Set parameters for next run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split the desired path": {
+      "main": [
+        [
+          {
+            "node": "Create desired path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split the desired path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if top folder exists": {
+      "main": [
+        [
+          {
+            "node": "If top folder doesn't exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If top folder doesn't exist": {
+      "main": [
+        [
+          {
+            "node": "Create new subfolder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set parameters for next run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set parameters for next run": {
+      "main": [
+        [
+          {
+            "node": "If path has been completely created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Dummy input data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If path has been completely created": {
+      "main": [
+        [
+          {
+            "node": "Return the ID of the last folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create desired path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

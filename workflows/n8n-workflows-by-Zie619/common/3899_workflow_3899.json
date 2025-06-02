@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "1c583599-826d-4a02-bfd9-f22f020f4af7",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -640,
+        -140
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "aaddc5fd-4b05-4ee2-9f71-222b14fb05d6",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        280,
+        40
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cd2a47fb-3e04-464d-bcac-00e84952d72c",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        480,
+        40
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"labels\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    },\n    \"priority\": { \"type\": \"number\" },\n    \"summary\": { \"type\": \"string\" },\n    \"description\": { \"type\": \"string\" }\n  }\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "48234689-66fd-4a5e-b940-5e6e07a95ad9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 540,
+        "content": "## 2. 티켓 생성 및 분류 자동화\n\n[Basic LLM 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainllm)\n\n새로운 티켓은 항상 적절하게 레이블링되고 우선순위가 지정되어야 하지만, 인력이 부족하면 모든 들어오는 티켓을 업데이트하는 것이 항상 가능하지 않습니다. AI를 사용하는 것은 티켓의 분류에 대한 훌륭한 용례이며, 그 맥락적 이해가 이 단계를 자동화하는 데 도움이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c25fd99f-4898-479f-bf63-a79c3ca084fc",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        100,
+        -140
+      ],
+      "parameters": {
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b27f5e33-d149-4395-84b2-e1e1070c8a0b",
+      "name": "Mark as Seen",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -220,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e282e452-0dbb-4d00-b319-13840264feda",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 540,
+        "content": "## 1. Gmail 인박스 지원 이메일 감시\n\n[Gmail 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/)\n\n**이 템플릿은 지원 티켓 전용 그룹 이메일을 가정합니다!** 일반 인박스를 가지고 있다면, 각 메시지를 분류하고 필터링해야 할 수 있으며, 이는 비용이 들 수 있습니다. \"remove duplicates\" 노드 (즉, \"Mark as seen\")는 각 이메일을 정확히 한 번만 처리하도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d43db00e-bfd4-4b18-ad33-4bccb3373d09",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 440,
+        "content": "## 3. Linear.App에서 이슈 생성\n\n[Linear.App 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.linear)\n\n이것은 Linear.App에서 이슈를 생성하는 간단한 예제일 뿐이지만, 훨씬 더 많은 것을 추가하기 쉽게 확장할 수 있습니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13f657aa-5af1-4af4-af04-f81a13d2ce29",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1160,
+        -720
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 940,
+        "content": "## 시도해 보세요!\n### 이 n8n 템플릿은 Gmail 인박스에서 지원 메시지를 감시하고 Linear에서 이에 상응하는 이슈 항목을 생성합니다.\n\n### 작동 원리\n* 예약된 트리거가 지원 요청을 수집하는 인박스에서 최근 Gmail 메시지를 가져옵니다.\n* 이러한 지원 요청은 한 번만 처리되도록 필터링되며, HTML 본문을 더 쉽게 구문 분석할 수 있도록 마크다운으로 변환됩니다.\n* 각 지원 요청은 AI 에이전트를 통해 분류되며, 적절한 레이블을 추가하고, 우선순위를 평가하며, 원래 요청의 제목과 설명을 요약합니다.\n* 마지막으로, AI가 생성한 값을 사용하여 Linear에서 이슈를 생성하여 처리할 수 있도록 합니다.\n\n### 사용 방법\n* 가져온 메시지가 오로지 지원 요청만이어야 합니다. 그렇지 않으면 처리 전에 메시지를 분류해야 합니다.\n* AI 에이전트의 시스템 프롬프트에서 사용할 레이블과 우선순위를 지정하세요.\n\n### 요구 사항\n* Gmail: 들어오는 지원 메시지용\n* OpenAI: LLM용\n* Linear: 이슈 관리용\n\n### 이 워크플로 커스터마이징\n* 이슈 생성 후 문제 해결 시도나 용량 계획과 같은 추가 단계를 자동화하는 것을 고려하세요.\n\n### 도움이 필요하세요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 커뮤니티에 참여하거나 [포럼](https://community.n8n.io/)에서 문의하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "684a5300-41c9-4ec4-8780-d1797e4dcfa2",
+      "name": "Generate Issue From Support Request",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        300,
+        -140
+      ],
+      "parameters": {
+        "text": "=Reported by {{ $json.from.value[0].name }} <{{ $json.from.value[0].address }}>\nReported at: {{ $now.toISO() }}\nSummary: {{ $json.subject }}\nDescription:\n{{ $json.data.replaceAll('\\n', ' ') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Your are Issues triage assistant who's task is to\n1) classify and label the given issue.\n2) Prioritise the given issue.\n3) Rewrite the issue summary and description.\n\n## Labels\nUse one or more labels.\n* Technical\n* Account\n* Access\n* Billing\n* Product\n* Training\n* Feedback\n* Complaints\n* Security\n* Privacy\n\n## Priority\n* 1 - highest\n* 2 - high\n* 3 - medium\n* 4 - low\n* 5 - lowest\n\n## Write Summary and Description\n* Remove emotional and anedotal phrases or information\n* Keep to the facts of the matter\n* Highlight what was attempted and is/was failing"
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "50aa5f53-680a-4518-a3a5-b97c3bd82af3",
+      "name": "Get Recent Messages",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -440,
+        -140
+      ],
+      "webhookId": "f3528949-056d-4013-ab62-9694e72b38cd",
+      "parameters": {
+        "limit": 1,
+        "simple": false,
+        "filters": {
+          "q": "to:support@example.com"
+        },
+        "options": {},
+        "operation": "getAll"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sf5Gfl9NiFTNXFWb",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a7a41e51-3852-43f3-98b9-d67bab4f8e41",
+      "name": "Create Issue in Linear.App",
+      "type": "n8n-nodes-base.linear",
+      "position": [
+        900,
+        -140
+      ],
+      "parameters": {
+        "title": "={{ $json.output.summary }}",
+        "teamId": "1c721608-321d-4132-ac32-6e92d04bb487",
+        "additionalFields": {
+          "stateId": "92962324-3d1f-4cf8-993b-0c982cc95245",
+          "priorityId": "={{ $json.output.priority ?? 3 }}",
+          "description": "={{ $json.output.description }}\n\n{{ $json.output.labels.map(label => `#${label}`).join(' ') }}"
+        }
+      },
+      "credentials": {
+        "linearApi": {
+          "id": "Nn0F7T9FtvRUtEbe",
+          "name": "Linear account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4593cd01-8fa3-4828-ba77-21082a2f31fb",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "height": 120,
+        "content": "### 지메일 필터\n여기에서 `to:support@example.com` 필터를 사용하여 지원 요청을 캡처하고 있습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Generate Issue From Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Seen": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Issue From Support Request",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Messages": {
+      "main": [
+        [
+          {
+            "node": "Mark as Seen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Issue From Support Request",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Issue From Support Request": {
+      "main": [
+        [
+          {
+            "node": "Create Issue in Linear.App",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,726 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "78bb4afe-ccc6-4b5e-90ba-50253f761f14",
+      "name": "Split Attachments",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -80,
+        140
+      ],
+      "parameters": {
+        "jsCode": "let results = [];\n\nfor (const item of $input.all()) {\n    for (key of Object.keys(item.binary)) {\n        results.push({\n            json: {\n                fileName: item.binary[key].fileName\n            },\n            binary: {\n                data: item.binary[key],\n            }\n        });\n    }\n}\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "48a79e8c-27c2-4cdb-a6f7-241158c10962",
+      "name": "Download Attachments",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        -260,
+        140
+      ],
+      "webhookId": "2eb57df9-1579-4af2-a30e-f412b268aba2",
+      "parameters": {
+        "options": {
+          "downloadAttachments": true
+        },
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "operation": "get"
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7dda1618-dfa7-4325-b5ff-7935602a3043",
+      "name": "Parse Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        680,
+        400
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{\n{\n  invoice: $json.candidates[0].content.parts[0].text.parseJson(),\n  email: {\n    ...$('Message Ref').first().json,\n    body: null\n  }\n}\n}}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4d45cf33-5a14-4fe4-9485-38de901113aa",
+      "name": "For Each Message",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -640,
+        140
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b5c70065-3ed8-4024-9a10-247810c062a4",
+      "name": "Message Ref",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        -440,
+        140
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cafcf919-25c3-46bd-8dd3-8cc0201c93cb",
+      "name": "Message Classifier",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "position": [
+        -1160,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "fallback": "other"
+        },
+        "inputText": "=from: {{ $json.from.emailAddress.address }} <{{ $json.from.emailAddress.address }}>\nsubject: {{ $json.subject }}\n<message>\n{{ $json.markdown.split('\\n**From**')[0].trim() }}\n</message>",
+        "categories": {
+          "categories": [
+            {
+              "category": "invoice",
+              "description": "Message is an invoice is being issued"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f97f9b24-828b-4dd8-a0e8-b7ab670403a8",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -440,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "binaryToPropery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99d49549-af7c-46aa-b321-2b9955333812",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        -1340,
+        140
+      ],
+      "parameters": {
+        "html": "={{ $json.body.content }}",
+        "options": {},
+        "destinationKey": "markdown"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18455ee7-e87b-433c-baef-28444358e486",
+      "name": "Empty Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        680,
+        600
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{\n{\n  invoice: null,\n  email: {\n    ...$('Message Ref').first().json,\n    body: null\n  }\n}\n}}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d0b4bab2-5955-4d05-8e4f-4a23fac98c45",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        880,
+        600
+      ],
+      "webhookId": "6dae0a77-74f4-4d85-a58b-e55c44fbea58",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2600020d-9751-44df-abcd-48026c21f592",
+      "name": "Filter Invoices",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -80,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "5240de52-3b02-4151-8c2b-b0522582700e",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{\n(function(output) {\n  return output.is_invoice && output.is_issued_to_company;\n})(\n  $json.candidates[0].content.parts[0].text.parseJson()\n)\n}}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b31d359e-d949-4d56-b32e-c49b35124ff7",
+      "name": "Has Invoice?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        280,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "57f433cd-5861-434f-80f2-ce28d7c22c26",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $input.first().json }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "857e2282-d7f7-438b-be87-a1c36986cfc0",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1820,
+        120
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7292a6cc-3b59-4d9b-b87d-3ba55bbc0c67",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 950,
+        "height": 680,
+        "content": "## 2. 첨부 파일이 송장인지 분류\n\n[Outlook 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftoutlook)\n\n각 자격을 갖춘 메시지에 대해, 포함된 첨부 파일 중 실제 송장 문서가 무엇인지 알아야 합니다. 이를 위해 Google Gemini의 문서 이해 기능을 사용하여 이 테스트를 검증할 수 있습니다. 이번 경우에 Gemini를 특별히 사용하는 이유는, 작성 시점에서 Gemini가 현재 PDF 문서를 수용하는 몇 안 되는 LLM 제공자 중 유일한 것입니다. Gemini를 사용하지 않는 경우, PDF 문서를 먼저 이미지로 변환해야 할 수 있습니다 - [이것의 예를 확인하세요](https://n8n.io/workflows/2421-transcribing-bank-statements-to-markdown-using-gemini-vision-ai/)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ed35c1dc-625d-4ffb-b186-fad514f6df81",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 850,
+        "height": 580,
+        "content": "## 3. 송장 세부 정보 추출  \n[HTTP Request 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)  \n\n우리의 송장 PDF가 준비되었으니, 다시 Gemini API를 사용하여 그들로부터 필요한 세부 정보를 추출하겠습니다. HTTP request 노드를 사용하는 이유는, 불행히도 Gemini가 API의 \"generationConfig\" 매개변수를 사용할 때 데이터 추출에 가장 잘 작동하지만, 이는 n8n의 기본 AI 노드에서 지원되지 않기 때문입니다. 그 후, 출력은 원래 이메일과 병합되어 그들 사이의 참조를 유지합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42a9036c-8040-41a7-9366-658ba3e31c70",
+      "name": "Get Recent Messages",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        -1540,
+        140
+      ],
+      "webhookId": "e3957f65-145c-4c0d-ac66-31342a1bc888",
+      "parameters": {
+        "fields": [
+          "body",
+          "categories",
+          "conversationId",
+          "from",
+          "hasAttachments",
+          "internetMessageId",
+          "sender",
+          "subject",
+          "toRecipients",
+          "receivedDateTime",
+          "webLink"
+        ],
+        "output": "fields",
+        "options": {},
+        "filtersUI": {
+          "values": {
+            "filters": {
+              "receivedAfter": "={{ $now.minus({ \"hour\": 1 }).toISO() }}",
+              "hasAttachments": true,
+              "foldersToInclude": [
+                "AAMkAGZkNmEzOTVhLTk3NDQtNGQzNi1hNDY2LTE2MWFlMzUyNTczMgAuAAAAAAA27qsaXv92QoGqcRnqoMpSAQDhSgSaDoa3Sp4gzAabpsdOAAAAAAEMAAA="
+              ]
+            }
+          }
+        },
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "86838ba4-0d57-4571-983f-c17005f39333",
+      "name": "Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -1080,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8ecb7298-3512-40fe-b2bc-70fb4ed5965d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 810,
+        "height": 560,
+        "content": "## 1. 청구서 이메일 확인\n\n[텍스트 분류기 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.text-classifier/)\n\nOutlook 노드는 지난 1시간 이내의 모든 받은 편지함 메시지를 가져오고, 첨부 파일을 다운로드하기 전에 각 메시지를 분류합니다. 이것은 자원 소비를 줄이기 위한 정말 좋은 초기 검사입니다. 이 사용 사례에서, 이메일의 의도에 대한 맥락적 추론을 위한 AI를 사용하는 것이 단순한 키워드 매칭보다 훨씬 더 강력할 수 있습니다. 후자는 오탐지(false positives)에 더 취약합니다.\n\n*노트: 우리는 Outlook Trigger 노드를 사용하지 않습니다. 왜냐하면 그것이 날짜/시간 필터 설정을 허용하지 않기 때문입니다.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3c28ab3-ecab-46fd-86bb-62bf8a222f37",
+      "name": "Microsoft Excel 365",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "position": [
+        420,
+        -40
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsUi": {
+          "values": [
+            {}
+          ]
+        },
+        "resource": "worksheet",
+        "workbook": {
+          "__rl": true,
+          "mode": "id",
+          "value": "ABCDEFGHIJ"
+        },
+        "operation": "append",
+        "worksheet": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{00000000-0001-0000-0000-000000000000}"
+        }
+      },
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "56tIUYYVARBe9gfX",
+          "name": "Microsoft Excel account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "69f2a975-ab91-4cbc-be72-633c4601bf6f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 530,
+        "height": 380,
+        "content": "## 4. Excel 통합 문서에 업로드\n\n[Excel 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftexcel/)\n\n마지막으로 데이터를 캡처하기 위해 이들을 Excel 워크플로에 매핑할 수 있으며, 회계 시스템에 들어가기 전에 사람이 검토할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "68f7c7f3-5ddd-4291-adb3-78f3a297fd8e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2120,
+        -660
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 960,
+        "content": "## 시도해 보세요  \n### 이 n8n 템플릿은 Outlook 사서함의 송장들을 모니터링하고, 자동으로 데이터를 파싱/추출한 다음 출력을 Excel 통합 문서에 업로드합니다.  \n\n가장 많이 요청받는 워크플로 중 하나인 이 템플릿은 귀하나 귀하의 재무 팀에게 수백 시간의 수동 작업을 절약할 수 있습니다.  \n\n### 작동 원리  \n* 예정된 트리거가 Accounts receivable 사서함의 최근 Outlook 메시지를 가져오도록 설정됩니다.  \n* 각 메시지가 공급자로부터 온 것인지, 송장을 발행하거나 포함하고 있는지 확인하기 위해 분석됩니다.  \n* 유효한 각 메시지에 대해 첨부 파일이 다운로드되며, AI 비전 분류를 통해 송장이 아닌 문서는 필터링됩니다.  \n* 송장들은 AI 비전 모델을 통해 다시 처리되어 세부 사항이 추출됩니다.  \n* 추출된 데이터는 조정이나 기타 용도로 사용할 수 있습니다. 이 데모에서는 간단히 Excel 시트에 행을 추가합니다.  \n\n### 사용 방법  \n* Microsoft365 자격 증명이 올바른 사서함을 가리키도록 하세요. 공유 폴더를 사용하는 경우, \"공유 폴더\" 옵션을 \"켜기\"로 전환하고 주요 ID에 이메일 주소를 사용하세요.  \n* 답장이나 전달과 같은 다른 유형의 메시지를 많이 받는 경우, 송장을 두 번 처리하는 것을 방지하기 위해 추가 검사를 구현할 수 있습니다. \"중복 제거\" 노드가 이에 도움이 될 수 있습니다.  \n\n### 도움이 필요하신가요?  \n[Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에 참여하세요!  \n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a55323b4-2079-4a7c-8ba2-f20ef0930b55",
+      "name": "Invoice Classifier With Gemini 2.0",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -260,
+        340
+      ],
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{\n{\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"inline_data\": {\n            \"mime_type\": $('Split Attachments').item.binary.data.mimeType,\n            \"data\": $json.data\n          }\n        },\n        {\n          \"text\": `You are an accounts receivable agent who is helping to identify if the document is an invoice, the invoice's supplier is not our company and the invoice is issued to our company.`\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"response_mime_type\": \"application/json\",\n    \"response_schema\": {\n      \"type\": \"OBJECT\",\n      \"required\": [\n        \"is_invoice\",\n        \"is_issued_to_company\"\n      ],\n      \"properties\": {\n        \"is_invoice\": { \"type\": \"boolean\" },\n        \"is_issued_to_company\": { \"type\": \"boolean\" }\n      }\n    }\n  }\n}\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "executeOnce": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f696737d-cddf-411b-a427-cc72bd68d248",
+      "name": "File-Based OCR with Gemini 2.0",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        480,
+        400
+      ],
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{\n{\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"inline_data\": {\n            \"mime_type\": $('Split Attachments').item.binary.data.mimeType,\n            \"data\": $('Extract from File').item.json.data\n          }\n        },\n        {\n          \"text\": `You are an accounts receivable agent who is helping to extract information from a supplier's invoice issued to our company.`\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"response_mime_type\": \"application/json\",\n    \"response_schema\": {\n      \"type\": \"OBJECT\",\n      \"required\": [\n        \"invoice_number\",\n        \"invoice_date\",\n        \"invoice_amount\",\n        \"invoice_due_date\",\n        \"supplier_name\",\n        \"supplier_address\",\n        \"supplier_telephone\",\n        \"supplier_email\",\n        \"booking_number\",\n        \"booking_date\",\n        \"booking_name\",\n        \"guest_name\",\n        \"guest_quantity\",\n        \"services\"\n      ],\n      \"properties\": {\n        \"invoice_number\": { \"type\": \"string\" },\n        \"invoice_date\": { \"type\": \"string\", \"nullable\": true },\n        \"invoice_amount\": { \"type\": \"number\", \"nullable\": true },\n        \"invoice_due_date\": { \"type\": \"string\", \"nullable\": true },\n        \"recipient_name\": { \"type\": \"string\", \"nullable\": true },\n        \"recipient_address\": { \"type\": \"string\", \"nullable\": true },\n        \"recipient_company_number\": { \"type\": \"string\", \"nullable\": true },\n        \"supplier_name\": { \"type\": \"string\", \"nullable\": true },\n        \"supplier_address\": { \"type\": \"string\", \"nullable\": true },\n        \"supplier_telephone\": { \"type\": \"string\", \"nullable\": true },\n        \"supplier_email\": { \"type\": \"string\", \"nullable\": true },\n        \"supplier_company_number\": { \"type\": \"string\", \"nullable\": true },\n        \"booking_number\": { \"type\": \"string\", \"nullable\": true },\n        \"booking_date\": { \"type\": \"string\", \"nullable\": true },\n        \"booking_name\": { \"type\": \"string\", \"nullable\": true },\n        \"guest_name\": { \"type\": \"string\", \"nullable\": true },\n        \"guest_quantity\": { \"type\": \"number\", \"nullable\": true },\n        \"services\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"required\": [],\n            \"properties\": {\n              \"name\": { \"type\": \"string\" },\n              \"date\": { \"type\": \"string\", \"nullable\": true },\n              \"description\": { \"type\": \"string\", \"nullable\": true },\n              \"quantity\": { \"type\": \"number\", \"nullable\": true },\n              \"total\": { \"type\": \"number\" }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "executeOnce": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1d76c0c8-a03b-4f0c-b76d-53369ab5d6e8",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -220
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 140,
+        "content": "### 다음은? 당신에게 달려 있어!\n\n이 템플릿은 빌드를 시연하기 위해 의도적으로 축소되었지만, 회계 시스템에 직접 업로드하거나 송장 조정과 같은 다른 작업을 위해 쉽게 수정하거나 확장할 수 있습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "For Each Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Message Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Message Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Ref": {
+      "main": [
+        [
+          {
+            "node": "Download Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Invoice?": {
+      "main": [
+        [
+          {
+            "node": "File-Based OCR with Gemini 2.0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Empty Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Output": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empty Response": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Invoices": {
+      "main": [
+        [
+          {
+            "node": "Has Invoice?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Each Message": {
+      "main": [
+        [
+          {
+            "node": "Microsoft Excel 365",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message Ref",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Invoice Classifier With Gemini 2.0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Attachments": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Classifier": {
+      "main": [
+        [
+          {
+            "node": "For Each Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get Recent Messages": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Attachments": {
+      "main": [
+        [
+          {
+            "node": "Split Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File-Based OCR with Gemini 2.0": {
+      "main": [
+        [
+          {
+            "node": "Parse Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Empty Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Classifier With Gemini 2.0": {
+      "main": [
+        [
+          {
+            "node": "Filter Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "instanceId": "a2434c94d549548a685cca39cc4614698e94f527bcea84eefa363f1037ae14cd"
+  },
+  "nodes": [
+    {
+      "id": "78d5f452-5ba1-4d59-9d52-8f32512d2c25",
+      "name": "List scheduled events from Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1940,
+        1000
+      ],
+      "parameters": {
+        "url": "=https://discord.com/api/guilds/{{ $('Configure').first().json.guild_id }}/scheduled-events",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "with_user_count",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fxbcosIH3MYkufX8",
+          "name": "FILL ME"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "af149917-0d46-4a40-b377-69c088a4a7b9",
+      "name": "On schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1420,
+        1000
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "619c149f-f954-4f5d-a160-01a8b85f3eb7",
+      "name": "Update event details",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        2600,
+        900
+      ],
+      "parameters": {
+        "eventId": "={{ $json.id }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "[UPDATE ME]",
+          "cachedResultName": "Events"
+        },
+        "operation": "update",
+        "updateFields": {
+          "end": "={{ $('List scheduled events from Discord').item.json.scheduled_end_time }}",
+          "start": "={{ $('List scheduled events from Discord').item.json.scheduled_start_time }}",
+          "summary": "={{ $('List scheduled events from Discord').item.json.name }}",
+          "location": "={{ $('List scheduled events from Discord').item.json.entity_metadata.location }}",
+          "description": "={{ $('List scheduled events from Discord').item.json.description }}"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "dRGPTy0BjDpAYjYl",
+          "name": "FILL ME"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56e60042-d345-46f2-b1c6-4e21825cb5c9",
+      "name": "Create event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        2600,
+        1100
+      ],
+      "parameters": {
+        "end": "={{ $('List scheduled events from Discord').item.json.scheduled_end_time }}",
+        "start": "={{ $('List scheduled events from Discord').item.json.scheduled_start_time }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "[UPDATE ME]",
+          "cachedResultName": "Events"
+        },
+        "additionalFields": {
+          "id": "={{ $('List scheduled events from Discord').item.json.id }}",
+          "summary": "={{ $('List scheduled events from Discord').item.json.name }}",
+          "location": "={{ $('List scheduled events from Discord').item.json.entity_metadata.location }}",
+          "description": "={{ $('List scheduled events from Discord').item.json.description }}"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "dRGPTy0BjDpAYjYl",
+          "name": "FILL ME"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "afb05bee-eb5f-453f-8e95-277296ce94b8",
+      "name": "Get events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        2160,
+        1000
+      ],
+      "parameters": {
+        "eventId": "={{ $json.id }}",
+        "options": {},
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "[UPDATE ME]",
+          "cachedResultName": "Events"
+        },
+        "operation": "get"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "dRGPTy0BjDpAYjYl",
+          "name": "FILL ME"
+        }
+      },
+      "typeVersion": 1,
+      "continueOnFail": true,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "56b731bd-4676-4b77-bafa-7120a51bf75d",
+      "name": "Create or update?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2380,
+        1000
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "12e40b0e-3740-47db-8647-eff8c0c959df",
+      "name": "Configure",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1680,
+        1000
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "guild_id",
+              "value": "447359847986495498"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4160a727-6a50-40ce-a7f2-0abbd5a6b1bc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        940
+      ],
+      "parameters": {
+        "width": 254.7946768060834,
+        "height": 296.7300380228139,
+        "content": "__`guild_id`__: Discord의 서버 ID. 이를 얻는 방법을 [이 Wikipedia 튜토리얼](https://en.wikipedia.org/wiki/Template:Discord_server#:~:text=Getting%20Guild%20ID,to%20get%20the%20guild%20ID.)에서 확인하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac717afe-1d30-4994-a134-0d535d04b932",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        760
+      ],
+      "parameters": {
+        "width": 420.45280925604845,
+        "height": 639.1273068962362,
+        "content": "## Discord 예약된 이벤트를 Google Calendar에 동기화\n\n이 워크플로는 Discord의 예약된 이벤트를 Google Calendar에 동기화합니다. 지정된 일정에 따라 특정 서버의 예약된 이벤트를 가져오기 위해 Discord의 API에 요청이 전송됩니다. 아직 생성되지 않았거나 최근에 업데이트된 이벤트만 Google Calendar에 전송됩니다.\n\n### 설정\nDiscord 봇을 생성해야 합니다. 방법은 [여기](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)에서 확인하세요. 봇을 생성한 후, `List scheduled events from Discord` 노드에서 **Header Auth**를 생성하세요. 헤더 인증 필드는 다음과 같아야 합니다:\n\nName: Authorization  \nValue: Bot _<your token>_  \n(예: Bot MTEzMTgw...uQdg)\n\n### 작동 원리\n1. `On schedule` 노드에서 트리거됩니다.  \n2. Discord에서 예약된 이벤트를 가져옵니다.  \n3. Discord 예약된 이벤트의 ID를 사용하여 Google Calendar의 이벤트를 가져옵니다. ID는 Google Calendar 이벤트 생성 시 동일합니다.  \n4. 새로운 이벤트나 업데이트된 이벤트를 확인할 수 있습니다.  \n5. 새로운 이벤트나 업데이트된 이벤트는 Google Calendar에 생성되거나 업데이트됩니다.\n\n### 출력"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Configure": {
+      "main": [
+        [
+          {
+            "node": "List scheduled events from Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get events": {
+      "main": [
+        [
+          {
+            "node": "Create or update?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On schedule": {
+      "main": [
+        [
+          {
+            "node": "Configure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update?": {
+      "main": [
+        [
+          {
+            "node": "Update event details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List scheduled events from Discord": {
+      "main": [
+        [
+          {
+            "node": "Get events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
