@@ -1,0 +1,678 @@
+{
+  "id": "WulUYgcXvako9hBy",
+  "meta": {
+    "instanceId": "d6b86682c7e02b79169c1a61ad0484dcda5bc8b0ea70f1a95dac239c2abfd057",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Testing Mulitple Local LLM with LM Studio",
+  "tags": [
+    {
+      "id": "RkTiZTdbLvr6uzSg",
+      "name": "Training",
+      "createdAt": "2024-06-18T16:09:35.806Z",
+      "updatedAt": "2024-06-18T16:09:35.806Z"
+    },
+    {
+      "id": "W3xdiSeIujD7XgBA",
+      "name": "Template",
+      "createdAt": "2024-06-18T22:15:34.874Z",
+      "updatedAt": "2024-06-18T22:15:34.874Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "08c457ef-5c1f-46d8-a53e-f492b11c83f9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        420
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 478.38709677419376,
+        "height": 347.82258064516134,
+        "content": "## 🧠텍스트 분석\n### 가독성 점수 범위:\n모델 응답을 테스트할 때, 가독성 점수는 다양한 수준으로 분포할 수 있습니다. 다음은 세부 사항입니다:\n\n- **90–100**: 매우 쉽게 읽을 수 있음 (5학년 이하)\n- **80–89**: 쉽게 읽을 수 있음 (6학년)\n- **70–79**: 상당히 쉽게 읽을 수 있음 (7학년)\n- **60–69**: 표준 (8학년에서 9학년)\n- **50–59**: 상당히 어렵게 읽을 수 있음 (10학년에서 12학년)\n- **30–49**: 어렵게 읽을 수 있음 (대학)\n- **0–29**: 매우 어렵게 읽을 수 있음 (대학 졸업생)\n- **Below 0**: 극도로 어렵게 읽을 수 있음 (대학원 수준)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7801734c-5eb9-4abd-b234-e406462931f7",
+      "name": "Get Models",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        20,
+        180
+      ],
+      "parameters": {
+        "url": "http://192.168.1.179:1234/v1/models",
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5ee93d9a-ad2e-4ea9-838e-2c12a168eae6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -100
+      ],
+      "parameters": {
+        "width": 377.6129032258063,
+        "height": 264.22580645161304,
+        "content": "## ⚙️ 2. 로컬 IP 업데이트\n워크플로우에서 **'Base URL'** `http://192.168.1.1:1234/v1/models`을 귀하의 LM Studio 서버 IP와 일치하도록 업데이트하세요. (LM 서버 실행)[https://lmstudio.ai/docs/basics/server]\n\n이 노드는 쿼리 시점에 로드된 모든 모델 ID 목록을 검색하기 위해 LM Studio 서버에 쿼리를 보낼 것입니다. LM Studio에 모델을 변경하거나 추가하면, 업데이트된 활성 LLM 목록을 얻기 위해 이 노드를 다시 실행해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2b6a6ed-0ef1-4f2c-8350-9abd59d08e61",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -300,
+        180
+      ],
+      "webhookId": "39c3c6d5-ea06-4faa-b0e3-4e77a05b0297",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "dbaf0ad1-9027-4317-a996-33a3fcc9e258",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        200
+      ],
+      "parameters": {
+        "width": 378.75806451612857,
+        "height": 216.12903225806457,
+        "content": "## 🛠️1. 설정 - LM Studio\n먼저, [LM Studio](https://lmstudio.ai/)를 다운로드하고 설치하세요. 테스트를 위해 사용할 LLM 모델을 식별하세요.\n\n다음으로, 선택된 모델들을 서버 기능에 로드하여 테스트를 위해 준비합니다. 여러 모델을 설정하는 방법에 대한 자세한 가이드의 경우, [LM Studio Basics](https://lmstudio.ai/docs/basics) 문서를 참조하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "36770fd1-7863-4c42-a68d-8d240ae3683b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        400
+      ],
+      "parameters": {
+        "width": 570.0000000000002,
+        "height": 326.0645161290325,
+        "content": "## 3. 💡LM 설정 업데이트\n\n여기에서 다음 매개변수를 수정하여 모델 동작을 미세 조정할 수 있습니다:\n\n- **Temperature**: 무작위성을 제어합니다. 더 높은 값(예: 1.0)은 더 다양한 결과를 생성하며, 더 낮은 값(예: 0.2)은 응답을 더 집중적이고 결정적으로 만듭니다.\n- **Top P**: nucleus sampling을 조정하며, 모델이 가능한 토큰의 하위 집합만 고려합니다. 더 낮은 값(예: 0.5)은 응답 범위를 좁힙니다.\n- **Presence Penalty**: 입력에 존재하는 토큰에 기반하여 새로운 토큰에 페널티를 부과하여 모델이 더 다양한 응답을 생성하도록 장려합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b36f094-a3bf-4ff7-9385-4f7a2c80d54f",
+      "name": "Get timeDifference",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1600,
+        160
+      ],
+      "parameters": {
+        "endDate": "={{ $json.endDateTime }}",
+        "options": {},
+        "operation": "getTimeBetweenDates",
+        "startDate": "={{ $('Capture Start Time').item.json.startDateTime }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a0b8f29d-2f2f-4fcf-a54a-dff071e321e5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1900,
+        -260
+      ],
+      "parameters": {
+        "width": 304.3225806451618,
+        "height": 599.7580645161281,
+        "content": "## 📊4. Google Sheet 만들기 (선택사항)\n\n1. 먼저, 다음 헤더를 가진 Google Sheet를 만드세요:\n   - Prompt\n   - Time Sent\n   - Time Received\n   - Total Time Spent\n   - Model\n   - Response\n   - Readability Score\n   - Average Word Length\n   - Word Count\n   - Sentence Count\n   - Average Sentence Length\n\n2. 시트를 만든 후, 워크플로의 해당 Google Sheets 노드를 업데이트하여 데이터 필드를 올바르게 매핑하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d376a5fb-4e07-42a3-aa0c-8ccc1b9feeb7",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -760,
+        -200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 359.2903225806448,
+        "height": 316.9032258064518,
+        "content": "## 🏗️설정 단계\n\n1. **LM Studio 다운로드 및 설치**: LM Studio가 컴퓨터에 올바르게 설치되었는지 확인하세요.\n2. **기본 URL 업데이트**: LLM 인스턴스의 IP 주소로 기본 URL을 교체하세요. 연결이 제대로 설정되었는지 확인하세요.\n3. **LLM 설정 구성**: LM Studio에서 LLM 모델이 제대로 설정되고 구성되었는지 확인하세요.\n4. **Google 시트 생성**: 테스트 결과를 추적하기 위해 필요한 헤더(Prompt, Time Sent, Time Received 등)를 가진 Google 시트를 설정하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b21cad30-573e-4adf-a1d0-f34cf9628819",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        -160
+      ],
+      "parameters": {
+        "width": 615.8064516129025,
+        "height": 272.241935483871,
+        "content": "## 📖여러 LLM 프롬프팅\n\n특정 결과를 테스트할 때 (예: 간결성 또는 가독성과 같은 경우), LLM 체인에 **System Prompt**를 추가하여 모델의 응답을 안내할 수 있습니다.\n\n**System Prompt Suggestion**:\n- 응답이 간결하고, 명확하며, 5학년 수준으로 쉽게 이해할 수 있도록 하는 데 중점을 두세요. \n- 이 프롬프트는 모델이 가독성 기준을 얼마나 잘 충족하고 본론에 충실한지 비교하는 데 도움이 될 것입니다.\n \n프롬프트를 원하는 테스트 기준에 맞게 조정하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd5f7e7b-bc69-4b67-90e6-2077b6b93148",
+      "name": "Run Model with Dunamic Inputs",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1020,
+        400
+      ],
+      "parameters": {
+        "model": "={{ $node['Extract Model IDsto Run Separately'].json.id }}",
+        "options": {
+          "topP": 1,
+          "baseURL": "http://192.168.1.179:1234/v1",
+          "timeout": 250000,
+          "temperature": 1,
+          "presencePenalty": 0
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "LBE5CXY4yeWrZCsy",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0ee6c9a-cf76-4633-9c43-a7dc10a1f73e",
+      "name": "Analyze LLM Response Metrics",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2000,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Get the input data from n8n\nconst inputData = items.map(item => item.json);\n\n// Function to count words in a string\nfunction countWords(text) {\n return text.trim().split(/\\s+/).length;\n}\n\n// Function to count sentences in a string\nfunction countSentences(text) {\n const sentences = text.match(/[^.!?]+[.!?]+/g) || [];\n return sentences.length;\n}\n\n// Function to calculate average sentence length\nfunction averageSentenceLength(text) {\n const sentences = text.match(/[^.!?]+[.!?]+/g) || [];\n const sentenceLengths = sentences.map(sentence => sentence.trim().split(/\\s+/).length);\n const totalWords = sentenceLengths.reduce((acc, val) => acc + val, 0);\n return sentenceLengths.length ? (totalWords / sentenceLengths.length) : 0;\n}\n\n// Function to calculate average word length\nfunction averageWordLength(text) {\n const words = text.trim().split(/\\s+/);\n const totalCharacters = words.reduce((acc, word) => acc + word.length, 0);\n return words.length ? (totalCharacters / words.length) : 0;\n}\n\n// Function to calculate Flesch-Kincaid Readability Score\nfunction fleschKincaidReadability(text) {\n // Split text into sentences (approximate)\n const sentences = text.match(/[^.!?]+[.!?]*[\\n]*/g) || [];\n // Split text into words\n const words = text.trim().split(/\\s+/);\n // Estimate syllable count by matching vowel groups\n const syllableCount = (text.toLowerCase().match(/[aeiouy]{1,2}/g) || []).length;\n\n const sentenceCount = sentences.length;\n const wordCount = words.length;\n\n // Avoid division by zero\n if (wordCount === 0 || sentenceCount === 0) return 0;\n\n const averageWordsPerSentence = wordCount / sentenceCount;\n const averageSyllablesPerWord = syllableCount / wordCount;\n\n // Flesch-Kincaid formula\n return 206.835 - (1.015 * averageWordsPerSentence) - (84.6 * averageSyllablesPerWord);\n}\n\n\n// Prepare the result array for n8n output\nconst resultArray = [];\n\n// Loop through the input data and analyze each LLM response\ninputData.forEach(item => {\n const llmResponse = item.llm_response;\n\n // Perform the analyses\n const wordCount = countWords(llmResponse);\n const sentenceCount = countSentences(llmResponse);\n const avgSentenceLength = averageSentenceLength(llmResponse);\n const readabilityScore = fleschKincaidReadability(llmResponse);\n const avgWordLength = averageWordLength(llmResponse);\n\n // Structure the output to include original input and new calculated values\n resultArray.push({\n json: {\n llm_response: item.llm_response,\n prompt: item.prompt,\n model: item.model,\n start_time: item.start_time,\n end_time: item.end_time,\n time_diff: item.time_diff,\n word_count: wordCount,\n sentence_count: sentenceCount,\n average_sent_length: avgSentenceLength,\n readability_score: readabilityScore,\n average_word_length: avgWordLength\n }\n });\n});\n\n// Return the result array to n8n\nreturn resultArray;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "adef5d92-cb7e-417e-acbb-1a5d6c26426a",
+      "name": "Save Results to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2180,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Model": "={{ $('Extract Model IDsto Run Separately').item.json.id }}",
+            "Prompt": "={{ $json.prompt }}",
+            "Response ": "={{ $('LLM Response Analysis').item.json.text }}",
+            "TIme Sent": "={{ $json.start_time }}",
+            "Word_count": "={{ $json.word_count }}",
+            "Sentence_count": "={{ $json.sentence_count }}",
+            "Time Recieved ": "={{ $json.end_time }}",
+            "Total TIme spent ": "={{ $json.time_diff }}",
+            "readability_score": "={{ $json.readability_score }}",
+            "Average_sent_length": "={{ $json.average_sent_length }}",
+            "average_word_length": "={{ $json.average_word_length }}"
+          },
+          "schema": [
+            {
+              "id": "Prompt",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Prompt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIme Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "TIme Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time Recieved ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Time Recieved ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total TIme spent ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Total TIme spent ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Model",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Model",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "readability_score",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "readability_score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "average_word_length",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "average_word_length",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Word_count",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Word_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentence_count",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Sentence_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Average_sent_length",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Average_sent_length",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GdoTjKOrhWOqSZb-AoLNlXgRGBdXKSbXpy-EsZaPGvg/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1GdoTjKOrhWOqSZb-AoLNlXgRGBdXKSbXpy-EsZaPGvg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GdoTjKOrhWOqSZb-AoLNlXgRGBdXKSbXpy-EsZaPGvg/edit?usp=drivesdk",
+          "cachedResultName": "Teacking LLM Success"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DMnEU30APvssJZwc",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "2e147670-67af-4dde-8ba8-90b685238599",
+      "name": "Capture End Time",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1380,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "outputFieldName": "endDateTime"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5a8d3334-b7f8-4f14-8026-055db795bb1f",
+      "name": "Capture Start Time",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        520,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "outputFieldName": "startDateTime"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c42d1748-a10d-4792-8526-5ea1c542eeec",
+      "name": "Prepare Data for Analysis",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1800,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "920ffdcc-2ae1-4ccb-bc54-049d9d84bd42",
+              "name": "llm_response",
+              "type": "string",
+              "value": "={{ $('LLM Response Analysis').item.json.text }}"
+            },
+            {
+              "id": "c3e70e1b-055c-4a91-aeb0-3d00d41af86d",
+              "name": "prompt",
+              "type": "string",
+              "value": "={{ $('When chat message received').item.json.chatInput }}"
+            },
+            {
+              "id": "cfa45a85-7e60-4a09-b1ed-f9ad51161254",
+              "name": "model",
+              "type": "string",
+              "value": "={{ $('Extract Model IDsto Run Separately').item.json.id }}"
+            },
+            {
+              "id": "a49758c8-4828-41d9-b1d8-4e64dc06920b",
+              "name": "start_time",
+              "type": "string",
+              "value": "={{ $('Capture Start Time').item.json.startDateTime }}"
+            },
+            {
+              "id": "6206be8f-f088-4c4d-8a84-96295937afe2",
+              "name": "end_time",
+              "type": "string",
+              "value": "={{ $('Capture End Time').item.json.endDateTime }}"
+            },
+            {
+              "id": "421b52f9-6184-4bfa-b36a-571e1ea40ce4",
+              "name": "time_diff",
+              "type": "string",
+              "value": "={{ $json.timeDifference.days }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "04679ba8-f13c-4453-99ac-970095bffc20",
+      "name": "Extract Model IDsto Run Separately",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        300,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "97cdd050-5538-47e1-a67a-ea6e90e89b19",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        -160
+      ],
+      "parameters": {
+        "width": 330.4677419354838,
+        "height": 182.9032258064516,
+        "content": "구글 시트 노드를 그냥 삭제하고, 결과를 수동으로 검토할 수 있습니다. \n\n구글 시트를 이용하면, 여러 프롬프트를 제공하고 모든 실행에 대한 분석을 검토할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a1558ec-54e8-4860-b3db-edcb47c52413",
+      "name": "Add System Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        740,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fd48436f-8242-4c01-a7c3-246d28a8639f",
+              "name": "system_prompt",
+              "type": "string",
+              "value": "Ensure that messages are concise and to the point readable by a 5th grader."
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "74df223b-17ab-4189-a171-78224522e1c7",
+      "name": "LLM Response Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1000,
+        160
+      ],
+      "parameters": {
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "={{ $json.system_prompt }}"
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "65d8b0d3-7285-4c64-8ca5-4346e68ec075",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        780
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 570.0000000000002,
+        "height": 182.91935483870984,
+        "content": "## 🚀프로 팁\n\n이상한 결과를 얻고 있다면, 채팅 버튼 옆에 있는 이전 채팅을 삭제하여 다음 채팅으로 응답이 유출되지 않도록 하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "America/Denver",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "versionId": "a80bee71-8e21-40ff-8803-42d38f316bfb",
+  "connections": {
+    "Get Models": {
+      "main": [
+        [
+          {
+            "node": "Extract Model IDsto Run Separately",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture End Time": {
+      "main": [
+        [
+          {
+            "node": "Get timeDifference",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add System Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM Response Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Start Time": {
+      "main": [
+        [
+          {
+            "node": "Add System Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get timeDifference": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data for Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Response Analysis": {
+      "main": [
+        [
+          {
+            "node": "Capture End Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data for Analysis": {
+      "main": [
+        [
+          {
+            "node": "Analyze LLM Response Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Get Models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze LLM Response Metrics": {
+      "main": [
+        [
+          {
+            "node": "Save Results to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Model with Dunamic Inputs": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM Response Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Model IDsto Run Separately": {
+      "main": [
+        [
+          {
+            "node": "Capture Start Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
