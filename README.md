@@ -78,12 +78,12 @@ API 스키마를 자동으로 추출하고 분석하는 도구. API 문서화 �
 Qdrant, Mistral.ai, OpenAI를 활용한 세법 도우미. 복잡한 세법 질문에 대한 정확한 답변을 제공합니다.
 
 #### [Customer Insights with Qdrant, Python and Information Extractor](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/awesome-n8n-templates-by-enescingoz/common/Customer%20Insights%20with%20Qdrant%2C%20Python%20and%20Information%20Extractor.json)
-[![Customer Insights with Qdrant, Python and Information Extractor](common/Customer%20Insights%20with%20Qdrant,%20Python%20and%20Information%20Extractor.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/awesome-n8n-templates-by-enescingoz/common/Customer%20Insights%20with%20Qdrant%2C%20Python%20and%20Information%20Extractor.json)
+[![Customer Insights with Qdrant, Python and Information Extractor](workflows/awesome-n8n-templates-by-enescingoz/common/Customer%20Insights%20with%20Qdrant%2C%20Python%20and%20Information%20Extractor.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/awesome-n8n-templates-by-enescingoz/common/Customer%20Insights%20with%20Qdrant%2C%20Python%20and%20Information%20Extractor.json)
 
 고객 인사이트 분석 시스템. Qdrant와 Python을 활용하여 고객 데이터에서 유의미한 패턴을 추출합니다.
 
 #### [Hacker News Job Listing Scraper and Parser](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/awesome-n8n-templates-by-enescingoz/common/Hacker%20News%20Job%20Listing%20Scraper%20and%20Parser.json)
-[![Hacker News Job Listing Scraper and Parser](common/Hacker%20News%20Job%20Listing%20Scraper%20and%20Parser.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/awesome-n8n-templates-by-enescingoz/common/Hacker%20News%20Job%20Listing%20Scraper%20and%20Parser.json)
+[![Hacker News Job Listing Scraper and Parser](workflows/awesome-n8n-templates-by-enescingoz/common/Hacker%20News%20Job%20Listing%20Scraper%20and%20Parser.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/awesome-n8n-templates-by-enescingoz/common/Hacker%20News%20Job%20Listing%20Scraper%20and%20Parser.json)
 
 Hacker News의 채용 공고를 자동으로 수집하고 파싱하는 시스템. 개발자 채용 정보를 체계적으로 관리합니다.
 
