@@ -5,7 +5,6 @@ import fire
 import orjson
 import requests
 from dotenv import load_dotenv
-from tqdm import tqdm
 
 
 class CLI:
@@ -112,9 +111,12 @@ Return only the translated Korean text, without any additional explanation or fo
         self, prompt: str, model: str, provider: Literal["openai", "anthropic", "xai", "gemini"], temp: float = 0.7
     ) -> str:
         json_data, headers, url = self.__convert_request_body(prompt, model, provider, temp)
-        res = requests.post(url=url, headers=headers, json=json_data)
-        res = res.json()
-        return res["choices"][0]["message"]["content"]
+        try:
+            res = requests.post(url=url, headers=headers, json=json_data)
+            return res.json()["choices"][0]["message"]["content"]
+        except Exception as e:
+            print(self.file)
+            raise e
 
     def run(
         self,
@@ -131,6 +133,7 @@ Return only the translated Korean text, without any additional explanation or fo
         provider: Literal["openai", "anthropic", "xai", "gemini"] = "openai",
         temp: Optional[float] = 0.7,
     ):
+        self.file = file
         if not os.path.exists(file):
             raise FileNotFoundError(f"존재하지 않는 파일 : {file}")
 
@@ -147,12 +150,17 @@ Return only the translated Korean text, without any additional explanation or fo
         nodes = [(i, node) for i, node in enumerate(original_nodes)]
         sticky_nodes = [(i, node) for (i, node) in nodes if node["type"] == "n8n-nodes-base.stickyNote"]
 
-        for i, sticky_node in tqdm(sticky_nodes):
-            content = self.__llm_api_call(sticky_node["parameters"]["content"], model, provider, temp)
-            original_nodes[i]["parameters"]["content"] = content
+        try:
+            for i, sticky_node in sticky_nodes:
+                content = self.__llm_api_call(sticky_node["parameters"]["content"], model, provider, temp)
+                original_nodes[i]["parameters"]["content"] = content
+        except Exception as e:
+            print(self.file)
+            raise e
 
         root_node["nodes"] = original_nodes
 
+        file = file.replace(".json", ".ko.json")
         with open(file, "w", encoding="utf-8") as f:
             f.write(orjson.dumps(root_node, option=orjson.OPT_INDENT_2).decode("utf-8"))
 
