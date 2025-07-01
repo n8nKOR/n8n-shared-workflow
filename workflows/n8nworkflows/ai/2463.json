@@ -1,0 +1,510 @@
+{
+  "id": "TfwQRZkTBtykx1rM",
+  "meta": {
+    "instanceId": "",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Enrich Company Data from Google Sheet with OpenAI Agent and Scraper Tool",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "90c02c5e-228e-478b-b06d-424dc0c4f9b9",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1500,
+        240
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"Business Area\": {\n    \"type\": \"string\",\n    \"description\": \"Summary of the company's core activities or industry focus.\"\n  },\n  \"Offers or Product\": {\n    \"type\": \"string\",\n    \"description\": \"Summary of the company's main products or services.\"\n  },\n  \"Value Proposition\": {\n    \"type\": \"string\",\n    \"description\": \"Catchphrase or tagline that represents the company’s value proposition.\"\n  },\n  \"Business Model\": {\n    \"type\": \"string\",\n    \"description\": \"Description of the company's business model, including revenue generation, key partnerships, or unique aspects.\"\n  },\n  \"Ideal Customer Profile\": {\n    \"type\": \"string\",\n    \"description\": \"Description of the ideal customer profile, based on available information.\"\n  },\n  \"Additional Information\": {\n    \"type\": \"object\",\n    \"description\": \"Additional insights or actions if there is insufficient information or if the content does not match a company page.\",\n    \"properties\": {\n      \"Information Sufficiency\": {\n        \"type\": \"string\",\n        \"description\": \"Indicate if the information was sufficient to provide a full analysis.\",\n        \"enum\": [\"Sufficient\", \"Insufficient\"]\n      },\n      \"Insufficient Details\": {\n        \"type\": \"string\",\n        \"description\": \"If 'Insufficient', specify what information was missing or would be needed to complete the analysis.\",\n        \"optional\": true\n      },\n      \"Mismatched Content\": {\n        \"type\": \"boolean\",\n        \"description\": \"Indicate whether the page content aligns with that of a typical company page.\"\n      },\n      \"Suggested Actions\": {\n        \"type\": \"string\",\n        \"description\": \"Provide recommendations if the page content is insufficient or mismatched, such as verifying the URL or searching for alternative sources.\",\n        \"optional\": true\n      }\n    }\n  }\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "81392d70-3b36-4014-8239-97ea1d69e522",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1240,
+        240
+      ],
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "62d84f70-43a2-43aa-815e-56842230c9b1",
+      "name": "Get rows from Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "h",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1B4Xv2vhO_uXcPxvMWGFwiorFQnSdXlIgXvaTcLQkzPo",
+          "cachedResultUrl": "",
+          "cachedResultName": "Companies to enrich list"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3b1050a8-5992-4a5b-a6a4-b91472a12dd4",
+      "name": "Call n8n workflow  : Scrape companies homepage content",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1380,
+        260
+      ],
+      "parameters": {
+        "name": "scraper",
+        "fields": {
+          "values": [
+            {
+              "name": "website",
+              "stringValue": "={{ $('Get rows from Google Sheet').item.json.Website }}"
+            }
+          ]
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "TfwQRZkTBtykx1rM"
+        },
+        "description": "Call this tool to get scraped data about a website.\nThe query should only contains the name of the company."
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e451cc56-0cef-4bd8-b13e-210d5ddf3001",
+      "name": "Update Company's Row on Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1660,
+        -200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ICP": "={{ $json.output['Ideal Customer Profile'] }}",
+            "Offer": "={{ $json.output['Offers or Product'] }}",
+            "row_number": "={{ $('Get rows from Google Sheet').item.json.row_number }}",
+            "Business area": "={{ $json.output['Business Area'] }}",
+            "Business Model": "={{ $json.output['Business Model'] }}",
+            "Value proposition": "={{ $json.output['Value Proposition'] }}",
+            "Additionnal information": "={{ $json.output['Additional Information'] }}"
+          },
+          "schema": [
+            {
+              "id": "Company",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Company",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Domain",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Domain",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business area",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Business area",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Offer",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Offer",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Value proposition",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Value proposition",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Model",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Business Model",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ICP",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ICP",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Additionnal information",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Additionnal information",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Companies list"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1B4Xv2vhO_uXcPxvMWGFwiorFQnSdXlIgXvaTcLQkzPo",
+          "cachedResultUrl": "",
+          "cachedResultName": "Companies to enrich list"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "f2f31704-3e93-4c3f-bb70-9f41d1c625a9",
+      "name": "ScrapingBee : Scrape company's homepage data ",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1020,
+        400
+      ],
+      "parameters": {
+        "url": "https://app.scrapingbee.com/api/v1",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": ""
+            },
+            {
+              "name": "url",
+              "value": "={{$json.url}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d0180b22-8938-4590-a58a-0455ac808c68",
+      "name": "Tool called from Agent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        440,
+        400
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2f65dece-0236-4d45-b965-7ca705fa4621",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "78ae2393-3744-445a-bf28-6dab1f4a8aec",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        -480
+      ],
+      "parameters": {
+        "width": 1084.896634444991,
+        "height": 1812.538665002239,
+        "content": "# 회사 데이터 Google 시트에서 OpenAI 스크래퍼 에이전트로 풍부하게 하기\n\n이 워크플로는 스프레드시트에 있는 회사 목록의 데이터를 풍부하게 하는 방법을 보여줍니다. 이 워크플로가 모든 단계를 따르면 프로덕션 준비가 되어 있지만, 오류 처리를 추가하면 견고성을 높일 수 있습니다.\n\n## 중요한 주의사항\n\n- **법적 규정 확인**: 이 워크플로는 스크래핑을 포함하므로, 시작 전에 귀하의 국가에서 스크래핑 관련 법적 규정을 확인하세요. 안전하게 하는 것이 좋습니다!\n- **토큰 사용 주의**: OpenAI 토큰이 빠르게 쌓일 수 있으므로, 사용량을 주의하지 않으면 예상치 못한 청구서가 발생할 수 있습니다! 💸\n\n## 주요 워크플로\n\n### 노드 1 - `Webhook`\n이 노드는 웹훅 호출을 통해 워크플로를 트리거합니다. 폼 제출, Google Sheets에 새 행 추가, 또는 수동 트리거와 같은 다른 트리거로 대체할 수 있습니다.\n\n### 노드 2 - `Get Rows from Google Sheet`\n이 노드는 스프레드시트에서 회사 목록을 가져옵니다. 이 Google 시트의 열은 다음과 같습니다:\n\n- **Company**: 회사 이름\n- **Website**: 회사 웹사이트 URL  \n  *이 두 필드는 이 단계에서 필수입니다.*\n\n- **Business Area**: 스크래핑된 데이터에서 OpenAI가 유추한 비즈니스 영역\n- **Offer**: 스크래핑된 데이터에서 OpenAI가 유추한 제안\n- **Value Proposition**: 스크래핑된 데이터에서 OpenAI가 유추한 가치 제안\n- **Business Model**: 스크래핑된 데이터에서 OpenAI가 유추한 비즈니스 모델\n- **ICP**: 스크래핑된 데이터에서 OpenAI가 유추한 이상 고객 프로필\n- **Additional Information**: 스크래핑된 데이터와 관련된 정보, 포함:\n  - **Information Sufficiency**:\n    - *Description*: 정보가 완전한 분석을 제공하기에 충분한지 나타냅니다.\n    - *Options*: \"Sufficient\" 또는 \"Insufficient\"\n  - **Insufficient Details**:\n    - *Description*: \"Insufficient\"으로 표시된 경우, 분석을 완료하기 위해 누락된 정보 또는 필요한 정보를 지정합니다.\n  - **Mismatched Content**:\n    - *Description*: 페이지 내용이 전형적인 회사 페이지와 일치하는지 나타냅니다.\n  - **Suggested Actions**:\n    - *Description*: 페이지 내용이 부족하거나 일치하지 않을 경우, URL 확인이나 대체 소스 검색과 같은 추천을 제공합니다.\n\n### 노드 3 - `Loop Over Items`\n이 노드는 후속 단계에서 \"extra workflow input\"의 웹사이트가 처리 중인 행과 일치하도록 합니다. 이 노드를 삭제할 수 있지만, 스크래핑 워크플로에 보내는 \"query\"가 특정 회사 웹사이트에 해당하도록 해야 합니다(첫 번째 행이 아닌).\n\n### 노드 4 - `AI Agent`\n이 AI 에이전트는 수신된 콘텐츠에서 데이터를 추출하도록 구성된 프롬프트가 있습니다. 이 노드에는 세 가지 서브-노드가 있습니다:\n  \n  - **OpenAI Chat Model**: 사용 중인 모델은 현재 `gpt4-o-mini`입니다.\n  - **Call n8n Workflow**: 이 서브-노드는 ScrapingBee를 사용한 워크플로를 호출하여 스크래핑된 데이터를 가져옵니다.\n  - **Structured Output Parser**: 이 파서는 출력을 명확하고 쉽게 사용하도록 구조화한 다음 Google 시트에 행을 추가합니다.\n\n### 노드 5 - `Update Company Row in Google Sheet`\n이 노드는 Google Sheets에서 특정 회사의 행을 풍부한 데이터로 업데이트합니다.\n\n## 스크래퍼 에이전트 워크플로\n\n### 노드 1 - `Tool Called from Agent`\n이것은 AI 에이전트가 스크래퍼를 호출할 때의 트리거입니다. 쿼리는 다음을 포함합니다:\n- 회사 이름\n- Website (웹사이트 URL)\n\n### 노드 2 - `Set Company URL`\n이 노드는 필드 이름을 변경하며, 이는 사소해 보일 수 있지만 AI 에이전트로부터 받은 데이터에 변환을 수행하는 데 유용합니다.\n\n### 노드 3 - `ScrapingBee: Scrape Company's Website`\n이 노드는 ScrapingBee를 사용하여 제공된 URL에서 데이터를 스크래핑합니다. 원하는 스크래퍼를 사용할 수 있지만, ScrapingBee가 추천되며, 스크래퍼 동작을 직접 구성할 수 있습니다. 구성한 후 제공된 \"curl\" 명령을 복사하여 n8n에 가져옵니다.\n\n### 노드 4 - `HTML to Markdown`\n이 노드는 스크래핑된 HTML 데이터를 Markdown으로 변환하여 OpenAI에 보냅니다. Markdown 형식은 HTML보다 일반적으로 토큰을 적게 사용합니다.\n\n## 워크플로 개선\n워크플로를 공유하는 것은 항상 즐거운 일이지만, 제작자는 때때로 일부 마법을 자신만의 것으로 유지하고 싶어합니다 ✨. 이 워크플로를 향상시킬 수 있는 몇 가지 방법은 다음과 같습니다:\n\n- 잠재적 오류 처리\n- 스크래퍼 도구를 구성하여 웹사이트의 다른 페이지도 스크래핑하도록 함 (이로 인해 토큰 비용이 증가하지만 유용할 수 있음, 예: 홈페이지 외에 \"Pricing\" 또는 \"About Us\" 페이지 스크래핑).\n- Google Sheets 대신 CRM에 직접 연결하여 회사 데이터를 풍부하게 함.\n- 웹사이트의 폼 제출로부터 워크플로를 트리거하고, 리드에 대한 스크래핑된 데이터를 Slack 또는 Teams 채널로 보냄."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8440fbe4-a3b3-4801-95f9-55df90c862fe",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1600,
+        20
+      ],
+      "parameters": {
+        "text": "=You'll be provided with scraped data from the homepage of a company:\nCompany Name: {{ $json.Company }}\nURL: {{ $json.Domain }}\n\nYour Objectives:\nExtract Relevant Information:\n\nIdentify and summarize the company's core activities, products or services, and its business model (how it generates revenue, key partners, etc.).\nCapture the value proposition in the form of a catchphrase or tagline from the homepage content.\nDeduce an Ideal Customer Profile (ICP) based on the information provided (consider industry, customer needs, company positioning, etc.).\n\nLanguage:\nEven if the content received is in another language, provide all responses in English.\n\nHandling Edge Cases:\nIf you encounter any of the following situations, please follow the instructions below:\n\nInsufficient Information:\nIf the content doesn't provide enough information to address the objectives, indicate this and list any missing information or additional data sources that could help complete the analysis.\nNon-Corporate Page or Mismatched Content:\nIf the page doesn't appear to belong to a company or the content is irrelevant, provide an explanation of why it doesn’t align with expectations.\nOffer potential actions, such as confirming the URL, suggesting alternative methods to verify the company’s homepage, or advising on additional keywords or content to refine the search.\nAdditional Considerations:\nIf multiple languages are detected in the content, please prioritize the English content, then proceed with any additional languages if they provide further insight.\nIf the homepage features sections related to awards, partnerships, or certifications, include them as they can enrich the ICP and value proposition analysis.\nIf the homepage mentions customer testimonials or case studies, summarize any key points, as these can also inform the ICP and business model.",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "bf1987fb-ce72-47c1-a020-6ec41e8731e3",
+      "name": "Set company url",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        760,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7ea9933b-5972-4623-9c97-eecf1ce0479d",
+              "name": "url",
+              "type": "string",
+              "value": "={{$json.website}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f0a86878-8db1-4761-a135-9d7a3caac288",
+      "name": "HTML to Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        1360,
+        400
+      ],
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {},
+        "destinationKey": "response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f53b19c5-dcb9-4239-8be8-122a9e479a55",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        300,
+        0
+      ],
+      "webhookId": "",
+      "parameters": {
+        "path": "53166f88-c88a-4429-b6b5-498f458686b0",
+        "options": {}
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b65befae-2660-43f1-a425-26582a3a248f",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get rows from Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Update Company's Row on Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set company url": {
+      "main": [
+        [
+          {
+            "node": "ScrapingBee : Scrape company's homepage data ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool called from Agent": {
+      "main": [
+        [
+          {
+            "node": "Set company url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows from Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ScrapingBee : Scrape company's homepage data ": {
+      "main": [
+        [
+          {
+            "node": "HTML to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n workflow  : Scrape companies homepage content": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

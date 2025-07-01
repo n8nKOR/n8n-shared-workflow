@@ -1,0 +1,869 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "aef123fd-3481-4708-ae85-684529e4f05f",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        340,
+        300
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "operation"
+            },
+            {
+              "name": "query"
+            },
+            {
+              "name": "urls"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d77e695b-8340-4715-9862-b6428d7d12e4",
+      "name": "Operation",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        580,
+        300
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Youtube Search",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "81b134bc-d671-4493-b3ad-8df9be3f49a6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "youtube_search"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Youtube Transcripts",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8d57914f-6587-4fb3-88e0-aa1de6ba56c1",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "youtube_transcripts"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Usage Metrics",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7c38f238-213a-46ec-aefe-22e0bcb8dffc",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "usage_metrics"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "b2d3e630-9664-481e-b250-9d5a3ff065ee",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        -100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 660,
+        "content": "## 1. MCP 서버 트리거 설정\n\n[MCP 서버 트리거에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6facfbdf-bc66-4652-8ae6-a1513962fe2e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1240,
+        "height": 820,
+        "content": "## 2. [APIFY.com](https://www.apify.com?fpr=414q6) 간단한 YouTube 검색 및 자막을 위한  \n[20JIMLEUK를 사용하여 Apify.com에 가입하세요 (20% 할인을 위해)](https://www.apify.com?fpr=414q6)  \n\nApify의 YouTube 스크래퍼를 이미 여러 번 사용해 보았고, 프로덕션 용도에 매우 빠르고 신뢰할 수 있다는 것을 알았습니다.  \n특히 공식 YouTube의 낮은 속도 제한에 부딪혔을 때 내 워크플로가 중단되지 않는다는 점이 마음에 듭니다.  \n이 MCP 서버의 경우, 검색과 자막 다운로드를 위해 다음 YouTube 스크래퍼를 사용하고 있습니다: [https://apify.com/streamers/youtube-scraper](https://apify.com/streamers/youtube-scraper?fpr=414q6)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3473a800-6bdc-412d-82f2-aa5befd2dfe4",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        -220
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 100,
+        "content": "항상 서버를 인증하세요! 프로덕션으로 가기 전에, MCP 서버 트리거에서 인증을 활성화하는 것이 항상 조언됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "adddb2c3-5823-426e-bd10-4ae2f3ed0f8c",
+      "name": "Youtube Transcripts",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        0,
+        280
+      ],
+      "parameters": {
+        "name": "youtube_transcripts",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Fetch the transcript from a youtube video using the youtube video url.",
+        "workflowInputs": {
+          "value": {
+            "urls": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('urls', ``, 'string') }}",
+            "query": "null",
+            "operation": "youtube_transcripts"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "urls",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "urls",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bce90f0f-a0d8-4e43-98f2-70426b28759d",
+      "name": "Youtube Search",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -280,
+        280
+      ],
+      "parameters": {
+        "name": "websearch_contents",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Performs a youtube search and retrieves relevant videos with metadata only.",
+        "workflowInputs": {
+          "value": {
+            "urls": "null",
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "operation": "youtube_search"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "urls",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "urls",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "42cb7bd5-bdb4-40d4-9f69-d49fe066aaa2",
+      "name": "Apify Youtube Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        860,
+        100
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/streamers~youtube-scraper/run-sync-get-dataset-items",
+        "options": {},
+        "jsonBody": "={{\n{\n  \"searchQueries\": [$json.query],\n  \"maxResultStreams\": 0,\n  \"maxResults\": 5\n}\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SV9BDKc1cRbZBeoL",
+          "name": "Apify.com (personal token)"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ea57908b-f927-466c-86ff-2265a5ee001a",
+      "name": "Simplify Search Results",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1060,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1db837-e256-4124-80d1-8b103dbbefbb",
+              "name": "channelName",
+              "type": "string",
+              "value": "={{ $json.channelName }}"
+            },
+            {
+              "id": "94cebccb-b499-4fab-a1ff-187179dcd5ce",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "cc68698a-221a-49b8-a349-d16ad4fa746c",
+              "name": "url",
+              "type": "string",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "id": "de8ae3e0-685d-4e40-839f-13c798d4e5e2",
+              "name": "description",
+              "type": "string",
+              "value": "={{ $json.text.substr(0,2_000) }}"
+            },
+            {
+              "id": "e933cbca-486c-45c9-8ed0-89a3d1efe003",
+              "name": "viewCount",
+              "type": "number",
+              "value": "={{ $json.viewCount }}"
+            },
+            {
+              "id": "417846bb-5e8c-42af-b1dc-8b1de9fa426c",
+              "name": "likes",
+              "type": "number",
+              "value": "={{ $json.likes }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "aed4a7c8-f41e-4e14-90c9-4e298465e7f4",
+      "name": "Apify Youtube Transcripts",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 2,
+      "position": [
+        860,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/streamers~youtube-scraper/run-sync-get-dataset-items",
+        "options": {},
+        "jsonBody": "={{\n{\n  \"downloadSubtitles\": true,\n  \"hasCC\": false,\n  \"hasLocation\": false,\n  \"hasSubtitles\": false,\n  \"is360\": false,\n  \"is3D\": false,\n  \"is4K\": false,\n  \"isBought\": false,\n  \"isHD\": false,\n  \"isHDR\": false,\n  \"isLive\": false,\n  \"isVR180\": false,\n  \"maxResultStreams\": 0,\n  \"maxResults\": 1,\n  \"maxResultsShorts\": 0,\n  \"preferAutoGeneratedSubtitles\": false,\n  \"saveSubsToKVS\": false,\n  \"startUrls\": $json.urls.split(',').map(url => ({\n    \"url\": url,\n    \"method\": \"GET\"\n  })),\n  \"subtitlesFormat\": \"plaintext\",\n  \"subtitlesLanguage\": \"en\"\n}\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SV9BDKc1cRbZBeoL",
+          "name": "Apify.com (personal token)"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "a73c672c-c36a-4ac0-bb0f-a87ed4dd9329",
+      "name": "Simplify Transcript Results",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1060,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94cebccb-b499-4fab-a1ff-187179dcd5ce",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "cc68698a-221a-49b8-a349-d16ad4fa746c",
+              "name": "url",
+              "type": "string",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "id": "7501fe60-f43d-42fe-9087-6f70a1cf12af",
+              "name": "transcript",
+              "type": "string",
+              "value": "={{ $json.subtitles[0].plaintext }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c62ef6f9-6a81-4f00-aa68-433e3378e6ff",
+      "name": "Aggregate Search Results",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1260,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53f6c967-bca1-4322-9939-7e0078ef99ed",
+      "name": "Aggregate Transcript Results",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1260,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04590cf0-38e5-4113-abb8-14c141524b1c",
+      "name": "Simplify Usage Metrics",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1260,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff43aa98-4e32-478d-9e43-619b7b808948",
+              "name": "monthlyUsageCycle_startAt",
+              "type": "string",
+              "value": "={{ $json.data.monthlyUsageCycle.startAt }}"
+            },
+            {
+              "id": "145eefd3-5248-40e9-a988-9e0e578d930a",
+              "name": "monthlyUsageCycle_endAt",
+              "type": "string",
+              "value": "={{ $json.data.monthlyUsageCycle.endAt }}"
+            },
+            {
+              "id": "020d1e4f-d7ec-4d69-b9be-b6c4ba5971eb",
+              "name": "monthlyUsageUsd",
+              "type": "string",
+              "value": "={{ $json.data.current.monthlyUsageUsd.toFixed(2) }} of {{ $json.data.limits.maxMonthlyUsageUsd.toFixed(2) }}"
+            },
+            {
+              "id": "112fb245-b35b-45ce-ad29-e05d0f352010",
+              "name": "ACTOR_COMPUTE_UNITS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.ACTOR_COMPUTE_UNITS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "4b451afb-eba7-49c6-8c3c-7279fb315ec6",
+              "name": "DATASET_READS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.DATASET_READS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "c002234c-955e-41f4-a27f-7f031ae6111e",
+              "name": "DATASET_TIMED_STORAGE_GBYTE_HOURS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.DATASET_TIMED_STORAGE_GBYTE_HOURS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "0108085d-1bb4-44c5-bc3b-845a7206abfe",
+              "name": "DATASET_WRITES",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.DATASET_WRITES.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "df993499-7410-450c-b5b1-50052e6d061e",
+              "name": "DATA_TRANSFER_EXTERNAL_GBYTES",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.DATA_TRANSFER_EXTERNAL_GBYTES.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "1627a2dd-15a6-4b69-b480-4e1b792c403d",
+              "name": "DATA_TRANSFER_INTERNAL_GBYTES",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.DATA_TRANSFER_INTERNAL_GBYTES.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "73037e97-e43d-4ecd-bb7e-6c5ce4740e4d",
+              "name": "KEY_VALUE_STORE_READS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.KEY_VALUE_STORE_READS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "5de9ba3b-bf62-4525-9cd9-5008bafe73c5",
+              "name": "KEY_VALUE_STORE_TIMED_STORAGE_GBYTE_HOURS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.KEY_VALUE_STORE_TIMED_STORAGE_GBYTE_HOURS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "6d1997f2-46c0-468b-b50f-fc37512417d2",
+              "name": "KEY_VALUE_STORE_WRITES",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.KEY_VALUE_STORE_WRITES.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "b579cb9e-d18f-4877-b808-a177195a364a",
+              "name": "PAID_ACTORS_PER_DATASET_ITEM",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.PAID_ACTORS_PER_DATASET_ITEM.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "5c69831c-3c62-421d-afff-bd8cfb68fb29",
+              "name": "REQUEST_QUEUE_READS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.REQUEST_QUEUE_READS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "21d54d4d-515b-4fa7-b099-c8b193fc4436",
+              "name": "=REQUEST_QUEUE_TIMED_STORAGE_GBYTE_HOURS",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.REQUEST_QUEUE_TIMED_STORAGE_GBYTE_HOURS.amountAfterVolumeDiscountUsd }}"
+            },
+            {
+              "id": "68168fc6-0052-4fa6-b631-942d972af340",
+              "name": "REQUEST_QUEUE_WRITES",
+              "type": "number",
+              "value": "={{ $('Get Usage Metrics').item.json.data.monthlyServiceUsage.REQUEST_QUEUE_WRITES.amountAfterVolumeDiscountUsd }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "dee72606-aeea-41bf-97e3-037afbd03efc",
+      "name": "Get Usage Limits",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1060,
+        500
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/users/me/limits",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SV9BDKc1cRbZBeoL",
+          "name": "Apify.com (personal token)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "49715bf8-56a9-41ee-a756-eb05ea4f1e7d",
+      "name": "Usage Report",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -140,
+        400
+      ],
+      "parameters": {
+        "name": "Apfiy_Usage_Metrics",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Returns current month's usage metrics.",
+        "workflowInputs": {
+          "value": {
+            "urls": "null",
+            "query": "null",
+            "operation": "=usage_report"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "urls",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "urls",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "737eca46-cb1f-443f-8243-33d429f0bfe3",
+      "name": "Get Usage Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        860,
+        500
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/users/me/usage/monthly",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SV9BDKc1cRbZBeoL",
+          "name": "Apify.com (personal token)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "90da2c29-a1fc-4772-a271-602cdd14b679",
+      "name": "Apify Youtube MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -300,
+        60
+      ],
+      "webhookId": "b975bb25-be7c-49fb-8cd2-8e135d91ed4e",
+      "parameters": {
+        "path": "b975bb25-be7c-49fb-8cd2-8e135d91ed4e"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b427a01f-099d-43f8-8b8d-04186a5d330e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -460
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 1020,
+        "content": "## 직접 해보세요!\n### 이 n8n은 간단한 Youtube 검색 MCP 서버를 구축하여 Youtube에서 비디오를 검색하고 연구 목적으로 자막을 다운로드하는 방법을 보여줍니다.\n\n### 작동 원리\n* MCP 서버 트리거가 사용되며, Youtube Search, Youtube Transcripts 및 Usage Reports라는 3개의 커스텀 워크플로우 도구에 연결됩니다.\n* 두 Youtube 도구는 [APIFY.com](https://www.apify.com?fpr=414q6)이라는 외부 스크래핑 서비스를 사용합니다. 이는 인터페이스가 훨씬 간단하고 속도 제한이 없기 때문에 제 선호입니다.  \n* Youtube Search는 사용자의 쿼리에 기반하여 10개의 결과를 가져옵니다.\n* Youtube Transcripts는 하나 이상의 주어진 URL에서 자막을 다운로드합니다.\n* 사용 보고서는 [APIFY.com](https://www.apify.com?fpr=414q6)의 월간 지출과 한도를 가져와 계정을 확인하는 방법입니다.\n\n### 사용 방법\n* 이 Apify Youtube MCP 서버는 호환되는 MCP 클라이언트가 원하는 주제의 Youtube 비디오를 연구할 수 있게 합니다. 그러나 서비스를 연결하고 사용하려면 Apify 계정이 필요합니다.\n* MCP 클라이언트를 연결하려면 n8n 지침을 따르세요 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/#integrating-with-claude-desktop\n* 대안으로, MCP 클라이언트 도구가 있는 n8n AI 에이전트를 연결하세요.\n* MCP 클라이언트에서 다음 쿼리를 시도하세요:\n  * \"what is MCP?\"\n  * \"How can I use MCP in n8n?\"\n  * \"How can I use Apify's official MCP server?\"\n\n### 요구 사항\n* Youtube 스크래핑을 위한 [APIFY.com](https://www.apify.com?fpr=414q6). 이는 유료 서비스이지만, 이 템플릿에는 충분한 $5 무료 티어가 있습니다.\n* MCP 클라이언트 또는 에이전트(예: Claude Desktop) - https://claude.ai/download\n\n### 이 워크플로우 사용자 정의\n* 사용 사례나 사용자에 따라 필요한 만큼 [APIFY.com](https://www.apify.com?fpr=414q6) 액터를 추가하세요. Apify의 공식 MCP 서버를 사용하여 4000개 이상의 사용 가능한 도구를 고려하세요.\n* 프로덕션에 배포하고 이 MCP 서버를 타인과 공유하기 전에 자격 증명 요구 설정을 잊지 마세요!\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e11a8af0-0a53-4b9b-a499-4bbd956858f8",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -360
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 240,
+        "content": "[![](https://d2gdx5nv84sdx2.cloudfront.net/업로드/35gj8m4w/마케팅_자산/배너/13734/큰_직사각형_336x280_라이트__1_.png)](https://www.apify.com?fpr=414q6)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Operation": {
+      "main": [
+        [
+          {
+            "node": "Apify Youtube Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Apify Youtube Transcripts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Usage Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usage Report": {
+      "ai_tool": [
+        [
+          {
+            "node": "Apify Youtube MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Youtube Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Apify Youtube MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Usage Limits": {
+      "main": [
+        [
+          {
+            "node": "Simplify Usage Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Usage Metrics": {
+      "main": [
+        [
+          {
+            "node": "Get Usage Limits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Youtube Transcripts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Apify Youtube MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apify Youtube Search": {
+      "main": [
+        [
+          {
+            "node": "Simplify Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Search Results": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apify Youtube Transcripts": {
+      "main": [
+        [
+          {
+            "node": "Simplify Transcript Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Transcript Results": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Transcript Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "instanceId": "fae057ee2d891478d0c2072cd4fb64f7da69a0dd189c9cf4fd08c30e50dba628",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "07cbdd82-2df1-41eb-80f3-cfe762ce1d5e",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -40,
+        40
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 14
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bbc2f2fe-8f33-4a92-80ab-408655000baa",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -200
+      ],
+      "parameters": {
+        "width": 1220,
+        "height": 480,
+        "content": "## Gmail과 Google Sheets를 사용한 콜드 이메일 아웃리치 및 상태 추적\n\n이 워크플로는 매일 오후 2시에 실행되며, 아직 이메일을 받지 않은 리드를 Google Sheets에서 가져와 Gmail을 통해 개인화된 아웃리치 메시지를 보낸 후, 시트에서 'Is Email Sent'에 대해 상태를 'yes'로 업데이트합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "166afe50-aa7b-4e46-8ebc-bd964d670e34",
+      "name": "Batch Processing of Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        400,
+        40
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "0284614d-d43e-42a1-85cf-2677e06fc1f4",
+      "name": "Send Personalized Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        680,
+        -60
+      ],
+      "webhookId": "ad8c804e-857d-4a94-b722-65b0776f1d10",
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "message": "=Hello {{ $json.Name || $json['WF Full Name (metadata)'] }},\n\nI’m a software developer and automation expert. I work with businesses and individuals to build websites, mobile apps, and powerful digital solutions that help save time and grow online.\n\nI offer a range of services including:\n- Website & App Development\n- SEO & Digital Marketing\n- Business Process Automation\n\nIf you’re looking to start a new project or improve your current setup, I’d love to connect and see how I can help.\n\nAre you interested in discussing any of these services?\n\nBest regards,\nSoftware Developer | Automation Expert",
+        "options": {
+          "senderName": "Developer",
+          "appendAttribution": false
+        },
+        "subject": "Need Help with Your Website, App, or Online Growth?",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REDACTED",
+          "name": "REDACTED_GMAIL_CREDENTIAL"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ae48ba04-d428-4aa3-9212-fb49af92c7ae",
+      "name": "Fetch Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        180,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Is Email Sent"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REDACTED_SHEET_ID"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REDACTED_DOCUMENT_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED",
+          "name": "REDACTED_SHEETS_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "62e831c3-c67c-4b0c-a0bd-5e4a8fcb23f6",
+      "name": "Update Lead Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        880,
+        40
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Email": "={{ $('Batch Processing of Leads').item.json.Email }}",
+            "Is Email Sent": "yes"
+          },
+          "schema": [
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true
+            },
+            {
+              "id": "Is Email Sent",
+              "type": "string",
+              "display": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REDACTED_SHEET_ID"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REDACTED_DOCUMENT_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED",
+          "name": "REDACTED_SHEETS_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fetch Leads": {
+      "main": [
+        [
+          {
+            "node": "Batch Processing of Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Status": {
+      "main": [
+        [
+          {
+            "node": "Batch Processing of Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Processing of Leads": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send Personalized Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

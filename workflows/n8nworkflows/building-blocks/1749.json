@@ -1,0 +1,294 @@
+{
+  "nodes": [
+    {
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        400,
+        520
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1500,
+        360
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 360,
+        "content": "## 2. 외부 이벤트 대기\n\n이 작업을 워크플로의 나머지 부분을 계속하기 위해 외부 단계가 필요할 때 사용하세요.\n\n예를 들어 - 워크플로가 구매 승인 링크를 상인에게 보낸다 (Gmail, Slack 등 사용) 그리고 상인이 이를 클릭할 때까지 기다린 후 나머지 단계로 계속합니다.\n\n이 예에서, `Customer Messenger` 노드는 이메일 또는 메시징 노드를 모방합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        380
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 120,
+        "content": "`Execute Workflow` 버튼을 클릭하고 노드를 더블 클릭하여 입력 및 출력 항목을 보세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Create approval URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1540,
+        520
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "URL",
+              "value": "={{$resumeWebhookUrl}}?name=nathan"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Wait for external approval",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1940,
+        520
+      ],
+      "webhookId": "0bcafff8-9fc1-4415-95b1-00746bb1304d",
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Rest of the workflow placeholder",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2140,
+        520
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Customer Datastore",
+      "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "position": [
+        580,
+        520
+      ],
+      "parameters": {
+        "operation": "getAllPeople",
+        "returnAll": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        760,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        360
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 360,
+        "content": "## 1. 속도 제한\n\n때때로 서비스에 접속하는 빈도를 늦춰야 할 필요가 있습니다.\n\n이 예제에서, `Customer Datastore` 노드는 한 번에 오는 큰 배치의 요청을 시뮬레이션합니다. `SplitInBatches` 노드는 각각을 루프에서 개별적으로 처리합니다. 그리고 `Wait` 노드는 각 고객 메시지 사이에 2초 지연을 만듭니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Wait for time interval",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        920,
+        520
+      ],
+      "webhookId": "2b72e9d7-75b7-4ef5-87e7-2bfdfdbaa20f",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 2
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "If - Are we Finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1280,
+        520
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$node[\"SplitInBatches\"].context[\"noItemsLeft\"]}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Customer Messenger - Send URL to merchant",
+      "type": "n8n-nodes-base.n8nTrainingCustomerMessenger",
+      "position": [
+        1740,
+        520
+      ],
+      "parameters": {
+        "message": "={{$json[\"URL\"]}}",
+        "customerId": "1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Customer Messenger - Send message to client",
+      "type": "n8n-nodes-base.n8nTrainingCustomerMessenger",
+      "position": [
+        1100,
+        520
+      ],
+      "parameters": {
+        "message": "=\nHi {{$node[\"Customer Datastore\"].json[\"name\"]}}\nThis message was sent at {{$now.toLocaleString(DateTime.TIME_WITH_SECONDS)}}",
+        "customerId": "={{$node[\"Customer Datastore\"].json[\"id\"]}}"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Wait for time interval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Datastore": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create approval URL": {
+      "main": [
+        [
+          {
+            "node": "Customer Messenger - Send URL to merchant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - Are we Finished?": {
+      "main": [
+        [
+          {
+            "node": "Create approval URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Customer Datastore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for time interval": {
+      "main": [
+        [
+          {
+            "node": "Customer Messenger - Send message to client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for external approval": {
+      "main": [
+        [
+          {
+            "node": "Rest of the workflow placeholder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Messenger - Send URL to merchant": {
+      "main": [
+        [
+          {
+            "node": "Wait for external approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Messenger - Send message to client": {
+      "main": [
+        [
+          {
+            "node": "If - Are we Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,308 @@
+{
+  "id": "8hRFK0iEjVKmthLq",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "CrunchBase Invester Data",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "49130296-ad2e-43f6-8ec4-7f72161a3a1b",
+      "name": "Daily Investor Data Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "24caa890-abba-435d-a385-18cdef03dfe2",
+      "name": "Fetch Crunchbase Investor Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.crunchbase.com/api/v4/searches/organizations",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"field_ids\": [\n    \"identifier\",\n    \"name\",\n    \"short_description\",\n    \"location_identifiers\",\n    \"investment_stage\"\n  ],\n  \"query\": [\n    {\n      \"type\": \"predicate\",\n      \"field_id\": \"organization_types\",\n      \"operator_id\": \"includes\",\n      \"values\": [\n        \"investor\"\n      ]\n    }\n  ],\n  \"limit\": 5\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_CRUNCHBASE_API_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_CRUNCHBASE_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4de0847b-6e11-457d-b04b-d03b4fb1e3c1",
+      "name": "Extract Investor Fields",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        540,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const entities = items[0].json.entities;\n\nreturn entities.map(entity => {\n  return {\n    json: {\n      name: entity.name,\n      short_description: entity.short_description,\n      location_identifiers: entity.location_identifiers,\n      investment_stage: entity.investment_stage\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a7d08f10-1fde-4e99-9127-bf12926d4197",
+      "name": "Append to Investor Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        780,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Location": "={{ $json.location_identifiers }}",
+            "Investment Stage": "={{ $json.investment_stage }}",
+            "Short description": "={{ $json.short_description }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Short description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Short description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Investment Stage",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Investment Stage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XOUvOgrhDdOorEj0-TL4EiVygMd1wpD3cktI2_bm-Ww/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1XOUvOgrhDdOorEj0-TL4EiVygMd1wpD3cktI2_bm-Ww",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XOUvOgrhDdOorEj0-TL4EiVygMd1wpD3cktI2_bm-Ww/edit?usp=drivesdk",
+          "cachedResultName": "CrunchBase Invester List"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Rp7XiR3hxJfv03ZO",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "45c6eb29-4d24-49a6-b849-938b178b66c9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -1700
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 1900,
+        "content": "### 🔷 **섹션 1: Crunchbase에서 데이터 가져오기**\n\n#### 🧩 노드:\n\n1. 🕒 **일일 투자자 데이터 트리거**\n2. 🌐 **Crunchbase 투자자 데이터 가져오기**\n\n---\n\n#### 🔍 이 섹션에서 일어나는 일?\n\n이 섹션은 **자동으로 Crunchbase에서 투자자 데이터를 일정에 따라 가져오며**, 수동 작업이 필요하지 않습니다.\n\n---\n\n#### 🕒 1. **일일 투자자 데이터 트리거**\n\n> *\"자동화가 언제 실행되어야 할까요?\"*\n\n* 이 **일정 트리거** 노드는 선택한 시간에 자동으로 워크플로를 시작합니다.\n* 예를 들어, 매일 오전 8시에 실행될 수 있습니다.\n* Crunchbase를 수동으로 확인할 필요가 없게 해줍니다.\n\n✅ *초보자 혜택:*\n\n> 기술적이지 않더라도 일정을 설정하고 n8n이 매일 이 작업을 실행하도록 하세요. 잠자는 동안에도 ☕📊\n\n---\n\n#### 🌐 2. **Crunchbase 투자자 데이터 가져오기**\n\n> *\"데이터는 어디서 얻나요?\"*\n\n* 이 **HTTP 요청** 노드는 [Crunchbase의 API](https://data.crunchbase.com/docs)로 **POST 요청**을 보냅니다.\n\n* 여기에는 **필터**가 포함되며, 조직 유형처럼 `investor`를 지정하고 필드를 요청합니다. 예:\n\n  * `name`\n  * `short_description`\n  * `location_identifiers`\n  * `investment_stage`\n\n* Crunchbase는 **JSON** 파일 형태로 일치하는 투자자 목록을 반환합니다.\n\n✅ *초보자 혜택:*\n\n> 브라우저를 열거나 검색할 필요가 없습니다. 이 단계에서 Crunchbase의 실시간 투자자 데이터를 자동으로 워크플로로 가져옵니다 🚀\n\n---\n\n### ✅ 이 섹션에서 얻는 것:\n\nCrunchbase에서 **자동으로 가져온 최신 투자자 정보 스냅샷**, 코딩이나 클릭 없이."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2dd2de36-770c-4833-884b-1525c1411d46",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -1400
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 460,
+        "height": 1600,
+        "content": "### 🔷 **섹션 2: 데이터 처리 및 저장**\n\n#### 🧩 노드:\n\n3. 🧮 **투자자 필드 추출**\n4. 📄 **투자자 시트에 추가**\n\n---\n\n#### 🔍 이 섹션에서 일어나는 일?\n\n원시 투자자 데이터를 확보한 후, 이 섹션에서는 **이를 정리**하고 **Google Sheet에 저장**하여 쉽게 접근하고 분석할 수 있도록 합니다.\n\n---\n\n#### 🧮 3. **투자자 필드 추출**\n\n> *\"응답을 정리하고 형식화해 보겠습니다.\"*\n\n* 이 **코드** 노드는 JavaScript를 사용하여 투자자 목록을 반복하며, 관심 있는 부분만 추출합니다:\n\n  * ✅ 이름\n  * 📝 짧은 설명\n  * 🌍 위치\n  * 💰 투자 단계\n\n* 각 투자자는 **Google Sheets에 적합한 별도 행 항목**으로 변환됩니다.\n\n✅ *초보자 혜택:*\n\n> 복잡한 데이터를 직접 살펴볼 필요가 없습니다. 이 단계에서 자동으로 깨끗한 형식으로 재구성됩니다 ✨\n\n---\n\n#### 📄 4. **투자자 시트에 추가**\n\n> *\"유용한 곳에 저장하세요.\"*\n\n* 이 **Google Sheets** 노드는 정리된 데이터를 가져와 **선택된 시트에 추가**합니다.\n* 마치 마법의 조수처럼 투자자 데이터를 행별로 스프레드시트에 입력합니다.\n* 이제 다음과 같은 용도로 사용할 수 있는 **지속적인 투자자 목록**을 보유하게 됩니다:\n\n  * 📈 시장 조사\n  * 🎯 아웃리치 계획\n  * 💡 경쟁자 벤치마킹"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "75231f28-c911-4bdc-a6a2-c6255d293eb3",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1820,
+        -1680
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "=======================================\n            워크플로우 지원\n=======================================\n질문이나 지원이 필요하신 경우, 다음으로 연락 주세요:\n    Yaron@nofluff.online\n\n더 많은 팁과 튜토리얼을 여기에서 탐색하세요:\n   - YouTube: https://www.youtube.com/@YaronBeen/videos\n   - LinkedIn: https://www.linkedin.com/in/yaronbeen/\n======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8a8156f-946e-4a50-8789-aff9c66bd9b6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1820,
+        -1340
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 3278,
+        "content": "## ✨ n8n 워크플로우: Crunchbase에서 Google Sheets로 투자자 데이터 자동화\n\n---\n\n### 🔷 **섹션 1: Crunchbase에서 데이터 가져오기**\n\n#### 🧩 노드:\n\n1. 🕒 **매일 투자자 데이터 트리거**\n2. 🌐 **Crunchbase 투자자 데이터 가져오기**\n\n---\n\n#### 🔍 이 섹션에서 일어나는 일?\n\n이 섹션은 **수동 작업 없이 정기적으로 Crunchbase에서 투자자 데이터를 자동으로 가져오는** 데 관한 것입니다.\n\n---\n\n#### 🕒 1. **매일 투자자 데이터 트리거**\n\n> *\"자동화가 언제 실행되나요?\"*\n\n* 이 **스케줄 트리거** 노드는 선택한 시간에 워크플로우를 자동으로 시작합니다.\n* 예를 들어, 매일 오전 8시에 실행될 수 있습니다.\n* Crunchbase를 수동으로 확인할 필요가 없게 해줍니다.\n\n✅ *초보자 혜택:*\n\n> 기술적이지 않더라도 스케줄을 설정하면 n8n이 매일 이 작업을 실행해줍니다. 잠자는 동안에도 ☕📊\n\n---\n\n#### 🌐 2. **Crunchbase 투자자 데이터 가져오기**\n\n> *\"데이터는 어디서 가져오나요?\"*\n\n* 이 **HTTP 요청** 노드는 [Crunchbase의 API](https://data.crunchbase.com/docs)로 **POST 요청**을 보냅니다.\n* 조직 유형을 `investor`로 필터링하고 다음과 같은 필드를 요청합니다:\n  * `name`\n  * `short_description`\n  * `location_identifiers`\n  * `investment_stage`\n\n* Crunchbase는 일치하는 투자자들로 가득한 **JSON** 파일로 응답합니다.\n\n✅ *초보자 혜택:*\n\n> 브라우저를 열거나 검색할 필요가 없습니다. 이 단계에서 Crunchbase의 실시간 투자자 데이터를 워크플로우로 가져옵니다 🚀\n\n---\n\n### ✅ 이 섹션에서 얻는 것:\n\nCrunchbase에서 **자동으로 가져온 최신 투자자 정보 스냅샷**, 코딩이나 클릭 없이.\n\n---\n\n<br/>\n\n---\n\n### 🔷 **섹션 2: 데이터 처리 및 저장**\n\n#### 🧩 노드:\n\n3. 🧮 **투자자 필드 추출**\n4. 📄 **투자자 시트에 추가**\n\n---\n\n#### 🔍 이 섹션에서 일어나는 일?\n\n원시 투자자 데이터를 얻었으니, 이 섹션에서는 **이를 정리하고 Google Sheets에 저장**하여 쉽게 접근하고 분석할 수 있게 합니다.\n\n---\n\n#### 🧮 3. **투자자 필드 추출**\n\n> *\"응답을 정리하고 형식화합시다.\"*\n\n* 이 **코드** 노드는 JavaScript를 사용하여 투자자 목록을 반복하며 필요한 부분만 추출합니다:\n  * ✅ 이름\n  * 📝 짧은 설명\n  * 🌍 위치\n  * 💰 투자 단계\n\n* 각 투자자를 **Google Sheets에 적합한 별도 행 항목**으로 만듭니다.\n\n✅ *초보자 혜택:*\n\n> 복잡한 데이터를 직접 살펴볼 필요가 없습니다. 이 단계에서 자동으로 깔끔한 형식으로 재구성합니다 ✨\n\n---\n\n#### 📄 4. **투자자 시트에 추가**\n\n> *\"유용한 곳에 저장합시다.\"*\n\n* 이 **Google Sheets** 노드는 정리된 데이터를 선택한 시트에 **추가**합니다.\n* 마치 마법의 조수처럼 투자자 데이터를 행별로 스프레드시트에 입력합니다.\n* 이제 다음과 같은 용도로 사용할 수 있는 **투자자 목록**이 있습니다:\n  * 📈 시장 조사\n  * 🎯 아웃리치 계획\n  * 💡 경쟁자 벤치마킹\n\n✅ *초보자 혜택:*\n\n> 복사-붙여넣기를 할 필요가 없습니다 — n8n이 투자자 데이터를 시트에 직접 작성해줍니다. 마치 급여 없는 개인 조수처럼 📊🤖\n\n---\n\n### ✅ 이 섹션에서 얻는 것:\n\nCrunchbase 데이터를 **정리하고 Google Sheets에 깔끔하게 저장하는** 완전 자동화된 프로세스 — 분석, 대시보드, 또는 보고서에 바로 사용할 수 있습니다.\n\n---\n\n### 🎁 최종 결과\n\n✅ 코딩 불필요\n✅ 자동으로 실행\n✅ 시트에 깔끔한 데이터\n✅ 전략, 마케팅, 또는 VC 추적에 사용 가능\n\n---"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Fetch Crunchbase Investor Data": [
+      {
+        "json": {
+          "paging": {
+            "next_page": "cursor_string",
+            "total_items": 1250,
+            "current_page": 1
+          },
+          "entities": [
+            {
+              "name": "Sequoia Capital",
+              "identifier": {
+                "uuid": "12345",
+                "permalink": "sequoia-capital"
+              },
+              "investment_stage": [
+                "early_stage",
+                "seed"
+              ],
+              "short_description": "Venture capital firm investing in early-stage companies.",
+              "location_identifiers": [
+                "united_states"
+              ]
+            },
+            {
+              "name": "Andreessen Horowitz",
+              "identifier": {
+                "uuid": "67890",
+                "permalink": "andreesen-horowitz"
+              },
+              "investment_stage": [
+                "seed",
+                "growth_stage"
+              ],
+              "short_description": "Venture capital firm in Silicon Valley.",
+              "location_identifiers": [
+                "united_states"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "daeaf695-d4ae-460d-84b1-b4cdba520d28",
+  "connections": {
+    "Extract Investor Fields": {
+      "main": [
+        [
+          {
+            "node": "Append to Investor Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Investor Data Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Crunchbase Investor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Crunchbase Investor Data": {
+      "main": [
+        [
+          {
+            "node": "Extract Investor Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,990 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "c3a9ba81-3a7e-4afe-be8b-cf482cbb88c2",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1040,
+        -540
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f63d035c-5a7b-4cf4-8730-5fa7dff6f94b",
+      "name": "Get Subscribers",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "position": [
+        -860,
+        -540
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "worksheet",
+        "workbook": {
+          "__rl": true,
+          "mode": "id",
+          "value": "="
+        },
+        "operation": "readRows",
+        "worksheet": {
+          "__rl": true,
+          "mode": "id",
+          "value": "="
+        }
+      },
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "56tIUYYVARBe9gfX",
+          "name": "Microsoft Excel account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e93aa8de-5c68-4a01-ae60-beb141e0a430",
+      "name": "Get Unique Categories",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -400,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fe138128-50d5-469f-8c0b-0af8c873f198",
+              "name": "categories",
+              "type": "array",
+              "value": "={{ $input.all().flatMap(item => item.json.categories).unique() }}"
+            }
+          ]
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a874ae4e-d67e-4019-9e5c-03ea677468ae",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        760,
+        80
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bc9c7578-3b6f-45fb-9f93-94637774d125",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1180,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae83c9e2-a267-463c-a606-b4d101f93f92",
+      "name": "Collect Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        980,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4a266505-4b88-41cf-bf22-f38c705c27e5",
+              "name": "workflow_id",
+              "type": "number",
+              "value": "={{ $('Workflows to Items').item.json.workflow.id }}"
+            },
+            {
+              "id": "df3348e2-b6ec-4c38-a146-c38be9b830bc",
+              "name": "workflow_name",
+              "type": "string",
+              "value": "={{ $('Workflows to Items').item.json.workflow.name }}"
+            },
+            {
+              "id": "b4646059-748f-407a-b829-d6605d5ab683",
+              "name": "workflow_desc",
+              "type": "string",
+              "value": "={{ $json.response.text }}"
+            },
+            {
+              "id": "eac0d9ab-9445-4bc2-9e64-160fe44b9ace",
+              "name": "workflow_created_at",
+              "type": "string",
+              "value": "={{ $('Workflows to Items').item.json.workflow.createdAt }}"
+            },
+            {
+              "id": "24a3c0cb-224c-4ce6-b59e-38b10ab2c02f",
+              "name": "author_id",
+              "type": "number",
+              "value": "={{ $('Workflows to Items').item.json.workflow.user.id }}"
+            },
+            {
+              "id": "a2b8a52f-be72-484c-aa86-582b73be1859",
+              "name": "author_name",
+              "type": "string",
+              "value": "={{ $('Workflows to Items').item.json.workflow.user.name }}"
+            },
+            {
+              "id": "ae735511-8c7c-4bef-b6ac-cfe3d4b87b4f",
+              "name": "author_username",
+              "type": "string",
+              "value": "={{ $('Workflows to Items').item.json.workflow.user.username }}"
+            },
+            {
+              "id": "2dc1f59f-a854-4322-85df-c5998f782dcd",
+              "name": "category",
+              "type": "string",
+              "value": "={{ $('For Each Category').item.json.category }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8ca1ea7e-9098-4e82-919b-ba98ae7d7574",
+      "name": "Categories to Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -220,
+        -160
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "category"
+        },
+        "fieldToSplitOut": "categories"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eb6d74b8-f1ed-4ab2-8c5f-7e6c6361b055",
+      "name": "For Each Category",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        320,
+        -160
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "8640ffac-9df6-4154-bcd5-dfa90c3843d4",
+      "name": "Workflows to Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        500,
+        -60
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "workflow"
+        },
+        "fieldToSplitOut": "workflows"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4456a43b-df26-4bb8-a62d-b9f05eff4479",
+      "name": "Workflow Summarizer",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        660,
+        -60
+      ],
+      "parameters": {
+        "text": "=## Description\n```\n{{ $json.workflow.description.replaceAll('#', '') }}\n```",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You have received a description of a n8n template from the official template gallery. Your task is to summarize the description into one or two sentences. The summary should loosely follow the structure of:\n* identify the goal of the template\n* describe the method or approached implemented\n* highlight which important n8n nodes were used\n\neg. \"Obtain real-time crypto market insights using an AI-powered workflow with CoinMarketCap APIs through Telegram\""
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "5f4a5921-c954-4523-8925-90401d8dbf22",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        660,
+        -460
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "f95fb28c-875c-4105-aa83-9fea257ea440",
+      "name": "Fetch Latest 10 per Category",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -40,
+        -160
+      ],
+      "parameters": {
+        "url": "=https://n8n.io/api/product-api/workflows/search",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "category",
+              "value": "={{$json.category }}"
+            },
+            {
+              "name": "rows",
+              "value": "10"
+            },
+            {
+              "name": "sort",
+              "value": "createdAt:desc"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4dda6cbc-e53f-452d-b257-df9ef18abd75",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1560,
+        -460
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "881337d8-3ca8-43d2-931f-9cfec16cc367",
+      "name": "Get Relevant Workflows",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1380,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fbd0ad94-e5aa-4082-81f5-d7b2e08dfbcf",
+              "name": "workflows",
+              "type": "array",
+              "value": "={{\n$json.categories\n  .flatMap(cat =>\n    $('Flatten Workflows').first().json.workflows.filter(item => item.category === cat)\n  )\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b3ad0e26-e495-4dae-bfdd-f65961178acc",
+      "name": "Flatten Workflows",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        500,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17a82dd9-3fcf-44d9-b5da-bf89a1f53d59",
+              "name": "workflows",
+              "type": "array",
+              "value": "={{\n$input.all().flatMap(item => item.json.data)\n}}"
+            }
+          ]
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "05f72731-f8b0-4d8f-ba78-66ef8fbaf059",
+      "name": "Remove Already Seen",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1740,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $('For Each Subscriber').item.json.name.toSnakeCase() }}_{{ $json.workflow_id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3904d2a2-9a95-4e11-883e-b2e88c6a884f",
+      "name": "Workflow to Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1560,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "workflows"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d416dee7-df0f-4579-a25f-6baed16453e8",
+      "name": "Combine Workflows",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1920,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3797dd21-3144-47e8-9359-841b97073001",
+      "name": "Has New Workflows?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1380,
+        -600
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "08403b2a-4ae6-4cf5-aa88-cc49441e3c56",
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              },
+              "leftValue": "={{ $json.data }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0cd6ce35-c083-4db6-bc87-9d21e70a3bab",
+      "name": "With User Reference",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2100,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d69921eb-b518-4614-af63-e67a521ee373",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $('For Each Subscriber').item.json.name }}"
+            },
+            {
+              "id": "01ee6e0a-9d03-42f6-ad46-68b9df861679",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $('For Each Subscriber').item.json.email }}"
+            },
+            {
+              "id": "5263e512-1b24-43c8-9033-6547dab2811b",
+              "name": "categories",
+              "type": "array",
+              "value": "={{ $('For Each Subscriber').item.json.categories }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b3a616c7-615f-49ff-8e6f-530324a98be4",
+      "name": "Generate HTML Template",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        1740,
+        -720
+      ],
+      "parameters": {
+        "html": "<h1>New Workflows for {{ $now.format('DD') }}</h1>\n{{\n$json.categories\n  .filter(cat =>\n    $json.data.filter(item => item.category === cat).length > 0\n  )\n  .map(category => `\n    <h2>${category.toSentenceCase()}</h2>\n    <ul>\n    ${$json.data\n      .filter(workflow => workflow.category === category)\n      .map(workflow => `\n      <li>\n        <a href=\"https://n8n.io/workflows/${workflow.workflow_id}\">\n          <h3>${workflow.workflow_name}</h3>\n        </a>\n        <p>\n          by\n          <a href=\"https://n8n.io/creators/${workflow.author_username}\">\n            ${workflow.author_name}\n          </a>\n          &middot;\n          created on ${DateTime.fromISO(workflow.workflow_created_at).toFormat('DD')}\n        </p>\n        <p>${workflow.workflow_desc}</p>\n      </li>\n    `).join('\\n')}\n    </ul>\n  `)\n  .join('\\n')\n}}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0c9865c7-9352-4fda-a943-34c8f524de6c",
+      "name": "Parse Rows",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -660,
+        -540
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d89dfc07-3c1f-4fbc-9a52-3748797a4840",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "id": "c622ceca-2e6d-4bab-bb08-235f704c7e2f",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "id": "9fca8e33-330a-4e4d-b461-251cd7e5c620",
+              "name": "categories",
+              "type": "array",
+              "value": "={{ $json.categories.split(',') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f5fbd7f2-65e5-4dd7-8e43-38a8a99e3321",
+      "name": "Send Daily Digest",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        1920,
+        -720
+      ],
+      "webhookId": "8cd83f97-1e5f-4280-9a9d-26d1ee05c45e",
+      "parameters": {
+        "subject": "=New Workflows for {{ $now.format('DD') }}",
+        "bodyContent": "={{\n$json.html\n  .replaceAll('\\n', '')\n  .replaceAll('  ', '')\n  .trim()\n}}",
+        "toRecipients": "={{ $('Has New Workflows?').item.json.email }}",
+        "additionalFields": {
+          "from": "=no-reply <no-reply@example.com>",
+          "replyTo": "=no-reply <no-reply@example.com>",
+          "bodyContentType": "html"
+        }
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e81ba3a0-e3f6-4231-8870-8ef03edf41e1",
+      "name": "Append Category",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        140,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b965dee8-f3b5-419b-b39a-79bf2b7d04c1",
+              "name": "category",
+              "type": "string",
+              "value": "={{ $('Categories to Items').item.json.category }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e1c2c743-a560-47e8-b906-a2e8fd17622f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        -740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "content": "## 1. Excel에서 구독자 가져오기\n\n[Excel 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftexcel)\n\nExcel은 간단한 구독자 목록을 저장하는 쉬운 방법이 될 수 있습니다. 이들은 우리의 일일 요약을 받을 것입니다. 또한 그들이 관심 있는 카테고리만 지정할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e10a23be-2af7-4b92-9b5f-df855e6ee349",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -420
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 220,
+        "content": "## 2. n8n에서 최신 템플릿 가져오기  \n[HTTP Request 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest)  \n\nHTTP 요청 노드를 사용하여 n8n.io 템플릿 검색 API를 호출하여 최신 게시된 템플릿을 가져올 수 있습니다. 그러나 리소스를 절약하기 위해, 구독자에게 관련된 카테고리에서만 가져오고 싶습니다. 이를 위해:  \n1) 모든 구독자들 사이의 고유 카테고리에서만 최신 템플릿을 가져오고 싶습니다  \n2) 이 가져오기를 한 번만 수행하여 모든 구독자를 위해 나중에 참조합니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ee0b2ca-0247-4471-a6f5-920fd8e67f96",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 180,
+        "content": "## 3. 각 템플릿에 대한 AI 요약 생성\n\n[기본 LLM 노드에 대해 자세히 읽기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainllm)\n\n이메일 다이제스트를 구축할 때, 각 템플릿의 설명을 더 짧고 요약된 버전으로 해서 스캔과 읽기를 쉽게 하고 싶습니다. 이를 AI를 사용하여 달성할 수 있으며, 템플릿 객체와 병합할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab234694-2878-440b-aeb5-37573ebe517e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 200,
+        "content": "## 4. 구독자에 대한 관련 템플릿 필터링\n\n[Split Out 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitout)\n\n각 구독자에 대해, 우리는 Excel 시트에 정의된 구독자와 관련된 카테고리에 따라 새로 수집된 n8n.io 템플릿을 필터링하고 싶습니다. 중복 템플릿을 추적하기 위해 \"Remove duplicates\" 노드를 사용할 수 있습니다 - 템플릿이 하나 이상의 카테고리를 가질 수 있고 두 번 나타날 수 있기 때문입니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "460a8b3d-c125-41c3-95c5-afdfe63c7561",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1740,
+        -960
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 200,
+        "content": "## 5. 일일 요약 생성 및 Outlook을 통해 전송\n\n[Outlook 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftoutlook)\n\n마지막으로, HTML 노드를 사용하여 우리의 요약 내용을 구성하고 필요에 따라 구독자별로 맞춤화할 수 있습니다. 그런 다음 Outlook 노드를 사용하여 요약을 구독자에게 전송합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c79a2775-6276-41df-a9f0-64017e88a8c7",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 200,
+        "height": 120,
+        "content": "### 한 번 실행  \n이 노드는 각 구독자마다 실행되는 것이 아니라 한 번만 실행되도록 설정되었습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5290822e-b63b-4b73-8511-6a12e2387656",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -940,
+        -360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 280,
+        "height": 120,
+        "content": "### 열\n- 이름 *(텍스트)*\n- 이메일 *(텍스트)*\n- 카테고리 *(텍스트, 쉼표로 구분된)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56acbd11-7fa5-44b8-b031-fcdeb6e44839",
+      "name": "For Each Subscriber",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1180,
+        -460
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6aef7efc-1bc7-4a1d-b0cb-459484b3d179",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        -1400
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 1000,
+        "content": "## 직접 해보세요!\n### 이 n8n 템플릿은 뉴스레터(\"일일 요약\") 배송 서비스를 구축하며, 구독자가 정의한 선택 카테고리의 최신 n8n.io 템플릿을 가져와 요약합니다.\n\n매일 한 번 실행되도록 예약되어 있으며, 구독자에게 깔끔하게 형식화된 이메일로 직접 뉴스레터를 보냅니다. 매일 발표되는 최신 템플릿을 따라잡는 데 어려움을 겪고 있다면, 이 워크플로우가 시간을 절약할 수 있습니다!\n\n### 작동 원리\n* 예약된 트리거가 Excel 통합 문서에서 구독자 목록(이메일과 카테고리 선호도)을 가져옵니다.\n* 모든 구독자 간의 고유 카테고리를 확인하고, 리소스를 절약하고 API 호출 수를 최적화하기 위해 이 카테고리에서만 최신 n8n 웹사이트 템플릿을 가져옵니다.\n* 가져온 템플릿을 AI를 통해 요약하여 이메일 형식에 더 적합한 짧은 설명을 생성합니다.\n* 각 구독자에 대해 Excel에 정의된 카테고리 선호도와 관련된 템플릿만 필터링하고 수집하며, 중복 템플릿이나 이전에 \"본 적 있는\" 템플릿은 제외합니다.\n* HTML 노드를 사용하여 이메일 뉴스레터를 생성합니다. HTML 이메일은 템플릿으로의 링크를 추가할 수 있어 완벽한 형식입니다.\n* 마지막으로, Outlook 노드를 사용하여 구독자에게 이메일 요약을 보냅니다.\n\n### 사용 방법\n* Excel 시트에 3개의 열을 채우세요: 이름, 이메일 및 카테고리. 카테고리는 n8n 템플릿 웹사이트와 일치하는 쉼표로 구분된 목록입니다. 사용 가능한 카테고리는 AI, SecOps, Sales, IT Ops, Marketing, Engineering, DevOps, Building Blocks, Design, Finance, HR, Other, Product 및 Support입니다.\n* 새 사용자를 구독하려면, 적어도 하나의 카테고리를 포함하여 Excel 시트에 그들의 이메일을 추가하세요.\n* 사용자를 구독 취소하려면, 시트에서 제거하세요.\n* 유료 템플릿에 관심이 없다면, 가져온 후 필터링하세요.\n\n### 도움이 필요하세요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에 참여하세요!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "For Each Subscriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "For Each Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Rows": {
+      "main": [
+        [
+          {
+            "node": "Get Unique Categories",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Category": {
+      "main": [
+        [
+          {
+            "node": "For Each Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Subscribers": {
+      "main": [
+        [
+          {
+            "node": "Parse Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Subscribers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Workflows": {
+      "main": [
+        [
+          {
+            "node": "With User Reference",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten Workflows": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "For Each Category": {
+      "main": [
+        [
+          {
+            "node": "Flatten Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Workflows to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Workflow Summarizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow to Items": {
+      "main": [
+        [
+          {
+            "node": "Remove Already Seen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has New Workflows?": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML Template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflows to Items": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Categories to Items": {
+      "main": [
+        [
+          {
+            "node": "Fetch Latest 10 per Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Each Subscriber": {
+      "main": [
+        [
+          {
+            "node": "Has New Workflows?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Relevant Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Already Seen": {
+      "main": [
+        [
+          {
+            "node": "Combine Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "With User Reference": {
+      "main": [
+        [
+          {
+            "node": "For Each Subscriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Collect Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Unique Categories": {
+      "main": [
+        [
+          {
+            "node": "Categories to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate HTML Template": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Relevant Workflows": {
+      "main": [
+        [
+          {
+            "node": "Workflow to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Latest 10 per Category": {
+      "main": [
+        [
+          {
+            "node": "Append Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

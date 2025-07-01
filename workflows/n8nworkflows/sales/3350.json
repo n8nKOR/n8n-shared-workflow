@@ -1,0 +1,1318 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "5d6a5a45-8aa8-4c34-aa10-5dd85f05de9d",
+      "name": "Human Handoff using Send and Wait",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1580,
+        1040
+      ],
+      "webhookId": "d2bbc82f-0509-470a-af4d-9d92cfed4d5f",
+      "parameters": {
+        "chatId": "=<human chat id>",
+        "message": "=chatId: {{ $('Handoff Subworkflow').first().json.chatId }}\nsessionId: {{ $('Handoff Subworkflow').first().json.sessionId }}\nuser: {{ $('Handoff Subworkflow').first().json.username }} ({{ $('Handoff Subworkflow').item.json.userId }})\n\nSummary:\n{{ $('Handoff Subworkflow').item.json.summary }}\n\n---\nThis user has now been handed off to a human.\nClick the button to return user to bot.",
+        "options": {},
+        "operation": "sendAndWait",
+        "responseType": "freeText"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5d2f73ff-b233-4456-b34d-d5a5454dabda",
+      "name": "Set Interaction to Bot",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        1780,
+        1040
+      ],
+      "parameters": {
+        "key": "=handoff_{{ $('Handoff Subworkflow').first().json.sessionId }}_state",
+        "value": "bot",
+        "keyType": "string",
+        "operation": "set"
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f799e213-f3ed-4479-aade-7a7c38eb5792",
+      "name": "Set Interaction to Human",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        1380,
+        1040
+      ],
+      "parameters": {
+        "key": "=handoff_{{ $json.sessionId }}_state",
+        "value": "=human",
+        "keyType": "string",
+        "operation": "set"
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "059c9b8c-ba50-4bdd-8969-6f5f35bba304",
+      "name": "Get Interaction State",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        -800,
+        820
+      ],
+      "parameters": {
+        "key": "=handoff_{{ $json.message.chat.id }}_state",
+        "options": {},
+        "operation": "get",
+        "propertyName": "data"
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8afd48ff-478d-4092-ac88-fb2e435ded00",
+      "name": "Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -280,
+        640
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "19c5ef66-410d-47fd-9b2a-19776c53a681",
+      "name": "Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "position": [
+        -160,
+        640
+      ],
+      "parameters": {
+        "sessionKey": "=handoff_{{ $('Telegram Trigger').first().json.message.chat.id }}_chat",
+        "sessionIdType": "customKey"
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "814e464d-a2e0-4ae1-83d1-df3732d3b430",
+      "name": "Handoff Subworkflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        980,
+        1040
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "chatId"
+            },
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "userId"
+            },
+            {
+              "name": "username"
+            },
+            {
+              "name": "summary"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "53c311ca-b7ad-4705-97c9-f6438a6c6b4e",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -1000,
+        820
+      ],
+      "webhookId": "e905dd99-eefc-48ff-a62d-c7078e9bb216",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ea54c9f7-8ebc-4146-a4ec-6d05957f340d",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1400,
+        340
+      ],
+      "webhookId": "55ecb0ba-72c8-4f16-a6c8-0c0bb8582554",
+      "parameters": {
+        "text": "=Thank you. I've now transferred you to a human agent who will reach out to you. Once complete, you can come back to this chat to finish the process.",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7f895e2a-7aee-40be-a8b7-b2b0ff469b2d",
+      "name": "Switch Interaction",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -620,
+        820
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Human",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "6bc61072-f7cf-4a6d-af81-36abede59d47",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data }}",
+                    "rightValue": "human"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Bot",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "6882db64-b522-4895-8949-d98d87b53b49",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data }}",
+                    "rightValue": "bot"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Onboarding"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "df203358-e6c7-4014-8e2b-ef934e331215",
+      "name": "Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        440,
+        460
+      ],
+      "parameters": {
+        "text": "={{\n$json.data\n  .reverse()\n  .slice(0, 5)\n  .map(item => item.parseJson())\n  .map(item => `${item.type}: ${item.data.content}`)\n  .join('\\n')\n}}",
+        "options": {
+          "systemPromptTemplate": "Analyse the conversation history and extract the required customer details. If not found, leave blank."
+        },
+        "attributes": {
+          "attributes": [
+            {
+              "name": "firstname",
+              "required": true,
+              "description": "first name of customer"
+            },
+            {
+              "name": "lastname",
+              "required": true,
+              "description": "last name of customer"
+            },
+            {
+              "name": "address_and_postcode",
+              "required": true,
+              "description": "address and postcode of customer"
+            },
+            {
+              "name": "reason_for_call",
+              "required": true,
+              "description": "a summary of the reason for the call"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35bc11d2-6024-425b-ac67-a61ff26b9478",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        420,
+        640
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "20d71c5f-6e84-4b45-b324-0706ecd3a681",
+      "name": "With Defaults",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  \"firstname\": \"\",\n  \"lastname\": \"\",\n  \"address_and_postcode\": \"\",\n  \"reason_for_call\": \"\",\n  ...$input.item.json.output,\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "76344f79-1afa-4fd9-9c01-ca3818f62f37",
+      "name": "Has All Criteria?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        920,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "96d4a43f-aa0f-486a-b692-0105196d099a",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Object.values($json).every(val => Boolean(val)) }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f76c1032-036b-46ad-91da-023d5af931fd",
+      "name": "Onboarding Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').first().json.message.text }}",
+        "options": {
+          "systemMessage": "=You are a prescreen assistant whose task is to get the following details from a customer before handing them over to a human agent.\n* first name\n* last name\n* address and postcode\n* reason for calling - capture exact wording if possible.\n\nOnce all data is gathered, hand the user off to a human agent."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "0a5b19a5-9c19-436c-b1d3-23d962efd23e",
+      "name": "Get Onboarding Chat History",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        280,
+        460
+      ],
+      "parameters": {
+        "key": "=handoff_{{ $('Telegram Trigger').first().json.message.chat.id }}_chat",
+        "options": {},
+        "operation": "get",
+        "propertyName": "data"
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4f247eb3-78f0-4ec1-8713-1373da07b5f3",
+      "name": "After Sales Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        340,
+        1000
+      ],
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "You are an aftersales agent helping the user answer questions about their recent purchase."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "bce26253-f7da-49e8-952b-52e14eb4f9b5",
+      "name": "Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "position": [
+        420,
+        1180
+      ],
+      "parameters": {
+        "sessionKey": "=handoff_{{ $('Telegram Trigger').first().json.message.chat.id }}_chat2",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 30
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "51c4549b-559c-400d-9951-dde0953ade4c",
+      "name": "Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        300,
+        1180
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "63b8d9e8-7af2-4103-a365-ca5471bd7b36",
+      "name": "Handoff Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        540,
+        1180
+      ],
+      "parameters": {
+        "name": "handoff_to_human",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Call this tool to handoff or defer to a human agent at the request of the customer. Ensure a summary of the reason for the handoff is obtained first.",
+        "workflowInputs": {
+          "value": {
+            "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id.toString() }}",
+            "userId": "={{ $('Telegram Trigger').first().json.message.from.id.toString() }}",
+            "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('summary', `Reason for human hand-off`, 'string') }}",
+            "username": "={{ $('Telegram Trigger').first().json.message.from.username }}",
+            "sessionId": "={{ $('Telegram Trigger').first().json.message.chat.id.toString() }}"
+          },
+          "schema": [
+            {
+              "id": "chatId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "chatId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "userId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "username",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "username",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9a2b9077-0ead-4f2c-9e83-05ee341ff697",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1080,
+        580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 460,
+        "content": "## 1. 수신 메시지에 대한 상호작용 상태 확인\n\n[텔레그램 트리거에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.telegramtrigger/)\n\n이것은 상태 기반 에이전트의 예입니다 - 일반적으로 유한 상태 기계로 알려진 기술입니다. 데이터 수집이나 단계를 순차적으로 수행해야 하는 요구사항이 있는 대화의 흐름과 방향을 실제로 제어하는 훌륭한 방법입니다. 세션 상태를 관리하기 위해 Redis를 사용할 수 있으며, 세션 키는 사용자의 번호가 될 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ccca9a5c-595a-4c58-9316-933a8234ab91",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 520,
+        "content": "## 2. 고객 검증을 위한 온보딩 에이전트\n\n[에이전트에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent)\n\n이 에이전트는 기존의 다중 작업 예제와 달리, 사용자의 온보딩만 처리하도록 설계되었습니다. 이 방법으로, 편리함을 잡음과 교환하지만, 에이전트가 원하는 경로에서 벗어날 가능성을 줄일 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d859430-1326-4cbc-a5cc-3af0d091e5c0",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 3. 대화에서 고객 세부 정보 추출\n\n[Information Extractor에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.information-extractor)\n\n사용자의 세부 정보를 구조화된 형식으로 수집하기 위해, 현재 대화를 분석하고 Information Extractor 노드로 데이터를 추출할 수 있습니다. 이로 인해 대화가 자유 형식으로 유지되며, 각 필드에 대해 질문을 하는 것을 방지합니다. 코드 노드를 사용하여 모든 세부 정보가 캡처되었는지 확인합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "754f0859-8af7-4a15-8e46-c9ad62b55bf3",
+      "name": "Handoff Subworkflow1",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        1220,
+        340
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id.toString() }}",
+            "userId": "={{ $('Telegram Trigger').first().json.message.from.id.toString() }}",
+            "summary": "=name: {{ $json.firstname }} {{ $json.lastname }}\naddress: {{ $json.address_and_postcode }}\nsummary: {{ $json.reason_for_call }}",
+            "username": "={{ $('Telegram Trigger').first().json.message.from.username }}",
+            "sessionId": "={{ $('Telegram Trigger').first().json.message.chat.id.toString() }}"
+          },
+          "schema": [
+            {
+              "id": "chatId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "chatId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "userId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "username",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "username",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6f92128f-14dc-4b0a-b098-3d9535ac11e3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 640,
+        "content": "## 4. 기준 충족 시 인간 전달  \n[서브워크플로우에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow)  \n\n여기서, 우리는 핸드오프를 시작하여 우리의 핸드오프 서브워크플로우를 호출합니다. 서브워크플로우는 작업을 동시에 실행하고 사용자에게 응답을 차단하지 않는 훌륭한 방법입니다. 이 시점에서, 세션 상태가 \"human\"으로 설정되어 인간 에이전트가 인계를 받아야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14500c4f-da43-460f-bf4d-80d0a2f4537b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 440,
+        "content": "## 5. 사람에게 양보\n\n세션 상태가 \"human\"일 때, 추가적인 사용자 메시지가 에이전트에게 도달할 수 없습니다. 이는 인간과 에이전트를 혼란스럽게 할 수 있는 병렬 대화가 발생하지 않도록 하기 위함입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d74d479-8525-4b64-8291-e2b3058edeaa",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 520,
+        "content": "## 6. 봇으로 상호작용 전환됨  \n[고객 워크플로 툴에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolworkflow/)  \n\n세션 상태가 \"bot\"일 때, 이는 인간 에이전트가 사용자를 봇으로 다시 이전시켰음을 나타내며, 따라서 그들의 메시지 처리를 계속할 수 있습니다. 사용자가 요청할 때마다 커스텀 워크플로 툴이 핸드오프 프로세스를 다시 트리거합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1c064d9-cc74-475d-b233-9deb4dfa81d7",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        820
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1580,
+        "height": 560,
+        "content": "## 7. 상호작용 서브워크플로\n\n[더 알아보기 n8n의 인간-루프 기능](https://docs.n8n.io/advanced-ai/examples/human-fallback/)\n\n여기에서의 핸드오프 구현은 n8n의 \"인간-루프\" 기능 - 실행 중에 인간이 답변이나 행동을 보내기까지 실행을 \"일시 중지\"하는 기능 - 을 포함합니다. 복잡해 보이지만 n8n이 이 상호작용을 매끄럽게 처리한다는 점을 유의하세요! 여기서, 우리는 이를 사용하여 인간 에이전트가 대화의 제어를 AI 에이전트에게 다시 양도할 수 있도록 합니다. 또한, 인간 에이전트의 피드백이 캡처되어 에이전트의 메모리에 추가되어 사용자를 더 잘 도울 수 있도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "33684768-2f21-4f30-9e56-934171b215fc",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1580,
+        -260
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 1320,
+        "content": "## 이를 시도해 보세요  \n### 이 n8n 템플릿은 Human-in-the-loop 기능을 스위치로 사용하여 봇-인간 핸드오프를 수행하는 접근 방식을 보여줍니다.  \n\n이 실험에서 우리는 에이전트가 사용자와의 상호작용을 제어하는 상태에 대한 아이디어를 탐구합니다.  \n* **첫 번째 상태** - 에이전트가 판매 문의에 대한 사용자의 세부 정보를 수집하여 온보딩한 후, 통화를 계속하기 위해 인간에게 전달/이관합니다.  \n* **두 번째 상태** - 에이전트가 본질적으로 \"비활성화\"되며, 봇으로의 추가 메시지는 도달하지 않습니다. 대신, 사용자에게 미리 준비된 응답이 제공됩니다. 인간 에이전트는 Human-in-the-loop 양식을 완료하고 사용자와의 대화 요약을 제공하여 봇을 \"재활성화\"해야 합니다.  \n* **세 번째 상태** - 에이전트가 인간-사용자 대화의 맥락과 함께 \"재활성화\"되어 애프터 세일즈 지원을 제공합니다. 에이전트가 요청할 때 인간 에이전트에게 다시 위임할 수 있는 도구가 제공됩니다.  \n\n### 작동 원리  \n* 이 템플릿은 텔레그램을 사용하여 사용자와 에이전트 간의 상호작용을 처리합니다.  \n* 각 사용자 메시지는 세션 상태를 확인하여 대화의 올바른 단계로 안내합니다. 이를 위해 Redis를 간단한 키-값 저장소로 사용할 수 있습니다.  \n* 상태가 설정되지 않은 경우, 사용자는 온보딩 단계를 통해 세부 정보를 얻습니다. 완료되면 에이전트는 사용자를 인간 에이전트에게 \"이관\"합니다. 기술적으로는 세션 상태 업데이트와 사용자의 세부 정보를 다른 채팅으로 전달하는 메시지만 포함됩니다.  \n* 이 \"인간\" 상태 동안 에이전트는 사용자에게 응답할 수 없으며, 인간이 대화를 \"돌려보내\"기를 기다려야 합니다. 인간은 Human-in-the-loop 메시지에 대화 요약으로 응답하여 이를 수행할 수 있습니다. 이로써 세션 상태가 \"봇\"으로 변경되고, 에이전트의 메모리에 맥락이 삽입되어 미래의 질문에 응답할 수 있습니다.  \n* 대화의 이 단계에서 에이전트는 애프터-세일즈 질문을 처리하고 사용자에게 도움을 제공해야 합니다. 사용자는 언제든지 인간 에이전트로의 이관을 요청할 수 있으며, 필요에 따라 이전 단계를 반복합니다.  \n\n#### 사용 방법  \n* 사용자 여정을 계획하세요! 여기에는 최대 3개의 상태를 가진 기본적인 판매 문의 예시가 있습니다. 더 많은 상태가 포함될 때는 더 많은 고려가 필요합니다.  \n* 세션 상태를 더 잘 로그하고 관리하여 사용자가 불확실한 상태에 머물지 않도록 하세요. 사용者和 세션을 CRM에 연결해 보세요.  \n* 온보딩 에이전트와 애프터-세일즈 에이전트는 별도의 채팅 메모리를 가지고 있습니다. 더 많은 에이전트를 추가할 때는 상태 간에 집중력을 돕기 위해 별도의 채팅 메모리를 유지하는 것을 추천합니다.  \n\n### 도움이 필요하세요?  \n[Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에 참여하세요!  \n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "187ca5ef-c804-4aca-8ad9-3c4b11676fbf",
+      "name": "Send Response2",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2320,
+        1040
+      ],
+      "webhookId": "55ecb0ba-72c8-4f16-a6c8-0c0bb8582554",
+      "parameters": {
+        "text": "=Hello again! I'm now ready to answer any remaining questions you may have.",
+        "chatId": "={{ $('Handoff Subworkflow').first().json.chatId }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ab036106-84f2-4cf7-a5ad-7706a9e5ea0a",
+      "name": "Memory2",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "position": [
+        1980,
+        1200
+      ],
+      "parameters": {
+        "sessionKey": "=handoff_{{ $('Handoff Subworkflow').first().json.chatId }}_chat2",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 30
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "9d9d1aee-5632-499c-968d-63a555cc58d8",
+      "name": "Update Agent Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "position": [
+        1980,
+        1040
+      ],
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "ai",
+              "message": "=Report from human agent says \"{{ $('Human Handoff using Send and Wait').first().json.data.text }}\"",
+              "hideFromUI": true
+            },
+            {
+              "type": "ai",
+              "message": "Hello again! I'm now ready to answer any remaining questions you may have."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8da2fefa-e51f-4258-8ded-e0f20db87641",
+      "name": "Send Response3",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        680,
+        1000
+      ],
+      "webhookId": "55ecb0ba-72c8-4f16-a6c8-0c0bb8582554",
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f027afe0-0fd2-47a2-a0f8-f0d78f8fbc18",
+      "name": "Get Canned Response",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -180,
+        1000
+      ],
+      "webhookId": "55ecb0ba-72c8-4f16-a6c8-0c0bb8582554",
+      "parameters": {
+        "text": "=This conversation has been handed-off to a human agent who will be in contact soon if not done so already. I cannot respond to your query until the human agent transfers you back to me.",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a1ada0c7-779e-44bc-bdbd-1d5285bedf3c",
+      "name": "Notify user",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1180,
+        1040
+      ],
+      "webhookId": "55ecb0ba-72c8-4f16-a6c8-0c0bb8582554",
+      "parameters": {
+        "text": "=You have now been transferred to a human. Unfortunately, I will not be able to respond until the human agent transfers you back to me.",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "31287a38-e7a7-4518-9f54-6e6c9b2486fe",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        1020
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 320,
+        "content": "인간 채팅 ID를 추가하세요. 이것은 인간 에이전트를 알리기 위해 필요합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a58a82b9-2c37-4137-9b3e-17479c78a2d2",
+      "name": "Memory3",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "position": [
+        1580,
+        500
+      ],
+      "parameters": {
+        "sessionKey": "=handoff_{{ $('Telegram Trigger').first().json.message.chat.id }}_chat2",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 30
+      },
+      "credentials": {
+        "redis": {
+          "id": "zU4DA70qSDrZM1El",
+          "name": "Redis account (localhost)"
+        }
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "4d3d5b46-6e82-4b97-9e5f-76f02ff79ce5",
+      "name": "Update Agent Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "position": [
+        1580,
+        340
+      ],
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "ai",
+              "message": "=The person I'm speaking to has the following details:\nfirstname: {{ $('Handoff Subworkflow1').first().json.firstname }}\nlastname: {{ $('Handoff Subworkflow1').first().json.firstname }}\nreason for call: {{ $('Handoff Subworkflow1').first().json.reason_for_call }}",
+              "hideFromUI": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ced46068-440b-46b4-aa51-b5bb9d59a004",
+      "name": "Continue Conversation",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1220,
+        580
+      ],
+      "webhookId": "55ecb0ba-72c8-4f16-a6c8-0c0bb8582554",
+      "parameters": {
+        "text": "={{ $('Onboarding Agent').first().json.output }}",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "XVBXGXSsaCjU2DOS",
+          "name": "jimleuk_handoff_bot"
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Onboarding Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Onboarding Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "After Sales Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "After Sales Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Update Agent Memory",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Update Agent Memory1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify user": {
+      "main": [
+        [
+          {
+            "node": "Set Interaction to Human",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "After Sales Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Response": {
+      "main": [
+        [
+          {
+            "node": "Update Agent Memory1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "With Defaults": {
+      "main": [
+        [
+          {
+            "node": "Has All Criteria?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboarding Agent": {
+      "main": [
+        [
+          {
+            "node": "Get Onboarding Chat History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Interaction State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "After Sales Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Response3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has All Criteria?": {
+      "main": [
+        [
+          {
+            "node": "Handoff Subworkflow1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Interaction": {
+      "main": [
+        [
+          {
+            "node": "Get Canned Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "After Sales Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Onboarding Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff Subworkflow": {
+      "main": [
+        [
+          {
+            "node": "Notify user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Agent Memory": {
+      "main": [
+        [
+          {
+            "node": "Send Response2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff Subworkflow1": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Interaction State": {
+      "main": [
+        [
+          {
+            "node": "Switch Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "With Defaults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Interaction to Bot": {
+      "main": [
+        [
+          {
+            "node": "Update Agent Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Interaction to Human": {
+      "main": [
+        [
+          {
+            "node": "Human Handoff using Send and Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Onboarding Chat History": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Handoff using Send and Wait": {
+      "main": [
+        [
+          {
+            "node": "Set Interaction to Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

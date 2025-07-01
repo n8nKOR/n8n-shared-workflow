@@ -1,0 +1,454 @@
+{
+  "id": "V2Kh7IOk04hNteH9",
+  "meta": {
+    "instanceId": "17f738ee24605f0c427d79d36620a2177b9dffa96b085bf0d20a0125bb5d66b4",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Connect AI to Kommo",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "510e43ca-7ae7-4212-94d7-0ea880fe8366",
+      "name": "isVoice",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1760,
+        -140
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f9b107c0-b283-4b1a-9e71-996fa331d2c2",
+      "name": "get voice",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1960,
+        -180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "99ac5b7d-a31b-49fa-afe4-ace35dcad7c5",
+      "name": "get_entity",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1280,
+        -140
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "73d03fdd-82ce-4f56-abe6-4f5479ae25e7",
+      "name": "ai",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2500,
+        -120
+      ],
+      "parameters": {},
+      "typeVersion": 1.6
+    },
+    {
+      "id": "4c4244da-fa83-4fef-8f06-8f6856786eca",
+      "name": "model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2480,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "dcd9b4da-ff5c-42bf-9cc4-08fc2fdf19df",
+      "name": "memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        2580,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "662eab99-9341-43fb-9a41-cf2cf2c5f4fd",
+      "name": "hasStopTag",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1520,
+        -140
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "9c896b8b-d259-4747-8fff-27168f56ed4f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1720,
+        -200
+      ],
+      "parameters": {
+        "content": "### 번역된 텍스트가 없습니다. 입력 텍스트가 제공되지 않았습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ba5c636-26c6-4b19-8e06-64063612b43c",
+      "name": "transcribe voice",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2140,
+        -180
+      ],
+      "parameters": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "7e7a189c-571a-4e58-8150-a1dfeec3d1d0",
+      "name": "setText",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2340,
+        -120
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d8e951a6-1b69-4355-9f80-1445984869ba",
+      "name": "Get token",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2840,
+        -120
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6a678a0b-f54f-4f48-bf2b-f5b5d557a402",
+      "name": "Recieve message",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3000,
+        -120
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9cd9b3f6-f6a1-4ada-bf75-708e41422f0a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2800,
+        -180
+      ],
+      "parameters": {
+        "content": "### Output 여전히 비어 있음. 이는 입력 텍스트가 없으므로 번역할 내용이 없습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0808dbf6-dec5-46cb-93b2-6fe32997543b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        -460
+      ],
+      "parameters": {
+        "content": "아웃풋이 비어 있습니다. 이는 번역할 텍스트가 없음을 의미합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae5267e9-1b79-4fc4-8ed6-2bfef0ab5208",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        0
+      ],
+      "parameters": {
+        "content": "### Output 여기에 번역된 텍스트가 있어야 합니다. 하지만 입력 텍스트가 제공되지 않았으므로, 아무것도 반환되지 않습니다. 이는 시스템 지침에 따라 추가 텍스트를 피하기 위함입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00ee756a-e524-4643-9e3d-4f631937927c",
+      "name": "new_message",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        920,
+        -140
+      ],
+      "webhookId": "e923532a-db92-481a-8a89-486bc7d853d2",
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "e2529238-9812-4bdc-9830-683d11205abd",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1500,
+        40
+      ],
+      "parameters": {
+        "content": "전문 번역가로서, 입력 텍스트가 비어 있으므로 번역할 내용이 없습니다. 이 메시지는 시스템 지침을 위반하지 않기 위해 추가되지 않았습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9af6afc0-30e5-48c3-9ecd-78fd816fb102",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        40
+      ],
+      "parameters": {
+        "content": "출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "faf33241-b218-4d2d-aabd-2e3156df85ed",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2160,
+        20
+      ],
+      "parameters": {
+        "content": "번역할 텍스트가 입력되지 않았습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1b818418-71d3-4609-a4be-e9b5c31a27fd",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2500,
+        200
+      ],
+      "parameters": {
+        "content": "출력###"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d692adb2-bb7b-4d73-9358-363e3a67bbc6",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        40
+      ],
+      "parameters": {
+        "content": "### Output\nThis seems like there might be a misunderstanding. The \"### Input\" section is empty, so there's no English text provided to translate. As per my instructions, I should only return the translated result in Korean. Since there's nothing to translate, I'll provide an empty response.\n\nHowever, to strictly adhere to the guidelines without adding explanations, I won't include this text in the actual response.\n\n**Actual Response:** (empty)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c7a456fc-5265-48bd-9897-2c84b74a60f6",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        -200
+      ],
+      "parameters": {
+        "content": "번역할 텍스트가 입력되지 않았습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c43e082a-d94b-458d-a508-7a567d00ad5c",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2500,
+        -219
+      ],
+      "parameters": {
+        "content": "### Output 에 있는 텍스트를 번역하라는 지시입니다. 하지만 ### Input 이 비어 있으므로, 번역할 영어 텍스트가 없습니다. 이는 시스템 지시에 따라 번역 결과만 반환해야 하므로, 빈 응답을 제공합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "03c4a010-cafe-47b9-a24e-3434b11d6326",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2680,
+        80
+      ],
+      "parameters": {
+        "content": "### 지시\n다음 텍스트를 영어에서 한국어로 번역하세요.\n추가 설명이나 형식 없이 번역된 한국어 텍스트만 반환하세요.\n\n### 입력\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04e3f9b4-1202-4aa1-8ebc-0a39f74d1ac5",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1720,
+        -460
+      ],
+      "parameters": {
+        "content": "### Output 여전히 비어 있음. 이는 시스템 지시를 따르지 않습니다. 입력 텍스트가 없으므로 번역할 내용이 없습니다. 하지만 지시대로, 번역 결과를 한국어로만 반환해야 합니다. 이 메시지는 추가 텍스트를 피하기 위해 제거됩니다.\n\n오류: 시스템 프롬프트에 따라, 오직 번역 결과만 반환해야 합니다. 입력이 비어 있으므로 빈 응답을 반환합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2c7d15da-0b64-43a0-812f-7d3118f5fdc9",
+  "connections": {
+    "ai": {
+      "main": [
+        [
+          {
+            "node": "Get token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ai",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "ai",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isVoice": {
+      "main": [
+        [
+          {
+            "node": "get voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "setText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setText": {
+      "main": [
+        [
+          {
+            "node": "ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get token": {
+      "main": [
+        [
+          {
+            "node": "Recieve message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get voice": {
+      "main": [
+        [
+          {
+            "node": "transcribe voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_entity": {
+      "main": [
+        [
+          {
+            "node": "hasStopTag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "hasStopTag": {
+      "main": [
+        [
+          {
+            "node": "isVoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "new_message": {
+      "main": [
+        [
+          {
+            "node": "get_entity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recieve message": {
+      "main": [
+        []
+      ]
+    },
+    "transcribe voice": {
+      "main": [
+        [
+          {
+            "node": "setText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

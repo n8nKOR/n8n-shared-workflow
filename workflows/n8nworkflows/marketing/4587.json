@@ -1,0 +1,341 @@
+{
+  "id": "rDGkfQpVtkD1D6RH",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Instagram Profile Scraper",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "923b9b8e-f344-4984-a9cc-2ad111db39a4",
+      "name": "Provide Usernames",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "896b15ed-970c-4164-a57a-b6e567b72db7",
+      "parameters": {
+        "options": {},
+        "formTitle": "Instagram profile scraper",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Username",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Scrapes profile via apify"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "cd6ea4f9-45dc-4193-954a-798a04716c5c",
+      "name": "Scrape Instagram Profile via Apify",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/actor-tasks/<TASK_ID>/run-sync-get-dataset-items?token=<YOUR_API_TOKEN>",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"input\": {\n    \"usernames\": [\n      {{ $json.Username }}\n    ],\n    \"resultsLimit\": 1\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e140ffbf-0ca4-4415-8cff-a78dfc6c040b",
+      "name": "Format Instagram Profile Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5dc90212-ac40-4351-a15a-ef9f35ffd389",
+              "name": "username",
+              "type": "string",
+              "value": "={{ $json.username }}"
+            },
+            {
+              "id": "02339555-2d6b-4d20-a59c-2e8dfa63361c",
+              "name": "fullName",
+              "type": "string",
+              "value": "={{ $json.fullName }}"
+            },
+            {
+              "id": "f5a95d72-443d-468a-a1a6-8cc394b93fa4",
+              "name": "followersCount",
+              "type": "number",
+              "value": "={{ $json.followersCount }}"
+            },
+            {
+              "id": "826fe0c8-4fbe-44e7-abf3-8a73022151f2",
+              "name": "followsCount",
+              "type": "number",
+              "value": "={{ $json.followsCount }}"
+            },
+            {
+              "id": "dac8d9cc-5fa8-47d8-859d-d9f164ec20bd",
+              "name": "biography",
+              "type": "string",
+              "value": "={{ $json.biography }}"
+            },
+            {
+              "id": "4c775459-f8f5-43d1-8b1a-aa122413cd12",
+              "name": "profilePicUrl",
+              "type": "string",
+              "value": "={{ $json.profilePicUrl }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9c4f528b-c5c9-4f0b-92c4-1f9d75532fc4",
+      "name": "Append Profile to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Username": "={{ $json.username }}",
+            "Biography": "={{ $json.biography }}",
+            "Full Name": "={{ $json.fullName }}",
+            "Followers Count": "={{ $json.followersCount }}",
+            "Following Count": "={{ $json.followsCount }}",
+            "Profile Pic URL": "={{ $json.profilePicUrl }}"
+          },
+          "schema": [
+            {
+              "id": "Username",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Username",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Full Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Followers Count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Followers Count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Following Count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Following Count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Biography",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Biography",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Profile Pic URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Profile Pic URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VQUy0tfWujh0lyulh0w6UhLGq87f8j8F7uFOaLFUyuQ/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1VQUy0tfWujh0lyulh0w6UhLGq87f8j8F7uFOaLFUyuQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VQUy0tfWujh0lyulh0w6UhLGq87f8j8F7uFOaLFUyuQ/edit?usp=drivesdk",
+          "cachedResultName": "Instagram Profile Scraper"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K5yYfUnKFTqaRn6A",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "1980e973-f240-4b55-a4b8-4faa36f78c42",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -1460
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 1660,
+        "content": "### 🔹 **1. `트리거: 폼 제출 시`**\n\n* **노드 유형:** 수동 트리거(또는 실제 폼에 포함된 경우 웹훅)\n* **목적:** 사용자가 Instagram 사용자 이름을 포함한 폼을 제출할 때 워크플로를 시작함\n* **예상 입력:**\n\n  ```json\n  {\n    \"username\": \"influencer_1\"\n  }\n  ```\n\n---\n\n### 🔹 **2. `Apify를 통해 Instagram 프로필 스크랩`**\n\n* **노드 유형:** HTTP 요청\n\n* **메서드:** `POST`\n\n* **URL:**\n\n  ```plaintext\n  https://api.apify.com/v2/actor-tasks/<TASK_ID>/run-sync-get-dataset-items?token=<API_TOKEN>\n  ```\n\n* **헤더:**\n\n  ```json\n  {\n    \"Content-Type\": \"application/json\"\n  }\n  ```\n\n* **바디 매개변수:**\n\n  ```json\n  {\n    \"input\": {\n      \"usernames\": [\"={{ $json.username }}\"]\n    }\n  }\n  ```\n\n* **Apify의 샘플 출력:**\n\n  ```json\n  [\n    {\n      \"username\": \"influencer_1\",\n      \"fullName\": \"Jane Doe\",\n      \"followersCount\": 12500,\n      \"followsCount\": 320,\n      \"biography\": \"Travel | Lifestyle 🌍\",\n      \"profilePicUrl\": \"https://instagram.com/path/to/pic.jpg\",\n      \"isPrivate\": false,\n      \"isVerified\": true,\n      \"externalUrl\": \"https://janedoe.com\"\n    }\n  ]\n  ```\n\n✅ **결과:** 폼에서 제출된 사용자 이름을 Apify의 Instagram 액터를 사용하여 실시간으로 스크랩하고, 결과를 다음 단계로 전달함."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c341b28-0385-4691-904b-8fa8d8e0b213",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -1240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 500,
+        "height": 1440,
+        "content": "## ✨ 섹션 2: 🛠 데이터 형식화 + 📊 Google Sheets에 추가\n\n### 🔹 **3. `Format Instagram Profile Data`**\n\n* **Node Type:** Set\n* **Purpose:** Apify 응답을 정리하여 Google Sheets 스키마와 일치하도록 정리\n* **Fields to Set:**\n\n  | Field Name        | Value                      |\n  | ----------------- | -------------------------- |\n  | `Username`        | `{{$json.username}}`       |\n  | `Full Name`       | `{{$json.fullName}}`       |\n  | `Followers`       | `{{$json.followersCount}}` |\n  | `Following`       | `{{$json.followsCount}}`   |\n  | `Bio`             | `{{$json.biography}}`      |\n  | `Profile Pic URL` | `{{$json.profilePicUrl}}`  |\n  | `Website`         | `{{$json.externalUrl}}`    |\n\n✅ **Result:** 데이터가 정리된 형식으로 변환되어 로깅 또는 아웃리치 추적에 적합하게 됨.\n\n---\n\n### 🔹 **4. `Append Profile to Google Sheet`**\n\n* **Node Type:** Google Sheets (Append Row)\n* **Setup:**\n\n  * **Sheet Name:** `Scraped_Influencer_Data`\n  * **Columns:** Username, Full Name, Followers, Following, Bio, Profile Pic URL, Website\n* **Purpose:** 형식화된 데이터를 중앙 Google Sheets에 저장하여 향후 참조 또는 아웃리치에 사용\n* **Result:** 인플루언서 데이터가 지속적으로 저장되어 마케팅, 분석 또는 CRM 통합에 준비됨.\n\n---\n\n## ✅ 최종 워크플로 요약\n\n```plaintext\n[Form Trigger] \n   ⬇️\n[Apify HTTP Request] \n   ⬇️\n[Format Fields]\n   ⬇️\n[Google Sheet Append]\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1552dfc6-f98c-45e1-bb18-071fbb69a159",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1800,
+        -1460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "=======================================\n            워크플로우 지원\n=======================================\n질문이나 지원이 필요하신 경우, 다음으로 연락 주세요:\n    Yaron@nofluff.online\n\n더 많은 팁과 튜토리얼을 여기에서 탐색하세요:\n   - YouTube: https://www.youtube.com/@YaronBeen/videos\n   - LinkedIn: https://www.linkedin.com/in/yaronbeen/\n======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "91ca76cf-d9dd-489c-a9de-357c876d00e2",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1800,
+        -1120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2418,
+        "content": "# 🧠 **워크플로 개요: Apify 및 Google Sheets를 사용한 Instagram 프로필 스크래퍼 in n8n**\n\n## 🔍 **목적**\n\n이 n8n 자동화 워크플로는 **Apify Instagram Scraper**를 사용하여 **Instagram 프로필 데이터를 스크래핑**하고 **결과를 Google Sheets에 저장**하여 마케팅, 아웃리치 또는 분석에 활용할 수 있습니다. 코드 작성 없이 간단하고 효율적이며 확장 가능하게 설계되었으며, 인플루언서 마케터, 소셜 분석가 또는 성장 팀이 실행 가능한 Instagram 데이터를 얻는 데 이상적입니다.\n\n---\n\n## 🧩 **핵심 워크플로 논리**\n\n### 💡 무엇을 하는가\n\n1. **Instagram 사용자명 받기** (폼 또는 수동 트리거를 통해)\n2. **사용자명을 Apify에 보내 공공 프로필 데이터 스크래핑**\n3. **주요 세부 정보 추출** (팔로워, 바이오, 프로필 사진 등)\n4. **정리된 데이터를 구조화된 Google Sheet에 추가**\n\n---\n\n## 🏗️ **워크플로 구조 및 구성 요소**\n\n## 📊 **데이터 흐름 예시**\n\n### 🔸 **입력 (폼 또는 수동 트리거를 통해 제출):**\n\n```json\n{\n  \"username\": \"influencer_1\"\n}\n```\n\n### 🔹 **출력 (Google Sheets에 저장):**\n\n| 사용자명      | 전체 이름 | 팔로워 | 팔로잉 | 바이오    | 프로필 사진 URL                     | 웹사이트                                                        |                                            |\n| ------------- | --------- | --------- | --------- | ------ | --------------- | -------------------------------------------------------------- | ------------------------------------------ |\n| influencer\\_1 | Jane Doe  | 12,500    | 320       | 여행 | 라이프스타일 🌍    | [https://instagram.com/pic.jpg](https://instagram.com/pic.jpg) | [https://janedoe.com](https://janedoe.com) |\n\n---\n\n## 🛠️ **사용된 도구**\n\n* [n8n](https://n8n.io/) – 오픈소스 워크플로 자동화\n* [Apify](https://apify.com/) – Instagram 프로필 스크래퍼 액터\n* Google Sheets (n8n을 통한 기본 통합)\n\n---\n\n## 🔐 **인증 및 API 노트**\n\n* **Apify 토큰**: HTTP 요청 URL에 필요\n* **Google Sheets 액세스**: n8n에서 OAuth2 자격 증명 구성\n* **보안 팁**: 비밀 정보를 [n8n 환경 변수](https://docs.n8n.io/hosting/environment-variables/)로 저장\n\n---\n\n## 💼 **실제 사용 사례**\n\n| 사용 사례                  | 설명                                                   |\n| ------------------------- | ------------------------------------------------------------- |\n| 👩‍💼 인플루언서 아웃리치 | 캠페인 계획을 위해 Instagram 지표를 자동으로 수집 |\n| 📊 경쟁자 분석    | 경쟁자의 팔로워 증가 및 바이오 업데이트 추적         |\n| 📋 CRM 강화         | 인플루언서 레코드를 라이브 Instagram 데이터로 강화            |\n\n---\n\n## 🚀 **개선 및 아이디어**\n\n* 🔁 **Google Sheets에서 루프**: 사용자명 배치를 읽고 루프로 스크래핑\n* 🚫 **중복 피하기**: 이미 스크래핑된 사용자명을 건너뛰기 위해 `IF` 노드 추가\n* 📩 **Slack/이메일 알림 보내기** 새로운 데이터 추가 시\n* 🧠 **저활동 계정 필터링** (예: 팔로워 < 1,000인 경우)\n\n---\n\n## 📸 **시각적 워크플로 맵**\n\n```plaintext\n[트리거: 폼 제출 시]\n          ⬇️\n[Apify를 통해 Instagram 프로필 스크래핑]\n          ⬇️\n[Instagram 프로필 데이터 형식화]\n          ⬇️\n[프로필을 Google Sheet에 추가]\n```\n\n---\n\n## 🧾 **결론**\n\n이 워크플로는 **Instagram 프로필 데이터 수집 과정을 간소화하는 강력한 노코드 솔루션**입니다. n8n의 유연성, Apify의 스크래핑 기능, Google Sheets의 접근성을 결합하여 원활한 자동화를 제공하며, 크리에이터, 마케터 및 분석가에게 적합합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Scrape Instagram Profile via Apify": [
+      {
+        "json": {
+          "fullName": "Jane Doe",
+          "username": "influencer_1",
+          "biography": "Travel | Fashion | Lifestyle 🌍",
+          "isPrivate": false,
+          "isVerified": true,
+          "postsCount": 340,
+          "externalUrl": "https://janedoe.com",
+          "latestPosts": [
+            {
+              "caption": "Exploring the Amalfi coast 🌊",
+              "imageUrl": "https://instagram.com/post/abc.jpg",
+              "timestamp": 1717000000,
+              "likesCount": 2300,
+              "commentsCount": 180
+            }
+          ],
+          "followsCount": 320,
+          "profilePicUrl": "https://instagram.com/path/to/profile-pic.jpg",
+          "followersCount": 12500
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0073a2a2-78d1-4806-b6f9-216a99a06107",
+  "connections": {
+    "Provide Usernames": {
+      "main": [
+        [
+          {
+            "node": "Scrape Instagram Profile via Apify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Instagram Profile Data": {
+      "main": [
+        [
+          {
+            "node": "Append Profile to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Instagram Profile via Apify": {
+      "main": [
+        [
+          {
+            "node": "Format Instagram Profile Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

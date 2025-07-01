@@ -1,0 +1,1558 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "f4322829-1799-4954-a75a-b40e95f41c10",
+      "name": "Get Last Week's Messages",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -2200,
+        -160
+      ],
+      "webhookId": "8078218a-7edc-4e0b-9b4d-9860bd309877",
+      "parameters": {
+        "filters": {
+          "oldest": "={{ $now.minus('1', 'week') }}",
+          "inclusive": false
+        },
+        "resource": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C06RS1WPUQ6",
+          "cachedResultName": "general"
+        },
+        "operation": "history",
+        "returnAll": true
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VfK3js0YdqBdQLGP",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "f0e89c19-ee1f-4a4d-8176-c222c18e0514",
+      "name": "Simplify Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1320,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "547e8934-e6f2-47f0-b8a0-c60bd9d8a0c3",
+              "name": "ts",
+              "type": "string",
+              "value": "={{ $json.ts }}"
+            },
+            {
+              "id": "22473b44-b1d9-4b85-b0d9-1a54c5511ff4",
+              "name": "userId",
+              "type": "string",
+              "value": "={{ $('Get User').first().json.id }}"
+            },
+            {
+              "id": "2059b147-8b12-42c9-bee8-488dc11a0bf7",
+              "name": "userName",
+              "type": "string",
+              "value": "={{ $('Get User').first().json.name }}"
+            },
+            {
+              "id": "34440ea6-ee99-4cd4-9e1c-cf561d335180",
+              "name": "type",
+              "type": "string",
+              "value": "={{ $json.type }}"
+            },
+            {
+              "id": "ff1155c5-43e1-4e0e-82a8-9e013a7f1db1",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.text.replace(/(<@[^>]+>)/ig, '').trim() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "1293a7cf-1467-432f-b7ed-606146618808",
+      "name": "Group By User",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2000,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "const keyByUser = $input.all()\n  .map(item => item.json)\n  .reduce((acc, message) => {\n    return {\n      ...acc,\n      [message.user]: Array.isArray(acc[message.user])\n        ?  acc[message.user].concat(message)\n        : [message]\n    }\n  }, {});\n\nreturn {\n  data: Object\n    .keys(keyByUser)\n    .map(key => keyByUser[key])\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "681a2368-9688-4ebd-bb88-f48c7ccb3e54",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1800,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "38a5e6b0-ba4a-4aaa-93f2-ec2a73e5e1af",
+      "name": "Messages to Items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1540,
+        380
+      ],
+      "parameters": {
+        "jsCode": "return Object.values($('Switch').first().json.data)"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "066e40ef-91d7-4db0-95bb-2027c9251a23",
+      "name": "Get User",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -1760,
+        380
+      ],
+      "webhookId": "042e9c13-5038-433a-98dc-8b6d83c015de",
+      "parameters": {
+        "user": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data['0'].user }}"
+        },
+        "resource": "user"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VfK3js0YdqBdQLGP",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c5d0b4d1-94eb-4e14-9985-85d384d6d96f",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1100,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "messages"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47537a27-90d9-4edc-b9f4-66205bc4a4c2",
+      "name": "Split Out1",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1760,
+        780
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data.messages"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fdd0fc0-c563-46a3-afb2-48853d3e6cef",
+      "name": "Get Thread",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -1100,
+        780
+      ],
+      "webhookId": "c3ef27dc-2648-4f91-b329-89a7fa833797",
+      "parameters": {
+        "ts": "={{ $json.ts }}",
+        "filters": {},
+        "resource": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C06RS1WPUQ6",
+          "cachedResultName": "general"
+        },
+        "operation": "replies"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VfK3js0YdqBdQLGP",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0fc6664f-9076-4525-acaa-0f5009de2611",
+      "name": "Aggregate1",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -440,
+        860
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "replies"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "caf963e5-3d5b-42d8-88ce-1fb5bf03a528",
+      "name": "Simplify Thread Comments",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -660,
+        780
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82bc8cbe-c606-4717-b29d-2d8acc149271",
+              "name": "ts",
+              "type": "string",
+              "value": "={{ $json.ts }}"
+            },
+            {
+              "id": "8fcc957d-aa9f-47df-99e8-560228fde30f",
+              "name": "userId",
+              "type": "string",
+              "value": "={{ $json.user }}"
+            },
+            {
+              "id": "e6c6deb3-c3ba-4452-be7c-1a0c42c5dc2c",
+              "name": "userName",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "31d1206d-ecbd-48d3-a00a-845fd53d1cfa",
+              "name": "type",
+              "type": "string",
+              "value": "={{ $json.type }}"
+            },
+            {
+              "id": "da126e6c-8dfc-41aa-991a-231b3cb3004b",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "aab0ae1c-50da-49e5-a373-c32b39108041",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -880,
+        780
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a6d43072-380e-40f2-985b-faeffdaffdce",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $('Split Out1').item.json.ts }}",
+              "rightValue": "={{ $json.ts }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "35cdb470-a9eb-4544-999c-5360dda0f1a3",
+      "name": "Message Ref",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        -1320,
+        780
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "95500787-7965-4951-a729-615feb636021",
+      "name": "Split Out2",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1320,
+        1080
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "replyUsers"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "250d61cc-120d-4c0c-8220-f9a68a90b667",
+      "name": "Map Reply UserIds",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1760,
+        1160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dda6e3d8-0097-4621-9619-07cf39e93018",
+              "name": "replyUsers",
+              "type": "array",
+              "value": "={{\n$json.data.messages\n  .flatMap(item => item.replies.flatMap(reply => reply.userId))\n  .compact()\n  .unique()\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3358736b-fc6e-4e18-9a58-4ffc59308055",
+      "name": "Get Reply Users",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -1100,
+        1080
+      ],
+      "webhookId": "c9ad7c7e-2c48-4c24-9255-e04ab26252ab",
+      "parameters": {
+        "user": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.replyUsers }}"
+        },
+        "resource": "user"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VfK3js0YdqBdQLGP",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e98acd0f-f1e3-47f4-ae9c-7259462cf231",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -120,
+        1380
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ffb9b87-43db-4417-8c37-384a33cbb830",
+      "name": "Summarise Threads",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -220,
+        1160
+      ],
+      "parameters": {
+        "text": "=## Message\n{{ $json.userName }} (<@{{ $json.userId }}>) says at {{ new DateTime(parseFloat($json.ts)*1000).format('d MMM HH:mma') }}:\n> {{ $json.text }}\n\n## {{ ($json.replies ?? []).compact().length }} Replies\n{{\n($json.replies ?? [])\n  .compact()\n    .map(reply => ({\n      ...reply,\n      userName: $('Reply Users').item.json.data\n        .find(user => user.id === reply.userId)?.name\n    }))\n    .map(reply =>\n      `* ${new DateTime(parseFloat($json.ts)*1000).format('d MMM HH:mma')}, ${reply.userName} (<@${reply.userId}>) replies: ${reply.text}`\n)\n    .join('\\n')\n  \n}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Summarize the topic of the slack message and the resulting conversation from the replies (if any). Highlight any achievements, accomplishments, attempts or challenges mentioned."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "678a48ec-acb1-4c42-b8c9-d4cd762e4a2a",
+      "name": "Aggregate2",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        160,
+        1160
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab39b117-e1bd-495f-a92d-fb79973b3601",
+      "name": "Aggregate Reply Users",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -880,
+        1080
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c71b7ca6-8245-4262-b2f1-abea511390d6",
+      "name": "Reply Users",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -660,
+        1160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f721cde-2d36-40ee-b7d8-a920695157a9",
+              "name": "data",
+              "type": "array",
+              "value": "={{ $json.data ?? [] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4b2c452b-4e68-4536-aa58-a85fd586c606",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -460,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d65b4f27-52ab-4c29-8692-ee2835fddd17",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1540,
+        780
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "cfb55c7f-a89d-4ce4-8709-31e5e119c6ee",
+      "name": "Aggregate3",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1320,
+        580
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{\n{\n  ...$('Split Out1').item.json,\n  replies: $json.replies.filter(reply => reply.ts)\n}\n}}\n"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8b70e30c-99d5-4086-85aa-e6cfcc7f14e7",
+      "name": "Aggregate4",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1100,
+        580
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1cef5853-d301-49cb-9f58-c1a9128b8b33",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -2200,
+        780
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "action"
+            },
+            {
+              "name": "data",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b30c2433-3bfe-480f-a4bd-8c41900802a2",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -1980,
+        780
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "users",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fa924990-9f6e-40c4-aaec-50d4f5927414",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "users"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "message_replies",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "26ce01b2-9e5b-43e8-926d-9d726c9ca74d",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "message_replies"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "message_summarize",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "45fd7264-6ac3-4bbd-8a91-c4cfb33b4545",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "message_summarize"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "b05735c3-4beb-4a80-8297-85e952e81270",
+      "name": "Map Users to Messages",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        -1520,
+        -160
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "data": "={{ $json }}",
+            "action": "users"
+          },
+          "schema": [
+            {
+              "id": "action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "28ed52b2-b0c3-4f19-b394-347c8ff9e323",
+      "name": "Get User Info",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -880,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17344879-1e10-4738-8db0-6e0daddea920",
+              "name": "user",
+              "type": "object",
+              "value": "={{\n{\n  id: $('Get User').item.json.id,\n  team_id: $('Get User').item.json.team_id,\n  name: $('Get User').item.json.name,\n  is_bot: $('Get User').item.json.is_bot\n}\n}}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "bbd7c77e-2405-4e63-ae38-f064beafab9c",
+      "name": "Fetch Message Replies",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        -1300,
+        -160
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "data": "={{ $json }}",
+            "action": "message_replies"
+          },
+          "schema": [
+            {
+              "id": "action",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "object",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "edf34e72-04b4-4fed-a3af-42dec1c7ed17",
+      "name": "Has ReplyUsers?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1540,
+        1160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "813d9fea-9de0-4151-aa45-d38a42f808b8",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.replyUsers }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dc9c6cf0-c627-4311-9160-62204e9b67e0",
+      "name": "Messages to Items1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -440,
+        1160
+      ],
+      "parameters": {
+        "jsCode": "return $('Switch').first().json.data.messages"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0b830a49-c77e-41f3-8d70-47a26bfe0a0e",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -760,
+        -160
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{\n{\n  ...$('Map Users to Messages').item.json,\n  messages: $('Fetch Message Replies').item.json.data\n  .map((message,idx) => ({\n    ...message,\n    summary: $json.data[idx].text,\n  }))\n}\n}}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b0c66c7f-0fed-465c-8933-7b803c9b3b64",
+      "name": "Team Member Weekly Report Agent",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -560,
+        -160
+      ],
+      "parameters": {
+        "text": "={{\n$json.messages\n  .map((message,idx) =>\n    `${message.userName} (<@${message.userId}>) posted on ${new Date(parseFloat(message.ts) * 1000).format('d MMM')}:\\n> \\\"${message.text}\\\".\\nThe summary of this thread is as follows:\\n${message.summary.replaceAll('\\n', ' ')}`\n  )\n  .join('\\n---\\n')\n}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Your are energetic assistant who produces weekly mini-reports on team members by analysing their slack messages from last week and posts these reports on the following Monday.\nThere has already been some work done to collect and summarise each thread made by the user within the last week.\nYour task is to summarize all the threads by this user and any interactions with other users involved and produce a mini report to share with other team members.\nFocus on wins and challenges.\nAim to motivate and call out any outstanding concerns where appropriate.\nWelcome any new team members who may have joined and say good bye to those who may have left."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "e4a487ae-8d71-4fe6-a760-7a0fb95a8fac",
+      "name": "Merge with Results",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -60,
+        -160
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{\n{\n  ...$('Aggregate Results').item.json,\n  report: $json.text,\n}\n}}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "06736a5c-7450-406a-ad3a-08a368d1addf",
+      "name": "Team Weekly Report Agent",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        160,
+        -160
+      ],
+      "parameters": {
+        "text": "={{\n$input.all()\n  .map(item => item.json)\n  .map(item =>\n`user: ${item.user.name} <@${item.user.id}>\nmessage count: ${item.messages.length}\nreport: ${item.report.replaceAll('\\n', ' ')}`\n  ).join('\\n---\\n')\n}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Your are energetic assistant who produces a team-wide weekly report from all activity of all team members in the prior last week and posts this single report on the following Monday.\nThere has already been some work done to collect individual reports from team members.\nYour task is generate a report covering the team to prepare and motivate them for the upcoming week.\nFocus on wins and challenges if available.\nLook out for similar activities between members and make a connection if possible.\nAim to motivate and call out any outstanding concerns where appropriate.\nWelcome any new team members who may have joined and say good bye to those who may have left."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "executeOnce": true,
+      "typeVersion": 1.6
+    },
+    {
+      "id": "eef36957-9bf0-4be3-95a8-73bbefdc0c85",
+      "name": "Google Gemini Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bfa5c99f-cd8f-4d34-9e6d-9ed476c87d22",
+      "name": "Post Report in Team Channel",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        820,
+        -160
+      ],
+      "webhookId": "3613b3ca-fc98-427f-8903-a5996ff7552e",
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C06RS1WPUQ6",
+          "cachedResultName": "general"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VfK3js0YdqBdQLGP",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b9a11c72-de41-4a45-85a0-672cf54ef152",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 520,
+        "content": "## 1. 지난 주 모든 활동 가져오기  \n[Slack 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.slack)  \n\n우리는 지난 7일 동안 우리 팀 채널의 모든 활동을 가져와 메시지 작성자별로 그룹화하는 것으로 시작하겠습니다. Slack 노드와 DateTime 필터를 사용하여 이를 할 수 있습니다. 이렇게 하면 보고를 위한 원시 데이터를 얻어 분석할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8afc048f-ce06-46c3-916f-cbcf14bcfe2b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 520,
+        "content": "## 2. 메시지 스레드 및 대화 요약\n\n[Execute Workflow 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow)\n\n이 최상위 채널 메시지 각각에 대한 모든 답글을 가져와서 추가 데이터 마이닝을 수행할 것입니다. 이를 통해 대화의 전체 맥락을 얻을 수 있으며, 보고서에 추가할 수 있는 몇 가지 결정, 발견 또는 우려 사항을 포착할 수 있기를 바랍니다. 이 데이터 마이닝은 많은 '아이템'을 다루어야 하며, 관리하기 어려워지므로 서브워크플로를 사용하여 이 작업을 단순화할 것입니다.\n\n데이터 마이닝이 완료되면, AI를 사용하여 각 스레드를 요약하고, 보고서에 가치 있는 중요한 이벤트만 캡처하도록 하겠습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c9a7358c-fbe7-435a-b435-d7b07599bdc6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 620,
+        "content": "## 3. 각 팀 멤버에 대한 활동 보고서 생성\n\n[Basic LLM 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainllm)\n\n사용자별로 그룹화된 요약된 스레드를 사용하여 이를 집계하여 AI에게 다시 제공하여 팀 멤버에 대한 주간 보고서를 생성할 수 있습니다. 여기에는 그들의 승리, 도전, 학습 또는 결정이 포함될 수 있습니다 - 보고서의 모양은 정말로 당신에게 달려 있습니다.\n\n이 출력의 재미있는 부분은 보고서의 음성과 전달 방식을 결정하는 것입니다. 지루하지 않게 하고 약간의 개성과 스타일을 추가하는 것을 고려하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "add32ef0-b515-44e6-a234-0a0fa77f4e84",
+      "name": "Summarize Message Threads",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        -1080,
+        -160
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "data": "={{\n{\n  ...$('Map Users to Messages').item.json,\n  messages: $json.data\n}\n}}",
+            "action": "message_summarize"
+          },
+          "schema": [
+            {
+              "id": "action",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "object",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "17f2f45e-2c95-4b3c-b6db-a2881ae88964",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 620,
+        "content": "## 4. 전체 팀을 위한 최종 보고서 생성\n\n[Basic LLM 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainllm)\n\n이 단계에서, 우리는 한 단계 더 높게 가서 모든 개별 팀원 보고서를 모아서 큰 팀 보고서로 만듭니다. 이 방법으로, 개요는 비슷한 활동을 그룹화하고 활동을 더 넓은 의미로 일반화할 수 있습니다. 메시지 출력도 더 짧아지며, 일부 사람들은 소화하기 더 쉽게 느낄 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18cc7fa7-603c-4165-97c6-80d72fd4a9a6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 620,
+        "content": "## 5. 팀 채널에 보고서 게시 (월요일 아침!)\n\n[Slack 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.slack)\n\n마침내, 우리는 팀 채널에 주간 보고서를 게시할 수 있습니다. 이것은 주말 휴식 후 팀을 위한 빠른 요약을 자동화하는 훌륭한 방법으로, 자리를 비운 사람들을 다시 정상 궤도로 이끌거나 가끔 방문하여 협력할 수 있는 클라이언트 팀을 업데이트하는 데 유용합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9cd8bdd6-5fc7-4e44-bcd0-058bc5d11335",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 340,
+        "content": "## 5. 서브워크플로우\n\n[Execute Workflow Trigger에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflowtrigger)\n\n메인 워크플로우에 서브워크플로우를 통합하는 것은 고급 기술이며, 중첩된 아이템이나 루프를 많이 다루는 경우에 때때로 필요합니다.\n\n이 시나리오에서, 필요한 데이터를 얻기 위해 여러 조회를 수행합니다; 사용자, 메시지 및 답글로, 템플릿 용어로 말하면 여러 루프 노드를 연결해야 합니다. 그러나, 루프 노드를 루프 노드 안에 중첩할 때, 아이템 참조를 추적하기 어려워집니다.\n\n서브워크플로우를 사용하면, 각 루프를 별도의 실행으로 분해하여 아이템과 아이템 참조를 더 간단하고 선형적인 방식으로 처리할 수 있습니다. 그 결과, 템플릿 전체에서 예측 가능한 데이터 흐름이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f6fc730-5fc8-4dcc-b86d-e3b2f0e792a0",
+      "name": "Monday @ 6am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -2400,
+        -160
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ab94557c-debb-425c-ac83-62e39e43d28b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2940,
+        -1380
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1460,
+        "content": "## 시도해 보세요!\n### 이 n8n 템플릿은 지난 주 슬랙에서 개별 팀원 활동을 요약하고 보고서를 생성합니다.\n\n원격 팀의 경우, 채팅은 작업이 완료되도록 보장하는 중요한 커뮤니케이션 도구이지만, 수많은 대화가 동시에 여러 스레드에서 발생하면서 아이디어, 정보 및 결정이 순간적으로 존재하다가 빠르게 사라지고 주말이 되면 완전히 잊혀집니다!\n\n이 템플릿을 사용하면 이런 일이 발생하지 않을 수 있습니다. AI가 지난 주 활동을 탐색하여 모든 스레드를 요약하고, 캐주얼하고 생생한 보고서를 생성하여 팀이 이번 주에 다시 집중할 수 있도록 합니다. 프로젝트 관리자의 꿈입니다!\n\n### 작동 원리\n* 매주 월요일 오전 6시에 스케줄된 트리거가 설정되어 지난 주 팀 채널 메시지를 수집합니다.\n* 각 메시지 스레드는 사용자별로 그룹화되고, 답변에 대한 데이터 마이닝이 수행됩니다.\n* 결합된 후, AI가 원시 메시지를 분석하여 흥미로운 관찰과 하이라이트를 추출합니다.\n* 사용자의 요약된 스레드가 함께 결합되어 다른 AI 에이전트에 전달되어 해당 주의 고차원 개요를 생성합니다. 이를 개별 보고서라고 합니다.\n* 다음으로, 모든 개별 보고서가 함께 요약되어 팀 주간 보고서를 만듭니다. 이는 그룹 및 유사 활동을 이해할 수 있게 합니다.\n* 마지막으로, 팀 주간 보고서가 채널에 게시됩니다. 타이밍이 중요합니다. 이는 주의 첫 번째 메시지가 되어 팀이 커피를 마시면서 간단히 확인할 수 있도록 합니다.\n\n### 사용 방법\n* 프로젝트별로 가장 잘 작동하며, 대부분의 커뮤니케이션이 단일 채널에서 발생하는 경우에 적합합니다. 채널을 결합하지 말고, 더 많은 채널의 경우 이 워크플로를 복제하세요.\n* 특정 팀원 업데이트를 원하는 경우, 특정 팀원을 필터링해야 할 수 있습니다.\n* 보고서를 조직, 팀 또는 채널에 맞게 커스터마이즈하세요. 클라이언트나 외부 이해관계자가 있는 경우 더 형식적으로 선호할 수 있습니다.\n\n### 요구 사항\n* 슬랙(Slack) 채팅 플랫폼\n* Gemini LLM\n\n### 이 워크플로 커스터마이징\n* 슬랙 채널이 이미 바쁘다면, 최종 보고서를 이메일로 게시하는 것을 고려하세요.\n* 프로젝트 지표를 보고서에 포함하세요. 추가 맥락으로, 메시지를 생산성 성과와 연결하는 것이 흥미로울 수 있습니다.\n* AI 에이전트를 사용하여 메시지와 관련된 지식베이스나 티켓을 조회하세요. 링크나 참조를 추가하여 맥락을 제공하는 데 유용할 수 있습니다.\n\n### 도움이 필요하세요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 커뮤니티에 가입하거나 [Forum](https://community.n8n.io/)에서 문의하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Simplify Thread Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Map Reply UserIds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User": {
+      "main": [
+        [
+          {
+            "node": "Messages to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Get User Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Map Users to Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate4": {
+      "main": [
+        []
+      ]
+    },
+    "Get Thread": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Get Reply Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Ref": {
+      "main": [
+        [
+          {
+            "node": "Get Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Users": {
+      "main": [
+        [
+          {
+            "node": "Messages to Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monday @ 6am": {
+      "main": [
+        [
+          {
+            "node": "Get Last Week's Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group By User": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Reply Users": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Reply Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has ReplyUsers?": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message Ref",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Message": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Team Member Weekly Report Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Reply UserIds": {
+      "main": [
+        [
+          {
+            "node": "Has ReplyUsers?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Messages to Items": {
+      "main": [
+        [
+          {
+            "node": "Simplify Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise Threads": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge with Results": {
+      "main": [
+        [
+          {
+            "node": "Team Weekly Report Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Messages to Items1": {
+      "main": [
+        [
+          {
+            "node": "Summarise Threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Reply Users": {
+      "main": [
+        [
+          {
+            "node": "Reply Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Message Replies": {
+      "main": [
+        [
+          {
+            "node": "Summarize Message Threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Users to Messages": {
+      "main": [
+        [
+          {
+            "node": "Fetch Message Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last Week's Messages": {
+      "main": [
+        [
+          {
+            "node": "Group By User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarise Threads",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Thread Comments": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team Weekly Report Agent": {
+      "main": [
+        [
+          {
+            "node": "Post Report in Team Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Team Member Weekly Report Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Team Weekly Report Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Message Threads": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team Member Weekly Report Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge with Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

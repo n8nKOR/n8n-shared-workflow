@@ -1,0 +1,399 @@
+{
+  "id": "bHZEpS3GDpUNmmRD",
+  "meta": {
+    "instanceId": "2a26454b0172ffcb8d70ba77c235b1209f92cd71bf06c79ba609c7173b416d68",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI Chatbot Agent: a Panel of Experts using InfraNodus Graph RAG Knowledge",
+  "tags": [
+    {
+      "id": "66wgFoDi9Xjl74M3",
+      "name": "Support",
+      "createdAt": "2025-05-21T17:06:32.355Z",
+      "updatedAt": "2025-05-21T17:06:32.355Z"
+    },
+    {
+      "id": "9QurS5Kb1CkCYrnG",
+      "name": "Product",
+      "createdAt": "2025-05-21T17:06:29.704Z",
+      "updatedAt": "2025-05-21T17:06:29.704Z"
+    },
+    {
+      "id": "IzYV3Gv55x1h73cK",
+      "name": "Ideation",
+      "createdAt": "2025-05-20T14:53:20.662Z",
+      "updatedAt": "2025-05-20T14:53:20.662Z"
+    },
+    {
+      "id": "aECLdyckoPZ29skg",
+      "name": "Writing",
+      "createdAt": "2025-05-20T14:53:23.085Z",
+      "updatedAt": "2025-05-20T14:53:23.085Z"
+    },
+    {
+      "id": "ciIq4giMNXaJiyiQ",
+      "name": "Thinking Tools",
+      "createdAt": "2025-05-20T14:53:17.515Z",
+      "updatedAt": "2025-05-20T14:53:17.515Z"
+    },
+    {
+      "id": "hCzs9EJfBuD0RxuX",
+      "name": "Other",
+      "createdAt": "2025-05-21T17:06:34.674Z",
+      "updatedAt": "2025-05-21T17:06:34.674Z"
+    },
+    {
+      "id": "sJk9cUvmMU8FkJXv",
+      "name": "AI",
+      "createdAt": "2025-05-20T13:16:15.636Z",
+      "updatedAt": "2025-05-20T13:16:15.636Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "41bf047a-eba0-4a7c-ac46-3a5da9826180",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        400,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9fb76eda-0a98-4260-a6dd-d1a24d721bfa",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "8925672f-55c8-4c09-b0d9-ba8e87af8807",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "EightOS Polysingularity Consilium",
+          "subtitle": "Let's find a solution to any issue you have",
+          "loadPreviousSession": "manually"
+        },
+        "initialMessages": "Get an advice based on EightOS and Polysingularity frameworks. Ask your question and I will provide a response based on InfraNodus GraphRAG analysis of those discourses."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "cedf6471-af63-4ffe-aca3-f8f81530fcc6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        -440
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 460,
+        "height": 400,
+        "content": "## AI 챗봇 에이전트 전문가와 함께\n\n### InfraNodus 지식 그래프와 그 Graph RAG을 사용하여 관련 정보를 검색합니다.\n\n사용자의 [InfraNodus graph](https://infranodus.com)를 AI 챗봇의 지식 기반으로 사용하세요. \n\nInfraNodus에 데이터를 업로드하여 별도의 지식 그래프를 생성한 후, 이를 에이전트의 도구로 연결하세요. 이렇게 하면 에이전트가 사용할 \"전문가\"를 결정할 수 있습니다. InfraNodus의 Graph RAG은 챗봇의 답변을 보강하는 고품질 응답을 제공합니다.\n\n비디오 데모: [https://www.youtube.com/watch?v=kS0QTUvcH6E](https://www.youtube.com/watch?v=kS0QTUvcH6E)\n\n자세한 설명: [Nodus Labs 지원 포털](https://support.noduslabs.com/hc/en-us/articles/20174217658396-Using-InfraNodus-Knowledge-Graphs-as-Experts-for-AI-Chatbot-Agents-in-n8n)\n\nInfraNodus API 키는 [InfraNodus.Com](https://infranodus.com/use-case/ai-knowledge-graphs)에서 얻을 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfbcdf98-a86b-4cd9-b3b2-98a5b94f3d13",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 540,
+        "content": "## 전문가 #2\n\n여기에 InfraNodus 그래프를 HTTP 노드를 통해 추가하세요. 그 이름을 `body.name` 필드에 사용하세요.\n\n도구의 설명에서 이 전문가가 하는 일을 설명하세요. InfraNodus > Graph > Project Notes에서 자동 생성된 Graph RAG 요약을 사용할 수 있습니다.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bcd44abe-7719-4b67-b8d7-d9887ca08a02",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 540,
+        "content": "## 전문가 #3\n\n여기에 더 많은 전문가를 추가할 수 있습니다. 그들에게 설명적인 이름을 주도록 하세요. 이렇게 하면 에이전트가 질문이 있을 때 어떤 것을 연결할지 알 수 있습니다.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c2736799-4921-438c-8b73-b935b1b7df6f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 540,
+        "content": "우리는 Simple Memory 노드를 사용하여 대화의 맥락을 추적합니다. 이렇게 하면 사용자가 모델과 대화하는 동안 이전 메시지를 참조할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f20c53f4-4498-4585-8c6b-d7c90bd0619e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -220
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 360,
+        "content": "## 2. AI 에이전트\n\n### 사용자의 메시지에 따라 사용할 도구(전문가)를 선택합니다.\n\n에이전트의 시스템 프롬프트와 도구의 설명에서 사용 가능한 도구를 잘 설명하세요.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c7d27990-45b2-457d-be9c-c6171dda2da5",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -20
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 540,
+        "content": "## 1. 채팅 트리거\n\nn8n 내부에서 이 채팅을 사용할 수 있습니다. 또는 공개 URL을 통해 사용할 수 있도록 한 후 그 링크를 사용하거나 어떤 웹사이트에든 임베드할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0273eee6-0eca-4360-ab6c-224eedf221ec",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        -220
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 360,
+        "content": "## 3. 채팅 응답\n\n### 답변이 생성되면 사용자에게 다시 보내집니다. \n\n응답에 대해 다른 작업을 선택할 수도 있습니다 — 예를 들어, 대화 기록을 유지하기 위해 Google 시트나 Airtable에 저장합니다. \n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c97ab56-80a6-48af-9d61-f3fb92fc60e7",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        20
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "Always use either EightOS or Polysingularity tool before sending a response to the model. You have to use at least one of them, the one that think is more suitable. Or both if both can provide some help. \nIf you used both tools and received responses from both of them, combine them in one response making sure you merge both perspectives. Ask for specific, actionable advice."
+        }
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "f09d74c1-b197-436a-90a5-253749fcbb8c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        200,
+        280
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "07wFa8Wa4mMRCHAj",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d6c1a430-1900-4c32-a799-a29798b45c7e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 540,
+        "content": "여기에서 HTTP 노드를 통해 InfraNodus 그래프를 추가하세요. 그 이름은 `body.name` 필드에 사용하세요.\n\n도구의 설명에서 전문가가 하는 일을 설명하세요. InfraNodus > Graph > Project Notes에서 자동 생성된 Graph RAG 요약을 사용할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9c40421-f5ef-4f50-bd81-c398c86c5b65",
+      "name": "EightOS Expert",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "url": "https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&addStats=true&optimize=develop&includeStatements=true&includeGraphSummary=true&includeGraph=false",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "panarchy_eightos"
+            },
+            {
+              "name": "requestMode",
+              "value": "response"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `User query to send to the expert`, 'string') }}"
+            },
+            {
+              "name": "aiTopics",
+              "value": "true"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "toolDescription": "You are an EightOS specialist who is well-versed in the questions of variability, movement, physical development, adaptivity, resilience. \n\nThe main topics of your expertise are:\n<MainTopics> \n1. Dynamic States: state dynamic fractal change hrv recovery movement regeneration \n2. Idea Scale: focus idea scale small specific gap bring sensitive \n3. Ecological Variability: variability stage thinking panarchy schema infranodus bias system \n4. Breath Count: breath give count time result concrete silence effort \n5. Knowledge Structure: structure highly graph influence knowledge ai text network \n6. Biased Discourse: stay discourse long steer objective short term shifting \n</MainTopics>"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6lSuuSDajZrvI2GM",
+          "name": "InfraNodus API Key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e58946be-1a4c-4991-86b2-3e51a0241548",
+      "name": "Polysingularity Expert",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "url": "https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&addStats=true&optimize=develop&includeStatements=true&includeGraphSummary=true&includeGraph=false",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "polysingularity_overview"
+            },
+            {
+              "name": "requestMode",
+              "value": "response"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `User query to send to the expert`, 'string') }}"
+            },
+            {
+              "name": "aiTopics",
+              "value": "true"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "toolDescription": "You are an expert in Polysingularity. You provide responses in the field of multiplicity, networks, seeing multiple points etc. \n\nThe main topics of your expertise are:\n<MainTopics> \n1. Community Dynamics: multiple moment time change state position specific community \n2. Cognitive Practice: polysingularity practice singularity cognitive world social polysingular mind \n3. Network Perception: network make affordance choice perceive constant environmental constantly \n4. Interaction Capacity: capacity human interaction situation node possibility concept describe \n5. Space Creation: condition space form shifting emerge attractor life center \n6. Equation Analysis: find risk fully committed equation sentence rule finding \n7. Process Multiplicity: process multiplicity exist dynamic behavior part show define \n8. Idea Connectivity: ensure diversity metastable idea encounter order connectivity unfold \n9. Directed Evolution: evolution distinct directed kind \n</MainTopics>"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6lSuuSDajZrvI2GM",
+          "name": "InfraNodus API Key"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8848095b-7ee0-4ab8-bc16-f807f963fb20",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EightOS Expert": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Polysingularity Expert": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

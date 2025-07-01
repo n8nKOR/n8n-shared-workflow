@@ -1,0 +1,447 @@
+{
+  "id": "TEA7K9MSVQGCWKe6",
+  "meta": {
+    "instanceId": "ac63467607103d9c95dd644384984672b90b1cb03e07edbaf18fe72b2a6c45bb",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "A/B Split Testing",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e8404493-4297-4169-a72f-89e668ae5fbc",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -1460,
+        -140
+      ],
+      "webhookId": "334e3a8d-73d2-4d3c-9927-158c1169ef5e",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "582e1c1b-12ff-42ff-8130-48f94eebd706",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        220,
+        -160
+      ],
+      "parameters": {
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "={{ $json.prompt }}"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "39ca5c70-11d4-4f86-bde5-0f9827297be9",
+      "name": "Check If Session Exists",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        -960,
+        -140
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "={{ $('When chat message received').item.json.sessionId }}"
+            }
+          ]
+        },
+        "tableId": "split_test_sessions",
+        "operation": "get"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "1iEg1EzFrF29iqp2",
+          "name": "Supabase (bsde.ai)"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "35f2c270-9571-41ba-ab7c-47a6742d7d90",
+      "name": "If Session Does Exist",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -720,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4270c464-6874-45d2-aa3b-606f45544c3d",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ec00ad92-96e9-4936-a547-2a2715ff5c32",
+      "name": "Assign Path To Session",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        -400,
+        -20
+      ],
+      "parameters": {
+        "tableId": "split_test_sessions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "show_alternative",
+              "fieldValue": "={{ Math.random() < 0.5 }}"
+            },
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('When chat message received').item.json.sessionId }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "1iEg1EzFrF29iqp2",
+          "name": "Supabase (bsde.ai)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92ee7145-30ae-41e9-bc04-eef03b84485e",
+      "name": "Define Path Values",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1200,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9581a184-a120-4b1f-8408-cfe97520d107",
+              "name": "baseline_value",
+              "type": "string",
+              "value": "The dog's name is Ben"
+            },
+            {
+              "id": "1752f2c4-4ce4-4893-b8db-1c59131c298a",
+              "name": "alternative_value",
+              "type": "string",
+              "value": "The dog's name is Tom"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "23c1b4e2-2ba2-4237-bb4b-b92da127d201",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        300,
+        60
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "1OMpAMAKR9l3eUDI",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "be3f14b9-68c7-457d-b5bf-a6abbadf5b67",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "tableName": "n8n_split_test_chat_histories",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "sessionIdType": "customKey"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "tzLXHvhykxvYghPC",
+          "name": "bsde.ai Supabase (Session Pooler)"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1c20d274-2482-4551-a4ea-64860eb35276",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 300,
+        "content": "## 1. 메시지 수신"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee22d3b1-d447-4e35-8ac4-d093edf6deee",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1340,
+        "height": 500,
+        "content": "2. LLM을 위한 프롬프트 결정"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d90ec00-5fca-4b0d-bc1f-e8b8c179b960",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 440,
+        "content": "3. AI 에이전트"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9b9e0e8-53c1-4d6a-bbdc-c2a13d740dfb",
+      "name": "Get Correct Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "08de68ec-0f12-43ee-98ab-59d8a414f114",
+              "name": "prompt",
+              "type": "string",
+              "value": "={{ $json.show_alternative ? $('Define Path Values').item.json.alternative_value : $('Define Path Values').item.json.baseline_value }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2b78ce9b-e6b4-4744-8ddf-00f8ae990fc8",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1260,
+        -240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 260,
+        "content": "기준 프롬프트와 대안 프롬프트의 값을 설정하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0646f176-407a-41ee-b602-34bd681fc421",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 140,
+        "content": "이 하위 노드를 다른 언어 모델을 사용하도록 바꾸세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a391018c-5d28-4384-89e1-0435758a6945",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1480,
+        -600
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 240,
+        "content": "### 설정\n1. Supabase에서 **split_test_sessions**라는 테이블을 생성하세요. 다음 열을 가져야 합니다: **session_id** (`text`) 및 **show_alternative** (`bool`)\n2. 자신의 **Supabase**, **OpenAI**, 및 **PostgreSQL** 자격 증명을 추가하세요\n3. **Define Path Values** 노드를 수정하여 기본 및 대안 프롬프트 값을 설정하세요\n4. 워크플로를 활성화하고 n8n의 내장 채팅을 통해 메시지를 보내 테스트하세요\n5. 다양한 채팅 세션을 실험하여 두 프롬프트가 작동하는 것을 테스트하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2382d146-f0c1-4de6-9e90-b17c304df692",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2120,
+        -360
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 480,
+        "content": "## Supabase와 OpenAI를 사용한 다양한 에이전트 프롬프트 분할 테스트\n### 사용 사례\n대형 언어 모델의 다양한 설정을 프로덕션 환경에서 여러 지표에 대해 테스트하는 것은 자주 유용합니다. 분할 테스트는 이를 위한 좋은 방법입니다.\n### 작동 방식\n이 워크플로는 채팅 세션을 두 개의 프롬프트, 기준과 대안 중 하나에 무작위로 할당합니다. 에이전트는 해당 채팅 세션의 모든 상호작용에서 동일한 프롬프트를 사용합니다.\n### 작동 원리\n1. 메시지가 도착하면, 세션 ID와 사용할 프롬프트에 대한 정보를 포함하는 테이블을 확인하여 채팅이 이미 존재하는지 확인합니다.\n2. 존재하지 않으면, 세션 ID를 테이블에 추가하고 프롬프트를 무작위로 할당합니다.\n3. 이러한 값을 사용하여 응답을 생성합니다.\n### 다음 단계\n- 워크플로를 수정하여 온도와 같은 다양한 LLM 설정을 테스트합니다.\n- 두 대안 프롬프트의 효능을 측정하는 방법을 추가합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "339c6f2f-e4d1-4922-9442-2c1a78e96067",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Path Values": {
+      "main": [
+        [
+          {
+            "node": "Check If Session Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Correct Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Session Does Exist": {
+      "main": [
+        [
+          {
+            "node": "Get Correct Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign Path To Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Path To Session": {
+      "main": [
+        [
+          {
+            "node": "Get Correct Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Session Exists": {
+      "main": [
+        [
+          {
+            "node": "If Session Does Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Define Path Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

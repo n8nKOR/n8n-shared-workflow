@@ -1,0 +1,523 @@
+{
+  "meta": {
+    "instanceId": "5aaf4236c70e34e423fbdb2c7b754d19253a933bb1476d548f75848a01e473cf"
+  },
+  "nodes": [
+    {
+      "id": "4a19458b-0bf2-45db-8146-734e4e8b352b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "content": "빠른 시작 텔레그램 에코 봇\n\n단일 노드 텔레그램 봇으로, /help, /summary <URL>, 또는 /img <prompt>를 파싱하여 도움 메뉴, 10-12개 요점 기사 요약, 또는 '이미지 생성 중' 확인 메시지를 반환합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2cceb34-b932-48ce-baf7-43535cfbad29",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        420
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "리스너\n\n텔레그램에서 새로운 메시지를 감시하고 흐름을 시작합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a279a398-4b55-4055-9c9f-8ea937d4d974",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        780
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "명령 라우터는 메시지가 /help, /summary, 또는 /img으로 시작하는지 확인하고, 올바른 경로로 보냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "868bb629-1288-4c8f-816b-001a7ca56be2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "도움 응답자\n\n/help를 볼 때, 명령어 목록과 사용 방법을 간단히 답변합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec490084-aa34-41bd-8dfd-4e0cdfee5dab",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        740
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "요약 검사기\n\n텍스트가 /summary로 시작하는지 확인합니다. 그렇다면, 기사를 가져오기 위해 진행합니다; 그렇지 않다면, 다음으로 건너뜁니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "370842c3-18d9-42cd-946d-694e90a41ff1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        220
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "페처러\n\n제공된 URL로 이동하여 페이지의 HTML을 다운로드합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0217818c-85e4-43bb-a8d8-5053394c773f",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        1180
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "이미지 프롬프트 검사기\n\n텍스트가 /img으로 시작하는지 확인합니다. 그렇다면, 프롬프트를 이미지 생성기로 전달합니다; 그렇지 않으면, 흐름을 종료합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba617c66-4b13-41a1-9428-6d1afc4f458f",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        440
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "텍스트 추출기\n\n주요 기사 텍스트만 추출합니다 (예: <body> 내부의 모든 내용)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df9b404e-90d7-4f66-bcd4-9d64595e7b88",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        1360
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "이미지 생성기\n\n사용자의 프롬프트를 OpenAI의 이미지 엔드포인트(또는 선택한 이미지 API)로 보냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7eda1c8-e860-4df2-9d4f-5d12e52b0551",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        220
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "요약기\n\n원문 기사 텍스트를 OpenAI에게 보내고 10-12개의 전문적인 불릿 포인트 요약을 요청합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "50331c27-388c-490d-b9d7-ff5fe8449290",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1940,
+        1020
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "이미지 확인자\n\n사용자에게 “알았어요—이미지가 만들어지고 있어요!”라고 말합니다. (그리고 나중에 실제 사진 URL을 보내기 위해 연결할 수 있습니다)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7315f25a-d63d-4f49-a43f-87dc0ff64ffb",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2140,
+        220
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "요약 발신자는 Telegram에서 사용자에게 불릿 포인트 요약을 다시 전달합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bcae4d20-e9af-4008-88b6-cfa1a6dcd6c9",
+      "name": "Listener",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -140,
+        460
+      ],
+      "webhookId": "61f2e55d-a41d-4594-a045-154264c78738",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8bbcc856-b323-4785-a8ec-9de61052531a",
+      "name": "Command Router",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        160,
+        600
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"message\"][\"text\"]}}",
+              "value2": "/help",
+              "operation": "startsWith"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "09bc69c7-8852-46a8-be96-ae10bc652cd8",
+      "name": "Help Responder",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        380,
+        220
+      ],
+      "webhookId": "ab573ae8-05e4-41bb-bec7-fca1233fc0bb",
+      "parameters": {
+        "text": "🤖 *Help Menu*\n\nUse `/summary <link>` to summarize an article.\nUse `/img <prompt>` to generate an image.\n\n_Example:_\n/summary https://example.com\n/img a futuristic cityscape",
+        "chatId": "={{$json[\"message\"][\"chat\"][\"id\"]}}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2780e14d-7ebd-43f4-87e9-1d5c7ead564e",
+      "name": "Summary Checker",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        400,
+        540
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"message\"][\"text\"]}}",
+              "value2": "/summary",
+              "operation": "startsWith"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb3faac2-e3cf-4633-8a69-4e6aedefd0be",
+      "name": "Fetcher",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        760,
+        420
+      ],
+      "parameters": {
+        "url": "={{ $json.message.link_preview_options.url }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7df71ce1-5680-46b5-a4fd-3fe3169aaaa5",
+      "name": "Text Extractor",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        1160,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "text",
+              "cssSelector": "body",
+              "skipSelectors": "svg, a"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f1856af1-7236-42f9-88b5-f86e91b42262",
+      "name": "Summarizer",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1520,
+        440
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=Summarize the entire content provided below into 10–12 concise bullet points. Ensure each point captures a unique and important aspect of the information, covering the core ideas, key facts, major findings, and essential takeaways. Avoid repetition and use clear, professional language suitable for quick understanding by a decision-maker.\n\nContent:\n {{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "7fcdd8ab-1afa-4985-a9dd-bb9a13e723bf",
+      "name": "Summary Sender",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2060,
+        440
+      ],
+      "webhookId": "c6f19898-b638-4e42-b377-d7664087ab0b",
+      "parameters": {
+        "text": "={{$json[\"candidates\"][0][\"content\"][\"parts\"][0][\"text\"]}}",
+        "chatId": "={{ $('Listener').item.json.message.chat.id }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f73e58-995e-4a6a-a785-72e248121742",
+      "name": "Image Prompt Checker",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        800,
+        1020
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"message\"][\"text\"]}}",
+              "value2": "/img",
+              "operation": "startsWith"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3115364c-3632-4922-82f9-93b45eb9fcb6",
+      "name": "Image Generator",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1400,
+        1160
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "image"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "7c01b0fa-7937-4688-945e-fc949c8a3f40",
+      "name": "Image Acknowledger",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2000,
+        820
+      ],
+      "webhookId": "b5fb6529-a924-4885-8d6c-17073ce29bb0",
+      "parameters": {
+        "text": "🖼️ Generated image prompt submitted! Gemini image model doesn't return images directly. Use image generation APIs like Stability for actual image URLs.",
+        "chatId": "={{$json[\"message\"][\"chat\"][\"id\"]}}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0eae618-d330-4b74-b5a4-528a28ec91c6",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1260,
+        220
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 740,
+        "content": "=======================================\n            워크플로우 지원\n=======================================\n질문이나 지원이 필요하신 경우, 다음으로 연락 주세요:\n    Yaron@nofluff.online\n\n더 많은 팁과 튜토리얼을 여기에서 탐색하세요:\n   - YouTube: https://www.youtube.com/@YaronBeen/videos\n   - LinkedIn: https://www.linkedin.com/in/yaronbeen/\n======================================="
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fetcher": {
+      "main": [
+        [
+          {
+            "node": "Text Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listener": {
+      "main": [
+        [
+          {
+            "node": "Command Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Summary Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Command Router": {
+      "main": [
+        [
+          {
+            "node": "Help Responder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Summary Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Help Responder": {
+      "main": [
+        [
+          {
+            "node": "Command Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Extractor": {
+      "main": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Generator": {
+      "main": [
+        [
+          {
+            "node": "Image Acknowledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary Checker": {
+      "main": [
+        [
+          {
+            "node": "Fetcher",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Image Prompt Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Checker": {
+      "main": [
+        [
+          {
+            "node": "Image Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

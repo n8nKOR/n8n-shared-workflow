@@ -1,0 +1,737 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9"
+  },
+  "nodes": [
+    {
+      "id": "7263f921-1622-47eb-903c-729a75965e20",
+      "name": "About You",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        600,
+        200
+      ],
+      "webhookId": "14efc5e8-0984-4ccb-a118-ce3492f8ea02",
+      "parameters": {
+        "options": {
+          "formTitle": "Thanks For Signing Up!",
+          "buttonLabel": "Continue (1 of 3)",
+          "formDescription": "Before you go, we'd love to know more about you and why you're interested in our service. Complete the following questions for a nice treat at the end!\n\n* This survey is optional."
+        },
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "placeholder": "eg. Mark",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "placeholder": "eg. Zuckerberg",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Country/Region"
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Job Level",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "CEO"
+                  },
+                  {
+                    "option": "VP"
+                  },
+                  {
+                    "option": "Director"
+                  },
+                  {
+                    "option": "Manager"
+                  },
+                  {
+                    "option": "Non-manager"
+                  },
+                  {
+                    "option": "Student or Intern"
+                  },
+                  {
+                    "option": "Other"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Job Function",
+              "multiselect": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Accounting/Finance"
+                  },
+                  {
+                    "option": "Admin/Office"
+                  },
+                  {
+                    "option": "Customer Service"
+                  },
+                  {
+                    "option": "Design"
+                  },
+                  {
+                    "option": "Engineering/Software"
+                  },
+                  {
+                    "option": "HR/Operations"
+                  },
+                  {
+                    "option": "Leadership/Management"
+                  },
+                  {
+                    "option": "Legal"
+                  },
+                  {
+                    "option": "Other"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "590e8da4-e4b5-46de-af19-f07f82305c19",
+      "name": "Your Interests",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        780,
+        200
+      ],
+      "webhookId": "14efc5e8-0984-4ccb-a118-ce3492f8ea02",
+      "parameters": {
+        "options": {
+          "formTitle": "What Brings You Here?",
+          "buttonLabel": "Continue (2 of 3)",
+          "formDescription": "Thanks <name>!\nPlease tell us why you are interested in our product? It'll help us tailor your onboarding and communication journeys to better suit your needs."
+        },
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "How familiar are you with no-code automation?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "I've Just started or exploring no-code automation tools"
+                  },
+                  {
+                    "option": "I've tried tools like Zapier to automate small tasks"
+                  },
+                  {
+                    "option": "I've built several no-code automations and workflows already"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Describe briefly what you'd like to get out of our product?",
+              "placeholder": "Eg. short term pain points and long term solutions...",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f837be-4c09-4cf5-be33-913814d7b1c4",
+      "name": "Join Beta Testers",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        960,
+        200
+      ],
+      "webhookId": "14efc5e8-0984-4ccb-a118-ce3492f8ea02",
+      "parameters": {
+        "options": {
+          "formTitle": "Join Our Beta Testers List",
+          "buttonLabel": "Finish (3 of 3)",
+          "formDescription": "Finally, we're always looking for Beta testers to try out our latest features and help us figure out what works. Beta testers join on a voluntary basis but we often send little tokens of appreciation such as increased usage limits and sometimes brand merchandise!"
+        },
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Would you like to be considered for our beta testers list?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  },
+                  {
+                    "option": "Maybe"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9d8f8a98-7cf6-4dc9-bbed-b999dbdfc6d5",
+      "name": "Sign Up Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -120,
+        160
+      ],
+      "webhookId": "c9deb1b7-52c5-4046-bb8f-7dcfdd00fa4b",
+      "parameters": {
+        "path": "newsletter-signup",
+        "options": {
+          "buttonLabel": "Sign Up to Newsletter",
+          "appendAttribution": true,
+          "useWorkflowTimezone": true
+        },
+        "formTitle": "Sign Up for My Newsletter",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email",
+              "placeholder": "eg. jim@example.com",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "formDescription": "Use this form to signup for my newsletter where members will receive the latest workflow templates from me before everyone else!\n\nYou can unsubscribe at any time."
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e7143922-7de1-448d-9abb-72034437f79c",
+      "name": "Capture More Info",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1140,
+        200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "job_level": "={{ $('About You').item.json['Job Level'] }}",
+            "last_name": "={{ $('About You').item.json['Last Name'] }}",
+            "first_name": "={{ $('About You').item.json['First Name'] }}",
+            "execution_id": "={{ $execution.id }}",
+            "job_function": "={{ $('About You').item.json['Job Function'].join(', ') }}",
+            "product_goals": "={{ $('Your Interests').item.json['Describe briefly what you\\'d like to get out of our product?'] }}",
+            "country_region": "={{ $('About You').item.json['Country/Region'] }}",
+            "enrol_betatesters": "={{ $json['Would you like to be considered for our beta testers list?'] }}",
+            "product_experience": "={{ $('Your Interests').item.json['How familiar are you with no-code automation?'] }}"
+          },
+          "schema": [
+            {
+              "id": "execution_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "execution_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "first_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "job_level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_function",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "job_function",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country_region",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "country_region",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_experience",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "product_experience",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_goals",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "product_goals",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrol_betatesters",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "enrol_betatesters",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "execution_id"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs/edit?usp=drivesdk",
+          "cachedResultName": "Newsletter Signup"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "0cacb296-0d12-44e5-a749-65aa2e89a42d",
+      "name": "Capture Email",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        60,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $json.submittedAt }}",
+            "email": "={{ $json.Email }}",
+            "execution_id": "={{ $execution.id }}"
+          },
+          "schema": [
+            {
+              "id": "execution_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "execution_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "first_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "last_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_level",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "job_level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_function",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "job_function",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country_region",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "country_region",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_experience",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "product_experience",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_goals",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "product_goals",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrol_betatesters",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "enrol_betatesters",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs/edit?usp=drivesdk",
+          "cachedResultName": "Newsletter Signup"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "9befb4d6-7c50-4acb-9972-97e95981632f",
+      "name": "Show Completion Screen",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        1560,
+        140
+      ],
+      "webhookId": "c1e775ff-f9fd-44ee-b4c6-257fdf291227",
+      "parameters": {
+        "options": {
+          "formTitle": "NewsLetter Signup Short Survey Complete"
+        },
+        "operation": "completion",
+        "completionTitle": "Thank you!",
+        "completionMessage": "Many thanks for taking the time to complete this short survey. A community representative will contact you shortly!\n\nWe hope you enjoy the newsletter and please feel free to contact us at <EMAIL> should you have any questions.\n\nGo back to <HOMEPAGE>."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "01b7b455-a64f-42a1-9c5a-f04908eced41",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 480,
+        "content": "## 1. n8n Forms를 사용한 쉬운 리드 캡처\n\n[Form Triggers에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.formtrigger)\n\n이전에 n8n 폼 경험은 꽤 제한적이었는데, 단 하나의 폼 페이지만 제공되었기 때문입니다. 이제 여러 페이지 폼을 사용하고 그 사이를 링크할 수 있게 되면서, 사용자에게 더 풍부한 폼 경험을 제공하기 위해 창의력을 발휘할 수 있습니다.\n\n여기서, 먼저 가장 중요한 정보인 사용자의 이메일 주소를 캡처한 후 우리 Google Sheet에 저장합니다. 그런 다음, 사용자가 원할 경우 더 많은 세부 정보를 수집하기 위해 선택적인 짧은 온보딩 설문조사를 진행할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00b6bcac-2c39-4b5c-aef6-bd6e2731240b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        -60.69767441860472
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 840,
+        "height": 460.6976744186047,
+        "content": "## 2. 후속 짧은 설문조사 via 다단계 양식\n\n[n8n Form 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.form/)\n\n다단계 양식은 n8n form 노드의 시리즈를 간단히 연결하여 구축됩니다. n8n은 양식의 진행을 처리합니다 - 즉, 양식이 유효하고 사용자가 양식을 제출하면 진행합니다 - 이는 추가 노드를 추가할 필요가 없어 구축을 더 쉽게 만듭니다.\n\n사용자가 이메일을 제공한 후, 추가 세부 정보를 캡처하기 위해 선택적인 짧은 설문조사를 제시합니다. 이 단계는 사용자의 직업, 경험 및 목표를 캡처하는 3개의 form 노드로 구성되며, 이는 구글 시트의 동일한 행에 저장됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e76311ce-ab8e-4563-9fe4-a58a7578b3d0",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 460,
+        "content": "## 3. 완료 화면 사용자 정의\n\n[n8n Form 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.form/)\n\n완료되면, Form 노드를 \"form ending\" 페이지 유형에서 사용하여 완료 화면을 표시하세요. 이 화면은 개인 메시지로 사용자 정의하거나 사용 사례에 따라 사용자를 리디렉션하도록 설정할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56dc48c4-0232-4dce-bdb5-08e928389425",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        -300
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 660,
+        "content": "## 시도해 보세요!\n\n### 이 템플릿은 n8n에서 완전히 간단한 뉴스레터 가입 양식과 후속 짧은 설문조사를 구축합니다! n8n의 새로운 다중 페이지 양식 기능을 최대한 활용하여 비즈니스에 유용한 영향력 있는 양식을 쉽게 구축할 수 있습니다.\n\n### 작동 원리\n* 우리의 플로우는 뉴스레터 가입을 캡처하는 폼 트리거로 시작하며, 사용자의 이메일이 Google 시트에 캡처됩니다. Google 시트는 데모 목적으로 사용되지만, 이는 어떤 데이터베이스도 될 수 있습니다.\n* 다중 페이지 양식은 짧은 설문조사를 통해 온보딩 경험을 계속할 수 있게 합니다. 3개의 폼 노드가 체인되어 사용자로부터 더 많은 세부 정보를 캡처하며, 이는 Google 시트의 동일한 행을 업데이트합니다.\n* 마지막으로, 폼 종료 노드가 우리 사용자에게 맞춤형 완료 화면을 보여줍니다.\n\n예시 시트를 여기에서 확인하세요: https://docs.google.com/spreadsheets/d/15W1PiFjCoiEBHHKKCRVMLmpKg4AWIy9w1dQ2Dq8qxPs/edit?usp=sharing\n\n### 도움이 필요하세요?\n[Discord](https://discord.com/invite/XPKeKXeB7d)에 가입하거나 [Forum](https://community.n8n.io/)에서 물어보세요!\n\n즐겁게 해킹하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8035269e-224f-4036-9e8a-9447cfa87252",
+      "name": "Notify New Signup!",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        240,
+        160
+      ],
+      "webhookId": "1a9cb618-a2fd-4ee8-b3cf-4140b65d55c1",
+      "parameters": {
+        "text": "=A user signed up to the newsletter!",
+        "select": "channel",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"{{ $('Sign Up Form').first().json.Email.extractEmail() }} *just signed up to the newsletter!*\"\n\t\t\t}\n\t\t}\n\t]\n}",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#general"
+        },
+        "messageType": "block",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VfK3js0YdqBdQLGP",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "About You": {
+      "main": [
+        [
+          {
+            "node": "Your Interests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Up Form": {
+      "main": [
+        [
+          {
+            "node": "Capture Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Email": {
+      "main": [
+        [
+          {
+            "node": "Notify New Signup!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your Interests": {
+      "main": [
+        [
+          {
+            "node": "Join Beta Testers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture More Info": {
+      "main": [
+        [
+          {
+            "node": "Show Completion Screen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Join Beta Testers": {
+      "main": [
+        [
+          {
+            "node": "Capture More Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify New Signup!": {
+      "main": [
+        [
+          {
+            "node": "About You",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
