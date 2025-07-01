@@ -1,0 +1,230 @@
+{
+  "id": "I4j3HnFGPa5UWkIO",
+  "meta": {
+    "instanceId": "a1ae5c8dc6c65e674f9c3947d083abcc749ef2546dff9f4ff01de4d6a36ebfe6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Auto-Create Podcast from YouTube Video Transcript using Dumpling AI and GPT-4o",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d95bcf10-2bb4-4bfd-a8ad-4128a792deb8",
+      "name": " Watch for New YouTube Video via RSS",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "position": [
+        -500,
+        -20
+      ],
+      "parameters": {
+        "feedUrl": "https://rss.app/feeds/Vw076Uzh7bIinpci.xml",
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a5492dab-f400-48d9-abd7-6c832d9d6816",
+      "name": "Get Transcript from YouTube Video using Dumpling AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -280,
+        -20
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/get-youtube-transcript",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"videoUrl\": \"{{ $json.link }}\",\n  \"preferredLanguage\": \"en\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RLFzAcGRepr5eXZB",
+          "name": "Dumpling AI-n8n"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bce2bb18-c9ee-4165-ac27-5d300e354c7e",
+      "name": "Transform Transcript into Podcast Script using GPT-4o",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -60,
+        -20
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Instructions:\nYou are a professional transcript editor and podcast summarizer. For the transcript below, complete these tasks:\n\nLabel each speaker (e.g., Speaker 1:) and remove all filler words such as \"um,\" \"uh,\" \"you know,\" \"like,\" \"basically,\" \"actually,\" \"so.\"\n\nCombine the cleaned speaker labels and their text into one single string, clearly formatted.\n\nSummarize the key points of the conversation in 2–4 concise sentences.\n\nExtract or infer a short, relevant title based on the content.\n\nReturn your response strictly in the following JSON format:\n{\n  \"title\": \"Relevant podcast title here\",\n  \"cleaned_transcript\": \"Speaker 1: Cleaned text. Speaker 2: Cleaned text. (Continue in this format.)\",\n  \"summary\": \"Concise summary of the key points here.\"\n}"
+            },
+            {
+              "content": "=\nHere’s the transcript:{{ $json.transcript }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "dd8NvMC6rvx8RITo",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "7782b5a6-c842-41be-a5c5-9eaa28a0abd0",
+      "name": "Save Podcast Script and Metadata to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        300,
+        -20
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://airtable.com/appPSvSKdA6075xJC",
+          "cachedResultName": "Testing n8n"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://airtable.com/appPSvSKdA6075xJC/tbl4MDOqdNZweqXU9",
+          "cachedResultName": "podcast"
+        },
+        "columns": {
+          "value": {
+            "Title": "={{ $json.message.content.title }}",
+            "summary": "={{ $json.message.content.summary }}",
+            "podcast transcript": "={{ $json.message.content.cleaned_transcript }}"
+          },
+          "schema": [
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "podcast transcript",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "podcast transcript",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "H8PVkBgUPCcUhhRC",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "af143efd-be64-48fc-a405-173575289ed3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -220
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 280,
+        "content": "### 🎙️ YouTube 비디오에서 자동 생성 팟캐스트 스크립트\n\n이 워크플로는 YouTube RSS 피드를 모니터링하여 새로운 업로드를 감지하는 데서 시작합니다. 새로운 비디오가 감지되면 Dumpling AI가 전체 transcript를 추출합니다. GPT-4o는 그 transcript를 잘 정리된 팟캐스트 스크립트로 변환하며, 깨끗하고 구조화되며 매력적으로 만듭니다. 최종 스크립트와 비디오 제목, 요약이 Airtable에 저장되어 검토, 편집하거나 실제 팟캐스트 에피소드를 제작하는 데 사용할 수 있습니다.\n\n비디오 콘텐츠를 오디오 형식으로 재활용하는 데 이상적입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c39768f-93c9-42d7-8b9f-ca4e0ede2312",
+  "connections": {
+    " Watch for New YouTube Video via RSS": {
+      "main": [
+        [
+          {
+            "node": "Get Transcript from YouTube Video using Dumpling AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcript from YouTube Video using Dumpling AI": {
+      "main": [
+        [
+          {
+            "node": "Transform Transcript into Podcast Script using GPT-4o",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Transcript into Podcast Script using GPT-4o": {
+      "main": [
+        [
+          {
+            "node": "Save Podcast Script and Metadata to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "instanceId": "21754f977ce20b07e6fe64be3fbc663f6e6f730423d6e46c6cd2bf5b5e70a383"
+  },
+  "nodes": [
+    {
+      "id": "0c8b3a80-00e1-4d69-aac9-df41a464914a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -246.5549467302767,
+        -396.60463598587717
+      ],
+      "parameters": {
+        "width": 2260.4312974923314,
+        "height": 1739.059401992624,
+        "content": "\"### Output\"라는 텍스트가 입력으로 보이지만, 이는 번역 대상이 아닌 것으로 보입니다. 번역할 영어 텍스트가 제공되지 않았으므로, 결과가 없습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "74ee38b2-2d8a-40bf-8dad-e20125f000f7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -340
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 644.910132006371,
+        "height": 655.8676264589326,
+        "content": "### 프로젝트 이점 🎧🌟\n\n이 멋진 프로젝트의 목표는 \"CATEGORY_PROMOTIONS\" 이메일을 아주 멋진 오디오 팟캐스트로 변환하는 것입니다! 🎙️ 이 방법으로 사용자는 화면을 보며 눈을 가늘게 뜨지 않고도 프로모션 콘텐츠를 편안하게 즐길 수 있습니다. 읽는 대신 듣는 방식으로 사용자는 재미있고 쉽게 정보를 흡수할 수 있습니다.\n\n이 프로젝트는 n8n을 사용해 작업을 자동화하는 멋진 워크플로를 활용합니다. 각 노드가 부드러운 운영에서 역할을 합니다. 주요 구성 요소를 확인해 보세요:\n\n1. **Gmail trigger1 Node**: \"CATEGORY_PROMOTIONS\" 이메일에 대해 매 분마다 작업을 시작합니다.\n   \n2. **Get message content1 Node**: 이메일 콘텐츠를 가져옵니다.\n      \n3. **Summarization Chain3 Node**: 고급 청크링 방법을 사용해 멋진 요약을 만듭니다.\n   \n4. **Delete the unnecessary items Node**: 이메일 콘텐츠에서 불필요한 부분을 제거합니다.\n   \n5. **Text to Free TTS Node**: 요약을 Free TTS를 사용해 음성으로 변환합니다.\n   \n6. **Convert from base64 to File Node**: 오디오를 파일 형식으로 변환합니다.\n   \n7. **Merge Text with Audio Node**: 텍스트와 오디오를 결합합니다.\n   \n8. **Aggregate in same cell Node**: 모든 데이터를 하나로 모읍니다.\n   \n10. **Send Message to Telegram Node**: 최종 오디오 메시지를 캡션과 함께 특정 Telegram 채팅 ID로 보냅니다.\n\n이 워크플로는 잘 기름칠된 기계처럼 각 단계가 부드럽게 이어집니다. 이러한 작업을 자동화하여 이 프로젝트는 커뮤니케이션을 쉽게 만들고 모든 관련자에게 기쁨을 가져오려고 합니다! 🌈✨🚀"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07a4dc07-0109-464e-a661-d5a4bb7b4a1c",
+      "name": "Get message content1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        640,
+        460
+      ],
+      "parameters": {
+        "simple": false,
+        "options": {},
+        "messageId": "={{ $json.id }}",
+        "operation": "get"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UJx4Tiq8WRtxWEIP",
+          "name": "Gmail Omar"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "283dcd8b-80a8-4e49-aba1-fabec333def3",
+      "name": "OpenAI Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1120,
+        640
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "6u6TSayQDxci71Wb",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71897790-5ee8-4f15-bc4e-26a987b79505",
+      "name": "Delete the unnecessary items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        460
+      ],
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n delete item.json.threadId;\n delete item.json.labelIds;\n delete item.json.sizeEstimate;\n delete item.json.headers;\n delete item.json.html;\n delete item.json.to;\n delete item.json.cc;\n delete item.json.replyTo;\n delete item.json.messageId;\n delete item.json.id;\n delete item.json.textAsHtml;\n delete item.json.date;\n\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "187704ba-ddc1-447e-99f6-8335b039dca3",
+      "name": "Aggregate in same cell",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1400,
+        660
+      ],
+      "parameters": {
+        "options": {
+          "includeBinaries": true
+        },
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8cba2a0-e751-4dc4-8cc1-9b91c587b1bc",
+      "name": "Gmail trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        440,
+        460
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "CATEGORY_PROMOTIONS"
+          ]
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UJx4Tiq8WRtxWEIP",
+          "name": "Gmail Omar"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d170a4c-601e-49da-a834-2a40f992feff",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1380,
+        -340
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 478.42665735513924,
+        "height": 651.7534899914576,
+        "content": "이 API는 자동 텍스트-to-스피치 생성을 허용합니다.  \n지정된 링크로 POST 요청을 보내고, 음성으로 변환하고 싶은 텍스트를 포함한 JSON 데이터와 선호하는 음성을 선택하여 이 API를 이용할 수 있습니다.  \n\n이 API를 사용할 때, 요청 데이터의 적절한 해석을 보장하기 위해 `Content-Type` 헤더에 `application/json` 값을 포함하세요.  \n\n이 API는 원하는 텍스트를 제출하고 적절한 음성을 선택하면 생성된 음성이 포함된 오디오 파일을 받을 수 있는 사용자 친화적인 인터페이스를 제공합니다.  \n\n이 API를 사용하면 텍스트에 대한 오디오 클립을 효율적인 방식으로 빠르게 생성하는 데 유용합니다.  \n\n이 API에 접근할 수 있습니다 [https://tiktok-tts.weilnet.workers.dev/api/generation](https://tiktok-tts.weilnet.workers.dev/api/generation) 또는 [https://tiktokvoicegenerator.com/](https://tiktokvoicegenerator.com/)에서 제공되는 대로 변경 없이 유지하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0809138-4bde-4132-97b2-0810b920ed7a",
+      "name": "Convert from base64 to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        1660,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "toBinary",
+        "sourceProperty": "data"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2efdd685-57fe-4f5c-b295-183dddfeb0d6",
+      "name": "Merge Text with Audio",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1720,
+        440
+      ],
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c59a00fd-c7c7-4dc5-91d1-492bd7715731",
+      "name": "Send Message to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1720,
+        660
+      ],
+      "parameters": {
+        "chatId": "53739339",
+        "operation": "sendAudio",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "={{ $json.data[1].response.text }}",
+          "fileName": "New Message on Gmail"
+        },
+        "binaryPropertyName": "=data"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "inUwZEIEWHK1poKe",
+          "name": "aqsati services"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3f3a1209-9787-41c3-af10-3f3e44a89c9b",
+      "name": "Summarization Chain3",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "position": [
+        1120,
+        460
+      ],
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "prompt": "Craft a concise newsletter using the given content. Include emojis, avoid starting with the subject word, summarize linked articles briefly, and ensure it's under 247 characters for easy TTS readability, and after that chick if it's very short to pass it:\n\n\n\n\"{text}\"\n\n\n",
+              "combineMapPrompt": "Craft a concise newsletter using the given content. Include emojis, avoid starting with the subject word, summarize linked articles briefly, and ensure it's under 247 characters for easy TTS readability, and after that chick if it's very short to pass it:\n\n\n\"{text}\"\n\n\n"
+            }
+          }
+        },
+        "chunkingMode": "advanced"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f1e063a5-0e0e-4f8e-b8bc-e940db622843",
+      "name": "Text to  TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1460,
+        140
+      ],
+      "parameters": {
+        "url": "https://tiktok-tts.weilnet.workers.dev/api/generation",
+        "method": "POST",
+        "options": {
+          "allowUnauthorizedCerts": true
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.response.text }}"
+            },
+            {
+              "name": "voice",
+              "value": "en_us_001"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.1,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "c6f9e191-31a0-4ec7-aa11-8f615074b884",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        340
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 821.8034694793512,
+        "height": 987.2767141363915,
+        "content": "### Gmail 트리거:\nN8N 워크플로우에서 Gmail 트리거 노드는 매 분마다 새 이메일을 조회하도록 설정되어 있으며, 워크플로우를 트리거하기 전에 \"CATEGORY_PROMOTIONS\" 레이블이 있는 이메일을 필터링하도록 구성되어 있습니다.\n\n### Gmail 트리거 노드 내에서 필터 사용 단계:\n1. **Gmail 트리거 노드 추가**:\n   - 워크플로우 캔버스에 Gmail 트리거 노드를 드래그 앤 드롭하세요.\n\n\\```javascript\n// Gmail 트리거 노드 추가\n\\```\n\n2. **Gmail 트리거 노드 구성**:\n   - 노드 구성에서:\n     - \"Poll Times\"을 \"Every Minute\"으로 설정하여 정기적으로 새 이메일을 확인하세요.\n     - \"Simple\" 토글을 활성화하여 노드 인터페이스를 간소화하세요.\n     - \"Filters\" 아래에서 필터링할 레이블 ID를 지정하세요. 이 경우 \"CATEGORY_PROMOTIONS\"으로 설정됩니다.\n     - 필요한 추가 옵션을 조정하세요.\n\n\\```javascript\n// Gmail 트리거 노드 구성\npollTimes: {\n  item: [\n    {\n      mode: \"everyMinute\"\n    }\n  ]\n},\nsimple: false,\nfilters: {\n  labelIds: [\n    \"CATEGORY_PROMOTIONS\"\n  ]\n},\noptions: {}\n\\```\n\n3. **자격 증명 제공**:\n   - 필요한 Gmail 자격 증명을 설정하세요. 이 경우 ID \"UJx4Tiq8WRtxWEIP\"와 이름 \"Gmail Omar\"을 사용하는 Gmail OAuth2입니다.\n\n4. **저장 및 실행**:\n   - 워크플로우를 저장하고 실행하여 지정된 레이블 필터가 있는 새 이메일을 Gmail 계정에서 모니터링하세요.\n\n이러한 단계를 따르다 보면, 워크플로우가 Gmail 계정에서 \"CATEGORY_PROMOTIONS\" 레이블과 일치하는 새 이메일에 따라 효과적으로 트리거될 것입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Text to  TTS": {
+      "main": [
+        [
+          {
+            "node": "Convert from base64 to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Summarization Chain3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail trigger": {
+      "main": [
+        [
+          {
+            "node": "Get message content1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get message content1": {
+      "main": [
+        [
+          {
+            "node": "Delete the unnecessary items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain3": {
+      "main": [
+        [
+          {
+            "node": "Merge Text with Audio",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Text to  TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Text with Audio": {
+      "main": [
+        [
+          {
+            "node": "Aggregate in same cell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate in same cell": {
+      "main": [
+        [
+          {
+            "node": "Send Message to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert from base64 to File": {
+      "main": [
+        [
+          {
+            "node": "Merge Text with Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete the unnecessary items": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

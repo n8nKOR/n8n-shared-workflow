@@ -1,0 +1,496 @@
+{
+  "id": "4rXRDurF4mQKrHyB",
+  "meta": {
+    "instanceId": "6d46e25379ef430a7067964d1096b885c773564549240cb3ad4c087f6cf94bd3",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "comentarios automaticos",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5c5322a4-10cf-43a1-8286-101c96d8c356",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        40,
+        100
+      ],
+      "webhookId": "ea7d37ac-9e82-40d7-bbb3-e9b7ce180fc9",
+      "parameters": {
+        "path": "ea7d37ac-9e82-40d7-bbb3-e9b7ce180fc9",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c281b25f-4f5a-46a3-b2ca-c9fba1cf98e1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        0
+      ],
+      "parameters": {
+        "width": 1440,
+        "height": 320,
+        "content": "# 웹훅 확인  \n설명:  \nInstagram의 Webhook API와의 초기 검증 핸드셰이크를 처리합니다.  \n지시사항:  \n\nhub.verify_token이 Instagram App 설정에서 구성된 토큰과 일치하는지 확인하세요.  \n\n응답은 webhook 설정을 확인하기 위해 hub.challenge 매개변수를 에코해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f890a4d2-f897-4103-a52f-48fa3555f9a6",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        260,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4afb4f9b-7f0f-41b8-afd0-d5c134a6a622",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        140,
+        1200
+      ],
+      "parameters": {
+        "text": "=### CONTEXTO E PERSONA ###\nVocê é um assistente de IA especialista, responsável por gerenciar os comentários de um perfil no Instagram focado em Inteligência Artificial e Automações. O objetivo do perfil é educar e engajar a comunidade sobre esses temas. Seu tom deve ser amigável, acessível, mas também demonstrar conhecimento e profissionalismo. Responda sempre em português brasileiro.\n\n### DADOS DE ENTRADA ###\n- Nome de Usuário: {{ $('data').item.json.usuario.name }}\n- Texto do Comentário:{{ $('data').item.json.usuario.message.text }}\n- Contexto da Publicacao\n\n### TAREFA ###\nAnalise o comentário fornecido e gere uma resposta apropriada, seguindo estas diretrizes:\n\n1.  **Análise e Filtragem:**\n    * **Identifique a Intenção:** É uma pergunta técnica? Uma dúvida simples? Um elogio? Uma crítica construtiva? Um pedido de ajuda? Spam? Conteúdo irrelevante?\n    * **Relevância:** O comentário está relacionado a IA, automação ou ao conteúdo do perfil?\n\n2.  **Geração da Resposta:**\n    * **Personalização:** Comece a resposta mencionando o nome de usuário (ex: \"Olá @{{ $('data').item.json.usuario.name }},\").\n    * **Perguntas Relevantes:** Se for uma pergunta sobre IA/automação que você pode responder, forneça uma resposta clara e útil. Se for muito complexa, agradeça a pergunta e sugira buscar um post específico no perfil, ou diga que o tema é interessante para um futuro conteúdo.\n    * **Elogios:** Agradeça sinceramente o elogio e, se possível, conecte-o a um aspecto do perfil ou do conteúdo sobre IA/automação.\n    * **Críticas Construtivas:** Agradeça o feedback, mostre que ele foi considerado e responda polidamente.\n    * **Pedidos de Ajuda Específicos (não relacionados a conteúdo):** Se for um pedido de suporte técnico não relacionado ao tema central, direcione para o canal adequado ou explique educadamente que não pode ajudar com isso ali.\n    * **Comentários Vagos ou de Engajamento Simples (ex: \"Legal!\", \"👍\"):** Responda de forma curta e amigável, talvez com um emoji relevante ou incentivando a continuar acompanhando.\n    * **Spam ou Irrelevante:** Se o comentário for claramente spam, promocional não solicitado, ofensivo ou totalmente fora do tópico de IA/automação, NÃO gere uma resposta. Neste caso, retorne APENAS a palavra `[IGNORE]`.\n\n3.  **Tom e Estilo:**\n    * Mantenha o tom amigável, útil e alinhado com um perfil de tecnologia/educação.\n    * Evite respostas genéricas demais quando uma específica for possível.\n    * Mantenha as respostas relativamente concisas, adequadas para comentários do Instagram.\n\n### SAÍDA ESPERADA ###\nRetorne APENAS o texto da resposta a ser publicada no Instagram. Se o comentário for classificado como spam/irrelevante conforme a regra 2.7, retorne APENAS a palavra `[IGNORE]`. Não inclua nenhuma outra explicação ou texto adicional fora da resposta ou da palavra `[IGNORE]`.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "e56a220b-f4aa-4505-9157-31980ccb547b",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        60,
+        1340
+      ],
+      "parameters": {
+        "model": "google/gemini-2.0-flash-exp:free",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "eGPA8rbskZCfFPBn",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f318cf1-d99f-482d-a6d4-03ec4f603c05",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        380
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1440,
+        "height": 320,
+        "content": "# 데이터 추출  \n설명:  \n수신된 웹훅 페이로드에서 관련 데이터를 추출합니다.  \n지시사항:  \n\n모든 필요한 필드(예: entry.id, from.id, from.username, message.id, message.text, media.id)가 올바르게 매핑되었는지 확인합니다.  \n\n이 데이터는 후속 단계에서 처리 및 응답을 위해 사용될 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a413c839-fa19-44b9-ae33-2638dd45436e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        780
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1440,
+        "height": 320,
+        "content": "# 사용자 검증  \n설명:  \n댓글이 계정 소유자가 아닌 다른 사용자에게서 온 것인지 확인합니다.  \n지시사항:  \n\nconta.id를 usuario.id와 비교하세요.  \n\n그들이 다를 경우에만 진행하세요. 이는 댓글이 다른 사용자에게서 온 것을 나타냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b19d4891-5f7e-478b-9458-464af1fd409c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        1160
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1440,
+        "height": 320,
+        "content": "# AI 응답 생성  \n설명:  \nAI 에이전트를 활용하여 사용자의 댓글에 대한 맥락 인지 응답을 생성합니다.  \n지침:  \n\nAI 모델이 제대로 구성되어 있고 필요한 입력 데이터에 접근할 수 있도록 하세요.  \n\n프롬프트는 AI가 친근하고, 유익하며, AI와 자동화에 초점을 맞춘 프로필과 일치하는 응답을 생성하도록 안내해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f8b05ee-0380-4dc7-8671-f0ae87a7d08f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        1560
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1440,
+        "height": 320,
+        "content": "# 응답 보내기  \n설명:  \nAI가 생성한 답변을 Instagram의 API를 통해 사용자에게 다시 보냅니다.  \n지시사항:  \n\nHTTP 요청이 적절한 엔드포인트와 인증 헤더로 올바르게 형식화되었는지 확인하세요.  \n\nAPI 호출 중 발생할 수 있는 잠재적인 오류나 예외를 처리하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff54a7c0-40b9-4ad8-a3de-47a8a20cd3e1",
+      "name": "Get post data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -80,
+        880
+      ],
+      "parameters": {
+        "url": "=https://graph.instagram.com/v22.0/{{ $json.usuario.media.id }}?fields=id,caption",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "6H4syU3wzaoNBy2k",
+          "name": "Header Auth account"
+        },
+        "facebookGraphApi": {
+          "id": "z7CU24qbafckHljY",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d7a66f78-83f2-4173-8602-c34210364149",
+      "name": "get_new_comments",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        40,
+        480
+      ],
+      "webhookId": "ea7d37ac-9e82-40d7-bbb3-e9b7ce180fc9",
+      "parameters": {
+        "path": "ea7d37ac-9e82-40d7-bbb3-e9b7ce180fc9",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0924d70a-45a2-49c9-9459-eb6e7261005e",
+      "name": "data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        280,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1a3c5a2e-115d-4072-9d27-9baa47e84d6f",
+              "name": "endpoint",
+              "type": "string",
+              "value": "https://graph.instagram.com/v22.0"
+            },
+            {
+              "id": "ae83344d-abe5-43d6-991f-e757965e4557",
+              "name": "conta.id",
+              "type": "string",
+              "value": "={{ $json.body.entry[0].id }}"
+            },
+            {
+              "id": "d18887fa-b882-4d69-a1c0-d161291fe5fb",
+              "name": "usuario.id",
+              "type": "string",
+              "value": "={{ $json.body.entry[0].changes[0].value.from.id }}"
+            },
+            {
+              "id": "000f2d0e-6fbf-4e58-ae9c-cac4a3c54b33",
+              "name": "usuario.name",
+              "type": "string",
+              "value": "={{ $json.body.entry[0].changes[0].value.from.username }}"
+            },
+            {
+              "id": "d6fa2b24-abbe-48f7-96ff-2fc69f17b61b",
+              "name": "usuario.message.id",
+              "type": "string",
+              "value": "={{ $json.body.entry[0].changes[0].value.id }}"
+            },
+            {
+              "id": "605e9c4c-f2fc-49eb-8639-573c60ef33bb",
+              "name": "usuario.message.text",
+              "type": "string",
+              "value": "={{ $json.body.entry[0].changes[0].value.text }}"
+            },
+            {
+              "id": "198afc5d-3fd1-4d9d-aa5a-8baf75f06d29",
+              "name": "usuario.media.id",
+              "type": "string",
+              "value": "={{ $json.body.entry[0].changes[0].value.media.id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2836ec33-b19f-4875-bfeb-08d9f9feae49",
+      "name": "its me?",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        200,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "54c0a2d1-f812-4d6a-b50b-c272cfbba772",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $('data').item.json.conta.id }}",
+              "rightValue": "={{ $('data').item.json.usuario.id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fdf8ff5e-9c17-43f3-a747-79228ca68e03",
+      "name": "Post comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        260,
+        1660
+      ],
+      "parameters": {
+        "url": "={{ $('data').item.json.endpoint }}/{{ $('data').item.json.usuario.message.id }}/replies",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "6H4syU3wzaoNBy2k",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": true,
+  "pinData": {
+    "get_new_comments": [
+      {
+        "json": {
+          "body": {
+            "entry": [
+              {
+                "id": "17841458749050638",
+                "time": 1745696027,
+                "changes": [
+                  {
+                    "field": "comments",
+                    "value": {
+                      "id": "17992882022637707",
+                      "from": {
+                        "id": "1797582914152092",
+                        "username": "luchiogutierrez"
+                      },
+                      "text": "😍",
+                      "media": {
+                        "id": "17969449379894182",
+                        "media_product_type": "FEED"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "object": "instagram"
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "host": "host.docker.internal:5678",
+            "accept": "*/*",
+            "x-scheme": "https",
+            "forwarded": "by=_exposr;for=173.252.95.16;host=engaging-seahorse-19.rshare.io;proto=https",
+            "x-real-ip": "173.252.95.16",
+            "connection": "keep-alive",
+            "exposr-via": "77940acbe1755f6fca18880bd02e462ee55d0cde,0374ae5bede6d70d299155239dbb7e045533e1f4",
+            "user-agent": "Webhooks/1.0 (https://fb.me/webhooks)",
+            "content-type": "application/json",
+            "x-request-id": "b0c4e9d6dd2baa18bab7eab283ad4788",
+            "content-length": "316",
+            "x-forwarded-for": "173.252.95.16",
+            "x-hub-signature": "sha1=b3d396ac784244a020268dd9599e708b21688b75",
+            "x-forwarded-host": "engaging-seahorse-19.rshare.io",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-scheme": "https",
+            "x-hub-signature-256": "sha256=40e1e91b67c7fa82afca10c81ff4b1200d9561384ee5ba690bf9bc22814cb09b"
+          },
+          "webhookUrl": "https://engaging-seahorse-19.rshare.io/webhook/ea7d37ac-9e82-40d7-bbb3-e9b7ce180fc9",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Respond to Webhook": [
+      {
+        "json": {
+          "body": {},
+          "query": {
+            "hub.mode": "subscribe",
+            "hub.challenge": "219585499",
+            "hub.verify_token": "teste"
+          },
+          "params": {},
+          "headers": {
+            "host": "host.docker.internal:5678",
+            "accept": "*/*",
+            "x-scheme": "https",
+            "forwarded": "by=_exposr;for=173.252.107.25;host=actual-beagle-88.rshare.io;proto=https",
+            "x-real-ip": "173.252.107.25",
+            "connection": "keep-alive",
+            "exposr-via": "b37bd560bd173ee1195fceaef48a1468e8fa83f0,f06a3ed204e476a5915fc6fff7228b77c1c9e1d3",
+            "user-agent": "facebookplatform/1.0 (+http://developers.facebook.com)",
+            "x-request-id": "037b358cf28db9e3bffdf52703fd9069",
+            "accept-encoding": "deflate, gzip",
+            "x-forwarded-for": "173.252.107.25",
+            "x-forwarded-host": "actual-beagle-88.rshare.io",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-scheme": "https"
+          },
+          "webhookUrl": "http://localhost:5678/webhook-test/ea7d37ac-9e82-40d7-bbb3-e9b7ce180fc9",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2a39918c-36c8-486e-acb3-3420a4a8b8b1",
+  "connections": {
+    "data": {
+      "main": [
+        [
+          {
+            "node": "Get post data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "its me?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Post comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get post data": {
+      "main": [
+        [
+          {
+            "node": "its me?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_new_comments": {
+      "main": [
+        [
+          {
+            "node": "data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

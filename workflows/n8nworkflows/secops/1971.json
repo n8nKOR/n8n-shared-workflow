@@ -1,0 +1,836 @@
+{
+  "meta": {
+    "instanceId": "8c8c5237b8e37b006a7adce87f4369350c58e41f3ca9de16196d3197f69eabcd",
+    "templateId": "1971"
+  },
+  "nodes": [
+    {
+      "id": "dbb98f7d-6737-4eaa-9a66-9779c042c575",
+      "name": "VirusTotal result",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2430,
+        1648
+      ],
+      "parameters": {
+        "url": "={{ $json.data.links.self }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "virusTotalApi"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "fb71337b-ebd3-4331-9f18-ff953c6b068b",
+      "name": "DNS Lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1330,
+        1028
+      ],
+      "parameters": {
+        "url": "=https://dns.google/resolve",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.url.includes('://') ? $json.url.split('://')[1].split('/')[0] : $json.url }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "290c6e9c-31d1-4476-9beb-b72a795ecfbb",
+      "name": "Set IP From Lookup",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1530,
+        1028
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the resolved IP address (last item in the Answer array)\nconst ip = $json.Answer.pop().data;\nconst item = {...$('Is IP?').item.json}\nitem.ip = ip\n\nreturn {json: item};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2e25aa5e-479c-4e3b-b866-89f2bdbabbba",
+      "name": "Set IP",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1390,
+        828
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ip",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "69b89cd7-1456-4067-a9da-d81ef3f86097",
+      "name": "Merge VirusTotal & Greynoise results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3610,
+        948
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "ip",
+              "field2": "ip"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1011bb3b-3f75-40b8-a473-e07b70079b60",
+      "name": "Is IP?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1110,
+        848
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.url }}",
+              "value2": "/^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$/",
+              "operation": "regex"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "770b4056-1497-48ed-bcd7-ad6e7106cc7d",
+      "name": "Start VirusTotal Scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1990,
+        1648
+      ],
+      "parameters": {
+        "url": "https://www.virustotal.com/api/v3/urls",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "virusTotalApi"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "d5d31e4a-2f95-4151-af35-bb8129f2e5a3",
+      "name": "VirusTotal Summary",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3230,
+        1628
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "virusTotalStats",
+              "value": "={{ $json.data.attributes.stats }}"
+            },
+            {
+              "name": "blockList",
+              "value": "={{ $json.data.attributes.results.BlockList.result }}"
+            },
+            {
+              "name": "openPhish",
+              "value": "={{ $json.data.attributes.results.OpenPhish.result }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $('Merge').all()[$itemIndex].json.url }}"
+            },
+            {
+              "name": "ip",
+              "value": "={{ $('Merge').all()[$itemIndex].json.ip }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        },
+        "keepOnlySet": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "467c795f-6f13-4d6d-a8cf-5cf9be2e7a77",
+      "name": "VirusTotal ready?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2790,
+        1648
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.data.attributes.status }}",
+              "value2": "queued",
+              "operation": "notEqual"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "284728e4-dc74-4c37-890b-5305970960c0",
+      "name": "Wait 5s",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2230,
+        1648
+      ],
+      "webhookId": "18348e84-831d-4ea8-bb39-6ec847c72275",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 5
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "76e1414a-d690-44df-a3b8-8dbb4a192720",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Example:\n\ncurl -X POST \"https://n8n.yourdomain.com/webhook-test/d5124bd8-aada-44da-8050-3070f303ad24\" \\\n                 -H \"Content-Type: application/json\" \\\n                 -d '{\"data\": [{\"url\": \"1.1.1.1\"}, {\"url\": \"88.204.59.2\"}, {\"url\": \"54.36.148.188\"}, {\"url\": \"facebook.com\"}], \"email\": \"user@domain.com\"}'",
+      "position": [
+        450,
+        1448
+      ],
+      "webhookId": "d5124bd8-aada-44da-8050-3070f303ad24",
+      "parameters": {
+        "path": "d5124bd8-aada-44da-8050-3070f303ad24",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "b3e188f3-0a39-4451-ab70-632282243f03",
+      "name": "Get List of URLs",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        650,
+        1448
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "body.data"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "360628b7-afc0-4444-a8c0-a85fae54b0e3",
+      "name": "Set Email",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        850,
+        1448
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Email",
+              "value": "={{ $('Webhook').item.json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6df9593b-5f9f-4b50-bddb-97dcb2017d6e",
+      "name": "Merge Greynoise results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2370,
+        728
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "mergeByPosition"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1957a675-7a5a-4ccd-b334-f2c4f9749f58",
+      "name": "Send Report Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3850,
+        1168
+      ],
+      "parameters": {
+        "text": "=Successfully scanned {{ $json.url }} {{$json.ip !== $json.url ? `(${$json.ip})`: '' }}\n\n\nVirusTotal Report ({{ $json.virusTotalStats.harmless + $json.virusTotalStats.malicious + $json.virusTotalStats.suspicious + $json.virusTotalStats.undetected}} scans)\n\n{{$json.virusTotalStats.harmless}} Harmless\n{{$json.virusTotalStats.malicious}} Malicious\n{{$json.virusTotalStats.suspicious}} Suspicious\n{{$json.virusTotalStats.undetected}} Undetected\n{{$json.virusTotalStats.timeout}} Timed out\n\nBlockList: {{ $json.blockList }}\nOpenPhish: {{ $json.openPhish }}\n\nSummary: {{ $json.virusTotalStats.suspicious + $json.virusTotalStats.malicious === 0 ? \"✅ Harmless\": \"🚨 Malicous\" }}\n\n\n\nGreynoise Report\n\nTrust Level: {{ $json.trust_level ?? \"Not trusted\"}}\nClassification: {{ $json.classification }}\n\nLocation: {{ $json.location || 'n/a' }}\nCategory: {{ $json.category }}\nTags: {{$json.tags.join(', ') || 'None'}}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#notifications"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "4d64351f-0233-4859-afd2-fc31e3fc37cd",
+      "name": "Send Report Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3850,
+        948
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Merge').first().json.Email }}",
+        "message": "=Successfully scanned {{ $json.url }} {{$json.ip !== $json.url ? `(${$json.ip})`: '' }}<br /><br /><br />\n\n\n<h3>VirusTotal Report ({{ $json.virusTotalStats.harmless + $json.virusTotalStats.malicious + $json.virusTotalStats.suspicious + $json.virusTotalStats.undetected}} scans)</h3><br /><br />\n\n{{$json.virusTotalStats.harmless}} Harmless<br />\n{{$json.virusTotalStats.malicious}} Malicious<br />\n{{$json.virusTotalStats.suspicious}} Suspicious<br />\n{{$json.virusTotalStats.undetected}} Undetected<br />\n{{$json.virusTotalStats.timeout}} Timed out<br /><br />\n\nBlockList: {{ $json.blockList }}<br />\nOpenPhish: {{ $json.openPhish }}<br /><br />\n\n<b>Summary: {{ $json.virusTotalStats.suspicious + $json.virusTotalStats.malicious === 0 ? \"✅ Harmless\": \"🚨 Malicous\" }}</b><br /><br /><br />\n\n\n\n<h3>Greynoise Report</h3><br /><br />\n\nTrust Level: {{ $json.trust_level ?? \"Not trusted\"}}<br />\nClassification: {{ $json.classification }}<br /><br />\n\nLocation: {{ $json.location || 'n/a' }}<br />\nCategory: {{ $json.category }}<br />\nTags: {{$json.tags.join(', ') || 'None'}}<br /><br /><br /><br />",
+        "options": {},
+        "subject": "={{ $json.url }} Scan Report"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e4305eb1-8e57-49d0-97b7-391200bd0042",
+      "name": "Greynoise Summary",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2650,
+        728
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ip",
+              "value": "={{ $json.ip }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $json.classification || 'safe' }}"
+            },
+            {
+              "name": "location",
+              "value": "={{ $json.metadata?.region ? `${$json.metadata?.region} ${$json.metadata?.country}` : '' }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $json.tags ?? [] }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $json.category || 'n/a' }}"
+            },
+            {
+              "name": "trustLevel",
+              "value": "={{ $json.trust_level }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        },
+        "keepOnlySet": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c149b1f3-e447-4194-a94e-7d8e0bf38241",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1750,
+        848
+      ],
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "88c30a1d-c232-4da5-87c3-4d67234b6a29",
+      "name": "Combine looped items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3010,
+        1628
+      ],
+      "parameters": {
+        "jsCode": "let results = [],\n  i = 0;\n\ndo {\n  try {\n    results = results.concat($(\"VirusTotal result\").all(0, i)\n                     .filter(node => node.json.data.attributes.status === 'completed')\n  );\n  } catch (error) {\n    return results;\n  }\n  i++;\n} while (true);"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "839170f5-7c97-40fd-aeaa-ad57262a586e",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        2610,
+        1648
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.data.attributes.status }}",
+              "value2": "completed",
+              "operation": "notEqual"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d68db329-4628-44a8-8f97-b06cbf18e238",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        240
+      ],
+      "parameters": {
+        "width": 651.1325602067182,
+        "height": 703.911103299255,
+        "content": "## 양식 입력 개요\n\n- **목적**:  \n  다른 부서에 전체 위협 플랫폼을 사용하도록 강요하는 대신, URL로 접근 가능한 양식을 통해 다른 부서가 항목을 제출할 수 있도록 하는 우리 Threat Intel 워크플로우와의 상호작용을 간소화합니다.\n\n- **양식 접근 URL**:  \n  - **실행 모드**: `https://n8n.domain.com/webhook/test/url-scan-form` - n8n 캔버스 내에서 워크플로우를 대화형으로 실행하기 위해 사용합니다. '워크플로우 실행' 버튼을 눌러 실시간 실행 결과를 확인하세요.  \n  - **무음 모드**: `https://n8n.domain.com/webhook/url-scan-form` - 캔버스 업데이트 없이 배경에서 실행하기 위해 사용합니다. 결과는 silently 로그되며, 'Executions' 탭에서 확인할 수 있습니다.\n\n## 세부 사항 및 모범 사례  \n양식을 사용할 때, 스캔과 같은 유효한 URL처럼 모든 입력이 요구되는 형식을 맞추어 워크플로우 중단을 방지하세요. 이러한 양식은 입력 정화를 수행하지 않으므로 잘못된 값 입력 시 오류 워크플로우가 발생합니다. 양식 제출 시 문제 발생, 예를 들어 확인 메시지 부재나 워크플로우 실패 시, 'Executions' 탭에서 자세한 오류 정보를 찾을 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f9081f7d-35ab-489c-87bb-c2deba7515f9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        370,
+        968
+      ],
+      "parameters": {
+        "width": 653.8285114211884,
+        "height": 663.9676956356055,
+        "content": "## API 통합\nURL과 IP를 자동으로 제출하고 싶습니까? 아래 JSON 구조를 활용하여 여러 지표를 동시에 업로드하세요. 이 워크플로는 'Item list'를 사용하여 'data' 필드를 파싱하며, 'Set Email' 노드가 각 URL에 제공된 이메일을 추가합니다.\n\n```json\n{\n    \"email\": \"johndoe@example.com\",\n    \"data\": [\n        {\n            \"url\": \"aztechsol.com\"\n        },\n        {\n            \"ip\": \"8.8.8.8\"\n        }\n    ]\n}\n```\n\n## 세부 사항 및 모범 사례\n- Webhook 사용: POST 요청으로 데이터를 보내세요, 예를 들어 curl을 사용하여.\n- 유효성 검사 및 오류: URL이 올바르게 형식화되었는지 확인하세요. 제출 오류가 있는지 'Executions' 탭을 확인하세요. 이 워크플로에는 기본적인 오류 처리만 있다는 점을 유의하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aaaac5aa-f0a0-4452-99b4-d78d55a80564",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1070,
+        266.9400418986032
+      ],
+      "parameters": {
+        "width": 827.7173647545219,
+        "height": 936.2889303743061,
+        "content": "![VirusTotal](https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/320px-Google_2015_logo.svg.png)  \n## 데이터 표준화 및 Google DNS 통합  \n-   목적:  \n\n    -   다양한 입력 소스(양식 제출이나 API 호출에서 비롯된)를 표준화하여 균일한 처리 파이프라인을 통해 입력을 간소화합니다. 이는 입력된 데이터가 IP 주소이든 도메인 이름이든, 위협 인텔리전스 작업을 위해 일관되게 관리되고 변환될 수 있도록 합니다.  \n    -   URL에서 IP를 추출하여 Google DNS에 전달하고, 이를 URL에 첨부합니다.  \n\n## 세부 사항 및 모범 사례  \n워크플로의 효능을 보장하기 위해 규정된 입력 형식을 준수하세요. IP 주소의 경우 IPv4 또는 IPv6 표준에 맞춰야 합니다; 도메인의 경우 제대로 구성된 URL임을 확인하세요. 시스템은 청정한 입력을 가정하며, 내장된 위생 메커니즘이 없으므로 오류 입력은 처리 오류를 초래할 수 있습니다.  \n\nDNS 조회 실패나 기타 불일치 시 '실행' 탭에서 포괄적인 오류 로그를 확인하고 필요한 수정을 적용하세요. 워크플로 중단을 방지하기 위해 오류 처리 프로토콜을 설정하여 이러한 문제를 관리하고 수정하세요.  \n\n입력 데이터가 IP 주소인지 도메인 이름인지 자동으로 식별하도록 워크플로가 설계되었으나, 정확한 데이터를 입력하는 것이 필수적입니다. 그렇지 않으면 후퇴하거나 불필요한 처리 부하가 발생할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32e80421-b608-4d89-b6fe-a95ab5b9e3bd",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1950,
+        68.30371042491026
+      ],
+      "parameters": {
+        "width": 1485.5734904392764,
+        "height": 987.7653566551932,
+        "content": "![바이러스토탈](https://i.imgur.com/fd6Ng5R.png)  \n## Greynoise 통합  \n\n-   목적:  \n    -   Greynoise의 강력한 API를 활용하여 워크플로우 내에서 IP 관련 정보를 풍부하게 하고 맥락화하는 것을 목표로 합니다. Greynoise의 특화된 노이즈 및 RIOT 데이터베이스를 조회하여 워크플로우가 IP 활동의 성격을 빠르게 파악하고, 조직에 대한 관련성과 잠재적 위협 수준을 판단할 수 있습니다.  \n    -   Greynoise 데이터베이스를 참조하여 IP 주소를 분류하고 평가하여 보안 인텔리전스의 추가 레이어를 제공합니다.  \n\n## 세부 사항 및 모범 사례  \nGreynoise 통합에서 신뢰할 수 있는 결과를 얻기 위해 잘 형식화된 IP 주소를 사용해야 합니다. IP가 IPv4 또는 IPv6의 표준 인터넷 프로토콜을 충족하는지 확인하세요. 워크플로우는 입력이 미리 세정된 것으로 가정하므로, 이와 다르면 오류나 부정확한 평가가 발생할 수 있습니다.  \n\nGreynoise 조회에서 결과가 나오지 않거나 오류가 발생하면 'Executions' 탭을 사용하여 자세한 오류 로그를 확인하세요. 오류 처리 전략을 사전에 개발하여 이러한 오류를 효과적으로 관리하고 복구하세요.  \n\n워크플로우는 IP 정보를 정확하게 식별하고 처리하도록 미리 구성되어 있지만, 입력의 무결성에 크게 의존합니다. 잘못된 IP 입력은 잘못된 조회를 초래하여 중요한 위협 데이터를 놓칠 수 있으며, 이에 따라 보안 자세가 약화될 수 있습니다.  \n\n**이 워크플로우 세그먼트는 Greynoise API의 엔터프라이즈 에디션을 위해 설계되었습니다. 사용자는 엔터프라이즈 액세스 권한이 있는 유효한 API 키를 보유해야 하며, 이는 API 호출을 수행하는 HTTP 요청 노드에 구성되어야 합니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "adda919b-f65f-4fe0-9f66-11a5a9b65674",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1952,
+        1088
+      ],
+      "parameters": {
+        "width": 1483.145187368557,
+        "height": 774.1502041707245,
+        "content": "![VirusTotal](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/VirusTotal_logo.svg/320px-VirusTotal_logo.svg.png)  \n## VirusTotal 통합  \n-   목적:  \n    -   이 워크플로 구성 요소는 VirusTotal API의 기능을 활용하도록 특별히 설계되었으며, URL을 제출하여 철저한 스캔을 수행할 수 있습니다. 목표는 스캔 프로세스를 워크플로에 원활하게 통합하는 것으로, VirusTotal 스캔의 비동기 특성을 효과적으로 관리하여 상태 확인과 결과 수집을 처리합니다.  \n    -   VirusTotal API에 요청을 제출하여 URL 스캔을 구현하고, 스캔 결과를 정확하게 집계하여 분석합니다.  \n\n## 세부 사항 및 모범 사례  \nVirusTotal 통합을 성공적으로 수행하려면 표준 웹 형식에 따라 URL을 제출하는 것이 중요합니다. 워크플로는 올바른 URL 입력을 예상하도록 구성되어 있으므로, 입력이 벗어나면 스캔 프로세스가 방해될 수 있습니다.  \n\n제출 후, VirusTotal 스캔 결과가 대기 중이거나 오류가 발생하면, 이를 'Executions' 탭에서 추적하고 검토할 수 있습니다. 이러한 경우를 처리하기 위해 오류 로깅, 최대 재시도 제한, 또는 타임아웃 메커니즘을 포함한 사전적인 전략을 개발하세요.  \n\n워크플로 구성은 VirusTotal API에 대한 빠르고 반복적인 상태 확인을 방지하기 위해 고려되었습니다. 이로 인해 상태 재평가를 위한 루프 시스템을 사용하며, 불필요한 지연이나 과도한 폴링을 피하기 위해 정밀하게 관리해야 합니다.  \n\n이 통합은 VirusTotal API를 포함한 워크플로에 맞게 조정되었습니다. 무료 VirusTotal 라이선스와 함께 작동하지만, 요청이 너무 많으면 일일 500회 및 분당 4회의 요청 제한으로 인해 오류가 발생할 수 있습니다. Public API는 HTTP 요청 노드에서 유효한 자격 증명을 설정하여 API 호출을 인증해야 합니다. 사용자는 API 키를 구성하여 접근해야 하며, HTTP 4xx 또는 5xx 코드와 같은 API 오류 응답을 처리하기 위해 강력한 오류 로깅 및 재시도 메커니즘을 구현하여 스캔 프로세스의 신뢰성과 효과성을 보장하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdaec18e-e9f1-4567-89e6-f5474bff42c4",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3470,
+        247
+      ],
+      "parameters": {
+        "width": 898.9279259630971,
+        "height": 1146.6423884335761,
+        "content": "## 보고 통합\n\n-   목적:\n    -   이 워크플로우의 구성 요소는 위협 인텔리전스 분석의 통찰력을 효과적으로 팀에 통합하고 전달하도록 설계되었습니다. VirusTotal과 Greynoise의 데이터를 통합하여 포괄적인 보고서를 생성하고, 이를 Slack과 이메일을 통해 자동으로 공유하여 상황 인식을 강화하고 신속한 조치를 촉진합니다.\n    -   분석된 IP 또는 도메인 데이터의 중요성과 의미를 강조하는 위협 인텔리전스 보고서를 컴파일하고 배포하여, 팀이 정보를 유지하고 조치할 수 있도록 합니다.\n\n## 세부 사항 및 모범 사례\n이 워크플로우의 핵심은 Greynoise와 VirusTotal에서 수집된 위협 인텔리전스를 합성하는 데 있습니다. 이러한 데이터 포인트를 병합하여 조사 중인 URL/IP에 대한 철저한 검토를 생성합니다.\n\n이 중요한 워크플로우 단계에서 준수해야 할 모범 사례의 확장된 보기를 다음과 같습니다:\n\n병합 프로세스는 'ip' 필드를 공통 키로 사용하여 두 개의 별개 소스에서 데이터를 정확하게 통합해야 합니다. 이 통합된 뷰는 정확한 분석과 보고에 필수적입니다.\n\n지능 보고서를 강화하기 위해 추가 데이터 필드를 병합하는 것을 권장합니다. 이는 타임스탬프, 지리적 위치 데이터, 또는 위협 수준을 포함할 수 있습니다.\n\n새로운 메시징 또는 보고 노드를 통합할 때, 제공된 JSON 구조를 활용하여 일관성을 유지하세요. 다른 노드에서 로직을 복제하려면 표현 편집기에서 JSON 스니펫을 복사하여 새 노드의 구성에 붙여넣으세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "577d4b74-9155-440f-a752-6654f8e54669",
+      "name": "GreyNoise RIOT lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2070,
+        708
+      ],
+      "parameters": {
+        "url": "=https://api.greynoise.io/v2/riot/{{ $json.ip }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "9a41df79-3d81-4b2e-b21c-7f31985d8d1e",
+      "name": "GreyNoise IP Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2070,
+        888
+      ],
+      "parameters": {
+        "url": "=https://api.greynoise.io/v2/noise/context/{{ $json.ip }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "006eb997-5851-41bd-9d5c-9f44d3b7ec08",
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        640,
+        800
+      ],
+      "webhookId": "087145f7-3c00-4a1a-8e04-181b536606e7",
+      "parameters": {
+        "path": "url-scan-form",
+        "options": {},
+        "formTitle": "Scan URL or IP and get a report",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "url",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Get a report from Virus Total and Greynoise on an IP address of URL"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Start VirusTotal Scan",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GreyNoise IP Check",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GreyNoise RIOT lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "VirusTotal ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is IP?": {
+      "main": [
+        [
+          {
+            "node": "Set IP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DNS Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set IP": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5s": {
+      "main": [
+        [
+          {
+            "node": "VirusTotal result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get List of URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Email": {
+      "main": [
+        [
+          {
+            "node": "Is IP?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DNS Lookup": {
+      "main": [
+        [
+          {
+            "node": "Set IP From Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is IP?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get List of URLs": {
+      "main": [
+        [
+          {
+            "node": "Set Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Greynoise Summary": {
+      "main": [
+        [
+          {
+            "node": "Merge VirusTotal & Greynoise results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VirusTotal ready?": {
+      "main": [
+        [
+          {
+            "node": "Combine looped items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 5s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VirusTotal result": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GreyNoise IP Check": {
+      "main": [
+        [
+          {
+            "node": "Merge Greynoise results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set IP From Lookup": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "VirusTotal Summary": {
+      "main": [
+        [
+          {
+            "node": "Merge VirusTotal & Greynoise results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine looped items": {
+      "main": [
+        [
+          {
+            "node": "VirusTotal Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GreyNoise RIOT lookup": {
+      "main": [
+        [
+          {
+            "node": "Merge Greynoise results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start VirusTotal Scan": {
+      "main": [
+        [
+          {
+            "node": "Wait 5s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Greynoise results": {
+      "main": [
+        [
+          {
+            "node": "Greynoise Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge VirusTotal & Greynoise results": {
+      "main": [
+        [
+          {
+            "node": "Send Report Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

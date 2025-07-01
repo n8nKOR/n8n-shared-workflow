@@ -1,0 +1,475 @@
+{
+  "id": "CDVBZRDH5gNUzIml",
+  "meta": {
+    "instanceId": "ab60b809a7fa5daa22fa7edffc14e989a6e59d4063ec838ad62f2655caafd963",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "N8N for Beginners: Looping over Items",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "500304a1-5164-4907-b0a7-e514e455e3dc",
+      "name": "Result1",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look Here to see resulting output",
+      "position": [
+        880,
+        -280
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "32808ad1-1a35-497f-b1d3-c935a924c541",
+      "name": "Result2",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        880,
+        40
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "f3c9fa5d-a4c7-4cf0-beb5-774d8483974f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 240,
+        "content": "Result1은 문자열 배열이 Loop1에 의해 하나의 항목으로 보이는 것을 보여줍니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0bb96765-60ce-4618-9b39-7cd203a3cb48",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 260,
+        "content": "Result2는 문자열 배열이 별도의 객체로 분할된 후 Loop2가 5개의 항목을 확인한다는 것을 보여줍니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b71fcc86-b0cd-4241-b0d6-21abe4c6b68d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -1100
+      ],
+      "parameters": {
+        "width": 1200,
+        "height": 2480,
+        "content": "# N8N 초보자를 위한: 항목 반복\n\n## 설명\n\n이 워크플로는 **n8n 초보자**가 n8n에서 **반복(iteration)**을 다루는 방식을 이해하도록 설계되었습니다. 두 가지 주요 동작을 강조합니다:\n\n- **내장 반복:** 기본적으로 대부분의 n8n 노드는 입력 배열의 각 항목을 반복합니다.\n- **명시적 반복:** **Loop Over Items** 노드를 사용하면 제어된 반복이 가능하며, **커스텀 배치 처리**와 다단계 워크플로를 가능하게 합니다.\n\n이 워크플로는 **분할되지 않은 문자열 배열(단일 항목)**을 처리하는 것과 **분할된 배열(다중 항목)**을 처리하는 차이를 보여줍니다.\n\n---\n\n## 설정\n\n### 1. 입력 데이터\n\n먼저, **다음 JSON을** **Manual Trigger** 노드에 **붙여넣으세요**:\n\n```json\n{\n  \"urls\": [\n    \"https://www.reddit.com\",\n    \"https://www.n8n.io/\",\n    \"https://n8n.io/\",\n    \"https://supabase.com/\",\n    \"https://duckduckgo.com/\"\n  ]\n}\n```\n\nðŸ“Œ **데이터 붙여넣기 단계:**\n- **Manual Trigger** 노드를 **더블 클릭**합니다.\n- **\"Edit Output\"**을 클릭합니다 (우측 상단 모서리).\n- JSON을 붙여넣고 **저장**합니다.\n- 노드가 **보라색으로 변함**, 테스트 데이터가 고정되었음을 나타냅니다. \n\n---\n\n## n8n 노드 설명\n\n### Manual Trigger  \n이 노드는 워크플로를 수동으로 시작하고 테스트 데이터를 보냅니다.  \n**문서:** [Manual Trigger Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.manualtrigger/)\n\n### Split Out (문자열 배열을 객체 배열로 분할)  \n`urls` 배열을 추출하고 각 URL을 별도의 JSON 객체로 분할합니다.  \n**문서:** [Split Out Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitout/)\n\n### Loop Over Items (Loop Over Items 1)  \n**분할되지 않은** 배열을 하나의 항목으로 취급하여 단일 단위로 처리하는 것을 보여줍니다.  \n**문서:** [Loop Over Items Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitinbatches/)\n\n### Loop Over Items (Loop Over Items 2)  \n**분할된 배열**을 항목 하나씩 처리합니다. 이는 개별 반복과 제어된 반복을 보여줍니다.  \n**문서:** [Loop Over Items Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitinbatches/)\n\n### Wait Node  \n각 반복당 **1초 지연**을 도입하여 순차 실행을 보여줍니다. 성능을 위해 제거할 수 있습니다.  \n**문서:** [Wait Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.wait/)\n\n### Code Nodes (Add param1 to outputX)  \n각 Code 노드는 데이터에 상수 필드(`param1`)를 추가하여 모든 항목에 동일한 매개변수를 추가합니다.  \n**문서:** [Code Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/)\n\n### NoOp Nodes (Result1, Result2, Result3, Result4, Result5)\n이 노드는 워크플로의 다양한 단계에서 출력을 표시하여 검사할 수 있게 합니다.\n**문서:** [NoOp Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.noop/)\n\n\n\n---\n\n## 실행 세부사항\n\n### 1. 워크플로 실행 방법\n\n- **Manual Trigger가 실행을 시작**하여 붙여넣은 JSON 데이터를 사용합니다.\n- 워크플로는 **두 경로**를 따릅니다:\n\n#### 분할되지 않은 배열 경로 â†’ Loop Over Items 1  \n- 원래 JSON이 **단일 항목으로 처리**됩니다.  \n- **Result1 & Result5:** 배열이 **처리 전에 분할되지 않았음**을 보여줍니다.\n\n#### 분할된 배열 경로 â†’ Split Out â†’ Loop Over Items 2  \n- **Split Out** 노드가 `urls` 배열을 별도의 객체로 변환합니다.\n- **Loop Over Items 2** 노드가 각 URL을 **하나씩 처리**합니다.\n- **Wait 노드(1초 지연)**가 **제어된 실행**을 보여줍니다.\n- **Code 노드**가 JSON을 수정하여 필드(`param1`)를 추가합니다.\n- **Result2, Result3, Result4:** 최종 처리된 출력을 표시합니다.\n\n### 2. 볼 수 있는 내용\n\n- **Result1 & Result5:** 배열이 분할되지 않고 **하나의 항목으로 처리됨**을 보여줍니다.\n- **Result2, Result3, Result4:** 각 URL이 **개별적으로 처리됨**을 분할 후 보여줍니다.\n- **Wait Node:** **Loop Over Items 2**에서 각 항목당 **1초 지연**을 추가합니다.\n\n---\n\n## 주의사항\n\n- 워크플로에 **스티키 노트**가 포함되어 쉽게 참조할 수 있습니다.\n- **Wait 노드**는 **선택적**입니다. 더 빠른 실행을 위해 제거하세요.\n- 이 템플릿은 **초보자**를 위해 구성되었지만, 더 고급 자동화의 **기본 빌딩 블록**으로 작용합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53e7d23a-2a4f-4ada-aeb5-de128acf8625",
+      "name": "Split Array of Strings into Array of Objects",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -20,
+        380
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "url"
+        },
+        "fieldToSplitOut": "urls"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4910fec6-d600-43be-97b2-5050039db416",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        700
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 260,
+        "content": "Result4는 우리가 반복 기능을 끄기 위해 반복 동작을 \"모든 항목에 대해 한 번 실행\"으로 설정할 수 있다는 것을 보여줍니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0e68b30-5341-4672-8d8e-7a24d894eb03",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        420
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 240,
+        "content": "Result3는 항목을 반복 처리하는 기능이 n8n 노드에 내장되어 있음을 보여줍니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70a987b9-6a4a-49c3-a87c-0dd9cc1879ed",
+      "name": "Result3",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        900,
+        500
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "9de5fac9-e987-4fb1-8f7f-b59af2985e5c",
+      "name": "Result4",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        900,
+        780
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "d5fee847-7758-44ac-a270-6334dd81bb97",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -640
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 260,
+        "content": "Result5는 문자열 배열이 Code5에 의해 하나의 항목으로 보이는 것을 보여줍니다. 그래서 그 동작이 Loop1과 동일합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a134620-4067-4c7a-8b0f-30e19c93a66c",
+      "name": "Result5",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        880,
+        -540
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "c273cd55-708d-4f86-81f2-3bbe991f59f8",
+      "name": "Paste JSON into this node",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -400,
+        -540
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8f64b987-05c5-43a9-89c0-201499df0aa6",
+      "name": "Add param1 to output5",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        -540
+      ],
+      "parameters": {
+        "jsCode": "\n  $json.param1 =  'add_me_to_all_items_and_name_me_param1';\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "4920b4e4-b511-4059-b38a-623d14b6df25",
+      "name": "Add param1 to output1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        -180
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n  $json.param1 = \"add_me_to_all_items_and_name_me_param1\"\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "28ce5239-6437-4b7a-9395-3beb162fded6",
+      "name": "Loop over Items 2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        320,
+        60
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "628edc5e-1b7f-4f50-9c29-8990bd4a5cc0",
+      "name": "Loop over Items 1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        320,
+        -260
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "ffccda97-066d-4c13-b4eb-a13ff849b90a",
+      "name": "Add param1 to output2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        680,
+        220
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n  $json.param1 =   \"add_me_to_all_items_and_name_me_param1\"\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6fb44840-6365-46db-9c50-eecd420f274f",
+      "name": "Add param1 to output3",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        500
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n  $json.param1 =   \"add_me_to_all_items_and_name_me_param1\"\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "51b8d766-25ed-407f-a956-693b93bda95f",
+      "name": "Add param1 to output4",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        780
+      ],
+      "parameters": {
+        "jsCode": "\n  $json.param1 =   \"add_me_to_all_items_and_name_me_param1\"\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f8edde34-cf47-42e2-bbd3-552df2509451",
+      "name": "Wait one second(just for show)",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        480,
+        180
+      ],
+      "webhookId": "61aef80b-4e9d-43ae-a083-cd87b4fdec11",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e1eff37a-1ffd-4691-9560-eada5baab88d",
+  "connections": {
+    "Result1": {
+      "main": [
+        []
+      ]
+    },
+    "Result2": {
+      "main": [
+        []
+      ]
+    },
+    "Loop over Items 1": {
+      "main": [
+        [
+          {
+            "node": "Result1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add param1 to output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over Items 2": {
+      "main": [
+        [
+          {
+            "node": "Result2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait one second(just for show)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output1": {
+      "main": [
+        [
+          {
+            "node": "Loop over Items 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output2": {
+      "main": [
+        [
+          {
+            "node": "Loop over Items 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output3": {
+      "main": [
+        [
+          {
+            "node": "Result3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output4": {
+      "main": [
+        [
+          {
+            "node": "Result4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output5": {
+      "main": [
+        [
+          {
+            "node": "Result5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paste JSON into this node": {
+      "main": [
+        [
+          {
+            "node": "Split Array of Strings into Array of Objects",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add param1 to output5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop over Items 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait one second(just for show)": {
+      "main": [
+        [
+          {
+            "node": "Add param1 to output2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Array of Strings into Array of Objects": {
+      "main": [
+        [
+          {
+            "node": "Loop over Items 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add param1 to output4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add param1 to output3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

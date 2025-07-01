@@ -1,0 +1,546 @@
+{
+  "id": "wGQOrU5qak5K99FT",
+  "meta": {
+    "instanceId": "d59922ccaab8f9a216dbe3eacc226c7a17998a61f6c4177822cd8e33edb224d7"
+  },
+  "name": "Google Sheets to Veo 3: Instantly Create Videos with n8n & Fal.AI",
+  "tags": [
+    {
+      "id": "fElGhCk9TINqseuM",
+      "name": "templates",
+      "createdAt": "2025-06-11T19:44:28.283Z",
+      "updatedAt": "2025-06-11T19:44:28.283Z"
+    },
+    {
+      "id": "I8yfdg9mSqeqo4nX",
+      "name": "creator",
+      "createdAt": "2025-06-11T19:44:30.157Z",
+      "updatedAt": "2025-06-11T19:44:30.157Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "7beb408f-128b-4e4c-8d03-e5625fbcb2eb",
+      "name": "Wait 5s",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        340,
+        620
+      ],
+      "webhookId": "150069ed-885b-497f-a32a-09e7088136e6",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "77d6a74f-b704-40f2-b054-fbf91c93726a",
+      "name": "Check if video is ready",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        160,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ac50759b-e2f3-4efd-a2af-f28b7d209b45",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "COMPLETED"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "cd94d480-3562-4ce3-aff0-9caf5dee9f72",
+      "name": "Get video url",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        0,
+        940
+      ],
+      "parameters": {
+        "url": "={{ $json.response_url }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key <YOUR_API_KEY>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5267ac1d-36ad-449a-9f5f-cae01a090b33",
+      "name": "Generate prompt for Veo 3 model",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        180,
+        -20
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "assistant",
+              "content": "=You are a creative prompt engineer for Google's Veo 3 video generation model. For any concept provided, craft a detailed, visually immersive prompt that specifies the subject, setting, lighting, mood, era or style, object details, composition, and background elements. Use evocative, sensory-rich language and guide the model to produce authentic, high-quality images. Match the style and depth of the following example:\n\nA casual street interview on a busy New York City sidewalk in the afternoon. The interviewer holds a plain, unbranded microphone and asks: Have you seen Google's new Veo3 model It is a super good model. Person replies: Yeah I saw it, it's already available on fal. It's crazy good.\n\nRespond only with the crafted prompt."
+            },
+            {
+              "content": "=the input is: {{ $json.Idea }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "6iZ86Vz38pnHnAuF",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "a5864945-030e-4d80-83cb-2f558399d8bf",
+      "name": "Submit Request to generate video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        300
+      ],
+      "parameters": {
+        "url": "https://queue.fal.run/fal-ai/veo3",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.prompt }}\",\n  \"aspect_ratio\": \"{{ $json.ratio }}\",\n  \"enhance_prompt\": true,\n  \"generate_audio\": {{ $json.audio }}\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "Key <YOUR_API_KEY>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "00f339c8-f6e3-42b3-aa56-abe34268c68a",
+      "name": "Set variables for Video generation",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4807c116-ed98-4a0e-8dba-aab1dd2ee971",
+              "name": "prompt",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "id": "32437b05-fa7a-4f3b-bad0-fc7201cc7371",
+              "name": "ratio",
+              "type": "string",
+              "value": "={{ $('Google Sheets Trigger').item.json.Ratio }}"
+            },
+            {
+              "id": "4cf00dd2-9057-4868-93ac-7f9725750d77",
+              "name": "audio",
+              "type": "string",
+              "value": "={{ $('Google Sheets Trigger').item.json.Audio }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "88429b78-fe9f-42ca-81e1-0b364703ab2a",
+      "name": "Check video status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        0,
+        620
+      ],
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/veo3/requests/{{ $json.request_id }}/status",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key <YOUR_API_KEY>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "26e74f30-575f-407a-99ee-f75daad9a2e4",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        0,
+        -20
+      ],
+      "parameters": {
+        "event": "rowAdded",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/100ur8DnU_q2YIAx15ccMfEWC43Di_G7hj19csjxg73A/edit#gid=0",
+          "cachedResultName": "Results"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "100ur8DnU_q2YIAx15ccMfEWC43Di_G7hj19csjxg73A",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/100ur8DnU_q2YIAx15ccMfEWC43Di_G7hj19csjxg73A/edit?usp=drivesdk",
+          "cachedResultName": "Veo 3 template"
+        }
+      },
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "CUMqe7iFy7F1KIF9",
+          "name": "Google Sheets account NervoAI"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57f0306d-3b12-4717-afc6-c548863c2f7f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -80
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 700,
+        "height": 1140,
+        "content": "## Google Sheets에서 Veo 3으로: n8n & Fal.AI로 즉시 비디오 생성\n\nFal.AI의 Veo 3 모델을 사용하여 간단하게 8초 비디오를 생성하세요. Google Sheet에 행을 추가하여 아이디어, 비디오 비율, 그리고 오디오 필요 여부(true/false)를 입력하세요.\n\nFal.AI의 요금은 다음과 같습니다:\n\n1초 비디오: $0.50\n\n1초 비디오(오디오 포함): $0.75\n\n8초 비디오(기본): $4.00\n\n8초 비디오(오디오 포함): $6.00\n\n실행 시간은 다음과 같습니다:\n\n8초 비디오(기본): 3분\n\n8초 비디오(오디오 포함): 15분\n\n**1단계: Google Sheets 연결**\n\nGoogle 서비스 계정 자격 증명을 추가하고 Google Cloud 프로젝트에서 Google Sheets API를 활성화하세요.\n\n설명에 공유된 템플릿 시트를 복사하세요.\n\nn8n의 Google Sheets 노드가 올바른 스프레드시트에 연결되어 있는지 확인하세요.\n\n**2단계: OpenAI 연결**\n\nOpenAI API 키를 가져오세요.\n\nn8n에서 OpenAI 자격 증명을 추가하세요.\n\n**3단계: Fal.ai 설정**\n\nfal.ai에서 가입하고 계정을 충전하세요.\n\nFal.ai 대시보드에서 API 키를 가져오세요.\n\nn8n에서 \"비디오 생성 요청 제출\", \"비디오 상태 확인\", \"비디오 URL 가져오기\" 노드를 업데이트하세요. 인증 헤더를 'Key <YOUR_API_KEY>'로 교체하세요.\n\n**4단계: 시트에서 결과 보기**\n\n시트가 업데이트되면 사용된 프롬프트와 비디오 URL을 볼 수 있습니다.\n\n**문제 해결**\n“Audio” 열이 텍스트가 아닌 부울로 표시되어 비디오 생성 오류가 발생하면 스프레드시트에 '=\"true\"' 또는 '=\"false\"'로 입력하세요.\n\n기타 문제가 발생하면 max@nervoai.com으로 연락하세요.\n\n이게 전부입니다! 이제 Google Sheets에서 바로 Veo 3 비디오를 생성할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9dc75bc3-25a7-4c3c-bb65-8372acb2703b",
+      "name": "Update sheet with video url and prompt used in Veo3",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        340,
+        940
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Idea": "={{ $('Google Sheets Trigger').item.json.Idea }}",
+            "Video Generated": "={{ $json.video.url }}",
+            "Prompt Generated": "={{ $('Generate prompt for Veo 3 model').item.json.message.content }}"
+          },
+          "schema": [
+            {
+              "id": "Idea",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Idea",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ratio",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Ratio",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Audio",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Audio",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Generated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Prompt Generated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Video Generated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Video Generated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Idea"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/100ur8DnU_q2YIAx15ccMfEWC43Di_G7hj19csjxg73A/edit#gid=0",
+          "cachedResultName": "Results"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "100ur8DnU_q2YIAx15ccMfEWC43Di_G7hj19csjxg73A",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/100ur8DnU_q2YIAx15ccMfEWC43Di_G7hj19csjxg73A/edit?usp=drivesdk",
+          "cachedResultName": "Veo 3 template"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f8o05SKiFZmuFhu9",
+          "name": "Google Sheets account nervoAI"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "774b9b76-4cd8-4d5a-8b8b-587ee1cae464",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 540,
+        "height": 300,
+        "content": "## 1단계: 트리거 및 프롬프트 생성\nGoogle Sheets에 새 행이 추가되면 워크플로를 시작하고, 워크플로가 실행될 때 시트 데이터를 기반으로 Veo 3 비디오 모델의 프롬프트를 생성합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "169699a3-6208-4586-8c3c-a3df7f3cdaf2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        180
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 540,
+        "height": 300,
+        "content": "## 2단계: 비디오 요청 준비 및 제출\n비디오 생성을 위한 모든 필요한 변수를 설정하고 Fal.AI에게 비디오 생성 요청을 보냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "739cdf63-5e11-4364-b4f8-3b65e962ce3e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        500
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 300,
+        "content": "## 3단계: 비디오 상태 모니터링\n비디오 생성의 상태를 확인합니다. 대기하고 매 5초마다 반복적으로 확인합니다. 비디오가 준비될 때까지."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "49c27097-de0e-4516-8ee0-8936507d7455",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        820
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 540,
+        "height": 300,
+        "content": "## 4단계: 결과 검색 및 업데이트\n\n최종 비디오 URL을 가져오고 Google 시트에 비디오 링크와 사용된 프롬프트를 업데이트합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f0cad2c-2edc-4ab2-9a10-0ae019069b35",
+  "connections": {
+    "Wait 5s": {
+      "main": [
+        [
+          {
+            "node": "Check video status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get video url": {
+      "main": [
+        [
+          {
+            "node": "Update sheet with video url and prompt used in Veo3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check video status": {
+      "main": [
+        [
+          {
+            "node": "Check if video is ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate prompt for Veo 3 model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if video is ready": {
+      "main": [
+        [
+          {
+            "node": "Get video url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 5s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate prompt for Veo 3 model": {
+      "main": [
+        [
+          {
+            "node": "Set variables for Video generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Request to generate video": {
+      "main": [
+        [
+          {
+            "node": "Check video status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set variables for Video generation": {
+      "main": [
+        [
+          {
+            "node": "Submit Request to generate video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

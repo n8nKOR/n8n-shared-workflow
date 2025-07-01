@@ -1,0 +1,225 @@
+{
+  "id": "8dpOtivR6zGMa8Nf",
+  "meta": {
+    "instanceId": "2000c64071c20843606b95c63795bb0797c41036047055a6586498e855b96efc",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Automated Lead Scraper: Apify to Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "331e904a-362e-4b18-ac01-60bd138a7ee1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1740,
+        -300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c8c72d6e-4558-4ab1-9c19-2b8e3cefc856",
+      "name": "Run Apify Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1280,
+        -300
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-tasks/' + $json.APIFY_TASK_ID + '/run-sync-get-dataset-items?token=' +$json.APIFY_TOKEN}}",
+        "options": {
+          "splitIntoItems": true
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb61d5a9-0352-4079-a00f-c42df06bb09e",
+      "name": "Clean Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1080,
+        -300
+      ],
+      "parameters": {
+        "jsCode": "// Clean scraped data before LLM processing\nreturn $input.all().map(item => ({\n  ...item.json,\n  phone: item.json.phone?.replace(/[^\\d+]/g, '') || '',\n  email: item.json.email?.toLowerCase().trim() || ''\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a6988139-87e5-423c-bec9-ce155f617dab",
+      "name": "Export to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -760,
+        -300
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "phone": "={{ $json.phone }}",
+            "Address": "={{ $json.address }}",
+            "company name": "={{ $json.title }}"
+          },
+          "schema": [
+            {
+              "id": "company name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "company name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UHkd_OuK1Xzc0ZXo7FPrsd5M1JlsIY9pJDC3fsJ3oq8/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UHkd_OuK1Xzc0ZXo7FPrsd5M1JlsIY9pJDC3fsJ3oq8/edit?usp=drivesdk",
+          "cachedResultName": "leas list solar"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "f4398fd2-bff0-4e9c-ae1b-f5950be0a384",
+      "name": "Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1500,
+        -300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4486360c-2296-41ad-a48f-706e24c49a4f",
+              "name": "APIFY_TOKEN",
+              "type": "string",
+              "value": "YOUR_APIFY_API_TOKEN"
+            },
+            {
+              "id": "6e56b0e3-36ae-4f1e-b0e5-38767bbe8af9",
+              "name": "APIFY_TASK_ID",
+              "type": "string",
+              "value": "YOUR_APIFY_TASK_ID"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "04a980cf-365b-4cc3-8439-fd71cb1f05a3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1860,
+        -820
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1660,
+        "height": 780,
+        "content": "## Apify를 사용한 Google Sheets로의 자동화된 비즈니스 리드 스크래퍼  \n**목적:** Apify를 사용하여 비즈니스 리드를 스크래핑하고, 데이터를 정리하며, Google Sheets로 내보내는 것을 자동화합니다.  \n\n**작업 흐름 단계:**  \n1. **수동 트리거**: 작업 흐름을 수동으로 시작합니다.  \n2. **API 자격 증명 설정**: 자신의 `APIFY_TOKEN`과 `APIFY_TASK_ID`를 추가합니다.  \n3. **Apify 스크래퍼 실행**: Apify HTTP API를 사용하여 리드를 가져옵니다.  \n4. **데이터 정리**: 전화번호와 이메일을 형식화합니다.  \n5. **Google Sheets로 내보내기**: 스프레드시트에 데이터를 추가합니다.  \n\n**Google Sheet 요구사항:**  \n- 시트 이름: `Sheet1`  \n- 열: `company name`, `phone`, `Address`  \n\n**커스터마이제이션 팁:**  \n- 데이터 정리 및 매핑에서 `email`, `website`과 같은 더 많은 필드를 추가합니다.  \n- 내보내기 전에 조건이나 필터를 추가합니다.  \n- 필요 시 이메일 알림을 추가합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "47bf9abd-67aa-49c8-81c9-761e75ee731f",
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variables": {
+      "main": [
+        [
+          {
+            "node": "Run Apify Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Export to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Scraper": {
+      "main": [
+        [
+          {
+            "node": "Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

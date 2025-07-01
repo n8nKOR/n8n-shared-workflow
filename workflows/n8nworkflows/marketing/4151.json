@@ -1,0 +1,228 @@
+{
+  "id": "qthXGkJCm1YAAQpW",
+  "meta": {
+    "instanceId": "c586b172acc6a68496c50087fe4c45ad1d861562820afb3dfa9dc2c12688d8c2",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI SEO Readability Audit: Check Website Friendliness for LLMs",
+  "tags": [
+    {
+      "id": "JkpR8IEIpOrc2x6l",
+      "name": "Leonard van Hemert",
+      "createdAt": "2025-05-17T14:14:16.649Z",
+      "updatedAt": "2025-05-17T14:14:16.649Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ea4c49eb-5a9d-4de9-acc7-3eef90b11f29",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -340,
+        -140
+      ],
+      "webhookId": "f41e2ff4-b329-4c64-9147-963726a1eb76",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "🚀 AI SEO Readability Checker",
+          "subtitle": "Test how AI-friendly your website is for search engines like ChatGPT & Perplexity – built by [Leonard van Hemert](https://nl.linkedin.com/in/leonard-van-hemert)",
+          "responseMode": "lastNode",
+          "inputPlaceholder": "https://example.com"
+        },
+        "initialMessages": "Hi! 👋  \nSend your website link and I’ll check how AI-friendly it is for tools like ChatGPT and Perplexity. Let’s go! 🚀"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0ede3abb-3cad-4e9a-bc8c-79d8eac06fe6",
+      "name": "Get HTML from Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        100,
+        -140
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonHeaders": "{\n  \"User-Agent\": \"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)\",\n  \"Accept-Language\": \"nl-NL,nl;q=0.9,en-US;q=0.8,en;q=0.7\"\n}",
+        "sendHeaders": true,
+        "specifyHeaders": "json"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "96d8c97a-8d7b-41fb-a109-d56e34d7dff1",
+      "name": "Sanitize Website URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -120,
+        -140
+      ],
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      url: (() => {\n        let input = $json.chatInput.trim().toLowerCase();\n        if (!input.startsWith('http')) input = 'https://' + input;\n        return input;\n      })()\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2b8a702e-b141-4f71-9e8f-2caa69cfad80",
+      "name": "Extract HTML Features",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        -140
+      ],
+      "parameters": {
+        "jsCode": "const html = $json.data || '';\n\n// Remove scripts, styles, and extract visible text\nconst cleanedText = html\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<[^>]*>/g, '') // strip all HTML tags\n  .replace(/\\s+/g, ' ')\n  .trim();\n\n// Preview: first 400 chars of visible content\nconst previewText = cleanedText.slice(0, 400);\n\n// Lowercased text for language-agnostic JS block detection\nconst lowerText = cleanedText.toLowerCase();\n\n// Common JS-related blocking messages (EN + NL + DE)\nconst jsBlockIndicators = [\n  'enable javascript',\n  'javascript is required',\n  'please enable javascript',\n  'javascript moet ingeschakeld zijn',\n  'schakel javascript in',\n  'javascript erforderlich'\n];\n\n// Scan for any of the indicators\nconst jsWarningDetected = jsBlockIndicators.some(phrase => lowerText.includes(phrase));\n\nreturn [\n  {\n    json: {\n      visibleTextLength: cleanedText.length,\n      previewText,\n      hasH1: /<h1[\\s>]/i.test(html),\n      hasH2: /<h2[\\s>]/i.test(html),\n      hasH3: /<h3[\\s>]/i.test(html),\n      hasMetaDescription: /<meta[^>]+name=[\"']description[\"']/i.test(html),\n      hasOpenGraph: /<meta[^>]+property=[\"']og:/i.test(html),\n      hasStructuredData: /<script[^>]*type=[\"']application\\/ld\\+json[\"']/i.test(html),\n      hasNoscript: /<noscript[\\s>]/i.test(html),\n      jsWarning: jsWarningDetected,\n      robotsTxt: $('Sanitize Website URL').first().json.url.replace(/\\/$/, '') + '/robots.txt'\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "58591741-7896-4f0f-a5d6-a16efccdf4a3",
+      "name": "AI SEO Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        540,
+        -140
+      ],
+      "parameters": {
+        "text": "=You are an expert in AI SEO analysis and AI search engine accessibility.\n\nYou are evaluating a website’s readability for LLM-based tools like ChatGPT, Perplexity, and Google AI Overviews. The website's raw HTML was fetched *without JavaScript execution*, simulating how LLMs typically see pages.\n\n---\n\n### 🧾 Technical Scan Summary\n\n**Visible content (no JS):**\n- Text length: {{ $json.visibleTextLength }} characters\n- Preview: \"{{ $json.previewText }}\"\n\n**Detected features:**\n- Structured Data (JSON-LD): {{ $json.hasStructuredData }}\n- Meta Description: {{ $json.hasMetaDescription }}\n- Open Graph Metadata: {{ $json.hasOpenGraph }}\n- Headings: H1: {{ $json.hasH1 }}, H2: {{ $json.hasH2 }}, H3: {{ $json.hasH3 }}\n- `<noscript>` fallback present: {{ $json.hasNoscript }}\n- JavaScript-blocking warning found: {{ $json.jsWarning }}\n\n---\n\n### 🎯 Your task:\nEvaluate the AI-readability of this website and return:\n\n1. An **AI Readability Score (0–10)**\n2. A **brief summary** of the current state (2–4 sentences)\n3. Up to **5 actionable recommendations** to improve visibility and accessibility for AI search engines\n\n💡 If the text length is below 300 or the `JavaScript-blocking warning found` is true, clearly state that the site may not be accessible to LLMs due to JavaScript dependency.\n\n⚠️ **Important:**\nYou must also **tell the user** to check their `robots.txt` file manually, and provide this exact clickable link:  \n👉 [{{ $json.robotsTxt }}]({{ $json.robotsTxt }})  \nExplain they must ensure bots like `GPTBot`, `ChatGPT-User`, and `Google-Extended` are **not blocked**.\n\nDo not perform this check yourself — just inform the user to do it.\n\n---\n\n🎁 Format your response like this:\n\n**Score:** x/10  \n**Summary:** ...  \n**Recommendations:**\n- ...\n- Check your robots.txt file at [{{ $json.robotsTxt }}]({{ $json.robotsTxt }}) to ensure AI bots are allowed.",
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "080e40e2-bfb3-42df-8f92-ac1379135aad",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        20
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 740,
+        "height": 700,
+        "content": "# 🚀 AI SEO 가독성 감사 워크플로우\n\n**목적:** 이 워크플로우는 웹사이트의 HTML을 분석하여 ChatGPT 및 Perplexity와 같은 대형 언어 모델(LLM)이 자바스크립트를 실행하지 않고 크롤링할 때의 가독성과 접근성을 평가합니다.\n\n**작동 방식:**\n1.  채팅에 웹사이트 URL을 입력합니다.\n2.  워크플로우가 원시 HTML을 가져옵니다(자바스크립트 미실행 크롤러를 시뮬레이션).\n3.  주요 SEO 기능(텍스트 내용, 제목, 메타 태그 등)을 추출합니다.\n4.  LLM(OpenAI를 통해)이 이러한 기능을 분석하여 다음을 제공합니다:\n    - AI 가독성 점수(0-10)\n    - 사이트의 AI 친화성 요약\n    - 실행 가능한 추천 사항\n    - `robots.txt` 확인 리마인더\n\n**설정 요구 사항:**\n- **OpenAI 계정 및 API 키:** \"OpenAI Chat Model\" 노드에서 자격 증명을 구성합니다.\n- **n8n 인스턴스:** 이 워크플로우는 클라우드 또는 자체 호스팅된 모든 n8n 인스턴스에서 실행됩니다.\n\n**사용 방법:**\n1.  \"OpenAI Chat Model\" 노드가 API 키로 구성되어 있는지 확인합니다.\n2.  워크플로우를 활성화합니다.\n3.  \"When chat message received\" 트리거가 제공하는 채팅 URL을 엽니다.\n\n**커스터마이제이션:**\n- **LLM 모델:** \"OpenAI Chat Model\" 노드에서 모델을 변경합니다.\n- **분석 프롬프트:** \"AI SEO Analysis\" 노드에서 프롬프트를 수정합니다.\n\n🔗 *설정 및 커스터마이제이션에 대한 자세한 내용은 n8n.io의 템플릿 설명을 참조하세요.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a737c2cb-1d6c-4e69-9d92-c7177c42049a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        260
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 460,
+        "content": "# **🚀 Leonard van Hemert가 개발했습니다**  \n\n이 **AI SEO 가독성 감사** 워크플로우를 사용해 주셔서 감사합니다! 🎉  \n\n이 워크플로우는 사용자가 AI 도구가 웹사이트를 어떻게 '보는지' 이해하도록 돕고, AI 친화성을 개선하기 위한 실행 가능한 통찰을 제공하기 위해 만들어졌습니다.  \n\n이것이 유용하다고 생각되면, LinkedIn에서 저와 **연결**하세요. 그리고 제 최신 AI 및 자동화 프로젝트에 대한 업데이트를 받으세요!  \n\n🔗 **LinkedIn에서 저를 팔로우하세요**: [Leonard van Hemert](https://www.linkedin.com/in/leonard-van-hemert/)  \n\n저는 **n8n 커뮤니티**의 지원에 진심으로 감사드리며, 여러분이 이 워크플로우를 어떻게 사용하고 개선하는지 기다릴 수 없습니다! 🚀  \n\n최적화 즐겁게 하세요,  \n**Leonard van Hemert** 💡"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7228e3be-1ef7-4f5a-bcb0-2a9299d53cfe",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        628,
+        80
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "1OV4I35YEqCf9qI5",
+          "name": "OpenAI account"
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "executionTimeout": 300
+  },
+  "versionId": "9e18a350-a243-4368-b3d3-746a55bceb24",
+  "connections": {
+    "AI SEO Analysis": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI SEO Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Website URL": {
+      "main": [
+        [
+          {
+            "node": "Get HTML from Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract HTML Features": {
+      "main": [
+        [
+          {
+            "node": "AI SEO Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get HTML from Website": {
+      "main": [
+        [
+          {
+            "node": "Extract HTML Features",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Website URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

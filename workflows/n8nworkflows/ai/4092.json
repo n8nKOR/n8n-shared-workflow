@@ -1,0 +1,586 @@
+{
+  "id": "YtPhfFCx9D9Eq9zi",
+  "meta": {
+    "instanceId": "a5283507e1917a33cc3ae615b2e7d5ad2c1e50955e6f831272ddd5ab816f3fb6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Tesla Quant Trading AI Agent n8n",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "8677aed4-a1bf-4439-8b5e-57c283f81862",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -560,
+        -100
+      ],
+      "webhookId": "721eba88-462f-40ab-8c53-c6c2f3897e11",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "FH5VC4KOy7sBQBc0",
+          "name": "Dad's Tesla AI Agent"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "fddcfaab-f575-4e72-b3f1-e0965e3c71b5",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        140,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "yUizd8t0sD5wMYVG",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f6e5726a-1010-4a55-9d54-f6889eb780e1",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1380,
+        -100
+      ],
+      "webhookId": "77b6658d-8dfb-415b-9e67-4f34ef086cdb",
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "FH5VC4KOy7sBQBc0",
+          "name": "Dad's Tesla AI Agent"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "62f3f30c-47e4-4c86-828b-3ab4de28e6c3",
+      "name": "User Authentication (Replace Telegram ID)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -300,
+        -100
+      ],
+      "parameters": {
+        "jsCode": "if ($input.first().json.message.from.id !== <<replace your ID here>>) { // Replace with your actual ID\n  return {unauthorized: true};\n} else {\n  // Return the original data when authorized\n  return $input.all();\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5a79ae5f-583d-41a0-9055-914de6eaf341",
+      "name": "Tesla Quant Trading AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        520,
+        -100
+      ],
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "You are the **Tesla Quant Trading AI Agent**, responsible for generating structured, professional swing-trading reports for **TSLA** based on both **real-time technical analysis** and **curated sentiment data**.\n\n---\n\n### 🔗 Connected Tools:\n\n1. **Tesla Financial Market Data Analyst Tool**  \n   - Aggregates multi-timeframe indicators + candlestick signals from:\n     • Tesla 15min Indicators Tool  \n     • Tesla 1h Indicators Tool  \n     • Tesla 1d Indicators Tool  \n     • Tesla Klines Tool (1h & 1d pattern/volume)  \n   - Uses Alpha Vantage indicators: **RSI, BBANDS, SMA, EMA, ADX, MACD**  \n   - Each tool returns the **20 most recent points**, cleaned and trimmed  \n   - Pattern logic: detects **Doji, Engulfing**, and **volume divergence**\n\n2. **Tesla News and Sentiment Analyst Tool**  \n   - Scrapes from trusted RSS sources: **Google News, Yahoo Finance, Electrek, CleanTechnica, TeslaNorth**  \n   - Returns:  \n     • **Sentiment score**: Bullish / Bearish / Neutral  \n     • **Summary**: 2–3 sentence narrative  \n     • **Top 3–5 Headlines** (with sources)\n\n---\n\n### 📊 Responsibilities:\n\n1. **Ingest structured inputs** from the tools listed above:\n   - Indicator values and candlestick/volume behavior  \n   - News sentiment summaries and headlines\n\n2. **Perform technical analysis** across timeframes:\n   - **Short-Term**: 15m + 1h  \n   - **Long-Term**: 1d + 1h  \n   - Assess trend, support/resistance, divergence, and reversal signals  \n   - Confirm with lagging indicators and macro sentiment alignment\n\n3. **Generate two trade strategy sections**:\n\n<b>Spot Recommendations</b>  \n• Action: Buy / Sell / Hold  \n• Entry Price  \n• Stop Loss  \n• Take Profit  \n• Rationale:  \n - <b>Primary Signals</b>: e.g. candle pattern, breakout  \n - <b>Lagging Indicators</b>: RSI, BBANDS, etc.  \n - <b>Sentiment & Macro Analysis</b>: use news summary + headlines\n\n<b>Leveraged Recommendations</b>  \n• Position: Long / Short  \n• Leverage: 2x / 3x / 5x  \n• Entry Price  \n• Stop Loss  \n• Take Profit  \n• Rationale:  \n - <b>Primary Price Action Signals</b>  \n - <b>Lagging Indicator Confirmation</b>  \n - <b>Sentiment & Macro Analysis</b>\n\n4. **Score your signal strength**  \n• Confidence score (0–100)  \n• Strength label: Low / Medium / High / Very High\n\n5. **Include sentiment and headlines** at the bottom of the report:  \n• A short <b>News Sentiment Summary</b>  \n• Top 3 Tesla-related headlines with bullet formatting\n\n---\n\n### 🧾 Output Format (Telegram HTML)\n\nStart your message with:\n<b>TSLA Analysis</b>\n\n\nUse:\n• `<b>` for bold headers  \n• `•` for bullet points  \n• Clean line breaks  \n\n---\n\n⚠️ DO NOT:\n• Fabricate or assume any data  \n• Repeat this prompt or system instructions  \n• Include raw JSON or raw API format in your output\n\nOnly use what is provided via structured input. Write like a seasoned quantitative analyst.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "966cf9b6-abd4-48a0-bd32-6c83985a33ac",
+      "name": "Tesla Financial Market Data Analyst Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        700,
+        260
+      ],
+      "parameters": {
+        "name": "Tesla_Financial_Market_Data_Analyst",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "WmWhVZ3XkJdjTmME",
+          "cachedResultName": "Work Drive — Tesla Financial Market Data Analyst"
+        },
+        "workflowInputs": {
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "schema": [
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "dbf1bef5-044a-4594-af1b-1468d4cdc06a",
+      "name": "Tesla News and Sentiment Analyst Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        980,
+        260
+      ],
+      "parameters": {
+        "name": "Tesla_News_and_Sentiment_Analyst",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "kOIhNsok4gtt6fD3",
+          "cachedResultName": "Work Drive — Tesla News and Sentiment Analyst"
+        },
+        "workflowInputs": {
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "schema": [
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2109ef95-4256-4713-aa9d-8a8ecd40eff3",
+      "name": "Add SessionId",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c9d7a6f2-7e01-46fb-a4ee-f0c3b248bd6b",
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            },
+            {
+              "id": "d5929b35-1751-4a6a-bbee-d844cbb8e0aa",
+              "name": "DateandTime",
+              "type": "string",
+              "value": "={{ $json.currentDate }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0f45fae9-fef5-4595-97f0-04f974790cd3",
+      "name": "Splits message is more than 4000 characters",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1020,
+        -100
+      ],
+      "parameters": {
+        "jsCode": "// Input: assumes incoming message in `item.json.message`\nconst input = $json.output;\nconst chunkSize = 4000;\n\n// Function to split text\nfunction splitMessage(text, size) {\n  const result = [];\n  for (let i = 0; i < text.length; i += size) {\n    result.push(text.substring(i, i + size));\n  }\n  return result;\n}\n\n// Logic\nif (input.length <= chunkSize) {\n  return [{ json: { message: input } }];\n} else {\n  const chunks = splitMessage(input, chunkSize);\n  return chunks.map(chunk => ({ json: { message: chunk } }));\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8e7dcfd4-7f2a-47b4-8e5a-1bc4d77fced7",
+      "name": "Date & Time",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        -20,
+        -100
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f31dbe9c-25a2-4751-ba34-38ed0ae9e18c",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        420,
+        260
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "97dfa658-3a67-4ed7-9662-b62573e0958b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -340
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 420,
+        "content": "## 들어오는 텔레그램 명령 트리거\n\n이 노드는 새로운 텔레그램 메시지를 감지하여 보고서 생성을 시작합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7d99e5f-0f36-4963-aa2c-33db04689fc5",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        -340
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 260,
+        "height": 420,
+        "content": "## 사용자 액세스 검증\n\n오직 **승인된 Telegram 사용자 ID**만 에이전트를 트리거할 수 있도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a4d6ba0-2d75-4453-8b05-bc4dedf81be5",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -340
+      ],
+      "parameters": {
+        "color": 5,
+        "height": 420,
+        "content": "## 타임스탬프 캡처\n\n현재 시스템 날짜와 시간을 세션 추적 및 보고서 스탬핑을 위해 캡처합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "157ba065-d228-41f0-a88f-ea8122fb5fa8",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -340
+      ],
+      "parameters": {
+        "height": 420,
+        "content": "세션 메타데이터 생성\n\nTelegram 채팅 ID에 기반한 sessionId를 할당하고 현재 날짜/시간을 컨텍스트 연속성을 위해 저장합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fe0bc11-94da-4c82-bf28-5fe6429d6e86",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 420,
+        "content": "## 주요 AI 에이전트: 거래 보고서 생성기\n\n**GPT 모델을 사용하여 기술 데이터와 감정 데이터를 결합**하여 구조화된 **TSLA 스윙 트레이딩 보고서**로 만듭니다.\n\n**금융 시장 분석가 + 감정 분석가**를 호출합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a1e3a33-713a-4a72-81c0-001e74af8f73",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -340
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 260,
+        "height": 420,
+        "content": "텔레그램 메시지 제한 처리\n\n출력 메시지 길이를 확인하고 필요 시 4000자 청크로 분할합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5ac3bcb-baa5-4d39-9e44-6be888317089",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -340
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 260,
+        "height": 420,
+        "content": "## Telegram에 최종 보고서 보내기\n\n형식화된 HTML 보고서(또는 분할된 부분)를 원래 Telegram 사용자에게 다시 보냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5df88223-3acc-4b27-b592-58d499a638dd",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        220
+      ],
+      "parameters": {
+        "color": 2,
+        "height": 400,
+        "content": "## GPT 모델 추론\nOpenAI GPT(예: GPT-4o)를 사용하여 신호 분석을 처리하고 **최종 보고서** 텍스트를 생성합니다.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c7bcc5bc-48b9-464b-9a6b-062535810543",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        220
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 400,
+        "content": "## 단기 기억 모듈\n세션 동안 **상태를 유지합니다**. 에이전트가 **메시지 기록과 이전 맥락을 추적**하는 데 도움이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b17ec86d-5d91-469f-bc9d-fb5e22ecbfaf",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        220
+      ],
+      "parameters": {
+        "color": 6,
+        "height": 400,
+        "content": "## 기술 지표 통찰력 가져오기\n모든 **15m, 1h, 1d, 및 Klines 하위 에이전트**를 **웹훅**을 통해 호출하여 구조화된 **시장 분석**을 검색합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1eda1d9b-2b50-4cd1-8b83-6a7d37517d31",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        220
+      ],
+      "parameters": {
+        "color": 6,
+        "height": 400,
+        "content": "## Tesla 뉴스 스크래핑 및 감정 생성  \n신뢰할 수 있는 RSS 피드에서 최신 Tesla 관련 헤드라인을 가져오고 구조화된 감정 요약을 반환합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e2ebe09-5488-4fb9-8175-b88ba68fcb9e",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1900,
+        -1680
+      ],
+      "parameters": {
+        "width": 1280,
+        "height": 2300,
+        "content": "# 🧠 Tesla Quant Trading AI Agent – 전체 시스템 문서\n\n전문급 AI 기반 주식 분석 시스템으로, 실시간 기술 지표와 감정 신호를 기반으로 구조화된 Tesla (TSLA) 스윙 트레이딩 통찰력을 제공합니다.\n\n---\n\n## 🧩 포함된 워크플로우\n\n> 시스템이 올바르게 작동하려면 **모든** 다음 워크플로우를 다운로드하여 설치하세요.\n\n| 워크플로우 이름                          | 기능                                                                 |\n| ---------------------------------------- | -------------------------------------------------------------------- |\n| ✅ Tesla 15분 지표 도구                  | 단기 신호(15분: RSI, BBANDS 등)를 위한 Alpha Vantage 데이터 가져오기 |\n| ✅ Tesla 1시간 지표 도구                 | 중기 신호(1시간: RSI, BBANDS 등)를 위한 Alpha Vantage 데이터 가져오기 |\n| ✅ Tesla 1일 지표 도구                   | 장기 신호(1일: RSI, BBANDS, MACD)를 위한 Alpha Vantage 데이터 가져오기 |\n| ✅ Tesla 1시간 & 1일 Klines 도구         | 촛대 패턴과 거래량 차이 분석(OHLCV)                                 |\n| ✅ Tesla Quant 기술 지표 웹훅 도구       | 위 4개의 지표 가져오기 도구를 구동하는 웹훅 핸들러                  |\n| ✅ Tesla 재무 시장 데이터 분석 도구      | 다중 시간 프레임 지표 + 촛대 데이터 합성                            |\n| ✅ Tesla 뉴스 및 감정 분석 도구          | Tesla 뉴스 RSS 스크래핑 + 헤드라인에 감정 할당                       |\n| ✅ Tesla Quant Trading AI Agent          | Telegram 스타일 거래 보고서 생성하는 최종 에이전트                   |\n\n---\n\n## ⚙️ 설치 지침\n\n### 1단계: 워크플로우 가져오기\n\n1. **n8n 편집기 UI**를 엽니다.\n2. 각 워크플로우 JSON 파일을 하나씩 가져옵니다.\n3. 모든 워크플로우가 **활성화**되었거나 `Execute Workflow` 노드를 통해 적절히 연결되었는지 확인합니다.\n\n### 2단계: 자격 증명 설정\n\n1. **자격 증명 → HTTP Auth → Query Parameter Auth**로 이동합니다.\n2. `Alpha Vantage Premium`이라는 이름의 자격 증명을 만듭니다.\n\n   * 추가: `apikey=YOUR_API_KEY`\n3. **OpenAI API** 자격 증명(예: GPT-4.1 또는 동등한 버전)을 추가합니다.\n\n### 3단계: 웹훅 구성\n\n1. **Tesla Quant 기술 지표 웹훅 도구**를 배포합니다.\n2. `/15minData`, `/1hourData`, `/1dayData`, 및 `/klinesData` 경로가 제대로 접근 가능하도록 확인합니다.\n\n### 4단계: 실행 설정\n\n1. **Tesla Quant Trading AI Agent**를 수동으로 또는 스케줄러를 통해 트리거합니다.\n2. 에이전트는:\n\n   * 모든 기술 + 감정 도구를 워크플로우 실행을 통해 호출\n   * 데이터 형식화 및 분석\n   * Telegram-HTML 스타일의 전체 거래 보고서 출력\n\n---\n\n## 🖥️ 시스템 개요\n\n**데이터 흐름:**\n\n```\n[Webhook HTTP Trigger] \n→ [지표 도구 (15분, 1시간, 1일)] \n→ [촛대 도구 (1시간, 1일)]\n→ [재무 시장 데이터 분석기] \n→ [감정 분석기] \n→ [최종 보고서 생성기]\n```\n\n**출력 예시:**\n\n* 현물 + 레버리지 거래 진입\n* 신뢰도 점수 (0–100)\n* 추론: 가격 움직임, 지표, 및 감정\n* 요약 헤드라인 및 감정 맥락\n\n---\n\n## 📬 출력 형식\n\n* Telegram HTML(`<b>`, `•`, 줄 바꿈)을 사용하여 스타일링\n* 다음을 포함한 구조화된 거래 보고서:\n\n  * 행동 유형\n  * 진입/퇴출 가격\n  * 3부분으로 구성된 근거\n  * 뉴스 감정 및 3개 헤드라인\n\n---\n\n## 🚀 지원 및 라이선스\n\n🔗 **Don Jayamaha – LinkedIn**  \n[http://linkedin.com/in/donjayamahajr](http://linkedin.com/in/donjayamahajr)\n\n© 2025 Treasurium Capital Limited Company. All rights reserved.  \n이 AI 워크플로우 아키텍처(로직, 디자인, 및 프롬프트 구조 포함)는 **Treasurium Capital Limited Company**의 지적 재산입니다. **미국 저작권법**에 따라 무단 복제, 재배포, 또는 재판매는 금지됩니다. 라이선스된 용도만 가능합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b77078ba-b904-4315-aa13-f80fded7f9a9",
+  "connections": {
+    "Telegram": {
+      "main": [
+        []
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Add SessionId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add SessionId": {
+      "main": [
+        [
+          {
+            "node": "Tesla Quant Trading AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Tesla Quant Trading AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "User Authentication (Replace Telegram ID)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tesla Quant Trading AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tesla Quant Trading AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Splits message is more than 4000 characters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tesla News and Sentiment Analyst Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla Quant Trading AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tesla Financial Market Data Analyst Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla Quant Trading AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Authentication (Replace Telegram ID)": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Splits message is more than 4000 characters": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

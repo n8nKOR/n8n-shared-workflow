@@ -1,0 +1,343 @@
+{
+  "id": "x2kgOnBLtqAjqUVS",
+  "meta": {
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "name": "Automated Work Attendance with Location Triggers",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b2cba308-6d47-432b-9296-58f233f15565",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "801c8367-af7b-4371-8684-cc699090b97f",
+      "parameters": {
+        "path": "time-track",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "67354f1c-9dac-4edd-b07d-f1b0dbd80159",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -260
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 180,
+        "content": "워크시트가 존재하는지 확인"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fc5a1a6-f18d-4ee0-a70b-30de48a45dc7",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        220,
+        -220
+      ],
+      "parameters": {
+        "filter": {},
+        "options": {},
+        "resource": "fileFolder",
+        "returnAll": true,
+        "queryString": "WorkTimeTracking"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "U6W5tWhDvO7rQ73t",
+          "name": "Google Drive account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "a0b63be4-fa46-413f-82fe-42e6edc24f29",
+      "name": "Create Worksheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        800,
+        -240
+      ],
+      "parameters": {
+        "title": "WorkTimeTracking",
+        "options": {
+          "locale": ""
+        },
+        "resource": "spreadsheet",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "Worklog"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TvzWrF2qPL7RjlJK",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "796e3ef6-3002-493e-8d89-10cba2d8026d",
+      "name": "Return if Null",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        -220
+      ],
+      "parameters": {
+        "jsCode": "return [{json: {empty: items.length == 1 && Object.keys(items[0].json).length == 0}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7af7ce4b-93e0-4058-8a45-9fd8269ddc77",
+      "name": "Doesn't exist?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        580,
+        -220
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "215b8ced-c6f5-4cf2-8755-9bba928dbe84",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{$json[\"empty\"]}}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f2bc21c6-805b-49e7-b026-a4de56dce1fa",
+      "name": "Set Logging Details",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        780,
+        20
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={\n  \"Date\": \"{{ $now.format('yyyy-MM-dd') }}\",\n  \"Time\": \"{{ $now.format('hh:mm') }}\",\n  \"Direction\":\"Check-In\"\n}\n"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "64bc8b93-a925-49d6-9e52-3f30f0c9e5a8",
+      "name": "Create Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1000,
+        20
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $json.Date }}",
+            "Time": "={{ $json.Time }}",
+            "Direction": "={{ $('Webhook').item.json.headers.direction ? $('Webhook').item.json.headers.direction : \"\"}}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Direction",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Direction",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 308318361,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1P7-Uqa4SPA6keujkkOTru1wdS2qDryJVkz0Nz_sFp7A/edit#gid=308318361",
+          "cachedResultName": "Worklog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Google Drive').item.json.id }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TvzWrF2qPL7RjlJK",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "cabca7d5-b4ae-45db-904d-f8efb37c4ab2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        -40
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 280,
+        "content": "## 로그 체크인 또는 체크아웃"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5b9505fc-71a4-42c1-805f-c363384b4c8a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        -320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 640,
+        "content": "위치 기반 시간 추적\n\n이 자동화는 위치 트리거를 사용하여 시간 추적을 간소화합니다. 작동 방식은 다음과 같습니다:\n\niPhone Shortcuts 앱에서 두 개의 숏컷을 만드세요:\n\n하나를 \"Check-In\"으로, 다른 하나를 \"Check-Out\"으로 명명하세요.\n\n각 숏컷 내에서 \"Get Content from URL\" 액션을 사용하여 웹훅을 호출하세요. \"Check-In\" 또는 \"Check-Out\"에 대한 헤더 방향을 설정하세요.\n\n이제 지정된 위치에 들어가거나 나올 때마다 iPhone이 자동으로 Google Sheet에 시간을 기록합니다. 이는 작업 시간이나 특정 장소에서 보낸 시간을 원활하고 정확하게 기록합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "timezone": "Europe/Lisbon",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "executionTimeout": -1,
+    "saveManualExecutions": true
+  },
+  "versionId": "2de5264f-eb68-4919-a3f3-133a8ceb45bb",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Return if Null",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Doesn't exist?": {
+      "main": [
+        [
+          {
+            "node": "Create Worksheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Logging Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return if Null": {
+      "main": [
+        [
+          {
+            "node": "Doesn't exist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Worksheet": {
+      "main": [
+        [
+          {
+            "node": "Set Logging Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Logging Details": {
+      "main": [
+        [
+          {
+            "node": "Create Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

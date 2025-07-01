@@ -1,0 +1,555 @@
+{
+  "meta": {
+    "instanceId": "21754f977ce20b07e6fe64be3fbc663f6e6f730423d6e46c6cd2bf5b5e70a383"
+  },
+  "nodes": [
+    {
+      "id": "49a3829e-3127-4761-8ac0-edaa6d0224c2",
+      "name": "HTTP Request - Utilize Prospeo.io LinkedIn Email Finder API1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3820,
+        680
+      ],
+      "parameters": {
+        "url": "https://api.prospeo.io/linkedin-email-finder",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json['Linkden URL'] }}"
+            },
+            {
+              "name": "id",
+              "value": "={{ $json.ID }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-KEY",
+              "value": "43b7e4f5c6558ccaa539e0e5f5778f09"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "705aef1b-5e45-4fe8-b1fd-5ebb5d461dd5",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3760,
+        1140
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "f2b8a1b8-13b6-4de3-9cde-336494bf31dc",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        3140,
+        940
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "28b1d9c4-c89e-460d-8a5b-0fea42d2d1d8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3660,
+        460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 468.54622634118857,
+        "height": 380.67540639666913,
+        "content": "- 다음 API를 이용했습니다: \n  - [Prospeo.io LinkedIn 이메일 찾기 API](https://prospeo.io/api/linkedin-email-finder)\n\n- **이점:**\n  - 이 API의 이점은 LinkedIn 사용자들의 이메일 주소를 효율적으로 찾는 방법을 제공하여, Google Sheets 또는 워크플로우에서 사용되는 다른 시스템에서 데이터를 더 정확하고 포괄적으로 업데이트하고 풍부하게 하는 데 도움이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d8edc9fa-3012-46ab-9ed2-473f55213e78",
+      "name": "Conditional Check",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3520,
+        940
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2b355bc4-0ef4-415a-a437-d8ed6538c1e3",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.Name }}",
+              "rightValue": ""
+            },
+            {
+              "id": "1757a7d7-ce91-4df1-b54d-c9285f88e3ee",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.Gender }}",
+              "rightValue": ""
+            },
+            {
+              "id": "78089c18-e9d6-40e5-8d0c-e2b96c1f1348",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json['Job Title'] }}",
+              "rightValue": ""
+            },
+            {
+              "id": "0ee10296-113d-4467-92d7-368111426cf5",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.Summery }}",
+              "rightValue": ""
+            },
+            {
+              "id": "2ec7486d-e753-4c87-a6df-10056c7ee4b2",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json['Linkden URL'] }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bdf82dbf-7b6b-4d42-9a6a-34d5cfb691ad",
+      "name": "Field Editing",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4100,
+        900
+      ],
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "Name",
+              "stringValue": "={{ $json.response.full_name }}"
+            },
+            {
+              "name": "Gender",
+              "stringValue": "={{ $json.response.gender }}"
+            },
+            {
+              "name": "Email",
+              "stringValue": "={{ $json.response.email.email }}"
+            },
+            {
+              "name": "Summary",
+              "stringValue": "={{ $json.response.summary}}"
+            },
+            {
+              "name": "Education",
+              "stringValue": "={{ $json.response.education[0].school.name }}"
+            },
+            {
+              "name": "Skills",
+              "stringValue": "={{ $json.response.skills }}"
+            },
+            {
+              "name": "Picture",
+              "stringValue": "={{ $json.response.picture }}"
+            },
+            {
+              "name": "Job Title",
+              "stringValue": "={{ $json.response.job_title }}"
+            },
+            {
+              "name": "Location",
+              "stringValue": "={{ $json.response.location.raw }}"
+            },
+            {
+              "name": "Linkden link",
+              "stringValue": "={{ $json.response.linkedin }}"
+            },
+            {
+              "name": "ID",
+              "stringValue": "={{ $json.ID }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "897734e2-5d05-4480-a24b-e4b3ae44dce6",
+      "name": "Data Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3860,
+        900
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "mergeByPosition"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "92a9861d-9e42-4fe2-84a7-03b3b0dbb1b0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2300,
+        520
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 803.4846614963799,
+        "height": 938.2393052135303,
+        "content": "- **스케줄 트리거:**\n  - 설명: 이 노드는 정의된 스케줄 간격에 따라 워크플로를 트리거합니다. 이 경우, 분 단위로 기반합니다.\n  - 문서: [스케줄 트리거 노드](https://docs.n8n.io/nodes/n8n-nodes-base.scheduleTrigger)\n\n- **Google Sheets Read:**\n  - 설명: 이 노드는 제공된 문서 ID와 시트 이름을 기반으로 Google Sheets 문서와 시트에서 데이터를 읽습니다.\n  - 문서: [Google Sheets 노드](https://docs.n8n.io/nodes/n8n-nodes-base.googleSheets)\n\n- **Conditional Check:**\n  - 설명: 이 노드는 입력 데이터에 따라 여러 조건을 확인하고, 조건에 따라 추가 작업을 수행합니다.\n  - 문서: [Conditional 노드](https://docs.n8n.io/nodes/n8n-nodes-base.if)\n\n- **HTTP Request:**\n  - 설명: 이 노드는 제공된 헤더와 본문 매개변수와 함께 지정된 URL에 HTTP POST 요청을 보냅니다.\n  - 문서: [HTTP Request 노드](https://docs.n8n.io/nodes/n8n-nodes-base.httpRequest)\n\n- **No Operation, do nothing:**\n  - 설명: 이 노드는 어떠한 작업도 수행하지 않으며, 플레이스홀더로 사용됩니다.\n  - 문서: [No Operation 노드](https://docs.n8n.io/nodes/n8n-nodes-base.noOp)\n\n- **Data Merge:**\n  - 설명: 이 노드는 지정된 모드와 조합 설정에 따라 여러 필드를 단일 객체로 결합합니다.\n  - 문서: [Merge 노드](https://docs.n8n.io/nodes/n8n-nodes-base.merge)\n\n- **Field Editing:**\n  - 설명: 이 노드는 제공된 입력 데이터에 따라 각 필드에 특정 값을 설정하여 필드를 수정합니다.\n  - 문서: [Set 노드](https://docs.n8n.io/nodes/n8n-nodes-base.set)\n\n- **Google Sheets Update:**\n  - 설명: 이 노드는 지정된 열과 값에 따라 Google Sheets 문서와 시트의 데이터를 업데이트합니다.\n  - 문서: [Google Sheets 노드](https://docs.n8n.io/nodes/n8n-nodes-base.googleSheets)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "644f38d3-ccf0-4ce3-b759-e129e1074512",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        240
+      ],
+      "parameters": {
+        "width": 2292.975584892399,
+        "height": 1214.0709576942727,
+        "content": "## Google Sheet에 저장된 LinkedIn 프로필 URL의 연락처 정보를 찾기  \n**비디오 링크.** [가이드](https://www.canva.com/design/DAF9a_UBxWY/xSSlSUzRdxCPtfgx9RzGSg/watch?utm_content=DAF9a_UBxWY&utm_campaign=designshare&utm_medium=link&utm_source=editor)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8ddaddad-b976-46c5-b8a1-e49ecb493e87",
+      "name": "Get links from Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3340,
+        940
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ochnGSCy8V5Mz-nr51dBmugqR50m62K7d6pvbwOHewo/edit#gid=0",
+          "cachedResultName": "الورقة1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1ochnGSCy8V5Mz-nr51dBmugqR50m62K7d6pvbwOHewo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ochnGSCy8V5Mz-nr51dBmugqR50m62K7d6pvbwOHewo/edit?usp=drivesdk",
+          "cachedResultName": "linkden URls"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L5CnisK8R3BgVGcO",
+          "name": "Omar sheet"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0923a13d-1097-432d-b22e-375fec9f383e",
+      "name": "Update the sheet with information",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        4320,
+        900
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $json.ID }}",
+            "Name": "={{ $json.Name }}",
+            "Email": "={{ $json.Email }}",
+            "Gender": "={{ $json.Gender }}",
+            "Skills": "={{ $json.Skills }}",
+            "Picture": "={{ $json.Picture }}",
+            "Summery": "={{ $json.Summary }}",
+            "Location": "={{ $json.Location }}",
+            "Education": "={{ $json.Education }}",
+            "Job Title": "={{ $json['Job Title'] }}"
+          },
+          "schema": [
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Linkden URL",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Linkden URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Gender",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Gender",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Education",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Education",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Job Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summery",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Summery",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Skills",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Picture",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Picture",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ID"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ochnGSCy8V5Mz-nr51dBmugqR50m62K7d6pvbwOHewo/edit#gid=0",
+          "cachedResultName": "الورقة1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1ochnGSCy8V5Mz-nr51dBmugqR50m62K7d6pvbwOHewo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ochnGSCy8V5Mz-nr51dBmugqR50m62K7d6pvbwOHewo/edit?usp=drivesdk",
+          "cachedResultName": "linkden URls"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L5CnisK8R3BgVGcO",
+          "name": "Omar sheet"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Data Merge": {
+      "main": [
+        [
+          {
+            "node": "Field Editing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Field Editing": {
+      "main": [
+        [
+          {
+            "node": "Update the sheet with information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get links from Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conditional Check": {
+      "main": [
+        [
+          {
+            "node": "Data Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "HTTP Request - Utilize Prospeo.io LinkedIn Email Finder API1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get links from Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Conditional Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Utilize Prospeo.io LinkedIn Email Finder API1": {
+      "main": [
+        [
+          {
+            "node": "Data Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

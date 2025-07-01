@@ -1,0 +1,1719 @@
+{
+  "meta": {
+    "instanceId": "28099d2544433ae0f39c65315a4d4c531947fcb0f060a94d6047d7be5df31063"
+  },
+  "nodes": [
+    {
+      "id": "fc1c7eb2-f966-4780-8bc6-b6ba22e2a924",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        3220,
+        700
+      ],
+      "parameters": {},
+      "typeVersion": 1.7
+    },
+    {
+      "id": "fc3c4d99-5891-4f11-b5d6-d1f1ee5cd303",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2800,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1594475a-b111-4d64-86ad-7cdde127dae1",
+      "name": "Calendar Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        3260,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "099a27aa-b6d1-4e7d-846a-b7b997e50c2a",
+      "name": "CRM Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        3380,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "df8f0ce9-a9e4-4457-9836-f884a97fa819",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "position": [
+        3140,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "fd5ed307-4d18-4e4e-ab2f-8ec7f2726eb6",
+      "name": "Handle Message Types",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1700,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "8016b3f6-b288-4d55-b3a1-03edd2171a56",
+      "name": "Reply To User1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1920,
+        880
+      ],
+      "webhookId": "0e86d9ab-6130-44f5-a7f1-4930bfcad48b",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8fd8ef0f-7e1e-44f7-9d9d-b574ecd03d9b",
+      "name": "Edit Fields - chat1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2580,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d2008bd2-b8d1-41eb-88a4-3e234df59790",
+      "name": "Reply To  User",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        4220,
+        580
+      ],
+      "webhookId": "3b2ca5bf-7b1d-4012-b68e-ef06653a3c18",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1fc97a0e-fc10-414a-9b07-0361fa7fbe82",
+      "name": "WhatsApp",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        1260,
+        680
+      ],
+      "webhookId": "aaf6d81e-dbdd-47e2-a2d4-c496ff92933b",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c00e2d94-5884-45ab-ab42-14b059ba67d4",
+      "name": "WhatsApp Business Cloud",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1920,
+        680
+      ],
+      "webhookId": "5cbf4730-3963-45f9-8457-6f41e648d4fe",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "64c1465e-60a5-42d7-9693-5f5ebce1a2a2",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2140,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c3960605-94fb-42e4-b600-da1d00b72db0",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2360,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "181f6ff9-04c6-4614-9d92-f2f95c843ac1",
+      "name": "Edit Fields - chat2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2580,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "da170c50-289d-49de-bd66-3014a0864eaa",
+      "name": "Output - chat",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4220,
+        1160
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7a047681-55a4-46bb-b24d-6f75df3e8499",
+      "name": "Postgres PGVector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "position": [
+        3320,
+        1300
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "403e783d-a3ae-4dd3-8ed6-6de60490f9f2",
+      "name": "Get Lead",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1480,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "9a3d1aa6-77a4-4903-aeca-c91c7a1c2c93",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        2340,
+        1700
+      ],
+      "webhookId": "0e63503d-ab21-4a3d-8d29-19c5d94c24d4",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "62c3803a-a4fe-44dc-95c6-e2ef44a52f66",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        3020,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "052eb8f1-74ed-46b0-9777-d8b901d295ab",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        3120,
+        1240
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c4735285-ee35-4a38-9638-1422599cbe71",
+      "name": "Embeddings Google Gemini1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "position": [
+        3340,
+        1440
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0fd7d9e7-97f8-454f-93ec-0f2fd16f9616",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        440
+      ],
+      "parameters": {
+        "content": "이 텍스트는 번역할 내용이 없습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0500f16c-6b06-42a7-b6bb-ff7fb01bcde0",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        180,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "86b1e536-f5e8-4296-8238-9d23b760305a",
+      "name": "Create Charge",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        300,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a2bb895a-61fc-404b-9efa-9ef1cfdc6909",
+      "name": "Create Discount Coupon",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        420,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5924b845-9f4f-4a08-909c-b7871b505457",
+      "name": "Get Customer Card",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        540,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4348c965-a204-4f96-9e37-cc9d8505d795",
+      "name": "Get Customer",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        660,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9b2727f5-372a-4e72-bdc9-d704b0cf525d",
+      "name": "Create Customer",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        780,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0d6c31e2-e77e-4426-8bfb-98efbc5dfc27",
+      "name": "Update Customer",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        900,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "59d12b07-a90b-44d0-8df6-3795e68dc43b",
+      "name": "Delete Customer",
+      "type": "n8n-nodes-base.stripeTool",
+      "position": [
+        1020,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6082562f-04e1-4203-a237-6e892d51f77c",
+      "name": "Google Gemini Chat Model4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        60,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b9c5fdca-adcc-42aa-9a77-922cc7131ab1",
+      "name": "Response1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        900,
+        1280
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "732f64b4-8fb5-4490-8670-f6d9a1f35ed6",
+      "name": "Try Again2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        920,
+        1480
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d9eef59c-6d02-490c-ac01-6aca37b35a7f",
+      "name": "Billing Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        3500,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bfbf29cd-2fc4-436e-baeb-1aa74c8475e1",
+      "name": "Billing Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        460,
+        1460
+      ],
+      "parameters": {},
+      "typeVersion": 1.9
+    },
+    {
+      "id": "ba688bbd-4b96-4d4f-83c4-ec032e52e09e",
+      "name": "technical_and_sales_knowledge",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        3020,
+        1080
+      ],
+      "parameters": {},
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "752270b8-c6f2-48b8-a7e0-e0fefb849aff",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1260
+      ],
+      "parameters": {
+        "content": "### Output 에 대한 번역 결과가 없습니다. 입력 텍스트가 제공되지 않았으므로, 번역할 내용이 없습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56557012-e746-4a12-b109-e2e278a6a76e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "content": "번역할 텍스트가 입력되지 않았습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ddf2121e-3d3d-49b1-84a0-18a3e32f5fd6",
+      "name": "Facebook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1460,
+        1220
+      ],
+      "webhookId": "b7e461f0-9a0d-4e27-9e86-f74a3e684e3a",
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "e163aed9-7345-4759-9793-befac35ec3d4",
+      "name": "Edit Fields - facebook",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2120,
+        1220
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a8fc15d6-98d7-4ce6-9a5f-e20f8daa8746",
+      "name": "Respond to Webhook - facebook post",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1680,
+        1120
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b1c56265-23cd-46f6-846e-18563017c5c7",
+      "name": "Respond to Webhook - facebook get",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1680,
+        1320
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7396d841-8a00-4be8-b734-dbe8f3619eb9",
+      "name": "Instagram Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1780,
+        1580
+      ],
+      "webhookId": "cc6546da-6f16-4546-ada3-e2c83b208997",
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "1d5adb5a-17d1-49ca-b83d-c808d5c8d14a",
+      "name": "Respond to Webhook - instagram get",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2000,
+        1680
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f5103d0f-0c4c-4d74-bc3c-fd3abbb6a7c1",
+      "name": "Respond to Webhook - instagram post",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2000,
+        1480
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "acb6125b-e342-4d72-b09b-5479756c6030",
+      "name": "Edit Fields - instagram",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2440,
+        1480
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d2de4df9-416f-4c9f-8104-3f8287fc236c",
+      "name": "If is not echo - facebook",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1900,
+        1120
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6d10c7be-6c36-4c0c-a802-9756ac1d3e70",
+      "name": "If is not echo - instagram",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2220,
+        1480
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "346ce220-4d11-4e9c-93e7-548a1d0c155f",
+      "name": "Sales Agent Demo - typing_on",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        2120,
+        1020
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3f42b084-25ec-473c-8106-932cf2e7d9a6",
+      "name": "Edit Fields - chat",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2540,
+        1700
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6a6107ac-f35d-4c81-b28a-1a81672a55fb",
+      "name": "Facebook Graph API - Sales Agent Demo",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        4220,
+        760
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "331b9eac-c0ab-4935-83b6-5a703d0dddd0",
+      "name": "Instagram Graph API - smb.sales.agent.demo",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4220,
+        940
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4acbb570-65a3-4973-a106-c06151cd039b",
+      "name": "Switch1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        3780,
+        840
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "dffc3f73-3c04-4c7a-b976-57d71533fcbd",
+      "name": "Send First Message",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        3220,
+        160
+      ],
+      "webhookId": "89b0633a-88c4-4fe8-82f4-4e3ae20a075a",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "bdb62be6-5385-4d78-a4ce-be539bb22d29",
+      "name": "Personalised First Message",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2880,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "45b92ce3-0e74-4b29-86de-4264e3378118",
+      "name": "Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        2920,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "50bb8e6c-caf6-4d1f-aac1-95969b5cfff9",
+      "name": "Contact Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        2460,
+        160
+      ],
+      "webhookId": "a34f7372-b42d-4176-ac9b-2518d85c125d",
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e35aa634-5fc8-476c-938c-16dcee3bf78f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2400,
+        0
+      ],
+      "parameters": {
+        "content": "### Output\n아래 텍스트를 영어에서 한국어로 번역하세요.\n번역된 한국어 텍스트만 반환하세요. 추가 설명이나 형식은 없어야 합니다.\n\n### 입력\n\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "03ff50c6-dc0c-438f-be24-0caa3479ecc3",
+      "name": "Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2160,
+        20
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "565eca10-2203-4124-adcd-de9e88106ab7",
+      "name": "Try Again",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2000,
+        120
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e4d6dfc1-064f-413d-96f7-a69e61629e7a",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1240,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c453f5bc-c271-4848-bacc-642e861880fb",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1360,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "00256e82-9f75-4bf5-b398-ff6fa777e355",
+      "name": "Success",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4140,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ea7c1010-8de9-46da-a9f9-75d0dbd25d0a",
+      "name": "Create Event with Attendee",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        3660,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9ea7a1d6-a78d-4299-930c-2e8428861f55",
+      "name": "Create Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        3780,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "019a38f2-4447-4b31-8fc5-41cf0ca90a29",
+      "name": "Get Events",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        3900,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c3352115-f872-46a8-a880-bd45d9e082b9",
+      "name": "Delete Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        4020,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d6c48e3b-7e3f-4924-a41d-e772e3e1b208",
+      "name": "Update Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        4140,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c78ead66-8c1c-4003-82dd-4e3ba42dd04a",
+      "name": "Try Again1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4260,
+        220
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e0473a31-8f1e-462c-9b15-6f84a5db76a3",
+      "name": "Calendar Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        3680,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1.6
+    },
+    {
+      "id": "705c27dc-47d9-4401-bd11-b2a68a8af8e5",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3460,
+        0
+      ],
+      "parameters": {
+        "content": "이 메시지는 번역할 영어 텍스트가 없으므로, 출력할 내용이 없습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc98cf69-c168-4ae0-8d1d-66f250414f6b",
+      "name": "Google Gemini Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1240,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9117f2b8-000a-4cf5-8c4b-18a8d46094b3",
+      "name": "Create Opportunity",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        1480,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "4ba86ac5-dec6-40ae-9eb3-02f7d1644849",
+      "name": "List Records",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        1600,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "bc13a69b-9825-44eb-80f3-972b5b29a2b3",
+      "name": "Update Contact",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        1720,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "e0b84bcb-b5b5-4c1e-9600-d22b1aa77046",
+      "name": "Delete Contact",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        1960,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "f398eeee-61bd-40bb-96a9-0fb580797199",
+      "name": "Delete Opportunity",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        2080,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "10a4a520-2e13-4579-b1dd-66c2b5434315",
+      "name": "Update Opportunity",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        2200,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "b8342a8f-1d0d-4d77-a537-6f29e033139c",
+      "name": "Google Gemini Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        3540,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c7a34e7e-09a2-45ef-ba7b-6929625d5604",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        0
+      ],
+      "parameters": {
+        "content": "한국어 번역 결과가 없습니다. 입력 텍스트가 없기 때문입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "91fdb189-8e68-458d-9f1f-eb8537964211",
+      "name": "Create Contact",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        1840,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "b5971e41-2122-4a06-a51d-1d5e392f1a51",
+      "name": "CRM Agent2",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        1500,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1.7
+    },
+    {
+      "id": "6c53a122-d748-418e-bc25-886fbfdc3ce8",
+      "name": "Create Contact1",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        2660,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "query": "Create or update contact for Ben with email Ben@Ben.com and record interest in Ceramic Coating for appearance enhancement."
+      }
+    ]
+  },
+  "connections": {
+    "Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Personalised First Message",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - chat2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Reply To  User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Facebook Graph API - Sales Agent Demo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Instagram Graph API - smb.sales.agent.demo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Output - chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Lead": {
+      "main": [
+        [
+          {
+            "node": "Handle Message Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Get Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Agent2": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Try Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Form": {
+      "main": [
+        [
+          {
+            "node": "Create Contact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customer": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Records": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Billing Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Charge": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Billing Agent1": {
+      "main": [
+        [
+          {
+            "node": "Response1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Try Again2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contact": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Contact": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Contact": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent1": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Try Again1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contact1": {
+      "main": [
+        [
+          {
+            "node": "Personalised First Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Customer": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Customer": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Customer": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - facebook post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - facebook get",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customer Card": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - instagram post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - instagram get",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Opportunity": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Opportunity": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - chat": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Opportunity": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - chat1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - chat2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Message Types": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - chat1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply To User1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Discount Coupon": {
+      "ai_tool": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - facebook": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - instagram": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "technical_and_sales_knowledge",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Business Cloud": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "technical_and_sales_knowledge",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Billing Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If is not echo - facebook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - facebook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sales Agent Demo - typing_on",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event with Attendee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If is not echo - instagram": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalised First Message": {
+      "main": [
+        [
+          {
+            "node": "Send First Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Agent Demo - typing_on": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "technical_and_sales_knowledge": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "CRM Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook - facebook post": {
+      "main": [
+        [
+          {
+            "node": "If is not echo - facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook - instagram post": {
+      "main": [
+        [
+          {
+            "node": "If is not echo - instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

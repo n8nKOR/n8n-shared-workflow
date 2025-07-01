@@ -1,0 +1,298 @@
+{
+  "id": "iTYjhgQEFE4ap1c8",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "FireCrawl Summary Bot",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "471044c1-cafd-4810-973d-b40c74ef6999",
+      "name": "Daily Market Research Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -160,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8f6e97b6-6910-4c6b-8c9a-29a0cf95ac09",
+      "name": "Crawl TechCrunch (FireCrawl)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        140,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.firecrawl.dev/v1/crawl",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "https://techcrunch.com"
+            },
+            {
+              "name": "crawl_type",
+              "value": "scrape"
+            },
+            {
+              "name": "extract_article",
+              "value": "true"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_FIRECRAWL_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7d446441-d882-4816-805e-2d52cd8aea87",
+      "name": "Filter Relevant Articles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        360,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const keywords = ['AI', 'machine learning', 'startup', 'generative'];\nconst results = [];\n\nfor (const item of items) {\n  const title = item.json.article?.title?.toLowerCase() || '';\n  const content = item.json.article?.content?.toLowerCase() || '';\n\n  const isRelevant = keywords.some(keyword =>\n    title.includes(keyword.toLowerCase()) ||\n    content.includes(keyword.toLowerCase())\n  );\n\n  if (isRelevant) {\n    results.push(item); // keep only relevant articles\n  }\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a326e8fd-bfc8-4380-9c66-20481aaa8a6c",
+      "name": "Summarizer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        700,
+        0
+      ],
+      "parameters": {
+        "text": "=Summarize the following article in 3 bullet points:\nTitle: {{ $json.article.title }}\ndescription: {{ $json.meta.description }}\nContent: {{ $json.article.content }}",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "d8576228-6261-4654-84de-0864e398c22d",
+      "name": "OpenAI Summarizer",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        640,
+        240
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f5965b4a-4ab1-4e5f-868c-2dc11c59fc28",
+      "name": "Send Summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1060,
+        0
+      ],
+      "webhookId": "c2e00b18-42bd-49b7-bc4c-05d60633a7c8",
+      "parameters": {
+        "text": "=🔍 AI Research Summary: \nTitle: {{ $('Filter Relevant Articles').item.json.article.title }}\nLink: {{ $('Filter Relevant Articles').item.json.url }}\nSummary: {{ $json.output }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C08TTV0CC3E",
+          "cachedResultName": "all-nathing"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "L2vpqY0w5ba50NlR",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "295fae17-e75e-47db-a321-0379899f44cc",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -580
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 440,
+        "height": 800,
+        "content": "🌐💻 2. 크롤링 및 필터링\n\n노드:\n\n🌐 TechCrunch 크롤링 (FireCrawl) (HTTP 요청)\n\n🧠 관련 기사 필터링 (코드)\n\n🔍 이 노드들이 하는 일:\n\n🌐 TechCrunch 크롤링 (FireCrawl)\n\nFireCrawl의 API에 POST 요청을 사용합니다\n\n입력:\n\nurl: 대상 사이트 (예: https://techcrunch.com)\n\ncrawl_type: \"scrape\"\n\nextract_article: true\n\n가져옴:\n\n제목, 내용, 작성자, 게시일\n\n🧠 관련 기사 필터링\n\n코드 노드를 사용하여 기사가 관련된지 확인합니다\n\n\"AI\", \"machine learning\", \"startup\" 같은 키워드가 일치하는지 확인합니다\n\n사용자 도메인에 중요한 기사만 필터링합니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fe2fbcc-8489-42cf-a578-48a46f18977d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        -540
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 640,
+        "height": 920,
+        "content": "🤖💬 3. 요약 및 전달  \n노드:  \n🧠 AI로 기사 요약 (AI 에이전트)  \n🔗 OpenAI 채팅 (요약기) (OpenAI 채팅 모델)  \n💬 요약을 Slack에 보내기 (Slack)  \n📌 여기서 일어나는 일:  \n🤖 AI로 기사 요약  \n기사를 GPT-4 또는 GPT-3.5 에이전트에게 전달합니다  \n다음과 같은 프롬프트를 사용합니다:  \n“다음 기사를 3개의 불릿 포인트로 요약하세요…”  \n💡 OpenAI 채팅 (요약기)  \n실제 요약을 실행합니다  \n빠른 읽기를 위한 짧고 깔끔한 요약을 출력합니다  \n💬 요약을 Slack에 보내기  \n요약을 특정 Slack 채널에 게시합니다 (예: #market-research)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "97ecbbb2-e763-47f0-82b8-2fede05b486f",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2100,
+        -560
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "=======================================  \n            워크플로우 지원  \n=======================================  \n질문이나 지원이 필요하시면 다음으로 연락해주세요:  \n    Yaron@nofluff.online  \n  \n여기에서 더 많은 팁과 튜토리얼을 탐색하세요:  \n   - YouTube: https://www.youtube.com/@YaronBeen/videos  \n   - LinkedIn: https://www.linkedin.com/in/yaronbeen/  \n======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d28d5f04-db81-4833-869f-158b4586a337",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2100,
+        -220
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2758,
+        "content": "아주 좋습니다! 다음은 **Market Research Automation Workflow**를 논리적인 섹션으로 아름답게 나누어 설명한 내용입니다. 각 부분을 한눈에 파악할 수 있도록 명확한 설명과 적합한 아이콘을 추가했습니다.\n\n---\n\n# 🚀 **n8n Market Research Automation Workflow**\n\n**뉴스 사이트 크롤링**, **관련 콘텐츠 필터링**, **AI로 요약**, **Slack에 게시** 등의 프로세스를 원활하게 자동화합니다.\n\n---\n\n## ⏰ 1. **Trigger & Scheduling**\n\n**Node:** `🕒 Daily Market Research Trigger`\n\n> 워크플로를 정기적으로 시작합니다.\n\n🔧 **What it does:**\n\n* 매일 아침(또는 지정된 시간)에 실행됩니다.\n* 팀이 매일 새로운 업데이트를 받을 수 있도록 합니다.\n\n📅 **Example Cron Setting:**\n\n* 매일 오전 8:00에 실행\n\n---\n\n## 🌐💻 2. **Crawling & Filtering**\n\n### **Nodes:**\n\n* `🌐 Crawl TechCrunch (FireCrawl)` *(HTTP Request)*\n* `🧠 Filter Relevant Articles` *(Code)*\n\n### 🔍 What these nodes do:\n\n#### 🌐 **Crawl TechCrunch (FireCrawl)**\n\n* FireCrawl의 API에 **POST** 요청을 사용합니다.\n* Inputs:\n\n  * `url`: 대상 사이트 (예: `https://techcrunch.com`)\n  * `crawl_type`: `\"scrape\"`\n  * `extract_article`: `true`\n* Retrieves:\n\n  * `title`, `content`, `author`, `published_at`\n\n#### 🧠 **Filter Relevant Articles**\n\n* `Code` 노드를 사용하여 기사가 관련된지 확인합니다.\n* `\"AI\"`, `\"machine learning\"`, `\"startup\"` 같은 키워드를 매칭합니다.\n* 도메인에 중요한 기사만 필터링합니다.\n\n📄 **Sample Code:**\n\n```javascript\nconst keywords = ['AI', 'machine learning', 'startup', 'generative'];\nconst results = [];\n\nfor (const item of items) {\n  const title = item.json.article?.title?.toLowerCase() || '';\n  const content = item.json.article?.content?.toLowerCase() || '';\n\n  const isRelevant = keywords.some(keyword =>\n    title.includes(keyword.toLowerCase()) ||\n    content.includes(keyword.toLowerCase())\n  );\n\n  if (isRelevant) {\n    results.push(item); // keep only relevant articles\n  }\n}\n\nreturn results;\n```\n\n---\n\n## 🤖💬 3. **Summarization & Delivery**\n\n### **Nodes:**\n\n* `🧠 Summarize Article with AI` *(AI Agent)*\n* `🔗 OpenAI Chat (Summarizer)` *(OpenAI Chat Model)*\n* `💬 Send Summary to Slack` *(Slack)*\n\n### 📌 What happens here:\n\n#### 🤖 **Summarize Article with AI**\n\n* 기사를 GPT-4 또는 GPT-3.5 에이전트에 전달합니다.\n* 다음과 같은 프롬프트를 사용합니다:\n\n  > “다음 기사를 3개의 불릿 포인트로 요약하세요…”\n\n#### 💡 **OpenAI Chat (Summarizer)**\n\n* 실제 요약을 실행합니다.\n* 빠른 읽기를 위한 짧고 깔끔한 요약을 출력합니다.\n\n#### 💬 **Send Summary to Slack**\n\n* 요약을 특정 Slack 채널(예: `#market-research`)에 게시합니다.\n* 메시지 형식 예시:\n\n  ```\n  🔍 *Market Research Summary*\n  *Title:* OpenAI launches GPT-5\n  *Link:* https://techcrunch.com/article\n  *Summary:*\n  - GPT-5 improves reasoning\n  - Enhanced safety mechanisms\n  - Better multilingual performance\n  ```"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Crawl TechCrunch (FireCrawl)": [
+      {
+        "json": {
+          "url": "https://techcrunch.com",
+          "meta": {
+            "description": "The latest technology news and information on startups."
+          },
+          "title": "TechCrunch - Startup and Technology News",
+          "status": "success",
+          "article": {
+            "title": "OpenAI launches GPT-5",
+            "author": "Jane Doe",
+            "content": "OpenAI has officially released GPT-5, a major upgrade with enhanced reasoning and safety improvements...",
+            "published_at": "2025-05-28T13:00:00Z"
+          },
+          "content": "<html>...</html>"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8d64bd18-6a8f-4a2b-a952-5d8417122a2e",
+  "connections": {
+    "Summarizer Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Summarizer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarizer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Relevant Articles": {
+      "main": [
+        [
+          {
+            "node": "Summarizer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crawl TechCrunch (FireCrawl)": {
+      "main": [
+        [
+          {
+            "node": "Filter Relevant Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Market Research Trigger": {
+      "main": [
+        [
+          {
+            "node": "Crawl TechCrunch (FireCrawl)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,460 @@
+{
+  "id": "3wbxkdT6hilhq0Na",
+  "meta": {
+    "instanceId": "d47f3738b860eed937a1b18d7345fa2c65cf4b4957554e29477cb064a7039870"
+  },
+  "name": "Workflow Results to Markdown Notes in Your Obsidian Vault, via Google Drive",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "be787ece-4118-4063-98b0-41672dd570c0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        -480
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 680,
+        "content": "## Obsidian Vault에 폴더 연결  \n**설정 지침:**  \n- Google Drive에 데스크톱과 동기화되는 폴더를 생성하세요.  \n- Google Drive 노드를 다음과 같이 구성하세요:  \n   - 새로 생성된 폴더를 상위 폴더로 지정하세요.  \n   - 파일 이름을 지정하세요, .md를 추가하여 (예: `{{ $json.title }}.md`).  \n   - File Content 필드에 Markdown 내용을 추가하세요, 선택적인 YAML Frontmatter를 포함하여.  \n- Google Drive 폴더와 Obsidian Vault의 새 폴더 사이에 심링크를 설정하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a30f3fdc-95a1-44ff-844a-58353dc7e177",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -480
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 680,
+        "content": "## 워크플로 결과 Obsidian 보관함으로  \n이 템플릿은 n8n 워크플로 결과에서 실시간으로 Obsidian 보관함에 노트를 자동으로 생성하고 업데이트합니다. Google Drive에 저장된 Markdown 파일과 첨부 파일이 즉시 Obsidian 보관함에 나타납니다.  \n\n**모든 워크플로의 출력을 Execute Workflow Trigger beow로 보내세요**  \n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9527913-dad1-4abc-8c86-8c76f53dd513",
+      "name": "Save Markdown file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        740,
+        0
+      ],
+      "parameters": {
+        "name": "={{ $json.title }}.md",
+        "content": "=---\n{{ $json.frontmatter }}\n---\n{{ $json.content }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "15dvUtfSjaCCXmnOVeIUfeyRd_raI3PnQ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/15dvUtfSjaCCXmnOVeIUfeyRd_raI3PnQ",
+          "cachedResultName": "clippings-attachments"
+        },
+        "operation": "createFromText"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Vpmg4nRArCy8DHiE",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6484937e-17fd-444c-916b-1527382927d4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        -380
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 460,
+        "height": 540,
+        "content": "## 심볼릭 링크 생성\nGoogle Drive 데스크톱 폴더를 Obsidian Vault와 통합하기 위해 심볼릭 링크를 생성하세요. 이렇게 하면 Google Drive에 저장된 워크플로우 생성 노트가 Obsidian에서 즉시 나타나고 업데이트됩니다.\n\n- **관리자 명령 프롬프트 열기:** `Win + S`를 누른 후, `cmd`를 입력하고, 명령 프롬프트에서 오른쪽 클릭한 후 `관리자 권한으로 실행`을 선택하세요.\n\n- **폴더 경로 가져오기:** 소스 경로를 식별하세요: 이것은 연결하고 싶은 기존 Google Drive 폴더입니다. 대상 경로를 결정하세요: 이것은 심볼릭 링크가 생성될 Obsidian Vault의 폴더입니다. 대상 경로가 이미 존재하지 않도록 하세요.\n\n- **mklink 명령 실행:** 디렉토리 심볼릭 링크를 생성하기 위해 다음 구문을 사용하세요: `mklink /D \"Target Path\" \"Source Path\"` 대상 경로는 Vault에서 심볼릭 링크가 생성될 위치입니다. 소스 경로는 Google Drive 폴더입니다.\n\n- **예제 명령:** `mklink /D \"C:\\Users\\YourName\\Vault\\OtherFolder\" \"C:\\Users\\YourName\\Google Drive\\MyFolder\"`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe21a7c2-e8db-46be-87e7-63888bf6e9e7",
+      "name": "Receive results from any workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -660,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8f2399ba-0bda-4a2e-b773-7e28df16e7c2",
+      "name": "If the input has binary attachment",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        20,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9f56b367-2313-4a92-9572-b2d2687aba71",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{$json[\"binary\"]}}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d7cae1d6-5bfe-4e69-8257-0f7947b51c96",
+      "name": "Write Zettlekasten note from input1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -280,
+        240
+      ],
+      "parameters": {
+        "text": "={{ JSON.stringify($json) }}",
+        "options": {
+          "systemMessage": "You are an expert knowledge management assistant creating a Zettlekasten note from raw input data. Follow these precise steps:\n\n1. Extract key insights and meaningful connections from the provided JSON input.\n\n2. Structure the note using these Zettlekasten principles:\n- Create a clear, atomic central idea\n- Use precise, concise language\n- Link potential connections to other knowledge domains\n- Ensure the note can stand alone as a meaningful knowledge unit\n\n3. Note format:\n- Unique ID: Generate a unique identifier \n- Title: Concise, descriptive headline capturing core insight\n- Content: Synthesized information with clear reasoning\n- Tags: Relevant conceptual tags for future retrieval\n- References: Source of original data (optional)\n\n4. Prioritize intellectual clarity, semantic depth, and potential for future knowledge expansion.\n\nRespond ONLY with the completed Zettlekasten note in JSON format. Do not include any additional commentary or explanation."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "303d6633-8e98-4fbc-8ee1-9f1075bcaa3e",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -100,
+        420
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"title\": \"Concise, Descriptive Title\",\n  \"content\": \"Synthesized insights and key information\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "62800f09-8659-47b8-9a85-7d3d2c07ec1a",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -300,
+        420
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "q8L9oWVM7QyzYEE5",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df11dfcb-fb38-4796-9b28-eb1876f68261",
+      "name": "Restructure JSON",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        400,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c9061623-d0d0-4b63-a166-4766d88992aa",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $('Write Zettlekasten note from input1').item.json.output.title }}"
+            },
+            {
+              "id": "9f870307-3cbf-41b3-ba69-309610b2d020",
+              "name": "content",
+              "type": "string",
+              "value": "={{ $('Write Zettlekasten note from input1').item.json.output.content }}"
+            },
+            {
+              "id": "1f40b120-00e4-479f-85b0-3fd903e629cb",
+              "name": "frontmatter",
+              "type": "string",
+              "value": "={{ $json.output.frontmatter }}"
+            },
+            {
+              "id": "5b845683-5a25-486b-92b0-98990fcbf7af",
+              "name": "references",
+              "type": "string",
+              "value": "={{ $('Write Zettlekasten note from input1').item.json.output.references }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2a701cf8-e59d-47ae-83c6-9ac7148bd2c8",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        240,
+        420
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"frontmatter\": \"frontmatter here\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1e4da42e-e945-4be8-88ac-2579857ff3fa",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        60,
+        420
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "q8L9oWVM7QyzYEE5",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af5494d8-a53f-48b1-b939-210c882485be",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        100
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 880,
+        "height": 460,
+        "content": "## 선택 사항 - AI 에이전트로 노트 구성 사용\n노트의 제목, YAML 프론트매터, 그리고 콘텐츠에 대한 JSON 파라미터를 직접 사용하는 대신, AI 에이전트를 이용하여 이러한 요소를 구성할 수 있습니다. 이 접근 방식은 웹훅과 Google Drive 노트 사이에 AI 지원 워크플로를 삽입하는 것을 포함하며, 직접 연결 대신입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5d184ea4-88d0-4658-ab94-55246f3507fc",
+      "name": "Write YAML Frontmatter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        60,
+        240
+      ],
+      "parameters": {
+        "text": "={{ $json.output.content }}",
+        "options": {
+          "systemMessage": "=Generate comprehensive YAML frontmatter for an Obsidian note, focusing on metadata extraction and organization.\n\nOutput Format:\n```yaml\ntitle: \"{Extract a clear, concise title from input data}\"\ndate: {{ $now.toFormat('yyyy-MM-dd') }}\n\ntags:\n - {Derive 3-4 most relevant conceptual tags}\naliases:\n - {Alternative titles or key phrases}\nstatus: \"draft\"\nsource: \"{Infer original data source if possible}\""
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "d2b291be-97af-4bcb-8cc6-b21439bdcfb9",
+      "name": "Save attachment",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        740,
+        -180
+      ],
+      "parameters": {
+        "name": "=",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "15dvUtfSjaCCXmnOVeIUfeyRd_raI3PnQ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/15dvUtfSjaCCXmnOVeIUfeyRd_raI3PnQ",
+          "cachedResultName": "clippings-attachments"
+        },
+        "inputDataFieldName": "=data"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Vpmg4nRArCy8DHiE",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Write Zettlekasten note from input1": [
+      {
+        "json": {
+          "output": {
+            "id": "note-0235",
+            "tags": [
+              "Freelance",
+              "Employment Trends",
+              "Media Industry",
+              "Permanent Contracts"
+            ],
+            "title": "Shift from Freelancers to Permanent Contracts in Media",
+            "content": "Recent developments in the media sector indicate a notable trend where freelancers are increasingly being offered permanent contracts, reflecting a shift in employment practices within the industry. This transition aligns with new leadership changes at prominent companies such as WPG Uitgevers and Mybusinessmedia, which may further influence operational dynamics. Additionally, the appointment of Marc Veeningen as the new editor-in-chief of Talpa Networks signifies fresh perspectives in media management, potentially impacting staffing strategies. This trend not only addresses the job security concerns of freelancers but also suggests a recalibration of talent acquisition by media organizations. Such evolutions warrant closer examination of the balance between flexibility and stability in the workforce.",
+            "references": "Source: https://www.villamedia.nl/artikel/transfer-thursday-freelancers-naar-vast-contract-een-mooie-klus-bij-de-volkskrant-en-een-nieuwe-directeur-bij-wpg"
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c87bbecc-453d-4b8c-8b86-dcf7e1d6907b",
+  "connections": {
+    "Restructure JSON": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Zettlekasten note from input1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write YAML Frontmatter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Markdown file": {
+      "main": [
+        []
+      ]
+    },
+    "Write YAML Frontmatter": {
+      "main": [
+        [
+          {
+            "node": "Restructure JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Write Zettlekasten note from input1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Write YAML Frontmatter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive results from any workflow": {
+      "main": [
+        [
+          {
+            "node": "If the input has binary attachment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save Markdown file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If the input has binary attachment": {
+      "main": [
+        [
+          {
+            "node": "Save attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Zettlekasten note from input1": {
+      "main": [
+        [
+          {
+            "node": "Write YAML Frontmatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

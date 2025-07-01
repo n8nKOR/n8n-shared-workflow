@@ -1,0 +1,390 @@
+{
+  "id": "eZGesFp8UtgXZBci",
+  "meta": {
+    "instanceId": "8fb543b511022c43ab705107ba101545bb8b0fdb9bd6ebc4cca28dc9591a036e"
+  },
+  "name": "Series HD Olimpo & TorrentLand",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f4483eb1-ca99-4c61-a6e1-9bccb85a2ee8",
+      "name": "RSS Olimpo",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        -1000,
+        -420
+      ],
+      "parameters": {
+        "url": "https://hd-olimpo.club/rss/7335.be0cbfb98c9c4c08ddb3cd459c77967f",
+        "options": {
+          "ignoreSSL": false
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c80e250d-1dcd-4fca-b0d5-e7ab0aade1e6",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -800,
+        -420
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11b653ae-6a43-4e6d-86b8-066384eaa7d6",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title.replace(/\\[PACK\\].*/, \"\").replace(/\\[.*?\\]/g, \"\").trim() }} ({{$json.content.match(/<strong>Size<\\/strong>:\\s([\\d.]+\\s[KMGT]iB)/)[1]}})"
+            },
+            {
+              "id": "e300ad1b-6b93-45f7-a964-294abbebfd95",
+              "name": "link",
+              "type": "string",
+              "value": "={{ $json.link.replace(/\\/torrent\\/download\\/(\\d+)\\..*/, \"/torrents/$1\") }}"
+            },
+            {
+              "id": "bd548580-e879-4671-ad4e-603d2496362e",
+              "name": "pubDate",
+              "type": "string",
+              "value": "={{ new Date($json.pubDate).getTime() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3e784166-4aaf-46e4-adef-8ef55ce3487c",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -800,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d0002dd0-3a5a-4f1a-ba6e-d359549f5a1e",
+              "name": "title",
+              "type": "string",
+              "value": "={{$json.title.replace(/^\\[PACK\\] /, \"\").replace(/1080p .*/, \"\")}} ({{$json.content.match(/<strong>Size<\\/strong>:\\s([\\d.]+\\s[KMGT]iB)/)[1]}})"
+            },
+            {
+              "id": "cd7b2be1-a52e-430b-98a1-2fb30b5cb8c7",
+              "name": "link",
+              "type": "string",
+              "value": "={{ $json.link.replace(/\\/torrent\\/download\\/(\\d+)\\..*/, \"/torrents/$1\") }}"
+            },
+            {
+              "id": "3b9d50a8-0d46-4a8f-94e9-454bc5153280",
+              "name": "pubDate",
+              "type": "string",
+              "value": "={{ new Date($json.pubDate).getTime() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3ce079a3-5ca9-4e75-a845-2b60ff94c0db",
+      "name": "Merged Rss",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -540,
+        -280
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "6906b944-5554-4325-a932-ea8cbf3788dc",
+      "name": "Sort",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        -60,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "order": "descending",
+              "fieldName": "pubDate"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "179d4844-b80e-4f26-aa13-e09c73361603",
+      "name": "Markdown list",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        140,
+        -280
+      ],
+      "parameters": {
+        "jsCode": "// Escape simbols function\nfunction escapeMarkdown(text) {\n    return text\n        .replace(/\\\\/g, \"\\\\\\\\\")\n        .replace(/\\*/g, \"\\\\*\")\n        .replace(/\\_/g, \"\\\\_\")\n        .replace(/\\[/g, \"\\\\[\")\n        .replace(/\\]/g, \"\\\\]\")\n        .replace(/~/g, \"\\\\~\")\n        .replace(/`/g, \"\\\\`\")\n        .replace(/>/g, \"\\\\>\")\n        .replace(/#/g, \"\\\\#\")\n        .replace(/\\+/g, \"\\\\+\")\n        .replace(/=/g, \"\\\\=\")\n        .replace(/\\|/g, \"\\\\|\")\n        .replace(/!/g, \"\\\\!\");\n}\n\n// Generate list with links\nconst formattedList = items.map(item => {\n    const title = escapeMarkdown(item.json.title || \"No title\");\n    const link = item.json.link || \"#\";\n\n    // Telegram Markdown Format: [Text](URL)\n    return `[${title}](${link})`;\n}).join(\"\\n\"); // Join with line break\n\n// Return generated list\nreturn [{ json: { message: formattedList } }];\n\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4eeea9d2-33e9-4764-8ee4-8ec22fdcf0a9",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        340,
+        -280
+      ],
+      "parameters": {
+        "text": "=`----------------------------`\n`-- TorrentLand & HDOlimpo --`\n`----------------------------`\n{{ $json.message }}",
+        "chatId": "-1001216307043",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "7PHYK39uh1jMzOBd",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b5cf3931-3e7e-435a-bb47-45e57517c7ca",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1280,
+        -280
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b704ea08-11c5-4f13-a206-a009524016f2",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -300,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "046f5bde-6d2c-4dfd-b29b-17be6c34cc1b",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.pubDate }}\n\n",
+              "rightValue": "={{ Date.now() - 2 * 24 * 60 * 60 * 1000 }}"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e39365d8-9399-486b-be44-e321dbe3a8a6",
+      "name": "RSS Torrent",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        -1000,
+        -140
+      ],
+      "parameters": {
+        "url": "https://torrentland.li/rss/1251.283bddcd8d90ab67e4d36c4e09bc9a21",
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "43cb33e8-fc01-4ccb-9f3d-03a79fb45eab",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        -540
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 540,
+        "content": "## RSS 노드\n\n이 노드들에서 조회할 RSS 피드의 URL을 수정해야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4e8deaa-acde-415c-8d9b-f52e8940085a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -420
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 280,
+        "content": "아이템 나이  \n여기에서 우리가 보여줄 요소들의 최대 나이가 정의되어 있습니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c8df3b9-c6c8-4fb8-8702-8579479b8c4c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        -540
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 560,
+        "content": "## 큐레이트 정보  \n정규 표현식을 조정하여 원하는 결과를 달성하세요"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "01439398-74d1-4d28-bebd-0ea0a0f83de9",
+  "connections": {
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Markdown list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merged Rss": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Olimpo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merged Rss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Torrent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merged Rss",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Markdown list": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Olimpo",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Torrent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

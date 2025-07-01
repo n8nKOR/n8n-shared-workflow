@@ -1,0 +1,475 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "8f203423-b063-4918-a6ec-dad3ac7d1a20",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        860,
+        -100
+      ],
+      "webhookId": "c82193c7-163c-4556-942f-81c80037e0ea",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d9f2e90f-128b-458b-b3cf-79db2ec08633",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1000,
+        100
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4f752502-8589-4e31-bbe1-4b8395e7325a",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1160,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "61ca5a4b-3661-4330-ac4c-e09e75dd764c",
+      "name": "Acuity Support Search API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1840,
+        80
+      ],
+      "parameters": {
+        "url": "https://2al21hjwoz-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)%3B%20instantsearch.js%201.12.1%3B%20Zendesk%20Integration%20(2.32.0)%3B%20JS%20Helper%20(2.28.1)&x-algolia-application-id=2AL21HJWOZ&x-algolia-api-key=c3c07dd7fb575008575163c085a62b92",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{\n{\n  \"requests\":[\n    {\n      \"indexName\":\"Zendesk 4-25\",\n      \"params\": \"query=\" + $json.query + \"&hitsPerPage=5&page=0&facets=%5B%22locale.locale%22%2C%22label_names%22%2C%22category.title%22%5D&tagFilters=&facetFilters=%5B%22locale.locale%3Aen-us%22%5D\"\n    }\n  ]\n}\n}}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept-Language",
+              "value": "en"
+            },
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Origin",
+              "value": "https://help.acuityscheduling.com"
+            },
+            {
+              "name": "Referer",
+              "value": "https://help.acuityscheduling.com/"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8ecd6287-982c-4754-9300-4c6d54202273",
+      "name": "Extract Relevant Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2560,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a6973f14-e17d-46b0-9c5b-c6d9967dbf99",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "88092adb-7f63-4daa-8c7a-cbd85750e180",
+              "name": "body",
+              "type": "string",
+              "value": "={{ $json.body_safe }}"
+            },
+            {
+              "id": "12718897-a73d-4c3a-bcfb-b17c890458ec",
+              "name": "url",
+              "type": "string",
+              "value": "=https://help.acuityscheduling.com/hc/en-us/articles/{{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "bf5855b2-8e73-4c29-b277-adee63e8bf59",
+      "name": "Results to Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        2360,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "results[0].hits"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c9329816-bbe0-4de7-b6fb-fa87783f6a5c",
+      "name": "Has Results?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2040,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f5d7e890-f00a-4252-8588-c6662e71790c",
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              },
+              "leftValue": "={{ $json.results[0]?.hits ?? [] }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "860a178a-d500-4291-acfc-9c9f4638d6c7",
+      "name": "Empty Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2360,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ce36950-83d9-4964-8763-f329a4cda5a8",
+              "name": "response",
+              "type": "array",
+              "value": "[]"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c9f2a08b-88c2-4287-994c-f7af58e98301",
+      "name": "Aggregate Response",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2760,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f1f8874-7022-4ea1-b0a7-de42c4f800a1",
+      "name": "Knowledgebase Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1320,
+        100
+      ],
+      "parameters": {
+        "name": "acuity_support_search",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Call this tool to query AcuityScheduling's Support Center Search API.",
+        "workflowInputs": {
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "3913ddaa-852e-4463-a072-fe8be22bc184",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -300
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 780,
+        "height": 580,
+        "content": "## 1. 지식베이스 도구를 사용한 간단한 채트봇  \n[AI 에이전트에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent)  \n\nAI 에이전트 노드는 n8n에서 사용자 친화적인 채트봇을 만드는 가장 간단하고 추천되는 방법입니다. 여기서, 우리는 AcuityScheduling.com 질문에 답할 수 있는 지원 에이전트를 정의할 것입니다. 답변이 정확하고 최신 상태를 유지하기 위해, 이를 맞춤형 워크플로우 도구를 통해 지원 지식베이스에 연결할 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e24d75f9-6d3c-4bca-b67f-33737ee969ee",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1540,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 440,
+        "content": "## 2. 기존 헬프 포털 검색 사용  \n[HTTP 요청 도구에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest)  \n\nRAG의 개념은 벡터 스토어와 동의어가 되어야 합니다! 사실, 충분히 괜찮은 지원 웹사이트를 가진 많은 회사들은 이 기존 지식베이스를 지원 에이전트에게 활용할 수 있습니다. 이것은 시간, 돈, 노력을 절약하고 추가로 동기화와 업데이트가 빈번한 벡터 스토어의 유지보수를 피할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5feebf1-fd6d-4558-a868-7ea4f852386c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 600,
+        "content": "## 3. 결과를 정리하여 토큰을 최적화\n\n[집계 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.aggregate)\n\n물론, 결과는 웹사이트 형식으로 의도되어 있지만, 맞춤 워크플로우 도구를 사용하여 이를 우리의 채팅 시나리오에 맞게 편집하여 토큰 측면에서 LLM 비용을 절약할 수 있다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8132de59-9b47-460a-9cb9-f2ec83123a3f",
+      "name": "AcuityScheduling Support Chatbot",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1060,
+        -100
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a support assistant for the SaaS company, AcuityScheduling.com. Your task is to openly help the user with any questions regarding the AcuityScheduling service however, you are restricted to only this service. If the user asks questions unrelated to AcuityScheduling, you may ask them for clarification, explain you are not able to help them out of scope or redirect them to support@acuityScheduling.com. Be factual in your answer, tap into the resources or tools available and do not rely on your training data (which might be out-of-date). When returning a response to the user, you are encouraged to share the URL of the knowledgebase page where the user can explore the documentation for themselves."
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "564bde38-25ea-4969-aa3f-bff66ec2782f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -840
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 1120,
+        "content": "## 시도해 보세요!\n### 이 n8n 템플릿은 기존 지원 사이트 검색을 활용하여 지원 채트봇과 에이전트를 구동하는 방법을 보여줍니다.\n\n지원 채트봇을 구축하는 것이 복잡할 필요는 없습니다! 벡터 저장소를 구축하거나 데이터를 복제하는 것이 당신의 스타일이 아니라면, [RAG](https://www.databricks.com/glossary/retrieval-augmented-generation-rag) 접근의 대안으로 기존 지식 기반인 지원 포털을 활용할 수 있습니다.\n\n### 작동 원리\n* 간단한 AI 에이전트가 채팅 트리거와 연결되어 사용자 쿼리를 받습니다.\n* AI 에이전트는 연결된 맞춤 워크플로우 도구(즉, \"지식 기반 도구\")를 통해 지식 기반에서 정보를 가져오도록 지시됩니다.\n* 전체 지원 기사 데이터베이스를 벡터 저장소로 복제하는 단계는 없습니다. 시간, 비용, 유지 보수 문제로 인해 선택적으로 생략할 수 있습니다.\n* 대신, 도구는 기존 지원 포털의 검색 API를 활용하여 지식 기반 기사를 검색합니다.\n* 마지막으로, 검색 결과를 포맷팅한 후 에이전트에게 집계된 응답을 보냅니다.\n\n### 사용 방법\n* 하위 워크플로우를 맞춤화하여 자신의 지원 포털 API와 함께 작동하도록 하세요.\n* 다음 쿼리를 시도해 보세요.\n  * 내 iCloud를 Acuity Scheduling에 연결하는 방법은?\n  * 내 Acuity 계정의 과거 송장을 다운로드하는 방법은?\n\n### 요구 사항\n* LLM용 OpenAI.\n* 조직의 API가 권한을 요구하는 경우, 필요한 맞춤 자격 증명을 추가해야 할 수 있습니다.\n\n### 이 워크플로우 맞춤화\n* 내부 지식 기반의 다른 부분에 접근하기 위해 추가 도구를 추가하세요.\n* OpenAI를 사용하지 않나요? 교체해 보세요. 하지만 LLM이 도구/함수 호출 지원을 갖추고 있는지 확인하세요.\n\n### 도움이 필요하신가요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에서 참여하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a918718f-915d-4d5c-a7c2-a015b8a84bbb",
+      "name": "KnowledgeBase Tool Subworkflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1620,
+        80
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Has Results?": {
+      "main": [
+        [
+          {
+            "node": "Results to Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Empty Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AcuityScheduling Support Chatbot",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Results to Items": {
+      "main": [
+        [
+          {
+            "node": "Extract Relevant Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AcuityScheduling Support Chatbot",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledgebase Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AcuityScheduling Support Chatbot",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Relevant Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acuity Support Search API": {
+      "main": [
+        [
+          {
+            "node": "Has Results?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AcuityScheduling Support Chatbot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KnowledgeBase Tool Subworkflow": {
+      "main": [
+        [
+          {
+            "node": "Acuity Support Search API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,1204 @@
+{
+  "id": "sVeJBX8POs1uesty",
+  "meta": {
+    "instanceId": "636db6b6ab21a21c6458e2137f340e33dc3e49f5a1c560c8d1e2372c227cf40e",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Episode 8: Instagram influencer",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "05123d37-3b5f-4e69-a2a8-a7ba379c882e",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -620,
+        840
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "827e13c1-a1aa-4054-a47f-c298465b2b55",
+      "name": "Configure workflow",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -100,
+        840
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f85faf63-741c-479c-9b14-94c5e65d752d",
+      "name": "Change request fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1920,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f2f0fc83-8f91-4bb4-8037-1750fa26928b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        600
+      ],
+      "parameters": {
+        "content": "### 출력 (Output) 부분이 템플릿처럼 보이지만, 입력 텍스트가 없으므로 번역할 내용이 없습니다. 이에 따라 아무 내용도 반환되지 않습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ea113960-0d2f-4a24-88a6-a80f0b391e29",
+      "name": "Get monthly plan",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        360,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "9f658870-a229-449d-8751-7b95da068f75",
+      "name": "Change request fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1900,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "27c5e1e7-d4d8-4d40-9f53-41cfea576e82",
+      "name": "Need changes?1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1720,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "14e5f603-c1fc-4539-88c8-693f0f8cde62",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        1280
+      ],
+      "parameters": {
+        "content": "### 출력\n위 메시지는 번역할 영어 텍스트가 없으므로, 아무 내용도 반환되지 않습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "337fb8f4-2192-4896-acee-7adaa0945a3b",
+      "name": "Has monthly plan?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        740,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2fde5405-919f-41c6-bfd9-94d046b78fb8",
+      "name": "Get instructions on the monthly plan",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        940,
+        1420
+      ],
+      "webhookId": "03a0b1ff-a665-4657-9fa2-e43aaa7e59ad",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "63e7a2c6-7fed-4aca-82a5-b575fd1f51df",
+      "name": "Montly plan approval",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1520,
+        1420
+      ],
+      "webhookId": "08e878d2-3f61-45b5-9b90-e06f96f632ad",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "3dc4eb23-31a4-4e77-a9ee-3b0e179a4e45",
+      "name": "Save monthly plan",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        1900,
+        1640
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0adc78f8-d6d9-4628-8111-72f35a98a3c2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        1980
+      ],
+      "parameters": {
+        "content": "### 출력 (번역 결과)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1bbf3c31-4ceb-45c5-9936-ece7a8c601a2",
+      "name": "Get weekly plan",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        360,
+        2080
+      ],
+      "parameters": {},
+      "retryOnFail": false,
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d165815f-af6e-475e-addb-b85d2f35e12b",
+      "name": "Has weekly plan?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        740,
+        2080
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8750563d-51ce-4a3b-9b80-a739cedcc6db",
+      "name": "Get instructions on the weekly plan",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        940,
+        2080
+      ],
+      "webhookId": "03a0b1ff-a665-4657-9fa2-e43aaa7e59ad",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bfd8c01c-5715-4825-8c89-47ea38562161",
+      "name": "Weekly plan approval",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1460,
+        2080
+      ],
+      "webhookId": "08e878d2-3f61-45b5-9b90-e06f96f632ad",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8292a83d-137d-4569-ac5b-3e7a60defeaa",
+      "name": "Changes to the weekly plan?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1640,
+        2080
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "74f075b3-cae0-424e-b38b-733fd6d6d6b9",
+      "name": "Weekly plan change fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1820,
+        2080
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "38579531-f529-4ea2-b96f-5ceb110a6784",
+      "name": "Save weekly plan",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        1820,
+        2300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "21103a1f-0536-4e4e-bac5-4945e30a27c9",
+      "name": "merge previous week's posts",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        560,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e3a4d033-294d-42b4-b9d4-1fcf20a51481",
+      "name": "Generate image with OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1500,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7c426834-b476-4813-9436-99a64e2cee15",
+      "name": "Convert response to image",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        1700,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "08456ecb-fa12-4e1e-bf40-06a92960de05",
+      "name": "Add share link",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2100,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "efc0b271-2ce3-4db4-9991-1c65593107c8",
+      "name": "Get approval for the post",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2300,
+        2840
+      ],
+      "webhookId": "728f8049-2461-4c13-af6d-468328d16020",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5e1f5ab0-8638-48d1-bcec-60d7b9047d44",
+      "name": "Post approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        360,
+        3180
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "24c86689-d3e0-4741-a1cc-f92fbb4fc3e5",
+      "name": "Add post change request fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        580,
+        3180
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5e13b93a-f830-469e-993e-e52de012fade",
+      "name": "Facebook Graph API",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        360,
+        3860
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3a220608-f5bf-4387-90d5-1727a2201489",
+      "name": "Generate unique id",
+      "type": "n8n-nodes-base.crypto",
+      "position": [
+        1100,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d5f6ec7e-e29a-434d-a29c-85a961325006",
+      "name": "Upload image to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1900,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ea13dfd1-dfd9-494d-a39c-554732cf8c67",
+      "name": "Facebook Graph API1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        560,
+        3860
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6807bd28-670a-4818-aa41-644933adf442",
+      "name": "Get instructions on the quarterly plan",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        940,
+        720
+      ],
+      "webhookId": "03a0b1ff-a665-4657-9fa2-e43aaa7e59ad",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7c38a9b2-5bb3-4f31-abbe-8c558e1dd39b",
+      "name": "Has quarterly plan?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        720,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1905495e-b122-49b0-b063-bc66e18e59d3",
+      "name": "Get quarterly plan",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        340,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f802e0ff-c49d-4bdb-be39-fc2647549a86",
+      "name": "Get approval on the quarterly plan",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1520,
+        720
+      ],
+      "webhookId": "08e878d2-3f61-45b5-9b90-e06f96f632ad",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "017d5b8f-26f9-4abe-8405-b2de27586554",
+      "name": "Save quarterly plan",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        1920,
+        940
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "491d1bf6-77c8-4259-ad95-9377a9825988",
+      "name": "Download the reference image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1300,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1e2f134c-e6a0-4956-8de7-006556fc632b",
+      "name": "Get posts from the past 7 days",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        360,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "04c78cf5-0b9f-4a1b-9667-926e25571c38",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        3680
+      ],
+      "parameters": {
+        "content": "### Output\nThis appears to be a template, and there's no specific English text provided in the \"### Input\" section to translate. As per my instructions, I should only return translated Korean text if there is content to translate.\n\nHowever, since the input is empty, the translated result is also empty."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b570755-9a80-47d2-b6d8-e40722b9f686",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        2660
+      ],
+      "parameters": {
+        "content": "### Output\n### 번역된 텍스트:\n(입력 텍스트가 없으므로, 번역 결과가 없습니다.)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "658c6ec0-de21-4b4d-91ae-cad159631310",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        600
+      ],
+      "parameters": {
+        "content": "아웃풋"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c3d11e38-01ef-4e5a-972d-8bf1ff0879c3",
+      "name": "Save the post",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        360,
+        3420
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0a1774f3-a845-4bcf-b882-0d4a2233aeb0",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        1280
+      ],
+      "parameters": {
+        "content": "아무 내용이 없습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "903ece8a-f931-48a9-8b62-b33ff9bbfa71",
+      "name": "Approve quarterly plan?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1700,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "64d1130c-0587-40db-8690-3fc29ca68839",
+      "name": "Generate new Instagram post",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        760,
+        2840
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9e8ec2bb-d265-46e0-a6a3-80feecb2f75f",
+      "name": "Generate quarterly plan",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        1160,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "30214202-81d1-4486-a668-7172d094f32c",
+      "name": "Quaterly plan aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        540,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "80fbb9ea-113a-4c37-976d-a73a469a30e4",
+      "name": "Monthly plan aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        560,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6da3b9f0-1a1e-4ff1-94d6-e45c6d1ee9c0",
+      "name": "Weekly plan aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        560,
+        2080
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a2f41bdc-dc5a-4cd7-9924-c13e2c865e16",
+      "name": "Generate monthly plan",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        1160,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b9c51156-8513-431b-9ed9-902c96cc0c03",
+      "name": "Generate weekly plan",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        1140,
+        2080
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "97beced4-9a89-4633-8555-228159ee95b9",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -100,
+        1600
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e2b84a18-a740-4535-b2f2-d3cf9a755956",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        360
+      ],
+      "parameters": {
+        "content": "아니요, 입력 텍스트가 없습니다. 번역할 내용이 필요합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa73f125-7d57-4a61-a0af-743dc8cfcc90",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1580,
+        360
+      ],
+      "parameters": {
+        "content": "이 메시지는 번역할 영어 텍스트가 없으므로, 반환할 내용이 없습니다. 그러나 시스템 지침에 따라, 빈 입력에 대한 번역 결과를 제공해야 합니다. 이에 따라, 빈 문자열을 반환합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df751b80-eb5c-472c-b2c6-dadb019da0b4",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        360
+      ],
+      "parameters": {
+        "content": "한국어 번역 결과가 없습니다. 입력 텍스트가 없기 때문입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a62dbdfb-2d05-4ff4-bc6b-3c5563ec1440",
+  "connections": {
+    "Save the post": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add share link": {
+      "main": [
+        [
+          {
+            "node": "Get approval for the post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need changes?1": {
+      "main": [
+        [
+          {
+            "node": "Save monthly plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Change request fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post approved?": {
+      "main": [
+        [
+          {
+            "node": "Save the post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add post change request fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get weekly plan": {
+      "main": [
+        [
+          {
+            "node": "Weekly plan aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get monthly plan": {
+      "main": [
+        [
+          {
+            "node": "Monthly plan aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has weekly plan?": {
+      "main": [
+        [
+          {
+            "node": "Get posts from the past 7 days",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get instructions on the weekly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save weekly plan": {
+      "main": [
+        [
+          {
+            "node": "Get weekly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has monthly plan?": {
+      "main": [
+        [
+          {
+            "node": "Get weekly plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get instructions on the monthly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate quarterly plan",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generate monthly plan",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generate weekly plan",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generate new Instagram post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save monthly plan": {
+      "main": [
+        [
+          {
+            "node": "Get monthly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure workflow": {
+      "main": [
+        [
+          {
+            "node": "Get quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Graph API": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate unique id": {
+      "main": [
+        [
+          {
+            "node": "Download the reference image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get quarterly plan": {
+      "main": [
+        [
+          {
+            "node": "Quaterly plan aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has quarterly plan?": {
+      "main": [
+        [
+          {
+            "node": "Get monthly plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get instructions on the quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save quarterly plan": {
+      "main": [
+        [
+          {
+            "node": "Get quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate weekly plan": {
+      "main": [
+        [
+          {
+            "node": "Weekly plan approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montly plan approval": {
+      "main": [
+        [
+          {
+            "node": "Need changes?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly plan approval": {
+      "main": [
+        [
+          {
+            "node": "Changes to the weekly plan?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change request fields": {
+      "main": [
+        [
+          {
+            "node": "Generate quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate monthly plan": {
+      "main": [
+        [
+          {
+            "node": "Montly plan approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly plan aggregate": {
+      "main": [
+        [
+          {
+            "node": "Has weekly plan?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change request fields1": {
+      "main": [
+        [
+          {
+            "node": "Generate monthly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly plan aggregate": {
+      "main": [
+        [
+          {
+            "node": "Has monthly plan?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve quarterly plan?": {
+      "main": [
+        [
+          {
+            "node": "Save quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Change request fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate quarterly plan": {
+      "main": [
+        [
+          {
+            "node": "Get approval on the quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quaterly plan aggregate": {
+      "main": [
+        [
+          {
+            "node": "Has quarterly plan?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload image to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Add share link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert response to image": {
+      "main": [
+        [
+          {
+            "node": "Upload image to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get approval for the post": {
+      "main": [
+        [
+          {
+            "node": "Post approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly plan change fields": {
+      "main": [
+        [
+          {
+            "node": "Generate weekly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate image with OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Convert response to image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changes to the weekly plan?": {
+      "main": [
+        [
+          {
+            "node": "Save weekly plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Weekly plan change fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate new Instagram post": {
+      "main": [
+        [
+          {
+            "node": "Generate unique id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "merge previous week's posts": {
+      "main": [
+        [
+          {
+            "node": "Generate new Instagram post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the reference image": {
+      "main": [
+        [
+          {
+            "node": "Generate image with OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add post change request fields": {
+      "main": [
+        [
+          {
+            "node": "Generate new Instagram post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get posts from the past 7 days": {
+      "main": [
+        [
+          {
+            "node": "merge previous week's posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Configure workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get approval on the quarterly plan": {
+      "main": [
+        [
+          {
+            "node": "Approve quarterly plan?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get instructions on the weekly plan": {
+      "main": [
+        [
+          {
+            "node": "Generate weekly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get instructions on the monthly plan": {
+      "main": [
+        [
+          {
+            "node": "Generate monthly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get instructions on the quarterly plan": {
+      "main": [
+        [
+          {
+            "node": "Generate quarterly plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,700 @@
+{
+  "id": "dOaiA0eoSCdxkOv0",
+  "meta": {
+    "instanceId": "eb3d53320c110bef9b66cf21b0da1ce60c7b6876e22315eca1be511a26fd726c",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "BeyondPresence Agent HR Interview System",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f934aa49-faee-4413-b1b9-6a4c2b9f45b2",
+      "name": "Job Description Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -680
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 520,
+        "content": "## 📝 1단계: 귀하의 직무 설명 추가\n\n**아래의 노란색 상자에 귀하의 완전한 직무 공고를 간단히 붙여넣으세요**\n\n포함:\n- 직무 제목\n- 회사 이름\n- 책임\n- 요구사항\n- 기타 관련 세부 사항\n\nAI가 귀하의 텍스트에서 모든 것을 이해할 것입니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81fa81d2-1b16-4e15-a84c-4677bcbc4ad8",
+      "name": "📝 Your Job Description",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1000,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "// ========== PASTE YOUR JOB DESCRIPTION HERE ==========\n// Simply paste your entire job posting between the quotes below\n// Include everything: job title, company name, requirements, etc.\n\nconst jobDescription = `\nProduct Marketing Manager – BeyondPresence.ai\n\nBeyondPresence.ai is redefining human-computer interaction with hyper-realistic, emotionally intelligent digital avatars and Conversational Video Agents that deliver human-like, real-time conversations at scale. Our proprietary AI technology powers next-generation customer support, sales, HR, and training experiences for leading brands worldwide. We are seeking a dynamic Product Marketing Manager to drive the go-to-market strategy and accelerate adoption of our cutting-edge platform.\n\nResponsibilities\nDevelop and execute go-to-market strategies for new and existing BeyondPresence.ai products, with a focus on driving demand, adoption, and customer engagement.\n\nCraft compelling product positioning and messaging that differentiates our conversational avatars and platform in the market.\n\nConduct market, competitor, and user research to identify trends, customer needs, and growth opportunities.\n\nBuild and maintain detailed buyer personas to guide targeted marketing and sales initiatives.\n\nCollaborate closely with product, engineering, and sales teams to align on product vision, roadmap, and feature launches.\n\nLead cross-functional product launches, including launch planning, sales enablement, and campaign execution.\n\nCreate and manage marketing collateral, demos, website content, case studies, and sales tools that clearly communicate product value.\n\nGather and analyze customer feedback and campaign performance data to optimize messaging and marketing programs.\n\nSupport the sales team with training, product presentations, and competitive insights to drive conversions and upsells.\n\nRepresent BeyondPresence.ai at industry events, webinars, and customer meetings as a product evangelist.\n\nRequirements\n4+ years of experience in product marketing, preferably in B2B SaaS, AI, or related technology sectors.\n\nProven track record of launching and scaling innovative technology products, ideally in AI, conversational platforms, or digital avatars.\n\nDeep understanding of go-to-market strategies, product positioning, and value-based messaging.\n\nExceptional written and verbal communication skills, including copywriting and storytelling.\n\nStrong analytical skills with experience in market research, data analysis, and campaign optimization.\n\nDemonstrated ability to influence and collaborate with cross-functional teams without direct authority.\n\nExperience supporting sales teams with enablement materials and training.\n\nBachelor’s degree in marketing, business, or a related field; advanced degree a plus.\n\nPassion for emerging technologies, AI, and shaping the future of human-computer interaction.\n\nWhy BeyondPresence.ai?\nJoin a visionary, fast-growing team with deep expertise in AI, avatars, and conversational technology.\n\nShape the future of digital communication and help global brands deliver human-like experiences at scale.\n\nWork with a collaborative, mission-driven team backed by proven founders and industry leaders.\n\nCompetitive compensation, flexible work environment, and opportunities for rapid career growth.\n\nReady to help define the future of human-AI interaction? Apply now and join BeyondPresence.ai!\n`;\n\n// Don't change anything below this line\nreturn [{\n  json: {\n    jobDescription: jobDescription.trim(),\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3b076ed7-a31d-4ce5-af14-c79fe425ce41",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 430,
+        "height": 520,
+        "content": "## 🚀 2단계: 귀하의 인터뷰 에이전트 만들기\n\n**아래 버튼을 클릭하여:**\n1. 귀하의 AI 인터뷰어 만들기\n2. 귀하의 인터뷰 링크 받기\n\n이것은 한 번만 수행하면 됩니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aecf3f6e-bd63-4af5-b8f1-d18c05c1c661",
+      "name": "▶️ Click to Start Setup",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1200,
+        -320
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2ce3a3f3-05cc-49f6-b52e-4e2491848452",
+      "name": "Prepare Interview Agent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -780,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "// Generate the interview system prompt\nconst jobDescription = $input.first().json.jobDescription;\n\nconst systemPrompt = `You are a professional HR interviewer conducting job interviews. Your goal is to assess candidates thoroughly while making them feel comfortable and valued.\n\nJob Description:\n${jobDescription}\n\nInterview Approach:\n- Start with a warm welcome and brief introduction\n- Ask about their interest in the role and company\n- Explore their relevant experience with specific examples\n- Assess technical skills and cultural fit\n- Allow time for their questions\n- Close professionally with next steps\n\nBe conversational, ask follow-up questions, and show genuine interest in their responses. If they seem nervous, help them feel at ease. Always maintain a professional yet friendly tone.`;\n\nconst welcomeMessage = `Hello! Welcome to our interview. I'm excited to learn about your background and discuss this opportunity with you. \n\nLet's start with you telling me a bit about yourself and what interests you about this position.`;\n\nreturn [{\n  json: {\n    jobDescription,\n    systemPrompt,\n    welcomeMessage,\n    agentName: `HR Interview Bot - ${new Date().toLocaleDateString()}`\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f05b2cd3-1550-4c5b-ab27-9313b46b75ef",
+      "name": "Create Interview Agent",
+      "type": "n8n-nodes-beyondpresence.beyondPresence",
+      "position": [
+        -560,
+        -320
+      ],
+      "parameters": {
+        "name": "={{ $json.agentName }}",
+        "greeting": "={{ $json.welcomeMessage }}",
+        "systemPrompt": "={{ $json.systemPrompt }}",
+        "requestOptions": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ccd8a67-fbae-4ac8-b763-f43b1cf38a48",
+      "name": "Save Agent Info",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -220,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "const workflowStaticData = $getWorkflowStaticData('global');\n\n\n\nconst agentId = $input.first().json.id;\nconst interviewLink = $input.first().json.call_link;\nconst jobDescription = $('Prepare Interview Agent').first().json.jobDescription;\n\nworkflowStaticData.agentId = agentId;\nworkflowStaticData.jobDescription = jobDescription;\nworkflowStaticData.interviewLink = interviewLink;\n\n\n\nreturn [{\n  json: {\n    \"Agent ID\": workflowStaticData.agentId,\n    \"Agent Name\":$('Prepare Interview Agent').first().json.agentName,\n    \"Interview Link\": interviewLink,\n    \"Job Description\": workflowStaticData.jobDescription,\n    \"System Prompt\": $('Prepare Interview Agent').first().json.systemPrompt,\n    \"Welcome Message\": $('Prepare Interview Agent').first().json.welcomeMessage\n    \n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "25c02197-28b9-415f-8e83-1b0700fe1ae7",
+      "name": "Success!",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -680
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 330,
+        "height": 520,
+        "content": "## ✅ 설정 완료!\n\n**귀하의 인터뷰 링크:**  \n`https://bey.chat/[agent-id]`\n\n**이 단계는 이제 우리 에이전트 ID와 작업 설명을 설정하며, 이는 이제 자동으로 전달되어 웹훅에 의해 사용됩니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac2610af-10e0-42ef-83f8-5aa3ee48dbdf",
+      "name": "Automated Analysis",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -140
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 390,
+        "height": 540,
+        "content": "## 🤖 3단계: 자동화된 인터뷰 분석\n\n**이 섹션은 자동으로 실행되어:**\n- 완료된 인터뷰를 수신\n- 후보자 응답 분석\n- 결과를 Google Sheets에 저장\n\n**활성화 전에:**  \nBeyondPresence 대시보드의 설정 → 웹후크에서 웹후크 URL을 구성했는지 확인하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99af0fae-f69a-4172-8864-2e4a94347ecf",
+      "name": "Receive Interview Data",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1200,
+        300
+      ],
+      "webhookId": "beyondpresence-hr-interviews",
+      "parameters": {
+        "path": "beyondpresence-hr-interviews",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "94289ea4-518a-4b37-9ece-6d1bf1d4a4a8",
+      "name": "Confirm Receipt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -1000,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Interview received and being analyzed\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c0b156a3-99a4-437d-b116-e8fe94ac5ead",
+      "name": "Is Our Interview?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -520,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "931e1a97-c22c-48be-9728-73989cf00f41",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.process }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "09cf419c-3a1a-4c08-b27f-08c35fbd1b1a",
+      "name": "Analyze Interview",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -220,
+        300
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.3
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Analyze this job interview and provide a hiring assessment.\n\nJob Description:\n{{ $getWorkflowStaticData('global').jobDescription }}\n\n\nCandidate: {{ $json.webhookData.call_data.userName }}\nInterview Date:  {{ $now }}\nDuration: {{ $json.webhookData.evaluation.duration_minutes }} minutes\n\nCandidate Transcript:\n{{ $json.webhookData.messages.map(m => `[${m.sent_at}] ${m.sender.toUpperCase()}: ${m.message}`).join('\\n') }}\n\nProvide a comprehensive assessment including:\n1. Overall fit score (0-100)\n2. Key strengths\n3. Any concerns or gaps\n4. Hiring recommendation\n5. Suggested next steps\n\nFormat your response as JSON:\n```json\n{\n  \"fitScore\": 85,\n  \"recommendation\": \"recommend\",\n  \"strengths\": [\"strength 1\", \"strength 2\", \"strength 3\"],\n  \"concerns\": [\"concern 1\", \"concern 2\"],\n  \"summary\": \"Brief 2-3 sentence overall assessment\",\n  \"nextSteps\": [\"suggested action 1\", \"suggested action 2\"]\n}\n```"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0dea6278-69e2-485f-a213-90d6a8aeb26f",
+      "name": "Format for Sheets",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        280,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Parse AI analysis\nconst analysisText = $input.first().json.message.content;\nconst analysis = JSON.parse(analysisText.match(/```json\\n([\\s\\S]*?)\\n```/)[1]);\nconst interviewData = $input.first().json;\n\n// Format for Google Sheets\nreturn [{\n  json: {\n    \"Candidate Name\": $('Is Our Interview?').first().json.webhookData.call_data.userName,\n    \"Interview Date\":  $now,\n    \"Duration (minutes)\": $('Is Our Interview?').first().json.webhookData.evaluation.duration_minutes,\n    \"Fit Score\": analysis.fitScore,\n    \"Recommendation\": analysis.recommendation,\n    \"Strengths\": analysis.strengths.join(\"; \"),\n    \"Concerns\": analysis.concerns.join(\"; \") || \"None\",\n    \"Summary\": analysis.summary,\n    \"Next Steps\": analysis.nextSteps.join(\"; \"),\n    \"Call ID\": $('Is Our Interview?').first().json.webhookData.call_id,\n    \"Analyzed On\": $now,\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "74a0fe09-9c5e-4181-a38b-e15404d256e3",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        640,
+        280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Fit Score": "={{ $json['Fit Score'] }}",
+            "Candidate Name": "={{ $json['Candidate Name'] }}",
+            "Interview Date": "={{ $json['Interview Date'] }}",
+            "Duration (minutes)": "={{ $json['Duration (minutes)'] }}"
+          },
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Candidate Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Interview Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Interview Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Duration (minutes)",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Duration (minutes)",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fit Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Fit Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommendation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Recommendation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Strengths",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Strengths",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Concerns",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Concerns",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Next Steps",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Next Steps",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Call ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Call ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Analyzed On",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Analyzed On",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0/edit#gid=0",
+          "cachedResultName": "Interview Results"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0/edit?usp=drivesdk",
+          "cachedResultName": "BeyondPresence HR Interview System Template"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "eebced68-6690-4a91-a165-0ec99aadd268",
+      "name": "Sheet Headers",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 480,
+        "height": 540,
+        "content": "## 📊 Google 스프레드시트 연결\n\n**빠른 시작**:\n1. 동일한 문서를 사용하세요. 하지만 이번에는 **'Interview Results'** 시트를 선택하세요. 템플릿에 모든 필수 열이 포함되어 있습니다!\n\n**여기에서 Google 스프레드시트를 연결하세요 →**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "375ff0d6-e540-46cb-a20a-baf42969cc08",
+      "name": "Important!",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -80
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 100,
+        "content": "⚠️ **활성화 전에 필수로 해야 할 일:**\n\n1. 먼저 Step 2를 실행하세요. 그것이 자동으로 필요한 값을 설정할 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3b219c1-6888-4e2d-9ea6-a65b72200770",
+      "name": "Processing Steps",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        -140
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 700,
+        "height": 540,
+        "content": "## 🔍 인터뷰 처리 및 AI 평가\n\n1. 인터뷰 데이터 추출: 완료된 인터뷰에서 후보자의 응답과 메타데이터를 캡처합니다  \n2. AI 인터뷰 분석: OpenAI를 사용하여 후보자의 직무 요구사항에 대한 적합성을 평가합니다  \n3. 평가 결과 형식화: AI 인사이트를 쉽게 검토하고 의사결정을 할 수 있도록 구조화합니다  \n\nAI가 분석하는 내용:  \n- 전반적인 적합성 점수 (0-100)  \n- 주요 강점  \n- 잠재적 우려사항 또는 기술 격차  \n- 채용 추천 수준  \n- 제안된 다음 단계  \n- 후보자 적합성 요약  \n\n이 포괄적인 분석은 HR 팀이 각 후보자의 인터뷰 성과에 대한 일관적이고 객관적인 평가를 제공하여 데이터 기반의 채용 결정을 내리는 데 도움이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6929cd46-bfcb-435b-8e9b-7a2c1c20ccde",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        120
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 320,
+        "content": "## 데이터 확인\n\n- 우리 에이전트와 관련된 웹훅만 전달하세요\n- 완료된 호출만 전달하고 실시간 메시지는 버리세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a62069a-d4a7-427d-ba2e-84ea9ab81954",
+      "name": "Data checks",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -740,
+        280
+      ],
+      "parameters": {
+        "jsCode": "const workflowStaticData = $getWorkflowStaticData('global');\nconst MY_AGENT_ID = workflowStaticData.agentId;\n\nconst jobDescription = workflowStaticData.jobDescription;\n\nconst webhookData = $input.first().json.body;\nconst receivedAgentId = webhookData.agent_id || webhookData.agentId || \n                        (webhookData.call_data && webhookData.call_data.agent_id);\n\n// Only process if it's our agent and the call ended\nif (receivedAgentId === MY_AGENT_ID && webhookData.event_type === \"call_ended\") {\n  return [{\n    json: {\n      process: true,\n      jobDescription,\n      webhookData\n    }\n  }];\n} else {\n  return [{\n    json: {\n      process: false,\n      reason: receivedAgentId !== MY_AGENT_ID ? \n        \"Interview from different agent\" : \n        \"Call not finished yet\"\n    }\n  }];\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "003bd0dc-e828-475a-aa7b-130c11cd2991",
+      "name": "Sheet Headers1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -680
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 520,
+        "content": "## 📊 구글 시트 설정\n\n**빠른 시작**:\n1. 우리 템플릿 시트를 복사하세요:  https://docs.google.com/spreadsheets/d/1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0/copy\n2. 노드에서 귀하의 계정 자격 증명을 연결하세요.\n3. 새 문서로 Google Sheets 노드를 업데이트하고 **'Interview Agents'** 시트를 선택하세요 (자동으로 설정되지 않은 경우)\n3. 이 시트에서 인터뷰 링크를 얻을 수 있으며, 후보자와 공유하여 인터뷰를 시작할 수 있습니다\n\n**여기에서 귀하의 Google Sheets를 연결하세요 →**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "60847f4e-5e0d-41a6-bee1-96e6bb733fce",
+      "name": "Save to Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        180,
+        -320
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Agent ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Agent ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Agent Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Agent Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Interview Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Interview Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Job Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "System Prompt",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "System Prompt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Welcome Message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Welcome Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1902016160,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0/edit#gid=1902016160",
+          "cachedResultName": "Interview Agents"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dXLpP5bRRirBsln4YIQtFgb1MiP-0yR8IDRzse5k7X0/edit?usp=drivesdk",
+          "cachedResultName": "BeyondPresence HR Interview System Template"
+        }
+      },
+      "typeVersion": 4.6
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7bc4a98e-afe5-4924-849e-a75f74bfdc69",
+  "connections": {
+    "Data checks": {
+      "main": [
+        [
+          {
+            "node": "Is Our Interview?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Receipt": {
+      "main": [
+        [
+          {
+            "node": "Data checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Agent Info": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Interview": {
+      "main": [
+        [
+          {
+            "node": "Format for Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format for Sheets": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Our Interview?": {
+      "main": [
+        [
+          {
+            "node": "Analyze Interview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Interview Agent": {
+      "main": [
+        [
+          {
+            "node": "Save Agent Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Interview Data": {
+      "main": [
+        [
+          {
+            "node": "Confirm Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Interview Agent": {
+      "main": [
+        [
+          {
+            "node": "Create Interview Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Your Job Description": {
+      "main": [
+        [
+          {
+            "node": "Prepare Interview Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "▶️ Click to Start Setup": {
+      "main": [
+        [
+          {
+            "node": "📝 Your Job Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

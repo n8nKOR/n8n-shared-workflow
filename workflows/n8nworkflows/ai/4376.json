@@ -1,0 +1,630 @@
+{
+  "meta": {
+    "instanceId": "5aaf4236c70e34e423fbdb2c7b754d19253a933bb1476d548f75848a01e473cf",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "70ca3a90-55c8-4e46-9278-6a8fd3d107cd",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -1820,
+        220
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_1393502052621954450"
+          ]
+        },
+        "options": {
+          "downloadAttachments": true
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f7dcff0f-7e98-4042-a33e-2fc32d876908",
+      "name": "Create blank spreadsheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -780,
+        220
+      ],
+      "parameters": {
+        "title": "=invoice_{{ $now }}",
+        "options": {},
+        "resource": "spreadsheet",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "=invoice_details"
+            }
+          ]
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "9769ad04-a41c-4d55-806a-042b7d00e131",
+      "name": "Move spreadsheet in invoice folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -560,
+        220
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.spreadsheetId }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1JIdajTJvK6gj4bRjniBJvHEJbQ1pn3AM",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1JIdajTJvK6gj4bRjniBJvHEJbQ1pn3AM",
+          "cachedResultName": "invoices"
+        },
+        "operation": "move"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "f9dbfe55-70b0-4abc-9745-9f4a65d5d1c2",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -1180,
+        480
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "7dME1fmMlkFyzFjq",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "00c59142-6079-4e9c-9374-ad487e48f072",
+      "name": "Attachment Verification",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -1600,
+        220
+      ],
+      "parameters": {
+        "options": {
+          "ignoreCase": false
+        },
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "efd974d9-aa20-461a-86ae-6e0a16d1527d",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Gmail Trigger').item.binary }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8a29ac14-be2b-468a-97fa-540d28e80006",
+      "name": "Extract Invoice data",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -1380,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "={{ $('Attachment Verification').item.binary.keys() }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae08cdc8-fcf9-4891-be86-b2dcf6f35278",
+      "name": "Preparing Final data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -340,
+        220
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of $input$json.output.first().json.outputeach one\n\nlet invoice_details = $('Invoice AI Agent').item.json.output\n\nreturn JSON.parse(invoice_details)"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7615a5b0-8761-43e2-82b0-32ac5c772f44",
+      "name": "Final Spreadsheet with Invoice data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -140,
+        220
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "billed_to",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "billed_to",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "invoice_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date_of_issue",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "date_of_issue",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "due_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item_0_description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_0_description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item_0_quantity",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_0_quantity",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item_0_rate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_0_rate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item_0_amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_0_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tax_0_cgst_rate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tax_0_cgst_rate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tax_0_cgst_amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tax_0_cgst_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tax_0_sgst_rate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tax_0_sgst_rate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tax_0_sgst_amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tax_0_sgst_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item_0_total_amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_0_total_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subtotal",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "subtotal",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "total",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "terms",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "terms",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conditions_instructions",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "conditions_instructions",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "company_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_mobile",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "company_mobile",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "company_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_website",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "company_website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_transaction_ids",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payment_transaction_ids",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mode_of_payment",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "mode_of_payment",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "billing_address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "billing_address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "shipping_address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "shipping_address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place_of_supply",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "place_of_supply",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "place_of_delivery",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "place_of_delivery",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gst_registration_no",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "gst_registration_no",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pan_no",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "pan_no",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "invoice_details"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create blank spreadsheet').item.json.spreadsheetId }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e68aa386-7150-4070-a5d7-1dcb963b620d",
+      "name": "Invoice AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1160,
+        220
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "you are an financial advisor , who reads the array of data to identify certain elements of an Invoice, from the input data and provide a json response. use only following specified keys \nfor example:\n{\n\"billed_to\": \"John\",\n\"invoice_number\": \"569871234\",\n\"date_of_issue\": \"2025-05-21\",\n\"due_date\": \"2025-05-25\",\n\"item_0_description\": \"Computer CPU\",\n\"item_0_quantity\": 6,\n\"item_0_rate\": 15,\n\"item_0_amount\": 90,\n\"item_1_description\": \"Chair Wooden\",\n\"item_1_quantity\": 8,\n\"item_1_rate\": 10,\n\"item_1_amount\": 80,\n\"subtotal\": 170.00,\n\"discount\": 20.00,\n\"total\": 150.00,\n\"terms\": \"Sold items not be acceptable\",\n\"conditions_instructions\": \"xyaABC\",\n\"company_name\": \"Digital Electronics\",\n\"company_mobile\": \"987654321\",\n\"company_email\": \"ayz@gmail.com\",\n\"company_website\": \"www.abc.com\"\n}"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "335a80c5-ad86-4379-b1a6-9a2ef7285f3c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2860,
+        100
+      ],
+      "parameters": {
+        "width": 880,
+        "height": 1520,
+        "content": "AI 송장 처리 에이전트: 이메일에서 구조화된 데이터로  \n자동으로 Gmail 첨부 파일에서 송장 데이터를 추출, 분석 및 구조화된 Google Sheets로 정리합니다. 완벽한 솔루션:  \n✅ 회계사 및 부기 담당자 — 송장에서 수동 데이터 입력 제거  \n✅ 소규모 사업체 — 송장 처리 및 추적 간소화  \n✅ 재무 팀 — 미지급금 워크플로 자동화  \n\n⚙️ 사용된 도구  \nn8n 노드:  \nGmail 트리거 → 파일 추출 → AI 에이전트 → OpenAI 채팅 모델 → Google Sheets → Google Drive  \n외부 도구:  \n\nGmail API – 특정 레이블의 이메일과 첨부 파일 모니터링  \nPDF 추출 – 송장 PDF를 읽을 수 있는 텍스트로 변환  \nOpenAI GPT-4 – 지능형 송장 데이터 추출 및 구조화  \nGoogle Sheets – 송장 세부사항이 포함된 정리된 스프레드시트 생성  \nGoogle Drive – 송장 폴더에 파일 자동 정리  \n\n🔑 설정 – 필요한 자격증명  \n\nGmail OAuth2 → 이메일 액세스 및 첨부 파일 다운로드  \nOpenAI API 키 → AI 기반 송장 데이터 추출  \nGoogle Sheets OAuth2 → 스프레드시트 생성 및 채우기  \nGoogle Drive OAuth2 → 지정된 폴더에 파일 정리  \n\n📧 Gmail 설정 요구사항  \n송장 첨부 파일이 포함된 이메일에 Gmail 레이블(예: \"Invoice Processing\")을 생성하고 적용합니다. 워크플로는 이 레이블의 새 이메일을 매 분 모니터링합니다.  \n\n🚀 워크플로 단계  \n\n이메일 모니터링  \n특정 레이블과 첨부 파일이 있는 새 이메일을 지속적으로 감시  \n첨부 파일 확인  \nPDF 첨부 파일이 포함된 이메일만 필터링하여 처리  \n데이터 추출  \nPDF 송장을 텍스트로 변환하고 읽을 수 있는 콘텐츠 추출  \nAI 기반 분석  \nGPT가 송장 텍스트를 처리하여 다음의 구조화된 데이터 추출:  \n\n회사 세부사항 및 연락처 정보  \n송장 번호, 날짜 및 마감일  \n수량, 요금 및 금액이 포함된 항목  \n세금 계산(CGST, SGST, VAT)  \n지불 조건 및 청구 주소  \n\n스프레드시트 생성  \n송장 데이터가 정리된 타임스탬프가 포함된 Google Sheets 생성  \n파일 정리  \n처리된 스프레드시트를 지정된 Drive 폴더로 이동하여 쉽게 접근 가능  \n\n📊 추출된 데이터 필드  \nAI가 25개 이상의 송장 요소를 식별 및 정리:  \n\n헤더 정보: 청구 대상, 송장 번호, 날짜  \n항목: 설명, 수량, 요금, 금액  \n세금 세부사항: CGST/SGST 요금 및 금액  \n회사 정보: 이름, 연락처 세부사항, GST 번호  \n지불 정보: 거래 ID, 지불 방법  \n주소: 청구, 배송, 배달 위치  \n\n💡 프로 팁  \n\n다양한 송장 유형(공급업체, 고객 등)에 대한 명확한 Gmail 레이블 사용  \n송장 PDF가 텍스트 기반(스캔 이미지 아님)인지 확인하여 최적의 결과 얻기  \n다른 회계 기간에 대한 별도 Drive 폴더 생성  \nAI 추출 정확도 검토 및 프롬프트 개선  \n공급업체 이메일에 자동 레이블 적용을 위한 이메일 필터 설정  \n\n🛠️ 맞춤형 설정  \n\n송장 승인 워크플로와 이메일 알림 추가  \nQuickBooks, Xero, SAP와 같은 회계 소프트웨어 연결  \n스캔된 송장 이미지에 대한 OCR 처리 포함  \n중복 송장 감지 및 알림 추가  \n마감일 기반으로 자동 지불 리마인더 생성"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Attachment Verification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create blank spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Invoice AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Invoice data": {
+      "main": [
+        [
+          {
+            "node": "Invoice AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparing Final data": {
+      "main": [
+        [
+          {
+            "node": "Final Spreadsheet with Invoice data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attachment Verification": {
+      "main": [
+        [
+          {
+            "node": "Extract Invoice data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create blank spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "Move spreadsheet in invoice folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move spreadsheet in invoice folder": {
+      "main": [
+        [
+          {
+            "node": "Preparing Final data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

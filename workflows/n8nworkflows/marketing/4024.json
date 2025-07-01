@@ -1,0 +1,540 @@
+{
+  "id": "lZI2xknLPhHU6gZB",
+  "meta": {
+    "instanceId": "c2650793f644091dc80fb900fe63448ad1f4b774008de9608064d67294f8307c",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "WP - Updated",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a7e0b3f7-7b86-4e94-b5c5-104cb92a332f",
+      "name": "Topic Chooser and Title Maker",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        320,
+        -320
+      ],
+      "parameters": {
+        "text": "Do as instructed!",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert SEO blog writer for “Dax AI,” specializing in Technology and Artificial Intelligence content. For each request, you must:\n\n1. Randomly select one category (exactly as shown):\n   – Technology\n   – Artificial Intelligence (AI)\n   – Tech Fact\n   – Tech History\n   – Tech Tips\n\n2. Create:\n   • A unique, non-robotic article title (no colons “:”, clickbait is OK but don’t exaggerate).  \n   • A URL-friendly slug (lowercase, hyphens).  \n   • A focus keyphrase (max 2 words, capturing the main idea).  \n   • A meta description (≤160 characters, summarizing the article).\n\n3. Use the current year placeholder {{ $json.Year }} if needed in the title.\n\nOutput exactly in this format:\nCategory: <chosen category>\nTitle: <your title>\nSlug: <your-slug>\nFocus Keyphrase: <max 2 words>\nMeta Description: <≤160 characters>"
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "55642750-4403-4868-a263-6e08bf6fbb05",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        640,
+        -320
+      ],
+      "parameters": {
+        "text": "=Write a comprehensive, 1,500–2,500-word article using the following inputs:\n\n• Title: {{ $json.output.title }}\n• Category: {{ $json.output.category }}\n• Focus Phrase: {{ $json.output.focus_phrase }}\n\nRequirements:\n\nTitle:\n  – Craft an engaging title that includes the focus phrase.\n  - Do not add title in the body\n\nIntroduction (100–150 words)\n  - Dont use word \"Introduction\"\n  – Hook the reader.\n  – Include the focus phrase.\n\nBody Structure\n  - Do Not Add Title In the body\n  – Use 4–6 H2 subheadings, with 1–2 H3s beneath each as needed.\n  – Ensure the focus phrase appears in at least one H2 or H3.\n  – Sprinkle the focus phrase naturally throughout—minimum 4 times, maximum 16 times.\n  – Use bullet lists, examples, data or quotes to illustrate key points.\n  - add outbound link if available\n\nTone & Style\n  – Friendly yet authoritative.\n  – Clear, concise paragraphs (2–4 sentences each).\n  – Smooth transitions and varied sentence structure.\n\nConclusion & Call to Action\n  - Don't use starting \"Conclusion\"\n  – Summarize the key takeaways.\n  – End with a compelling call to action or next step.\n  - add available to contact cta (\"khmuhtadin.com\")\n\nEnsure flawless grammar, optimal keyword density, and readability for a general audience.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an elite blog writer for Dax AI, tasked with producing highly valuable, SEO-optimized, audience-focused long-form articles suitable for direct publication in WordPress. When given a topic or title, follow these rules precisely:\n\n1. Content Focus\n  - Deliver practical tips, clear strategies, in-depth insights or step-by-step guides directly related to the topic.\n  - Prioritize original, actionable advice that readers can implement immediately.\n\n2. Article Length & Structure\n  - Minimum 1,500 words.\n  - Use clear hierarchical headings (H2, H3, H4) to organize sections and subsections.\n  - Ensure each section flows logically, with introductions, transitions, and conclusions where appropriate.\n\n3. SEO Optimization\n  - Make content scannable: use short paragraphs, subheadings, and bulleted or numbered lists.\n  - Naturally incorporate relevant keywords without keyword stuffing.\n  - Write an engaging, concise meta description (under 160 characters) at the top.\n\n4. WordPress-Compatible Formatting\n  - Output plain text only—no Markdown, no code fences, no additional commentary.\n  - Format headings as WordPress recognizes (e.g., “<h2>Section Title</h2>” or using the WordPress editor’s native heading styles).\n  - For lists, use a simple dash or number followed by a space (e.g., “– Android Automation Apps:” or “1. Step one”) never make it bols (e.g., \"- **product 1**\").\n  - Do not include the article title, any author bylines, or any formatting instructions—only the body content.\n\n5. Final Output\n  – Only the article body in ready-to-publish WordPress format.\n  – No extra notes, disclaimers, or explanations.\n  – Confirm compliance by immediately starting with the first section heading when writing.\n"
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "3ab3b38b-0627-4a92-a3c2-75776cd896cc",
+      "name": "Topic Chooser and Title Maker Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        500,
+        -120
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"category\": \"Technology\",\n\t\"title\": \"Article Title\",\n    \"slug\": \"article-slug\",\n\t\"focus_phrase\": \"focus phrase for SEO\",\n\t\"meta_description\": \"meta description under 160 characters\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f5bafe2f-ac4b-42e5-9c23-506b02115060",
+      "name": "Wordpress Post Draft",
+      "type": "n8n-nodes-base.wordpress",
+      "position": [
+        340,
+        20
+      ],
+      "parameters": {
+        "title": "={{ $('Topic Chooser and Title Maker').item.json.output.title }}",
+        "additionalFields": {
+          "slug": "={{ $('Topic Chooser and Title Maker').item.json.output.slug }}",
+          "format": "standard",
+          "status": "publish",
+          "content": "={{ $json.text }}",
+          "authorId": 1,
+          "categories": "={{ $('Topic Chooser and Title Maker').item.json.output.category == \"Technology\" ? [3] :\n    $('Topic Chooser and Title Maker').item.json.output.category == \"Artificial Intelligence (AI)\" ? [4] :\n    $('Topic Chooser and Title Maker').item.json.output.category == \"Tech Fact\" ? [7] :\n    $('Topic Chooser and Title Maker').item.json.output.category == \"Tech History\" ? [8] :\n    $('Topic Chooser and Title Maker').item.json.output.category == \"Tech Tips\" ? [9] : [1] }}"
+        }
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "gGfRrkCtaoISRmDr",
+          "name": "Wordpress account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34fcbcf7-a734-4b7d-9421-0371f56de25d",
+      "name": "OpenAI - Generate Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        540,
+        20
+      ],
+      "parameters": {
+        "prompt": "=Create a highly realistic, natural-looking image that visually represents the blog article titled \"{{ $json.title.raw }}\". The image should be grounded in reality with believable lighting, textures, and composition—avoid fantasy or surreal elements. Focus on lifelike details that a real camera could capture. Do not include any text in the image.",
+        "options": {
+          "size": "1024x1024",
+          "style": "vivid"
+        },
+        "resource": "image"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "xgxbqurhU1VXjSge",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "a860c065-448a-44f6-83de-6a739380c731",
+      "name": "Upload Image to WP",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        740,
+        20
+      ],
+      "parameters": {
+        "url": "https://cartilo.my.id/wp-json/wp/v2/media",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "binaryData",
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "image/png"
+            },
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename={{$now.toMillis()}}.png"
+            }
+          ]
+        },
+        "inputDataFieldName": "data",
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "gGfRrkCtaoISRmDr",
+          "name": "Wordpress account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "638a51ea-dedf-4734-8e12-c1fc0d76b794",
+      "name": "Wordpress - Set Featured Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        940,
+        0
+      ],
+      "parameters": {
+        "url": "=https://cartilo.my.id/wp-json/wp/v2/posts/{{ $('Wordpress Post Draft').item.json.id }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "gGfRrkCtaoISRmDr",
+          "name": "Wordpress account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cf9ed09e-aca1-496b-8b39-a1290f912bbf",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -80,
+        -140
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3a661537-7bf8-4f05-9869-c2ed0f4f497d",
+      "name": "Title, category, meta, keyphrase generator",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        340,
+        -120
+      ],
+      "parameters": {
+        "model": "google/gemini-2.5-flash-preview",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "DPrHlBN0s5WFDxi9",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14ac3e7a-5830-4f36-98ce-672c1442cba8",
+      "name": "Send to Discord Using Webhook",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1180,
+        -60
+      ],
+      "webhookId": "722513b9-8a0c-4ba1-b0ee-c712d8fb0af6",
+      "parameters": {
+        "embeds": {
+          "values": [
+            {}
+          ]
+        },
+        "content": "=Published!\n{{ $json.link }}",
+        "options": {},
+        "authentication": "webhook"
+      },
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "LLZlMnlqvhY0SVaL",
+          "name": "Discord Webhook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9a1bd821-e55f-4448-b4ba-a827e7a0724c",
+      "name": "Article Generator",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        660,
+        -120
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "xgxbqurhU1VXjSge",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4ef52544-155b-4192-9fe3-243503c3f83e",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -180,
+        -380
+      ],
+      "webhookId": "a9b697dc-5b4e-418c-83ed-54966ce7ea34",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "7yvBdfOsTDXmqA4b",
+          "name": "motun8nwpbot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "29fd6900-3f7c-4efa-83bf-93297239c425",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        0,
+        -380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3dbc34fc-8457-422f-807e-123b5f16bd0c",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "generate"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "89058ee2-9400-4b32-8cf4-d1a5796a003b",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1180,
+        160
+      ],
+      "webhookId": "29c01d67-35b0-4234-92dd-c729fcb6fe7e",
+      "parameters": {
+        "text": "=Published!\n\n{{ $json.link }}",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "7yvBdfOsTDXmqA4b",
+          "name": "motun8nwpbot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3e8fb441-91eb-4697-840d-9dc0741b43cc",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        -680
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 260,
+        "content": "## 워크플로 설명\n이 워크플로는 AI를 사용하여 SEO 최적화된 WordPress 블로그 게시물을 생성하고 게시합니다:\n\n1. Triggers: 매 3시간마다 실행 (스케줄 트리거) 또는 Telegram을 통해 ('generate').\n2. OpenRouter를 사용하여 카테고리, 제목, 슬러그, 포커스 키프레이즈, 및 메타 설명을 생성합니다.\n3. OpenAI GPT-4.1-mini를 사용하여 1,500–2,500단어의 기사를 작성합니다.\n4. 기사를 WordPress에 게시합니다.\n5. OpenAI를 사용하여 대표 이미지를 생성하고 업로드합니다.\n6. 게시물 링크로 Discord와 Telegram에 알립니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd604313-c4c8-4d02-b7e9-2fc7229608e2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        240
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 280,
+        "content": "## 설정 지침\n이 워크플로를 사용하려면 n8n에서 다음 자격 증명을 설정하세요:\n\n- WordPress API: WordPress 사이트의 URL, 사용자 이름, 및 비밀번호를 제공하세요.\n- OpenAI API: OpenAI API 키를 제공하세요.\n- OpenRouter API: OpenRouter API 키를 제공하세요.\n- Discord Webhook: Discord 서버에서 웹훅을 생성하고 URL을 제공하세요.\n- Telegram API: Telegram 봇의 토큰을 제공하세요.\n\nn8n은 가져올 때 누락된 노드를 설치하도록 프롬프트할 것입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b5690cda-0809-43c5-a799-f6ffe1689389",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Topic Chooser and Title Maker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Wordpress Post Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Topic Chooser and Title Maker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article Generator": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to WP": {
+      "main": [
+        [
+          {
+            "node": "Wordpress - Set Featured Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress Post Draft": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to WP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Discord Using Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Topic Chooser and Title Maker": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress - Set Featured Image": {
+      "main": [
+        [
+          {
+            "node": "Send to Discord Using Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Chooser and Title Maker Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Topic Chooser and Title Maker",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title, category, meta, keyphrase generator": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Topic Chooser and Title Maker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

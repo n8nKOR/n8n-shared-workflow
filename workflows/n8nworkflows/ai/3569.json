@@ -1,0 +1,522 @@
+{
+  "id": "5opbTWPZRN05bYdz",
+  "meta": {
+    "instanceId": "2ca62dfdbee183085041310c6198e97a69dbf85e4843e42c21169e2f5e3db806",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Build an MCP Server with Google Calendar",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4be79e3f-3e83-4432-b23f-4e4e9cac171b",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -800
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 2720,
+        "height": 140,
+        "content": "번역할 텍스트가 입력되지 않았습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "439a0233-c8ec-4ea5-8630-0f6e62c76bef",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -780
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 960,
+        "height": 80,
+        "content": "# Google Calendar를 이용해 MCP 서버 구축하는 방법 배우기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "08996f0a-4a2d-438f-a8d7-aca78968d33f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 280,
+        "content": "# 소개\n\n이 튜토리얼은 MCP 서비스를 Google Calendar와 함께 배포하는 프로세스를 사용자에게 안내하는 데 중점을 둡니다. 이 단계별 가이드를 따르다 보면 MCP Server와 Google Calendar의 강력한 기능을 활용할 수 있습니다. 예를 들어, 이벤트 생성, 읽기, 업데이트, 삭제 등의 기능을 사용할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0f866ad6-d1af-4732-be64-8c97af7e55ac",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 620,
+        "height": 760,
+        "content": "# 저자\n\n![선관난](https://avatars.githubusercontent.com/u/176571840?v=4)\n\n### 선관난\n\n중국 출신의 프리랜스 컨설턴트로, 자동화와 데이터 분석을 전문으로 합니다. 선택된 클라이언트와 협력하여 가장 어려운 프로젝트를 해결합니다.\n\n비즈니스 문의 사항은 sguann2023@gmail.com으로 이메일 주세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4e2cdec7-8d04-40a7-9270-0f408ebf2efb",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        -600
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "content": "## 1단계: Google Calendar 도구는 자격 증명이 필요합니다\n\nn8n에 Google 자격 증명을 아직 설정하지 않았다면, [이](https://www.youtube.com/watch?v=3Ai1EPznlAc) 비디오를 시청하여 방법을 배우세요.\n\nn8n Cloud 플랜을 사용 중이라면, 설정이 매우 직관적이며 튜토리얼이 필요 없을 수도 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a3941f5-959f-499c-b5a6-b2b66b203b1e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        -420
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "height": 220,
+        "content": "## 2단계: MCP 서버 트리거 만들기 및 활성화\nn8n에 로그인하여 새 워크플로를 만드세요. 새 워크플로 페이지에서 “첫 번째 단계 추가”를 클릭하여 노드와 트리거의 검색 가능한 메뉴를 엽니다. \n\n검색 바에 “MCP 서버 트리거”를 입력하고 결과에서 선택하여 워크플로를 시작하세요. \n\n이것은 n8n이 MCP 서버에서 이벤트를 수신하는 방식을 설정하며, Google Calendar을 자동화에 통합하기 위한 기반을 마련합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42800020-7ed3-4419-9847-d2a751aa3071",
+      "name": "SearchEvent",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        400,
+        260
+      ],
+      "parameters": {
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "options": {},
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "sguann2023@gmail.com",
+          "cachedResultName": "sguann2023@gmail.com"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Wi0S7gZu9R8zFjTC",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "5d2bce57-f77d-4fd1-9342-d81107a6009d",
+      "name": "CreateEvent",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        520,
+        260
+      ],
+      "parameters": {
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "sguann2023@gmail.com",
+          "cachedResultName": "sguann2023@gmail.com"
+        },
+        "additionalFields": {
+          "summary": "={{ $fromAI(\"event_title\", \"The event title\", \"string\") }}",
+          "description": "={{ $fromAI(\"event_description\", \"The event description\", \"string\") }}"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Wi0S7gZu9R8zFjTC",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "dbebec9c-fecc-4154-ba77-cfbb519ba40a",
+      "name": "UpdateEvent",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        640,
+        260
+      ],
+      "parameters": {
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "sguann2023@gmail.com",
+          "cachedResultName": "sguann2023@gmail.com"
+        },
+        "operation": "update",
+        "updateFields": {
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+          "summary": "={{ $fromAI(\"event_title\", \"The event title\", \"string\") }}",
+          "description": "={{ $fromAI(\"event_description\", \"The event description\", \"string\") }}"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Wi0S7gZu9R8zFjTC",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "24ef1fd5-29dc-4208-a33b-5337307d01e0",
+      "name": "DeleteEvent",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        760,
+        260
+      ],
+      "parameters": {
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {},
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "sguann2023@gmail.com",
+          "cachedResultName": "sguann2023@gmail.com"
+        },
+        "operation": "delete"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Wi0S7gZu9R8zFjTC",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ec4aa55d-c6ee-4990-9c51-6ee1892600dd",
+      "name": "Google Calendar MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        400,
+        60
+      ],
+      "webhookId": "f9d9d5ea-6f83-42c8-ae50-ee6c71789bca",
+      "parameters": {
+        "path": "my-calendar"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e49bc5e-c3c1-47b3-8a0a-8f3b91ad954b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        -180
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "height": 600,
+        "content": "## 3단계: Google Calendar 도구 통합\nMCP Server Trigger를 생성한 후, 명확성을 위해 \"Google Calendar MCP \"로 이름을 변경하세요. \n\n\"Tools\"를 클릭하고 검색 바에 \"Google Calendar\"를 입력하여 다양한 Google Calendar 작업에 대한 도구를 찾으세요. \n\n여러 도구를 추가할 수 있으며, 각각 특정 작업을 위해 사용됩니다. 예를 들어, \"Get Many\"는 여러 이벤트를 검색하고, \"Create\"는 새 이벤트를 생성하며, \"Update\"는 기존 이벤트를 수정하고, \"Delete\"는 이를 제거합니다. \n\n이 도구들을 사용하여 Google Calendar 데이터에 대한 맞춤형이고 효율적인 워크플로를 구축하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a86eb61-0e1f-4de1-a77f-0470fe1cd3ec",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        440
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "height": 580,
+        "content": "## 4단계: MCP 서버 트리거 URL 복사 및 워크플로 활성화\n\"Google Calendar MCP\" 노드에서 더블 클릭하세요. 노드 세부 페이지에서 프로덕션 URL을 찾을 수 있습니다. 이 URL은 \"https://xxx/mcp/my-calendar/sse\"와 비슷하게 보일 수 있습니다. 이 URL을 나중에 워크플로 설정에서 사용하기 위해 복사하세요.\n\nURL을 얻은 후, 워크플로를 저장하세요. 그런 다음, \"비활성\" 버튼을 클릭하여 트리거를 활성화하세요.  \n![비활성](https://1.gravatar.com/userimage/264834967/9a4d54537ef20427192f47fd8e413814?size=256)  \n![활성](https://1.gravatar.com/userimage/264834967/01bf3678cce04b3428586c908beb9954?size=256)  \n활성화되면, 워크플로가 MCP 서버의 이벤트를 수신하기 시작하여 Google Calendar 서비스와 원활한 통합을 가능하게 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aed25c42-78e1-4984-8831-768e2bbe6888",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -600
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 140,
+        "content": "## 5단계: AI 에이전트를 위한 새 워크플로 생성  \n이 단계에서 새 워크플로를 생성해야 합니다. 새 워크플로 인터페이스가 열리면 \"첫 번째 단계 추가\" 옵션을 클릭하세요. 나타나는 사용 가능한 노드와 트리거 목록에서 \"채팅 메시지\" 옵션을 검색하여 선택하여 워크플로에 추가하세요. 이것은 AI 에이전트 관련 워크플로의 초기 트리거를 설정합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "214dbba6-dffe-4c43-8c14-77babd52107f",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -440
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 1060,
+        "content": "## 6단계: AI 에이전트 노드 추가  \nChat Messages Trigger를 성공적으로 생성한 후, 바로 그 다음에 \"AI Agent\" 노드를 추가할 수 있습니다. 새로 추가된 \"AI Agent\" 노드를 더블클릭하여 구성 패널을 엽니다.  \n\n구성에서 특정 옵션을 추가해야 합니다. System Message 필드에 다음 텍스트를 입력하세요: \"You are a helpful assistant. Current datetime is {{ $now.toString() }}\". 이 메시지는 AI에게 현재 날짜와 시간을 제공하여 다양한 상호작용에서 맥락에 유용합니다.  \n\n다음으로, 사용 가능한 옵션에서 적절한 Large Language Model (LLM)을 선택하세요. 이 모델은 채팅을 처리하고 이벤트를 전달하는 역할을 합니다.  \n\n지속적이고 맥락 인식 대화를 가능하게 하기 위해 Agent에 메모리를 추가하세요. 이렇게 하면 AI Agent가 이전 상호작용을 기억하여 더 원활하고 매력적인 채팅 경험을 제공합니다.  \n\n마지막으로, \"MCP Client\" 도구를 검색하여 추가하세요. \"MCP Client\" 구성의 SSE Endpoint 섹션에 4단계에서 복사한 URL을 붙여넣으세요. 이 단계는 AI Agent 워크플로를 MCP Server에 연결하여 두 시스템 간의 데이터 흐름과 상호작용을 활성화합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ba10d96-e1cc-456d-9174-c848524466dd",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1220,
+        20
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a helpful assistant.\nCurrent datetime is {{ $now.toString() }}"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2d577167-74d2-4966-8c39-79477787ed68",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        1020,
+        20
+      ],
+      "webhookId": "7b02318f-1c6b-4f2a-9a4f-b17fa69ea680",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0c5f70f5-5156-42f1-90ab-1f294f2fa2d9",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1320,
+        240
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "cf747bc2-9c08-4f8f-9408-135e17ef0d3d",
+      "name": "Calendar MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "position": [
+        1440,
+        240
+      ],
+      "parameters": {
+        "sseEndpoint": "https://xxx.app.n8n.cloud/mcp/my-calendar/sse"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8891a5de-e35f-4367-bfb7-0e54ce4452be",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        360
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 240,
+        "content": "## 왜 모델 4o? 👆  \n4o-mini를 테스트한 후, 달력 요청을 처리하는 데 몇 가지 어려움을 겪었으나, 4o 모델은 쉽게 처리했다.  \n\n당신의 프롬프트와 도구에 따라 4o-mini도 잘 작동할 수 있지만, 추가 테스트가 필요합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5d9ddb5-5957-4d22-8d85-a1c08eb813d8",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        -600
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 740,
+        "height": 520,
+        "content": "# 해보자!\n\n![생성](https://0.gravatar.com/userimage/264834967/5dfab90301432c344990fafb166546e1?size=256)\n\n![생성 완료](https://0.gravatar.com/userimage/264834967/7126b569dd9868c056f9ad3a23be2a25?size=256)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "31b467cd-1d70-4c05-ae14-9f9e455cd55c",
+      "name": "gpt-4o",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1180,
+        240
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "40ZaiQQN82bPTck0",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "007f0f3f-e7ca-4ea8-acba-cfde3bd8d1dd",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 80,
+        "content": "# 즐기세요! 😊 😊 😊"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c99542aa-af94-4e26-b255-473a26e0a962",
+  "connections": {
+    "gpt-4o": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreateEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google Calendar MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeleteEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google Calendar MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SearchEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google Calendar MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google Calendar MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,928 @@
+{
+  "id": "LL0TBxEbXoK2zhqp",
+  "meta": {
+    "instanceId": "af80dcc2dbd3882359ca17a5fe5b2d4bd4ca3cf3cbe39546ecc263e2e97807e5",
+    "templateId": "self-building-ai-agent",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI Document Assistant via Telegram + Supabase",
+  "tags": [
+    {
+      "id": "Fo1OtHUY0RXxPbjJ",
+      "name": "google-gemini",
+      "createdAt": "2025-05-01T23:10:32.399Z",
+      "updatedAt": "2025-05-01T23:10:32.399Z"
+    },
+    {
+      "id": "HcgCSAB27xdCFyCf",
+      "name": "vectorstore",
+      "createdAt": "2025-05-01T23:10:13.148Z",
+      "updatedAt": "2025-05-01T23:10:13.148Z"
+    },
+    {
+      "id": "NFkP0TdshXJdwIOG",
+      "name": "chatbot",
+      "createdAt": "2025-05-01T23:09:53.855Z",
+      "updatedAt": "2025-05-01T23:09:53.855Z"
+    },
+    {
+      "id": "QXeMQNrN4XlEXs1I",
+      "name": "telegram",
+      "createdAt": "2025-05-01T23:09:23.634Z",
+      "updatedAt": "2025-05-01T23:09:23.634Z"
+    },
+    {
+      "id": "RLZgltwJo60sK1Dm",
+      "name": "embeddings",
+      "createdAt": "2025-05-01T23:10:20.621Z",
+      "updatedAt": "2025-05-01T23:10:20.621Z"
+    },
+    {
+      "id": "fMH2im2pHJBOzkXp",
+      "name": "document-qa",
+      "createdAt": "2025-05-01T23:10:07.948Z",
+      "updatedAt": "2025-05-01T23:10:07.948Z"
+    },
+    {
+      "id": "ghpuX9kkAqpLyIVR",
+      "name": "n8n-ai",
+      "createdAt": "2025-05-01T23:10:38.373Z",
+      "updatedAt": "2025-05-01T23:10:38.373Z"
+    },
+    {
+      "id": "tSHEttl48VrqMYiV",
+      "name": "supabase",
+      "createdAt": "2025-05-01T23:10:16.583Z",
+      "updatedAt": "2025-05-01T23:10:16.583Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "0213dfab-a1b2-42c9-9ab1-8a0f1de4c4c0",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        480,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash-preview-04-17"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QuysglXiB421WI90",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c166f83-8ea4-4dc7-8ea2-92ec186c9f32",
+      "name": "OpenWeatherMap",
+      "type": "n8n-nodes-base.openWeatherMapTool",
+      "position": [
+        740,
+        -100
+      ],
+      "parameters": {
+        "cityName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('City', ``, 'string') }}"
+      },
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "MCzSGdWHBJE7l1aN",
+          "name": "OpenWeatherMap account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa0abeff-b5e9-497b-9d9c-8f79721a5c11",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        480,
+        -320
+      ],
+      "parameters": {
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=4. If the user sends you a message starting with / sign, it means this is a Telegram bot command. For example, all users send /start command as their first message. Try to figure out what these commands mean and reply accodringly.\nUser can only send pdf files and text messages and let them know that this type is not supported if it was not a PDF file or text.\nAt first let them know that they can ask questions about sent PDF files you can use your own capabilities as well. \nGenerate a detailed, well-structured response ,\nFormat the response strictly using Telegram's supported HTML syntax. Use tags like <b>, <i>, <u>, <s>, <span class=\"tg-spoiler\">, <code>, <pre> (with optional <code class=\"language-...\"> inside), <a href=\"...\">, and <blockquote> where appropriate.\n\nStructure the content logically using paragraphs and distinct sections. **Be mindful that this text might need to be split into multiple messages due to character limits (Telegram's limit is around 4096 characters per message). Try to make sections or paragraphs relatively self-contained where possible to facilitate splitting.**\n\n**Ensure all <, >, and & symbols within the *text content* (i.e., not part of an HTML tag or entity) are replaced with the corresponding HTML entities: < with &lt;, > with &gt;, and & with &amp;.**\n\nMaintain proper nesting of HTML tags according to Telegram's rules. While the final splitting will be handled by a script, aim for a structure that is easy to break into logical parts without leaving tags improperly open mid-message."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "72b85aff-4fe7-4705-a07c-463f381cb806",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -20,
+        100
+      ],
+      "webhookId": "d4f286b2-8094-40e3-aeb2-813eb1895ecf",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ea716dba-2856-40a8-ad73-86132f52dda8",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "onError": "continueErrorOutput",
+      "position": [
+        1540,
+        -320
+      ],
+      "webhookId": "137d8d2f-a941-4803-8646-8932525360c3",
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "chatId": "={{ $json.chatId }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "59a22620-0d26-4e19-940a-5c07efccbdfa",
+      "name": "Think",
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "position": [
+        640,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7bb66887-c9c6-4057-bbc0-306d1e20ea12",
+      "name": "Embeddings Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "position": [
+        840,
+        340
+      ],
+      "parameters": {
+        "modelName": "models/text-embedding-004"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QuysglXiB421WI90",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "668db8fd-3d5f-433a-8ccb-4bea237107ce",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1220,
+        460
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d1495354-bfc0-4ef1-9102-dc3577580d5b",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1440,
+        620
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a8e5ce6-4c52-4ca0-962f-045ea42dac7c",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1020,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3f4a9da9-0364-4861-a6f3-33b1d5c501e0",
+      "name": "Answer questions with a vector store",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        860,
+        -60
+      ],
+      "parameters": {
+        "description": "Use this data if the user's question appears to reference an uploaded file, document content, or specific information that might be stored in prior user documents. If not relevant, ignore this source."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "933a93c7-9401-4bac-9b9c-395866b46d61",
+      "name": "Supabase Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        760,
+        80
+      ],
+      "parameters": {
+        "options": {
+          "queryName": "match_documents"
+        },
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "user_knowledge_base",
+          "cachedResultName": "user_knowledge_base"
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jq6dt73fwyUImYqH",
+          "name": "Supabase account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5f37c202-a1ca-4ee0-9de0-267349adffbd",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1625,
+        "height": 779,
+        "content": "✅ 시나리오 2 – 문서 업로드 및 임베딩\n\nTelegram을 통해 보내진 문서를 다운로드하여 텍스트를 추출하고, 임베딩을 생성한 후 Supabase Vector Store에 삽입하는 흐름."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e9c1070-90bc-4ab7-a8a0-62461bede708",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        -420
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1625,
+        "height": 599,
+        "content": "✅ 시나리오 1 – 챗봇 상호작용\n\n봇으로 보내진 사용자 메시지를 처리하는 흐름. 날씨 데이터 접근, 사용자 업로드 문서를 기반으로 질문 답변, 및 코드 실행 도구를 사용하여 코드 실행을 포함합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b211a14-6813-459f-8d23-b40fc0eb4bd6",
+      "name": "Telegram - Embedding Complete",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1760,
+        320
+      ],
+      "webhookId": "4eaead72-f9a7-49a3-95ca-b3bc8f6b9a95",
+      "parameters": {
+        "text": "=✅ Document saved!\nFeel free to start asking questions about it.",
+        "chatId": "={{ $('Command Router').item.json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "05703266-aaed-491d-87a6-ed7f96a9c49a",
+      "name": "Supabase - Save Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        1200,
+        320
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "user_knowledge_base",
+          "cachedResultName": "user_knowledge_base"
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jq6dt73fwyUImYqH",
+          "name": "Supabase account"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "3b7db0e6-b551-4698-921a-306e837ceffc",
+      "name": "Command Router",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        160,
+        100
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "document",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "895b32db-777d-4d8e-b1d3-596cc9863d09",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.document }}",
+                    "rightValue": "={{ $json.message.document }}"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "text",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "26c12573-8e00-4832-8410-73d2d739c455",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "fa06fc6c-3661-4065-81fc-09f93d6a4a25",
+      "name": "Telegram - Download file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        600,
+        540
+      ],
+      "webhookId": "11b8f884-34bc-401c-8978-b28507d96e40",
+      "parameters": {
+        "fileId": "={{ $('Telegram Trigger').item.json.message.document.file_id }}",
+        "resource": "file"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "756a36aa-187d-48ca-894c-f8c9a79a4794",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "notes": "This is used to flag the end of progress—no real aggregation.",
+      "position": [
+        1580,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {}
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "3b49f357-5d21-4710-bd32-3218d23b1bd9",
+      "name": "Fallback- No formatting",
+      "type": "n8n-nodes-base.telegram",
+      "notes": "This is used if, even after HTML formatting,g Telegram wasn't able to process the text, so we send it without formatting.",
+      "position": [
+        1740,
+        -260
+      ],
+      "webhookId": "dd2182fe-0b11-4d96-9838-30d60bf8c229",
+      "parameters": {
+        "text": "={{ $('Manual Mapping').item.json.text }}",
+        "chatId": "={{ $('Manual Mapping').item.json.chatId }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "eafdbacb-17e5-4de6-a4e9-b986140353e5",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1120,
+        -320
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "538be3ed-4bd6-4295-ac11-e4d46b943f5a",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        540,
+        -100
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "0afca77d-0e08-4f04-a6d3-b107c1dd54f9",
+      "name": "Handle formatting and split",
+      "type": "n8n-nodes-base.code",
+      "notes": "This is used to prevent Markdown issues in Telegram while sending messages.",
+      "position": [
+        900,
+        -320
+      ],
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import re\nimport html\n\ngemini_output_text = _('AI Agent').first().json.output;\n# Regex to match any HTML tag <...>\nHTML_TAG_PATTERN = re.compile(r'(<[^>]*?>)', re.IGNORECASE)\n\n# List of UNSUPPORTED Telegram HTML tag names\nUNSUPPORTED_TAG_NAMES = [\n    'p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol',\n    'table', 'thead', 'tbody', 'tr', 'td', 'th', 'div', 'br', 'font',\n    'span', # Span is unsupported *unless* it has the specific class\n    'a'     # A is unsupported *unless* it has the href attribute\n    # Add more unsupported tags if you encounter them\n]\n\n# Regex to match unsupported opening or closing tags based on the names list\n# This pattern is simplified and might misinterpret complex attributes\nUNSUPPORTED_TAG_PATTERN = re.compile(r'<\\/?(' + '|'.join(UNSUPPORTED_TAG_NAMES) + r')\\b[^>]*?>', re.IGNORECASE)\n\n# Regex to match a span tag *without* the class=\"tg-spoiler\" attribute\n# This tries to capture the tag and its content to remove both\nUNSUPPORTED_SPAN_FULL_PATTERN = re.compile(r'<span(?! class=\"tg-spoiler\"\\b)[^>]*?>.*?<\\/span>', re.IGNORECASE | re.DOTALL) # DOTALL allows . to match newlines\n\n# Regex to match an a tag *without* an href attribute\n# This tries to capture the tag and its content to remove both\nUNSUPPORTED_A_FULL_PATTERN = re.compile(r'<a(?![^>]*href=)[^>]*?>.*?<\\/a>', re.IGNORECASE | re.DOTALL)\n\n\n# --- Cleaning Function (Regex Only) ---\n\ndef unescape_common_html_entities(text):\n    \"\"\"\n    Unescapes a limited set of common HTML entities in text.\n    Does NOT use html.unescape for maximum compatibility with \"no external library\" rule.\n    \"\"\"\n    # Order matters: &amp; must be replaced first!\n    text = text.replace('&amp;', '&')\n    text = text.replace('&lt;', '<')\n    text = text.replace('&gt;', '>')\n    text = text.replace('&quot;', '\"')\n    text = text.replace('&apos;', \"'\")\n    # Add more common entities here if needed, e.g., text = text.replace('&nbsp;', ' ')\n    return text\n\n\ndef clean_html_regex_only(html_string):\n    \"\"\"\n    Cleans HTML string using regex: removes unsupported tags and escapes text content.\n    Handles &apos; and other basic entities.\n    WARNING: This is a regex-based approach and is NOT as robust as using an HTML parser.\n    It may fail on complex or malformed HTML.\n\n    Args:\n        html_string (str): The input HTML string.\n\n    Returns:\n        str: The cleaned HTML string.\n    \"\"\"\n    # 1. Remove unsupported tags and their content where specific attributes are missing\n    # Process specific full patterns first\n    cleaned_text = UNSUPPORTED_SPAN_FULL_PATTERN.sub('', html_string)\n    cleaned_text = UNSUPPORTED_A_FULL_PATTERN.sub('', cleaned_text)\n\n    # 2. Remove remaining unsupported opening/closing tags, leaving content behind\n    cleaned_text = UNSUPPORTED_TAG_PATTERN.sub('', cleaned_text)\n\n    # 3. Split the remaining string into tags and text segments\n    # This pattern captures the tags themselves so we can differentiate them from text\n    parts = HTML_TAG_PATTERN.split(cleaned_text)\n\n    cleaned_parts = []\n    for part in parts:\n        if not part:\n            continue\n\n        if HTML_TAG_PATTERN.fullmatch(part):\n            # If the part is a tag (matches the full tag pattern)\n            # We assume at this point it's a supported tag due to previous removal steps.\n            # Keep the tag as is.\n            cleaned_parts.append(part)\n        else:\n            # If the part is text content\n            # 1. Unescape common HTML entities (like &apos;) that might be in the text\n            unescaped_text = unescape_common_html_entities(part)\n\n            # 2. Escape the literal characters <, >, & that are *in* the text content\n            # This ensures only the characters themselves are escaped, not entities.\n            # Need to escape & first to avoid issues with '&amp;' if it resulted from unescaping or was original.\n            re_escaped_text = unescaped_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')\n\n            cleaned_parts.append(re_escaped_text)\n\n    # Join the processed parts back into a single string\n    return \"\".join(cleaned_parts)\n\n# --- Splitting Logic ---\nSPLIT_PATTERN_REGEX_ONLY = re.compile(r'(<\\/blockquote>|<\\/pre>|\\n\\n|\\s{2,}|(?<=[.!?])\\s+|<[a-z]+[^>]*?>|<\\/[a-z]+>)', flags=re.IGNORECASE)\n\n\ndef split_telegram_message_regex_only(text, max_length=4096):\n    \"\"\"\n    Splits text into multiple messages based on character count and basic patterns.\n    Operates on text already cleaned by clean_html_regex_only.\n    Does NOT guarantee HTML tag integrity across splits due to lack of parsing.\n\n    Args:\n        text (str): The input text (preferably cleaned by clean_html_regex_only).\n        max_length (int): The maximum length for each message part.\n\n    Returns:\n        list: A list of strings, where each string is a message part.\n    \"\"\"\n    if len(text) <= max_length:\n        return [text]\n\n    messages = []\n    current_chunk = \"\"\n\n    # Split by the defined pattern\n    parts = SPLIT_PATTERN_REGEX_ONLY.split(text)\n\n    for part in parts:\n        # Handle parts that are None (can happen with split) or just short whitespace\n        if part is None or (not part.strip() and len(part) < 2 and part != '\\n\\n'):\n             if part is not None and len(part) > 0: # Keep meaningful whitespace splits like \\n\\n\n                  if len(current_chunk) + len(part) <= max_length:\n                       current_chunk += part\n                  else:\n                       # Split happens within meaningful whitespace, finalize chunk\n                       if current_chunk.strip(): # Only add if chunk has content\n                            messages.append(current_chunk.strip())\n                       current_chunk = part # Start new chunk with the whitespace\n             continue # Skip to next part\n\n\n        # Check if adding the current part exceeds the max length\n        if len(current_chunk) + len(part) > max_length:\n            # If the current chunk is empty or only whitespace after stripping,\n            # it means the 'part' itself is too long to fit in a new chunk.\n            if not current_chunk.strip():\n                # Handle very long individual parts (e.g., a huge code block line, a very long word, a single huge tag)\n                # Hard split the long part. WARNING: This can break tags, words, or escape sequences.\n                while len(part) > max_length:\n                    messages.append(part[:max_length])\n                    part = part[max_length:]\n                if part.strip():\n                    current_chunk = part # Remaining part starts a new chunk\n                else:\n                     current_chunk = \"\" # If remainder is just whitespace, clear\n            else:\n                # The current part makes the chunk too long, finalize the current chunk\n                messages.append(current_chunk.strip())\n                # Start a new chunk with the current part\n                current_chunk = part # Keep original part for the new chunk\n\n        else:\n            # Add the current part to the chunk\n            current_chunk += part\n\n    # Add the last chunk\n    if current_chunk.strip(): # Only add if the final chunk has content\n        messages.append(current_chunk.strip())\n\n    # Clean up any empty messages that might have been created\n    messages = [msg for msg in messages if msg.strip()]\n\n    return messages\n  \ncleaned_html_regex = clean_html_regex_only(gemini_output_text)\nmessage_parts_regex = split_telegram_message_regex_only(cleaned_html_regex)\n\nreturn dict({'output': message_parts_regex })"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dbea9e13-6ad4-4eb3-8da1-9db9e2116283",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        -420
+      ],
+      "parameters": {
+        "width": 1960,
+        "height": 3520,
+        "content": "# 🤖 귀하의 문서용 Telegram AI Assistant (n8n + Supabase + Gemini)\n\n이 프로젝트는 표준 **Telegram 봇**을 귀하의 전담 AI 어시스턴트로 변환합니다 – **귀하의 문서**를 기반으로 질문을 이해하고 답변하도록 설계되었습니다. **Google Gemini**의 고급 언어 기능을 원활하게 통합하고 **Supabase의 벡터 데이터베이스**를 통해 효율적이고 지능적인 문서 검색을 제공합니다. 완전히 노코드 플랫폼 **n8n** 내에서 구축되어 코드 한 줄도 작성하지 않고도 정교한 문서 챗봇을 배포할 수 있습니다.\n\n단순히 봇에 PDF 문서를 업로드하면, 업로드된 파일에 대한 전문가처럼 내용을 조회할 수 있는 채팅 기능이 즉시 활성화됩니다.\n\n---\n## 📹 봇 동작 보기\n\n[![𝗨𝗻𝗹𝗲𝗮𝘀𝗵𝗶𝗻𝗴 𝗔𝗜 𝗼𝗻 𝗠𝘆 𝗕𝗼𝗼𝗸𝘀𝗵𝗲𝗹𝗳: 𝗙𝗹𝗼𝘄 𝗣𝗿𝗼𝗴𝗿𝗮𝗺𝗺𝗶𝗻𝗴 𝗣𝗼𝘄𝗲𝗿𝘀 𝗮 𝗡𝗲𝘅𝘁-𝗟𝗲𝘃𝗲𝗹 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗕𝗼𝘁🤖](https://img.youtube.com/vi/r_KGyJApy5M/maxresdefault.jpg)](https://www.youtube.com/watch?v=r_KGyJApy5M)\n\n**▶️ 위 이미지를 클릭하여 YouTube에서 라이브 데모를 시청하세요.** \n\n이 비디오는 봇의 핵심 기능과 상호작용 방식을 보여줍니다. 봇의 기능과 사용자 흐름에 대한 간단한 walkthrough를 확인하세요.\n\n---\n\n## ✨ 워크플로우 활성화: 사용 사례\n\n이 프로젝트는 두 가지 핵심 상호작용을 가능하게 합니다:\n\n### 1. 대화형 AI 인터페이스 (사용자 질문 → Telegram 봇 → 지능형 답변)\n- 사용자가 Telegram 봇에 직접 질문을 합니다.\n- 봇은 Google Gemini LLM의 최첨단 기능을 사용하여 관련성 있고 유익한 답변을 생성합니다.\n- 강력한 벡터 검색 메커니즘을 활용하여 이전에 업로드된 문서에서 특정하고 맥락적인 정보를 가져와 매우 관련성 높고 정보적인 응답을 제공합니다.\n- (선택 사항) 실시간 데이터, 예를 들어 **날씨 정보**를 답변에 추가합니다.\n\n### 2. 간편한 문서 통합 (사용자 PDF 업로드 → 처리 → 검색 가능한 지식)\n- 사용자가 봇에 PDF 문서를 직접 업로드합니다.\n- 워크플로우가 자동으로 문서 내용을 구문 분석하고, Gemini의 임베딩 모델을 사용하여 숫자 표현인 임베딩으로 변환합니다.\n- 이러한 임베딩과 문서의 텍스트 내용이 전용 **Supabase 벡터 테이블**에 안전하게 저장되어 검색 가능한 지식 기반을 만듭니다.\n- 처리 성공 후 즉시 문서가 봇의 메모리에 추가되어 사용자가 표준 채팅 인터페이스를 통해 문서 내용에 대해 질문할 수 있습니다.\n\n---\n## 🧠 핵심 지능 기능\n\n- ✅ **순수 노코드**: 직관적인 [n8n](https://n8n.io) 자동화 플랫폼 내에서 개발 및 관리됩니다.\n- 📄 **원활한 PDF 통합**: 봇의 지식을 확장하기 위해 PDF 문서를 쉽게 업로드하고 처리합니다.\n- 🧠 **Google Gemini 지원**: Gemini를 사용하여 문서 임베딩 생성 및 지능형 대화 응답 형성합니다.\n- 🗂 **벡터 데이터베이스 메모리 (Supabase)**: **Supabase를 강력한 벡터 데이터베이스로 사용하여** 문서 임베딩을 저장하고 효율적으로 검색하여 봇이 콘텐츠에 대한 장기 메모리를 가질 수 있게 합니다.\n- **⚡️ 빠르고 사적인 검색**: 벡터 검색을 통해 사용자의 쿼리에 가장 관련성 있는 문서 조각을 신속하게 식별하고 검색합니다. 이 접근 방식은 응답 속도를 높이고 데이터 프라이버시를 크게 향상시킵니다. **원본 문서 내용은 귀하의 Supabase 인스턴스에 안전하게 저장되며, LLM에 응답을 생성하기 위해 보내는 것은 사용자의 쿼리와 검색된 관련 조각뿐입니다.**\n- 🧹 **지능형 HTML 후처리**: Telegram에서 지원되지 않는 HTML 태그를 제거하면서 필수 형식을 유지하고 텍스트 내용의 특수 문자를 올바르게 이스케이프하여 LLM의 응답을 정리합니다.\n- 📤 **적응형 메시지 청킹**: AI 생성 답변을 Telegram의 4096자 제한에 맞게 여러 메시지로 분할하여 전체 응답이 깨끗하게 전달되도록 합니다.\n- 🌦️ **동적 날씨 데이터**: (선택 사항) 요청 시 OpenWeatherMap과 통합하여 현재 날씨 정보를 제공합니다.\n- **📝 사용 노트**: 이 워크플로우는 주로 **개인, 단일 사용자** 시나리오를 위해 설계되었습니다. 각 메시지를 독립적으로 처리하며 **다중 사용자 세션 관리를 포함하지 않으므로**, 다른 사용자가 별도의 대화 맥락을 필요로 하는 공용 배포에는 적합하지 않습니다. Python으로 구현된 세션 기반 Telegram 봇의 경우, 다중 모델 Telegram 봇인 이 프로젝트를 참조하세요: [https://github.com/mohamadghaffari/gemini-tel-bot](https://github.com/mohamadghaffari/gemini-tel-bot).\n\n---\n\n## 🛠 시작하기: 설정\n\n### 1. n8n에서 워크플로우 배포\n\n- n8n 템플릿 페이지에서 \"이 워크플로우 사용\" 버튼을 클릭합니다.\n- 이렇게 하면 워크플로우가 귀하의 n8n 인스턴스에서 직접 열리며, 구성할 준비가 됩니다.\n\n### 2. 서비스 연결: 자격 증명 구성\n\nn8n 인스턴스 내에서 다음 서비스에 대한 API 자격 증명을 생성합니다:\n\n| 서비스          | 목적                          |\n|------------------|------------------------------------|\n| Telegram API     | 사용자 메시지 수신 및 답변 전송 |\n| Google Gemini    | 임베딩 생성 및 LLM 응답 |\n| Supabase         | 문서 벡터 저장 및 검색 |\n| OpenWeatherMap   | (선택 사항) 날씨 데이터 가져오기    |\n\n### 3. Supabase 지식 기반 준비\n\n문서 임베딩을 저장할 벡터 지원 테이블을 Supabase 프로젝트에 설정합니다. 다음 SQL 명령어를 Supabase SQL 에디터에서 실행합니다:\n\n``` sql\n-- pgvector 확장을 활성화하여 임베딩 벡터 작업\ncreate extension vector;\n\n-- 문서와 임베딩을 저장할 테이블 생성\ncreate table user_knowledge_base (\n  id bigserial primary key,\n  content text, -- 문서의 텍스트 조각 저장\n  metadata jsonb, -- 문서 정보 저장 (예: 파일 이름, 페이지 번호)\n  embedding vector(768) -- Gemini에서 생성된 벡터 표현 저장. 다른 모델 사용 시 차원을 조정합니다.\n);\n\n-- 문서 유사성 검색을 위한 함수 생성\ncreate function match_documents (\n  query_embedding vector(768),\n  match_count int default null,\n  filter jsonb DEFAULT '{}'\n) returns table (\n  id bigint,\n  content text,\n  metadata jsonb,\n  similarity float\n)\nlanguage plpgsql\nas $$\n#variable_conflict use_column\nbegin\n  return query\n  select\n    id,\n    content,\n    metadata,\n    -- 코사인 유사도 계산: 1 - 코사인 거리 (pgvector의 '<=>' 연산자 사용)\n    1 - (user_knowledge_base.embedding <=> query_embedding) as similarity\n  from user_knowledge_base\n  where metadata @> filter -- 선택 사항: 메타데이터 기반 필터링\n  order by user_knowledge_base.embedding <=> query_embedding -- 유사도 기준으로 정렬 (가장 가까운 순)\n  limit match_count; -- 결과 수 제한\nend;\n$$;\n```\n\n이렇게 하면 필요한 테이블과 벡터 유사성 검색 함수가 설정되어 사용자의 쿼리에 가장 유사한 문서 조각을 찾을 수 있습니다.\n-----\n\n## 📚 통합 기술\n\n이 프로젝트는 강력한 도구를 결합합니다:\n\n  - [n8n](https://n8n.io) – 워크플로우 자동화 및 통합의 중앙 허브.\n  - [Telegram Bot API](https://core.telegram.org/bots/api) – 사용자 상호작용을 위한 커뮤니케이션 레이어.\n  - [Supabase](https://supabase.com/) + [pgvector Extension](https://www.google.com/search?q=https://supabase.com/docs/guides/ai/vector-embeddings) – 확장 가능 데이터베이스와 강력한 벡터 검색 기능을 제공.\n  - [Google Gemini API](https://ai.google.dev/) – 임베딩 및 텍스트 생성을 위한 지능 엔진.\n  - [OpenWeatherMap API](https://openweathermap.org/api) – (선택 사항) 실시간 날씨 기능 추가."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "965ba2bd-747d-4718-a76e-9f7d685dcea4",
+      "name": "Manual Mapping",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1320,
+        -320
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cdeb5bf1-c91c-44ae-bebd-ab3f4ba2561a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "7cd7d120-96fa-4539-b343-25bc9b75abb4",
+              "name": "chatId",
+              "type": "number",
+              "value": "={{ $('Command Router').item.json.message.from.id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c6a315f1-6f0b-4127-b377-b7b12975929f",
+      "name": "Unsupported message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        500,
+        760
+      ],
+      "webhookId": "52f3456a-06ef-4799-b245-0293213dcc4b",
+      "parameters": {
+        "text": "Unsupported command or file. 😓 Please upload a valid PDF document or ask your question regarding your files.",
+        "chatId": "={{ $('Command Router').item.json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "375bd185-3836-4f25-8708-d6dcd79b2675",
+      "name": "Send processing document message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        920,
+        720
+      ],
+      "webhookId": "32ade357-f14b-4d10-91f2-02c8aa6e198e",
+      "parameters": {
+        "text": "=<b>Processing document...</b>\n<b>Please wait...⏳</b>",
+        "chatId": "={{ $('Command Router').item.json.message.chat.id }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d01f8b15-e495-46cf-bfdf-20b4399c23d7",
+      "name": "Send embedding Started message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1220,
+        660
+      ],
+      "webhookId": "32ade357-f14b-4d10-91f2-02c8aa6e198e",
+      "parameters": {
+        "text": "=<b>Document processed ✅ </b> \n<b>Num of pages:</b> {{ $json.numpages }} \n<b>Creator:</b> {{ $json.info.Creator }}\n<b>Title:</b> {{ $json.info.Title }} \n<b>Version:</b> {{ $json.version }}",
+        "chatId": "={{ $('Command Router').item.json.message.chat.id }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "jOxapcl3g1n1HrCE",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "749ec7d0-e135-478a-b02e-9241dbf4ab68",
+  "connections": {
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Handle formatting and split",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Fallback- No formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Embedding Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Manual Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Command Router": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Download file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unsupported message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Mapping": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Command Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Save Embeddings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send embedding Started message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase - Save Embeddings",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase - Save Embeddings",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send processing document message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Save Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle formatting and split": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send embedding Started message": {
+      "main": [
+        []
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer questions with a vector store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

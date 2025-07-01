@@ -1,0 +1,182 @@
+{
+  "id": "onyc3N5GKCxzWfmi",
+  "meta": {
+    "instanceId": "54299f860163fe60974599588ae4c20ee888191a431346b258503c2db8b536ed",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Chatbot that searches the web",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "976aa8a4-d286-478a-8cc9-4577e220174b",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -300,
+        80
+      ],
+      "webhookId": "d48f9e07-3c05-4be8-86ca-5cee4c27b78f",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "44236749-af9f-4843-a1ab-e54008b4c525",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        40,
+        300
+      ],
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "33536ea4-c8fe-4525-a2d2-905180259e8d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -48,
+        80
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "10436a1a-4993-4fc5-aca7-686db5bf7441",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        -80,
+        300
+      ],
+      "parameters": {
+        "model": "deepseek/deepseek-chat:free",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "tDWBerCVn0gOn7YX",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73d024bd-aab3-491c-afc4-79194f4ac7fc",
+      "name": "SearchAPI",
+      "type": "CUSTOM.searchApiTool",
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "parameters": {
+          "parameter": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Value', ``, 'string') }}"
+            },
+            {}
+          ]
+        },
+        "requestOptions": {},
+        "toolDescription": "Call this tool whenever the answer might require fresh, niche, or externally-verifiable information. Make sure to always cite the sources in the final reply. "
+      },
+      "credentials": {
+        "searchApi": {
+          "id": "rTFvdffzP7fPVaVr",
+          "name": "SearchAPI account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7443e1c1-1b12-453d-89b3-9875ed07749f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -140
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "content": "## SearchAPI AI 에이전트  \n사용자가 웹에서 검색해야 할 질문을 할 때마다, AI 에이전트가 SearchAPI를 사용하여 이를 수행합니다. 이 워크플로를 실행하려면 Searchapi.io의 자격 증명과 일부 LLM 제공자의 자격 증명이 필요합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9617510c-6ff3-4f6c-9e4d-8fbd9b129f95",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 120,
+        "content": "## 팁  \n노드를 변경하여 SearchAPI.io에서 사용 가능한 엔진 중 하나를 사용할 수 있습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1f42e7e2-32ca-4ceb-8f1e-1de26f09d525",
+  "connections": {
+    "SearchAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

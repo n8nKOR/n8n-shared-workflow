@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
 import argparse
-import glob
 import os
-import subprocess
+import re
 import time
 from pathlib import Path
+
+
+def natural_sort_key(path):
+    """자연스러운 정렬을 위한 키 함수 (숫자를 고려한 정렬)"""
+    filename = path.stem  # 확장자 제외한 파일명
+    # 숫자와 문자를 분리하여 숫자는 int로 변환
+    parts = re.split(r'(\d+)', filename)
+    result = []
+    for part in parts:
+        if part.isdigit():
+            result.append(int(part))
+        else:
+            result.append(part)
+    return result
 
 
 def parse_args():
@@ -26,7 +39,7 @@ def main():
 
     # 모든 JSON 파일 찾기
     task_dir = Path(args.task_dir)
-    json_files = list(task_dir.glob("*.json"))
+    json_files = sorted(list(task_dir.glob("*.json")), key=natural_sort_key)
 
     if not json_files:
         print(f"'{args.task_dir}' 디렉토리에 JSON 파일이 없습니다.")
@@ -47,7 +60,7 @@ def main():
             # 각 파일에 대해 명령어 작성
             for i, json_file in enumerate(json_files, 1):
                 file_path = str(json_file)
-                cmd = f'clear && python scripts/cli.py run --file="{file_path}" --model={args.model} --provider={args.provider}'
+                cmd = f'python scripts/cli.py run --file="{file_path}" --model={args.model} --provider={args.provider}'
 
                 # f.write(f'echo "[{i}/{len(json_files)}] 실행 중: {file_path}"\n')
                 f.write(f"{cmd}\n\n")
@@ -63,7 +76,7 @@ def main():
         # 각 파일에 대해 명령어 출력 (dry-run 모드)
         for i, json_file in enumerate(json_files, 1):
             file_path = str(json_file)
-            cmd = f'clear && python scripts/cli.py run --file="{file_path}" --model={args.model} --provider={args.provider}'
+            cmd = f'python scripts/cli.py run --file="{file_path}" --model={args.model} --provider={args.provider}'
 
             print(f"\n[{i}/{len(json_files)}] 명령어: {cmd}")
 

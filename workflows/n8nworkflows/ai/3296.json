@@ -1,0 +1,343 @@
+{
+  "meta": {
+    "instanceId": "e634e668fe1fc93a75c4f2a7fc0dad807ca318b79654157eadb9578496acbc76",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "30da4d86-83ef-4226-ad2e-d73f531bd4ed",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "bd57625d-03f2-48b3-94b5-2653214682eb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        -280
+      ],
+      "parameters": {
+        "height": 440,
+        "content": "## 주문 이행을 위한 필터링 👇  \n유효한 주문을 프로그램적으로 이행을 위해 필터링하세요  \n\n- 당신이 독점적으로 디지털 다운로드나 디지털 기프트 카드를 판매하는 경우  \n- 당신이 모든 제품에 대해 이행 서비스를 사용하는 경우"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5928c16f-b842-42e3-9c81-ac9b796d22ff",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1060,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "4509fb4e-fed0-4424-94a2-55d1c56a5d5a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        -180
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "## 이행 주문 가져오기 👇  \n[특정 주문에 대한 이행 주문 목록을 가져옵니다.](https://shopify.dev/docs/api/admin-rest/2025-01/resources/fulfillmentorder#get-orders-order-id-fulfillment-orders)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "76e16b42-01a3-4c88-a64b-a408b4bb9f40",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        -160
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1835c0d1-c7d3-4db6-b898-d604c8df7ad1",
+      "name": "Filter Orders",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        760,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3fdde26b-82ef-42f1-ba36-d4fe667f8866",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ (new Date().getTime() - new Date($json.created_at).getTime()) / (1000 * 60 * 60) }}\n",
+              "rightValue": 24
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "977c3b8d-e3a9-4146-bc4c-e06e67f26a9e",
+      "name": "Get Fulfillment Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1380,
+        20
+      ],
+      "parameters": {
+        "url": "=https://{{ $('Set Global').item.json['store-id'] }}.myshopify.com/admin/api/2025-01/orders/{{ $json.id }}/fulfillment_orders.json",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "shopifyAccessTokenApi"
+      },
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "vtyKGPLLdjc7MLea",
+          "name": "Shopify Access Token account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cf4c99c4-882c-4706-9cb9-8c154549545b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -180
+      ],
+      "parameters": {
+        "width": 232,
+        "height": 346,
+        "content": "## 이 노드를 편집하세요 👇\n\n당신의 스토어 ID를 가져와서 GET URL에서 교체하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a33e89b-ecf5-4be1-b3e4-9c20c00c7c1c",
+      "name": "Set Global",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "78289fb1-8a1a-46a2-973e-f5f2a7309993",
+              "name": "store-id",
+              "type": "string",
+              "value": "{store-id}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "68dffeba-705c-42b5-851e-893964a51176",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -180
+      ],
+      "parameters": {
+        "width": 232,
+        "height": 346,
+        "content": "## 이행 생성  👇\n\n[하나 또는 여러 이행 주문에 대한 이행을 생성합니다](https://shopify.dev/docs/api/admin-rest/2025-04/resources/fulfillment#post-fulfillments)  \n- `notify_customer` 고객에게 알림을 보내기 위해"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "24137672-00d7-4fa0-9238-f2dca7900adf",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        -300
+      ],
+      "parameters": {
+        "width": 372,
+        "height": 546,
+        "content": "## n8n을 사용한 Shopify 이행 자동화\nShopify 상점 소유자들로, 전체 주문이나 특정 제품(예: 개인화 아이템)에 대한 이행 과정을 자동화하고 싶어하는 사람들. 그러나, [Fulfillment Order ID](https://shopify.dev/docs/api/admin-rest/2025-01/resources/fulfillmentorder#get-orders-order-id-fulfillment-orders) (아닌 [Order ID](https://shopify.dev/docs/api/admin-rest/2025-01/resources/order#get-orders-order-id?fields=id,line-items,name,total-price))를 검색하는 데 어려움이 있습니다—이행을 트리거하는 데 필요한 중요한 부분입니다.\n\n이 n8n 워크플로우는 다음을 할 수 있습니다:\n\n- Shopify 상점에서 모든 이행되지 않은 주문을 가져옵니다.\n\n- Fulfillment Order ID를 검색합니다 (\"List Fulfillment Orders\" 작업 사용).\n\n- 이행 요청을 생성합니다 (\"Mark fulfillment orders as fulfilled\" 사용).\n\n- 에지 케이스를 처리합니다, 예를 들어 부분적으로 이행된 주문이나 API 응답 오류."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bfb340f2-1fb6-4be7-823a-d24d6d8361be",
+      "name": "Get all Unfulfilled orders",
+      "type": "n8n-nodes-base.shopify",
+      "position": [
+        540,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "fulfillmentStatus": "unfulfilled"
+        },
+        "operation": "getAll",
+        "returnAll": true,
+        "authentication": "accessToken"
+      },
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "vtyKGPLLdjc7MLea",
+          "name": "Shopify Access Token account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8350fcaf-1bf8-4af1-a716-816b19a4b892",
+      "name": "Mark fulfillment orders as fulfilled",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1740,
+        20
+      ],
+      "parameters": {
+        "url": "=https://{{ $('Set Global').item.json['store-id'] }}.myshopify.com/admin/api/2025-01/fulfillments.json",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\"fulfillment\":{\"line_items_by_fulfillment_order\":[{\"fulfillment_order_id\":{{ $json.fulfillment_orders[0].id }}}],\"notify_customer\":true}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "shopifyAccessTokenApi"
+      },
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "vtyKGPLLdjc7MLea",
+          "name": "Shopify Access Token account"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set Global": {
+      "main": [
+        [
+          {
+            "node": "Get all Unfulfilled orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Orders": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Fulfillment Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Global",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Fulfillment Orders": {
+      "main": [
+        [
+          {
+            "node": "Mark fulfillment orders as fulfilled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all Unfulfilled orders": {
+      "main": [
+        [
+          {
+            "node": "Filter Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Global",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark fulfillment orders as fulfilled": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

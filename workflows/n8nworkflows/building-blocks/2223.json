@@ -1,0 +1,148 @@
+{
+  "name": "Dynamic credentials using expressions",
+  "nodes": [
+    {
+      "id": "cc6f2b1e-0ed0-4d22-8a44-d7223ba283b4",
+      "name": "n8n Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        560,
+        520
+      ],
+      "webhookId": "da4071f2-7550-4dae-aa48-8bced4291643",
+      "parameters": {
+        "path": "da4071f2-7550-4dae-aa48-8bced4291643",
+        "formTitle": "Test dynamic credentials",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Enter your NASA API key",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "responseNode",
+        "formDescription": "This form is for testing an n8n workflow that demonstrates setting credentials with expressions."
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ef336bae-3d4f-419c-ab5c-b9f0de89f170",
+      "name": "NASA",
+      "type": "n8n-nodes-base.nasa",
+      "position": [
+        900,
+        520
+      ],
+      "parameters": {
+        "additionalFields": {}
+      },
+      "credentials": {
+        "nasaApi": {
+          "id": "QDDBOZOD6k3ijL5t",
+          "name": "NASA account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "143bcdb6-aca0-4dd8-9204-9777271cd230",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1220,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "redirectURL": "={{ $json.url }}",
+        "respondWith": "redirect"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a0dee23-fa16-4f09-b5e0-856f47fb53d0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        140
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 322,
+        "height": 564,
+        "content": "이 워크플로우는 표현식을 사용하여 자격 증명을 동적으로 설정하는 방법을 보여줍니다.\n\n먼저, NASA 자격 증명을 설정하세요:\n\n1. 새 NASA 자격 증명을 만드세요.\n1. **API 키** 위에 마우스를 올리세요.\n1. **Expression**을 켜세요.\n1. **API 키** 필드에 `{{ $json[\"Enter your NASA API key\"] }}`를 입력하세요.\n\n그런 다음, 워크플로우를 테스트하세요:\n\n1. [NASA에서 API 키 가져오기](https://api.nasa.gov/)\n2. **Test workflow** 선택\n3. 양식을 사용하여 키를 입력하세요.\n4. 워크플로우가 실행되고 NASA 오늘의 사진으로 이동합니다.\n\n표현식에 대한 자세한 정보는 [n8n 문서 | Expressions](https://docs.n8n.io/code/expressions/)를 참조하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd766e32-334d-4e46-9daa-7800b134a3a5",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        380
+      ],
+      "parameters": {
+        "height": 319,
+        "content": "사용자가 폼을 사용하여 API 키를 제출합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d8f02e6-e029-41dc-89ad-0f5cffe09348",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        380
+      ],
+      "parameters": {
+        "color": 5,
+        "height": 319,
+        "content": "워크플로우가 키를 NASA 노드에 전달합니다. 표현식 `$json[\"Enter your NASA API key\"]`를 사용하여 값을 참조할 수 있습니다. 이것은 노드 자격증명에도 사용 가능합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "096eb6ab-c276-4687-9dc0-50e16a8f709a",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        380
+      ],
+      "parameters": {
+        "height": 319,
+        "content": "Respond to Webhook 노드가 폼 응답을 제어합니다(이 예에서, 사용자를 이미지로 리디렉션합니다)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "NASA": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "NASA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
