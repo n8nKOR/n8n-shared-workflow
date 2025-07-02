@@ -1,0 +1,795 @@
+{
+  "id": "TqnC0nyAa0LRfYBX",
+  "meta": {
+    "instanceId": "c2ff056313a72210aa803da7c5191a260dbed0dab6ae2b8e39a8dd21701bf0ab",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Amazon Product Price Tracker",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "cc15c8e6-53f9-4dd1-895f-34a72af4506f",
+      "name": "Products to Monitor",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        40,
+        -220
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hRv-TBXrpN6rkIU65WorttNHt-IPWas_An0sF4Of39U/edit#gid=0",
+          "cachedResultName": "Products to Monitor"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $json.spreadsheet_url }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xWJJNb7VGUUp4vzV",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "4ec34045-ea02-40bc-a243-b50c804ab947",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        260,
+        -220
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "d5cdb7eb-144f-477b-83d6-85be5cd2eb79",
+      "name": "Scrapeops - Amazon Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        720,
+        -80
+      ],
+      "parameters": {
+        "url": "https://proxy.scrapeops.io/v1/structured-data/amazon/product",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "asin",
+              "value": "={{ $('Loop Over Items').item.json.asin }}"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $('Setup').item.json.scrapeops_apikey }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "32134749-17e9-456a-9814-2e03b34ce37b",
+      "name": "Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        940,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae829540-06b7-4ea8-a5f8-d2750b02c530",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.data.name }}"
+            },
+            {
+              "id": "4dec41ce-3522-481b-985f-455c858702e0",
+              "name": "pricing",
+              "type": "number",
+              "value": "={{ parseFloat(($json.data.pricing || \"\").replace(/[^\\d.-]/g, \"\")) || 0 }}"
+            },
+            {
+              "id": "ebb64d89-e9b2-4384-9778-fce8aa9eb3be",
+              "name": "product_url",
+              "type": "string",
+              "value": "=https://www.amazon.com/dp/{{ $('Loop Over Items').item.json.asin }}?th=1&psc=1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "954afd09-609f-4ed1-94a0-6d6431b8a9e6",
+      "name": "Last Price",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db85d431-5631-4629-99f8-426ec3d7ecc7",
+              "name": "last_pricing",
+              "type": "number",
+              "value": "={{ $json.pricing }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "695673df-6bf7-4e64-898c-f143c77c8ff0",
+      "name": "Price Change",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1420,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4ef9bde2-62d3-4d6a-9759-4ae6c13db127",
+              "name": "price_change",
+              "type": "number",
+              "value": "={{ \n  $('Last Price').item.json.last_pricing !== \"\" && $('Last Price').item.json.last_pricing !== undefined ? \n  ($json.pricing - $('Last Price').item.json.last_pricing).toFixed(2) : \n  0 \n}}"
+            },
+            {
+              "id": "02e5a84b-76bf-4511-a78d-c725882a64dc",
+              "name": "percent_change",
+              "type": "number",
+              "value": "={{ \n  $('Last Price').item.json.last_pricing !== \"\" && $('Last Price').item.json.last_pricing !== undefined && parseFloat($('Last Price').item.json.last_pricing) !== 0 ? \n  ((($json.pricing - $('Last Price').item.json.last_pricing) / $('Last Price').item.json.last_pricing)).toFixed(2) : \n  0 \n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ab56b334-c4a7-45f7-95d0-9c7e990c21d7",
+      "name": "Alert Status",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1600,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fd261f8a-8417-4fdb-95de-bd71768300e6",
+              "name": "alert_status",
+              "type": "string",
+              "value": "={{ \n  $json.percent_change > $('Loop Over Items').item.json.alert_threshold_high ? \n  \"High\" : \n  ($json.percent_change < $('Loop Over Items').item.json.alert_threshold_low ? \n    \"Low\" : \n    \"\")\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "54f3ef24-58bc-4eba-b341-b14ab9f66d68",
+      "name": "Insert - Price History",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2020,
+        -180
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "asin": "={{ $('Loop Over Items').item.json.asin }}",
+            "pricing": "={{ $('Scrapeops - Amazon Product').item.json.data.pricing.replace(/[^\\d.]/g, '') }}",
+            "timestamp": "={{$now.format(\"MM/dd/yyyy HH:mm:ss\")}}"
+          },
+          "schema": [
+            {
+              "id": "asin",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "asin",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pricing",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "pricing",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Price History"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Setup').item.json.spreadsheet_url }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xWJJNb7VGUUp4vzV",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b161e44b-1fbf-40f1-a485-a7b132f42efc",
+      "name": "Update - Products to Monitor",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1800,
+        -180
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "asin": "={{ $('Loop Over Items').item.json.asin }}",
+            "name": "={{ $('Scrapeops - Amazon Product').item.json.data.name }}",
+            "pricing": "={{ $('Scrapeops - Amazon Product').item.json.data.pricing.replace(/[^\\d.]/g, '') }}",
+            "product_url": "=https://www.amazon.com/dp/{{ $('Loop Over Items').item.json.asin }}?th=1&psc=1",
+            "alert_status": "={{ $json.alert_status }}",
+            "last_updated": "={{$now.format(\"MM/dd/yyyy HH:mm:ss\")}}",
+            "price_change": "={{ $('Price Change').item.json.price_change }}",
+            "average_rating": "={{ $('Scrapeops - Amazon Product').item.json.data.average_rating }}",
+            "percent_change": "={{ $('Price Change').item.json.percent_change }}"
+          },
+          "schema": [
+            {
+              "id": "asin",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "asin",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alert_threshold_low",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "alert_threshold_low",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alert_threshold_high",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "alert_threshold_high",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "average_rating",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "average_rating",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "product_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pricing",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "pricing",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "price_change",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "price_change",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "percent_change",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "percent_change",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alert_status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "alert_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_updated",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "last_updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "asin"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Products to Monitor"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Setup').item.json.spreadsheet_url }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xWJJNb7VGUUp4vzV",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "62372099-de2a-4dcf-afdf-e9d9697a7a95",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        2560,
+        120
+      ],
+      "webhookId": "c0eb28fe-1c74-4692-9701-3790014c8951",
+      "parameters": {
+        "html": "=<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #fff; }\n        .header { text-align: center; padding-bottom: 15px; border-bottom: 1px solid #eee; }\n        .price-up { color: #d64541; font-weight: bold; }\n        .price-down { color: #27ae60; font-weight: bold; }\n        .price-details { background: #f5f5f5; padding: 15px; margin: 15px 0; border-radius: 5px; }\n    .button {\n        display: block;\n        background-color: #2c3e50;\n        color: white !important; \n        text-decoration: none;\n        text-align: center;\n        padding: 10px;\n        border-radius: 4px;\n        margin: 20px auto;\n        width: 200px;\n        font-weight: bold;\n    }\n    .button:visited {\n        color: white !important;\n        background-color: #2c3e50 !important;\n        text-decoration: none !important;\n    }\n    .button:hover {\n        background-color: #34495e !important;\n        text-decoration: none !important;\n    }\n    .footer { font-size: 12px; color: #999; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1>Price Alert</h1>\n            <p>We've detected a significant price change for an item you're tracking</p>\n        </div>\n\n        <div class=\"price-details\">\n            <h2 class=\"{{ $('Alert Status').item.json.alert_status === 'High' ? 'price-up' : 'price-down' }}\">\n                {{ $('Alert Status').item.json.alert_status === 'High' ? 'Price Increased by ' : 'Price Decreased by ' }} \n                {{ (Math.abs($('Update - Products to Monitor').item.json.percent_change  * 100).toFixed(2)) }}%\n            </h2>\n            \n            <h3>{{ $('Update - Products to Monitor').item.json.name }}</h3>\n            <p>ASIN: {{ $json.asin }}</p>\n            \n            <table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n                <tr>\n                    <th align=\"left\">Previous Price</th>\n                    <th align=\"left\">Current Price</th>\n                    <th align=\"left\">Difference</th>\n                </tr>\n                <tr>\n                    <td>${{ $('Last Price').item.json.last_pricing.toFixed(2) }}</td>\n                    <td>${{ $('Update - Products to Monitor').item.json.pricing }}</td>\n                    <td>{{ \n                      $('Update - Products to Monitor').item.json.price_change >= 0 \n                        ? '$' + $('Update - Products to Monitor').item.json.price_change.toFixed(2) \n                        : '- $' + Math.abs($('Update - Products to Monitor').item.json.price_change).toFixed(2) \n                    }}</td>\n                </tr>\n            </table>\n            \n            <p>Last updated: {{ $('Insert - Price History').item.json.timestamp }}</p>\n        </div>\n\n        <a href=\"{{ $('Update - Products to Monitor').item.json.product_url }}\" class=\"button\">View Product</a>\n\n        <div class=\"footer\">\n            <p>This alert was generated by Amazon Price Tracker, your automated price monitoring system.</p>\n            <p>© 2025 ScrapeOps. All rights reserved.</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Amazon Price Tracker Alert: {{ $('Update - Products to Monitor').item.json.name }} Price Change Detected",
+        "toEmail": "={{ $('Setup').item.json.to_email }}",
+        "fromEmail": "={{ $('Setup').item.json.from_email }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "k3bEE2wVXvRZ42hg",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "834dd1f0-d651-48b4-8765-360d8d5dcf27",
+      "name": "Check Valid Price",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1160,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f9d540d5-bc09-4970-904d-34977192b771",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.pricing }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "163385ad-6f41-4144-bf2a-6ba2e2425ae2",
+      "name": "Alert Decision",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        -40
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "6b1f16aa-dd42-4889-9c07-7fdba5a56067",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Alert Status').item.json.alert_status }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dd075f72-22bc-438e-a75b-a2437a8920c3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1100,
+        -600
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 360,
+        "content": "# 아마존 제품 가격 추적기\n\n이 워크플로는 ScrapeOps API를 사용하여 아마존 제품의 가격 모니터링을 자동화합니다. 시간 경과에 따른 가격 변동을 추적하며, 가격이 정의된 임계값을 초과할 때 알림을 보내고, 모든 가격 변동의 역사적 기록을 유지합니다.\n\n## 기능\n- 여러 아마존 제품에 대한 예정된 가격 확인\n- 가격 변화 계산 (절대 및 백분율)\n- 사용자 정의 가능한 임계값에 기반한 스마트 알림\n- 상세한 가격 정보와 함께 자동화된 이메일 알림\n- 추세 분석을 위한 역사적 가격 추적"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83324982-44e9-49cc-8782-d0520955c1ff",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1100,
+        -200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 740,
+        "content": "## API 구성\n이 워크플로우는 Amazon 제품 데이터를 가져오기 위해 ScrapeOps API 키가 필요합니다.\nAPI 키를 얻으려면 https://scrapeops.io/app/register/main에서 등록하세요.\n\n## API 문서\n이 워크플로우에서 사용된 Amazon Product API 엔드포인트에 대한 자세한 정보는\n공식 문서(https://scrapeops.io/docs/data-api/amazon-product-api/)를 참조하세요.\n문서에는 모든 사용 가능한 매개변수, 응답 형식,\nAPI 사용을 최적화하기 위한 모범 사례에 대한 세부 정보가 제공됩니다.\n\n## 통합 설정\n등록 후, \"Scrapeops - Amazon Product\" 노드 매개변수에 API 키를 삽입하세요.\n이 워크플로우는 구조화된 데이터 엔드포인트를 사용하며, 깨끗하고 구문 분석된 제품 데이터를\n일관된 JSON 형식으로 반환합니다.\n\n## Google Sheets 구성\nGoogle Sheets 스프레드시트가 이 워크플로우를 통해 수집된 제품 데이터를 저장하는 데 사용됩니다.\n원본 템플릿 스프레드시트는 이 링크를 통해 읽기 전용으로 공유됩니다:\nhttps://docs.google.com/spreadsheets/d/1hRv-TBXrpN6rkIU65WorttNHt-IPWas_An0sF4Of39U\n\n이 워크플로우를 사용하려면:\n1. 위 링크를 사용하여 공유된 스프레드시트를 엽니다.\n2. 파일 > 복사본 만들기를 통해 자신의 복사본을 만듭니다.\n3. 자신의 복사본에 적절한 권한으로 공유합니다.\n4. n8n 워크플로우에서 \"Setup\" 노드를 찾습니다.\n5. \"spreadsheet_url\" 변수를 귀하의 스프레드시트 복사본 링크로 업데이트합니다.\n\n이렇게 하면 각 사용자가 별도의 스프레드시트를 사용하므로 다른 사용자 간에 데이터 중복을 방지하며,\n워크플로우에 필요한 원래 구조를 유지합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b3d3b37-7e9d-48a0-a97a-223f4d60c6a6",
+      "name": "Setup",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -160,
+        -220
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f1a8857-9ecc-4fcd-8803-4494ca230ae4",
+              "name": "spreadsheet_url",
+              "type": "string",
+              "value": "https://docs.google.com/spreadsheets/d/1hRv-TBXrpN6rkIU65WorttNHt-IPWas_An0sF4Of39U"
+            },
+            {
+              "id": "bbe91759-984c-4d62-b832-b37d84997211",
+              "name": "scrapeops_apikey",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "29428dd3-8659-43d0-a888-1e2ee7c37ab8",
+              "name": "from_email",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "d39032ee-895d-436e-9948-355d37abb740",
+              "name": "to_email",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "aab72c63-3864-42b4-87b6-c9911d8d09be",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -360,
+        -220
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "38990374-8154-4f1e-8026-ce206ed2d90d",
+  "connections": {
+    "Setup": {
+      "main": [
+        [
+          {
+            "node": "Products to Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fields": {
+      "main": [
+        [
+          {
+            "node": "Check Valid Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Last Price": {
+      "main": [
+        [
+          {
+            "node": "Scrapeops - Amazon Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Status": {
+      "main": [
+        [
+          {
+            "node": "Update - Products to Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Price Change": {
+      "main": [
+        [
+          {
+            "node": "Alert Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Decision": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Last Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Valid Price": {
+      "main": [
+        [
+          {
+            "node": "Price Change",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Products to Monitor": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert - Price History": {
+      "main": [
+        [
+          {
+            "node": "Alert Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrapeops - Amazon Product": {
+      "main": [
+        [
+          {
+            "node": "Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update - Products to Monitor": {
+      "main": [
+        [
+          {
+            "node": "Insert - Price History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,671 @@
+{
+  "id": "NzoLNV2FbS4eurJ7",
+  "meta": {
+    "instanceId": "fb924c73af8f703905bc09c9ee8076f48c17b596ed05b18c0ff86915ef8a7c4a",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "WhatsApp business bot",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4ca5e25a-f67b-4874-af20-680d1a6ac731",
+      "name": "Sent notification  template",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1140,
+        320
+      ],
+      "parameters": {
+        "template": "test_appointment_button|en_US",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "text": "📅"
+                  }
+                ]
+              }
+            },
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ $json[\"Your name\"] }}"
+                  },
+                  {
+                    "text": "={{ DateTime.fromFormat($json[\"Please pick a day and time of your appointment\"], \"M/d/yyyy HH:mm:ss\").toLocaleString(DateTime.DATE_HUGE); }}"
+                  },
+                  {
+                    "text": "={{ $json[\"Please pick a day and time of your appointment\"].split(' ')[1] }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "phoneNumberId": "=244242975437240",
+        "requestOptions": {},
+        "recipientPhoneNumber": "={{ $json[\"Your mobile number\"] }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "mm0r1xKc6N8XktAD",
+          "name": "WhatsApp account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "877c62c5-9869-48fc-bd74-35897dbd2276",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        700,
+        800
+      ],
+      "webhookId": "b06b387a-481e-43f1-9035-01a87123ad88",
+      "parameters": {
+        "updates": [
+          "messages"
+        ]
+      },
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "bWqGRWeDXvGTdSq5",
+          "name": "WhatsApp Trigger"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c0edf48-20af-42fb-a436-aee3a9a4f6cc",
+      "name": "Is message?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        920,
+        800
+      ],
+      "parameters": {
+        "options": {
+          "looseTypeValidation": true
+        },
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8a765e57-8e39-4547-a99a-0458df2b75f4",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.messages[0] }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "00006406-47be-4693-9763-a21d06b13d51",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        680,
+        1184
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b9919c0d-eeb2-4a5e-a91f-3dad11b778f8",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1120,
+        1184
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "8f0dc664-715f-4074-b0f7-98d3c7f563a5",
+      "name": "Get new answers",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        900,
+        1184
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "Ready",
+              "lookupColumn": "Status"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1621824221,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit#gid=1621824221",
+          "cachedResultName": "WA-messages"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit?usp=drivesdk",
+          "cachedResultName": "WhatsApp Appointments (Responses)"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RtRiRezoxiWkzZQt",
+          "name": "Ted's Tech Talks Google account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "a7b07f7e-1287-4e8f-b28a-4c656f386f8a",
+      "name": "Reply to the user",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1340,
+        1184
+      ],
+      "parameters": {
+        "textBody": "={{ $json.ReplyText }}",
+        "operation": "send",
+        "phoneNumberId": "244242975437240",
+        "requestOptions": {},
+        "additionalFields": {},
+        "recipientPhoneNumber": "=+{{ $json.UserPhone }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "mm0r1xKc6N8XktAD",
+          "name": "WhatsApp account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "30f0a7da-c3ce-448c-ad05-b8b75da3d319",
+      "name": "Update message status",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1520,
+        1184
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Replied",
+            "row_number": "={{ $('Loop Over Items').item.json.row_number }}"
+          },
+          "schema": [
+            {
+              "id": "UserPhone",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "UserPhone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "UserName",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "UserName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "UserMessage",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "UserMessage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ReplyText",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ReplyText",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1621824221,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit#gid=1621824221",
+          "cachedResultName": "WA-messages"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit?usp=drivesdk",
+          "cachedResultName": "WhatsApp Appointments (Responses)"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RtRiRezoxiWkzZQt",
+          "name": "Ted's Tech Talks Google account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "95486a27-a667-4555-8924-53d46b19de43",
+      "name": "Wait 1 sec",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1700,
+        1184
+      ],
+      "webhookId": "df4df4f8-378c-4228-b1e2-326b9d956e7e",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "21551e78-428f-4730-a337-48d1a80bf703",
+      "name": "New message from the user",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1140,
+        800
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "New",
+            "UserName": "={{ $json.contacts[0].profile.name }}",
+            "UserPhone": "={{ $json.messages[0].from }}",
+            "UserMessage": "={{ $json.messages[0].text.body }}"
+          },
+          "schema": [
+            {
+              "id": "UserPhone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "UserPhone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "UserName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "UserName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "UserMessage",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "UserMessage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ReplyText",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ReplyText",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1621824221,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit#gid=1621824221",
+          "cachedResultName": "WA-messages"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit?usp=drivesdk",
+          "cachedResultName": "WhatsApp Appointments (Responses)"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RtRiRezoxiWkzZQt",
+          "name": "Ted's Tech Talks Google account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "e1478757-0094-4bcb-998f-7e3e81958319",
+      "name": "Get new entries",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        700,
+        320
+      ],
+      "parameters": {
+        "event": "rowAdded",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes",
+              "value": 5
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 470797219,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit#gid=470797219",
+          "cachedResultName": "Form Responses 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit?usp=drivesdk",
+          "cachedResultName": "WhatsApp Appointments (Responses)"
+        }
+      },
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "m33qCYf9eEvSgo0x",
+          "name": "Ted's Tech Talks Google Sheets Trigger"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14811434-d716-4999-ab53-761fc355ee09",
+      "name": "User consented for WA messages?",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        920,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b9bfdb33-0d9c-4320-b4bc-0bf0a469c8ca",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json[\"I consent to receive WhatsApp notifications regarding my appointments\"] }}",
+              "rightValue": "Yes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "20bec538-5d04-4382-ba88-a2c15421c8e7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        83.6407185628741
+      ],
+      "parameters": {
+        "width": 744.5356369854154,
+        "height": 404.8383233532937,
+        "content": "## WhatsApp (WA) 템플릿 메시지 보내기\n\n사용자가 새 Google 양식을 제출한 후 발생합니다. 사용자가 양식 제출 중 WA 알림에 동의한 경우, 템플릿 메시지가 WhatsApp을 통해 보내집니다.\n\n**중요!**\n\n1. [Meta Business portal](https://business.facebook.com/wa/manage/message-templates/)에서 새 WA 템플릿 메시지를 만들어야 합니다.\n\n2. 아웃고잉 WA 메시지를 보내기 위해 Access Token과 WhatsApp Business Account ID가 필요합니다. 이는 새 앱을 만든 후 Meta Developers Portal을 통해 얻을 수 있습니다. WhatsApp 봇 생성에 대한 이 [n8n 블로그 기사](https://blog.n8n.io/whatsapp-bot/#step-1-set-up-a-whatsapp-business-account)를 참조하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab7bd838-2ed1-4645-b3d9-69617a888090",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        526.8263473053893
+      ],
+      "parameters": {
+        "width": 752.168692512586,
+        "height": 437.60479041916165,
+        "content": "## WhatsApp 사용자 메시지 수신 시 Google Sheet에 저장하기\n사용자 메시지를 수신하려면 WhatsApp Trigger 노드를 추가해야 합니다. 자격증명 섹션에서 App ID와 App secret을 제공하세요. 이는 Meta Developers Portal의 Basic App 설정 화면에서 얻을 수 있습니다.\n\n자격증명이 추가된 후, 트리거 URL을 복사하여 Meta Developer 포털의 WhatsApp 구성 창에서 'Callback URL' 필드에 입력하세요.\n\n트리거가 WhatsApp에서 페이로드를 수신하면, 수신된 데이터에 메시지가 포함되어 있는지 확인하고, [Google Sheet](https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit?gid=1621824221#gid=1621824221)에 사용자 데이터와 메시지 텍스트를 포함한 새 행을 추가합니다.\n\nWhatsApp 트리거는 상태 알림(예: 메시지 전송, 메시지 읽음 등)도 수신하므로, 이 워크플로우에서 그러한 알림은 무시합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b0c62bd4-d6bc-425b-b506-b6820b3e6dc5",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        1000
+      ],
+      "parameters": {
+        "width": 1197.9640718562885,
+        "height": 369.34131736526945,
+        "content": "## WhatsApp을 통해 사용자에게 답장\nWhatsApp은 봇을 통해 마지막으로 들어온 사용자 메시지 후 24시간 이내에만 자동 메시지를 **사용자 정의 텍스트**와 함께 보낼 수 있습니다.\n\n사용자가 WhatsApp 봇에 메시지를 보낸 후, [Google Sheet](https://docs.google.com/spreadsheets/d/1T-B0yepcrCHxQpn7Sj6QjTa0VqwwVBQhO5ZcIUSxWJE/edit?gid=1621824221#gid=1621824221)에 상태 'New'로 행이 추가됩니다.\n\n`ReplyText` 열에 무언가를 입력하고 상태를 'Ready'로 변경하세요.\n몇 분 안에 n8n 타이머가 Google Sheet에서 모든 'Ready' 답변을 가져와서 수신자에게 하나씩 보낼 것입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "66863e99-c756-48d5-b8e0-af0907623e8a",
+  "connections": {
+    "Wait 1 sec": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is message?": {
+      "main": [
+        [
+          {
+            "node": "New message from the user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get new answers": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get new entries": {
+      "main": [
+        [
+          {
+            "node": "User consented for WA messages?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Reply to the user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get new answers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is message?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to the user": {
+      "main": [
+        [
+          {
+            "node": "Update message status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update message status": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 sec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User consented for WA messages?": {
+      "main": [
+        [
+          {
+            "node": "Sent notification  template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

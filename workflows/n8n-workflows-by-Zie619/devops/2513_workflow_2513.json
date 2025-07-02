@@ -1,0 +1,289 @@
+{
+  "meta": {
+    "instanceId": "6b6a2db47bdf8371d21090c511052883cc9a3f6af5d0d9d567c702d74a18820e"
+  },
+  "nodes": [
+    {
+      "id": "6fb16611-0ee4-4c89-91ef-dc8a1e39406d",
+      "name": "Upload Img to ImgBB for URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        120,
+        6220
+      ],
+      "parameters": {
+        "url": "https://api.imgbb.com/1/upload",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "genericAuthType": "httpQueryAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-type",
+              "value": "multipart/form-data"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e94ebd4f-4459-4705-8fc5-f7ebbc996add",
+      "name": "ReSmush.it Image Optimisation",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        320,
+        6220
+      ],
+      "parameters": {
+        "url": "=http://api.resmush.it/ws.php?img={{ $json.data.url }}",
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e337dcf1-27d3-4f75-850b-f2c5bff48ed6",
+      "name": "Store Optimised Image ImgBB",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        540,
+        6220
+      ],
+      "parameters": {
+        "url": "https://api.imgbb.com/1/upload",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "value": "={{ $json.dest }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpQueryAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e51c199e-e435-4bbd-a977-dc96200729cc",
+      "name": "Sticky Note50",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -343.4815115846739,
+        6060
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 415.48118604428106,
+        "height": 320.9196076003899,
+        "content": "이미지 프롬프트\n\n프롬프트는 `set image description` 노드에서 이미지 설명을 입력으로 받아 OpenAI를 사용하여 생성합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95a551f0-c164-4ac7-94e2-5aac4c5fc548",
+      "name": "Sticky Note51",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        6060
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 619.0692735087202,
+        "height": 320.9196076003899,
+        "content": "이미지를 ImgBB에 업로드하고, ReSmush.it을 사용하여 최적화한 후 URL로 저장하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93737b01-cd2f-4f49-b611-f47782a9eed8",
+      "name": "Sticky Note52",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1160,
+        6020
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 773.6179704580734,
+        "height": 875.8289847608302,
+        "content": "## 이미지 파일 (JPG, PNG, JPEG)을 URL로 변환하고 파일 크기 줄이기\n\n## 용도\n이미지를 웹 사용을 위해 변환 및 최적화합니다:\n- 로컬 이미지를 온라인에 호스팅해야 할 때\n- 이미지 파일 크기를 자동으로 줄이고 싶을 때\n- 웹 콘텐츠에 이미지 URL이 필요할 때\n- AI 생성 이미지를 생성 및 최적화하고 싶을 때\n\n## 이 워크플로우가 하는 일\n워크플로우는 이미지를 두 가지 서비스를 통해 처리합니다:\n- 이미지를 ImgBB에 업로드하여 호스팅 및 URL 생성 (무료이지만 API 키 필요)\n- ReSmush.it을 사용하여 이미지 파일 크기를 줄이는 최적화 (무료)\n- 선택 사항: OpenAI의 이미지 생성을 사용하여 이미지 생성\n- 최적화된 이미지 URL을 반환하여 사용 준비\n\n## 설정\n1. [ImgBB 계정](https://api.imgbb.com/)을 만들고 API 키를 얻습니다\n2. HTTP Request 노드에 ImgBB API 키를 추가합니다 (key 매개변수)\n3. 선택 사항: 이미지 생성을 위한 OpenAI 자격 증명을 구성합니다\n4. 이미지 입력 소스를 연결합니다\n\n## 필요에 맞게 조정하는 방법\n- 자신의 이미지 파일을 사용하는 경우 OpenAI 노드를 건너뜁니다\n- 이미지 최적화 매개변수를 조정합니다\n- 이미지 호스팅 설정을 사용자 정의합니다\n- 출력 형식을 필요에 맞게 수정합니다\n\nSimon이 제작 @ [automake.io](https://automake.io)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f4bfed3-820c-495d-9d5f-0dbdae7beb1a",
+      "name": "Sticky Note53",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        6400
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 620.0617659833041,
+        "height": 218.46830740679286,
+        "content": "**필수**\n\n**ImgBB - 이미지 호스팅, 즉 img URL을 제공합니다**  \n1. [ImgBB 계정을 생성하세요](https://api.imgbb.com/) (무료) 그리고 API 키를 생성하세요  \n2. API 키를 Query Auth로 입력하세요 - `name`=key, `value`=자신의 API 키  \n\n**ReSmush.it - 이미지 최적화, 즉 이미지 파일 크기를 축소합니다**  \n1. 계정이나 인증이 필요하지 않음  \n2. URL이 이전 노드에서 전달될 것입니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "085ef8b4-4762-4675-a1fd-6771f09628fb",
+      "name": "Sticky Note54",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        6400
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 409.8920345317687,
+        "height": 133.75846341937205,
+        "content": "선택사항: `이미지 설명 설정`을 사용하여 OpenAI와 사용자 자신의 프롬프트를 통해 이미지를 생성하세요 (API 자격 증명 필요). 또는 대안으로 이 노드를 사용자 자신의 이미지 파일로 교체하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee6c01dd-94fd-4ebf-baf6-03360e01ffc0",
+      "name": "Set image description",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -300,
+        6220
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9026b5d5-97ed-484e-a168-ac1c57a60fa1",
+              "name": "description",
+              "type": "string",
+              "value": "=Balancing Autonomy and Human Interaction in AI Applications, featuring a person"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7bb7374c-a11e-4ac8-8ef7-ba506fa8619d",
+      "name": "Generate Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -100,
+        6220
+      ],
+      "parameters": {
+        "prompt": "=Create a minimalist professional illustration of {{ $json.description }} with these specifications:\n\n1. Visual Style:\n- Modern tech-focused minimalist design\n- Clean, uncluttered composition\n- Professional business aesthetic\n- Soft shadows and subtle depth\n- 2-3 primary colors maximum plus white space\n\n2. Core Elements:\n- Main icon/symbol representing {{ $json.description }} as focal point\n- Simple supporting elements representing key sections\n- Subtle connecting elements showing relationship\n- Plenty of white space (40% minimum)\n- No text overlay\n\n3. Technical Requirements:\n- High contrast for clarity\n- Crisp edges and smooth lines\n- Professional lighting from upper left\n- Matte finish\n- Square aspect ratio (1:1)",
+        "options": {},
+        "resource": "image"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "gaOzEcyxSfqBNYsI",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "87f80a8d-932a-46bc-b003-877883ba73c8",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        760,
+        6220
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Img to ImgBB for URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set image description": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Optimised Image ImgBB": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Img to ImgBB for URL": {
+      "main": [
+        [
+          {
+            "node": "ReSmush.it Image Optimisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReSmush.it Image Optimisation": {
+      "main": [
+        [
+          {
+            "node": "Store Optimised Image ImgBB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

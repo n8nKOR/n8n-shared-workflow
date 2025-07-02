@@ -1,0 +1,1228 @@
+{
+  "id": "xQHiKDTkezDY5lFu",
+  "meta": {
+    "instanceId": "03e9d14e9196363fe7191ce21dc0bb17387a6e755dcc9acc4f5904752919dca8"
+  },
+  "name": "Suspicious_login_detection",
+  "tags": [
+    {
+      "id": "GCHVocImoXoEVnzP",
+      "name": "🛠️ In progress",
+      "createdAt": "2023-10-31T02:17:21.618Z",
+      "updatedAt": "2023-10-31T02:17:21.618Z"
+    },
+    {
+      "id": "QPJKatvLSxxtrE8U",
+      "name": "Secops",
+      "createdAt": "2023-10-31T02:15:11.396Z",
+      "updatedAt": "2023-10-31T02:15:11.396Z"
+    },
+    {
+      "id": "hF4M6DtfFqOn2HK2",
+      "name": "createdBy:Milorad",
+      "createdAt": "2023-10-31T02:20:20.366Z",
+      "updatedAt": "2023-10-31T02:20:20.366Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a95e464a-7451-4737-9db8-993a6568595b",
+      "name": "Extract relevant data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -260,
+        700
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ip",
+              "value": "={{ $json.body.context.ip }}"
+            },
+            {
+              "name": "userAgent",
+              "value": "={{ $json.body.context.userAgent }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $json.body.originalTimestamp }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.body.context.page.url }}"
+            },
+            {
+              "name": "userId",
+              "value": "={{ $json.body.userId }}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d7dea680-14f3-4ffd-bfaf-f928b69d801d",
+      "name": "New /login event",
+      "type": "n8n-nodes-base.webhook",
+      "disabled": true,
+      "position": [
+        -740,
+        700
+      ],
+      "webhookId": "705ca4c4-0a38-4ef8-9de9-abc8b3686dc6",
+      "parameters": {
+        "path": "705ca4c4-0a38-4ef8-9de9-abc8b3686dc6",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd75aad9-2d24-4083-823d-bc789fb7ef07",
+      "name": "Unknown threat?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        720,
+        1240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.noise }}"
+            },
+            {
+              "value1": "={{ $json.riot }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0845980-3b8c-4659-95a1-82e925867f28",
+      "name": "Get last 10 logins from the same user",
+      "type": "n8n-nodes-base.postgres",
+      "disabled": true,
+      "position": [
+        960,
+        1220
+      ],
+      "parameters": {
+        "query": "SELECT * FROM staging_n8n_cloud_frontend.user_signed_in WHERE user_id='{{ $('Extract relevant data').item.json.userId }}' ORDER BY received_at DESC LIMIT 10;",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "aP9LLonHicGm2A7j",
+          "name": "n8n product data"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "90e859b2-aa64-48e7-a8fe-696e3b7216f1",
+      "name": "Query IP API1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1240,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://ip-api.com/json/{{ $json.context_ip }}",
+        "options": {}
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "3a944973-132a-4272-97e3-42528eb4c0fc",
+      "name": "New location?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1440,
+        1340
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.city }}",
+              "value2": "={{ $('Merge').item.json.city }}",
+              "operation": "notEqual"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb4d5d07-58ae-4b17-a389-29e7fbe2caa2",
+      "name": "Parse User Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1260,
+        1640
+      ],
+      "parameters": {
+        "url": "https://api.userparser.com/1.1/detect",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ua",
+              "value": "={{ $json.context_user_agent }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "33f1NrH1bLdXCGyw",
+          "name": "n8n Userparser API Key"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "56442924-914c-461d-b4d7-f08192e1b53b",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        295,
+        1502
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "multiplex"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2b36f782-029d-41de-8823-6c083f3c305a",
+      "name": "New Device/Browser?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1460,
+        1640
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.browser.name }}",
+              "value2": "={{ $('Complete login info').first().json.browser.name }}",
+              "operation": "notEqual"
+            },
+            {
+              "value1": "={{ $json.operatingSystem.name }}",
+              "value2": "={{ $('Complete login info').first().json.operatingSystem.name }}",
+              "operation": "notEqual"
+            },
+            {
+              "value1": "={{ $json.device.type }}",
+              "value2": "={{ $('Complete login info').first().json.device.type }}",
+              "operation": "notEqual"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "612c3704-6ea1-4978-ae84-17326f459c25",
+      "name": "Complete login info",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        540,
+        1240
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "multiplex"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9c097c31-a86d-45fe-92c7-14a58eae87b4",
+      "name": "Query user by ID",
+      "type": "n8n-nodes-base.postgres",
+      "disabled": true,
+      "position": [
+        2020,
+        1340
+      ],
+      "parameters": {
+        "query": "SELECT * FROM staging_n8n_cloud_frontend.users WHERE id='{{ $('Extract relevant data').item.json.userId }}'",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "aP9LLonHicGm2A7j",
+          "name": "n8n product data"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "cd6fb55b-b8f6-4778-a62a-34be42e2660d",
+      "name": "New Location",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1660,
+        1280
+      ],
+      "parameters": {},
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "7070a43a-d588-4bbb-b8d0-50e8eff171df",
+      "name": "New Device/Browser",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1674,
+        1625
+      ],
+      "parameters": {},
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "dca6d5ed-d92f-49a6-9910-c9194e696e70",
+      "name": "User has email?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2360,
+        1360
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.email }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14cd3d37-5c00-4750-8ad2-f78fce66019c",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        2580,
+        1313
+      ],
+      "parameters": {
+        "html": "<p>\n  Hello {{ $json.first_name || $json.username }},\n</p>\n<p>\n  We've detected a recent login to your n8n account from a new device or location. Here are the details:\n</p>\n<p>\n  <ul>\n    <li><b>Username:</b> {{ $json.username }}</li>\n    <li><b>Date & Time:</b> {{ $('Extract relevant data').item.json.timestamp }}</li>\n    <li><b>Location:</b> {{ $('Complete login info').item.json.city }}, {{ $('Complete login info').item.json.country }}</li>\n    <li><b>Device:</b> {{ $('Complete login info').item.json.operatingSystem.name }} ({{ $('Complete login info').item.json.device.type }})</li>\n  </ul>\n</p>\n<p>\n  If this was you, you can disregard this email. We just wanted to make sure it was you who logged in from a new device or location.\n</p>\n  If this wasn't you, we recommend resetting your password right away.\n</p>\n\n<style>\n  p {\n    font-family: sans-serif;\n  }\n</style>"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e99f7779-9b84-4f8c-80a0-b34c3c9df5b4",
+      "name": "Inform user",
+      "type": "n8n-nodes-base.gmail",
+      "disabled": true,
+      "position": [
+        2740,
+        1313
+      ],
+      "parameters": {
+        "sendTo": "={{ $('User has email?').item.json.email }}",
+        "message": "={{ $json.html }}",
+        "options": {},
+        "subject": "Important: Usual Login Attempt Detected"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "162",
+          "name": "Gmail - milorad@n8n.io"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b280b287-7b20-4dcb-9c0a-a3e5c3a60771",
+      "name": "noise?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        340,
+        220
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.noise }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5be949da-f04a-44f9-9cf0-5e221f9d27e8",
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "disabled": true,
+      "position": [
+        1560,
+        500
+      ],
+      "parameters": {
+        "text": "=Suspicious login attempt detected:\n  - Priority: {{ $json.priority }}\n  - User: {{ $('Extract relevant data').item.json[\"userId\"] }}\n  - IP: {{ $('Extract relevant data').item.json[\"ip\"] }}\n  - Timestamp: {{ $('Extract relevant data').item.json[\"timestamp\"] }}\n  - User Agent: {{ $('Extract relevant data').item.json[\"userAgent\"] }}\nGreyNoise report: https://viz.greynoise.io/ip/{{ $('Extract relevant data').item.json[\"ip\"] }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#slack-message-test"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "114",
+          "name": "n8n Slack"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "241e492c-fb9a-4b93-bd76-4167cb67f212",
+      "name": "Check trust level",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        780,
+        360
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "output": 3,
+              "value2": 1,
+              "operation": "equal"
+            },
+            {
+              "output": 2,
+              "value2": 2,
+              "operation": "equal"
+            }
+          ]
+        },
+        "value1": "={{ $json.trust_level }}",
+        "fallbackOutput": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f99741d0-161e-49c6-8e41-d61b080e977d",
+      "name": "Check classification",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        780,
+        200
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value2": "malicious"
+            },
+            {
+              "output": 2,
+              "value2": "benign"
+            },
+            {
+              "output": 1,
+              "value2": "unknown"
+            }
+          ]
+        },
+        "value1": "={{ $json.classification }}",
+        "dataType": "string"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "594857f6-713f-496e-8257-b74acf5d1282",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0.10300782209924364,
+        -502.1236093865191
+      ],
+      "parameters": {
+        "width": 1443.8164871528645,
+        "height": 1185.151137495839,
+        "content": "![그레이노이즈](https://i.imgur.com/4vSwTkY.png)  \n## 🚦 GreyNoise 데이터로 고급 위협 우선순위화\n\n이 워크플로의 이 섹션에서 GreyNoise 데이터의 통합, 특히 `GreyNoise` 노드,는 위협 우선순위화 프로세스를 정제하는 데 중요한 역할을 합니다. 이 노드가 GreyNoise와 상호작용하여 각 경보가 관련된 IP 주소의 성격에 따라 적절한 주의를 받도록 합니다.\n\n-   **인바운드 위협에 대한 GreyNoise 분석:** `GreyNoise` 노드가 IP 주소를 식별하면 GreyNoise를 쿼리하며, NOISE 및 RIOT 데이터셋([자세한 내용](https://docs.greynoise.io/docs/riot-data))을 고려합니다. 이 노드의 응답이 후속 단계를 안내합니다:  \n    -   **알려지지 않은 IP에 대한 높은 우선순위:** `Check trust level` 및 `Check classification` 노드가 여기에 작동합니다. GreyNoise에 IP에 대한 데이터가 없으면 (noise:false, riot:false), `🔴 Priority: HIGH` 노드에서 우선순위가 높게 설정됩니다. 이는 잠재적인 표적 공격을 나타내며, 즉시 분석가 검토가 필요합니다.  \n    -   **일반 비즈니스 서비스에 대한 낮음에서 중간 우선순위:** 일반 비즈니스 서비스의 일부로 식별된 IP(riot:true)는 신뢰 수준과 운영 상태에 따라 `🟡 Priority: MEDIUM` 및 `🟢 Priority: LOW` 노드에서 낮음에서 중간 우선순위가 부여됩니다. 이는 악의적 활동의 위험이 낮음을 반영합니다.  \n-   **분류 기반 우선순위화:** 워크플로는 `Check classification` 노드에서 GreyNoise의 IP 분류(악의적, 무해, 알려지지 않음)를 고려합니다:  \n    -   **악의적 IP:** 기회적이지만 잠재적으로 해로운 활동을 제안하며, `🔴 Priority: HIGH` 노드에서 중간에서 높은 우선순위가 부여됩니다.  \n    -   **무해 IP:** 일반적으로 알려진 행위자에 의한 무해한 스캔이므로, `🟢 Priority: LOW` 노드에서 낮은 우선순위가 부여됩니다.  \n    -   **알려지지 않은 IP:** 아마도 무해하지만 확인되지 않은 활동을 나타내어, `🟡 Priority: MEDIUM` 노드에서 낮음에서 중간 우선순위가 부여됩니다.  \n-   **아웃바운드 위협에 대한 추가 맥락:** 아웃바운드 연결의 경우, 워크플로는 `GreyNoise` 노드가 해석한 바에 따라 IP가 알려진 서비스 제공자 또는 알려진 장치 스캐닝인지에 기반하여 경보를 우선순위화합니다. 스캐닝 장치에 대한 아웃바운드 연결은 `🔴 Priority: HIGH` 노드에서 높은 우선순위가 부여되어, 잠재적으로 원치 않는 행동을 나타냅니다.\n\n이 접근 방식은 GreyNoise의 고급 데이터 분석을 활용하여 n8n의 정교한 사이버 보안 솔루션을 보여줍니다. 이 지능형 우선순위화 메커니즘을 통합하여 워크플로는 보안 팀이 가장 시급한 위협에 먼저 집중하도록 하여 전체 보안 자세를 강화합니다.\n\n### 인증 - 무료 티어 없음\n\nGreyNoise의 API 키를 설정하려면 `GreyNoise` 노드를 열고 새 인증 자격증명을 추가합니다. `Generic Credential Type`을 선택한 다음 `Header Auth`를 선택합니다. 마지막으로 `Credential for Header Auth`에서 이름을 `key`로, 값을 자신의 `api key`로 설정합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee90c638-882d-4a2e-8164-adaf4ec386be",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1450.4432083435722,
+        -139
+      ],
+      "parameters": {
+        "width": 560.0194854548777,
+        "height": 818.6128004838087,
+        "content": "## 📢 Slack 알림 전파\n\n`Slack` 노드는 경고 통신에서 중요한 역할을 합니다. 위협이 식별되고 우선순위가 매겨지면, 관련 정보를 신속하게 Slack을 통해 보안 팀에 전파합니다.\n\n- **시의적절한 경고 알림:** `Slack` 노드는 지정된 Slack 채널로 자세한 경고를 보내도록 구성됩니다. 이 경고에는 우선순위 수준, 사용자 ID, IP 주소, 타임스탬프, 그리고 의심스러운 로그인 시도의 사용자 에이전트와 같은 중요한 정보가 포함됩니다. 이를 통해 팀이 잠재적 위협에 대해 즉시 통보를 받을 수 있어, 위험을 신속하게 완화할 수 있습니다.\n- **이전 노드의 데이터 통합:** 이 노드는 `Extract relevant data`와 같은 이전 노드에서 추출 및 처리된 데이터를 효과적으로 활용합니다. 이 상세한 정보를 통해 Slack 메시지가 풍부해지며, 위협에 대한 포괄적인 개요를 제공합니다.\n- **GreyNoise 분석 직접 링크:** 또한, Slack 메시지에는 해당 IP에 대한 GreyNoise 시각화에 대한 직접 링크가 포함됩니다. 이 링크는 `Extract relevant data` 노드의 데이터를 기반으로 생성되며, 팀 구성원이 IP에 대한 심층 정보를 빠르게 접근할 수 있도록 하여, 더 빠르고 정보에 기반한 대응을 가능하게 합니다.\n\n이 접근 방식은 n8n이 Slack과 같은 커뮤니케이션 도구와 원활하게 통합되는 능력을 보여주며, 사이버 보안 팀이 항상 위협에 대해 통보를 받고 효율적으로 대응할 수 있도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b617da5f-f7e0-4c6d-8080-c1d4b2e2ed53",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        477,
+        690
+      ],
+      "parameters": {
+        "width": 696.8700988949365,
+        "height": 894.3487921624444,
+        "content": "## 🔄  포괄적 분석을 위한 데이터 합성  \n`Complete login info` 노드는 여러 소스에서 데이터를 통합하여 각 로그인 시도에 대한 상세한 분석을 수행하는 중요한 연결 지점 역할을 합니다.  \n\n-   **다양한 데이터 스트림 결합:** `Complete login info` 노드는 `GreyNoise`, `IP API`, 및 `UserParser` 노드의 정보를 병합합니다. 이 과정에서 GreyNoise의 위협 인텔리전스, IP-API의 지리적 위치 세부 정보, UserParser의 사용자 에이전트 정보를 결합하여 포괄적인 데이터셋을 생성합니다.  \n-   **보안 분석을 위한 강화된 맥락:** 이 다양한 소스의 데이터를 융합하여 워크플로우는 각 로그인 시도에 대한 다각적인 관점을 얻습니다. 이 강화된 맥락은 잠재적 보안 위협을 더 높은 정확도로 식별하는 데 필수적입니다.  \n-   **효율적인 워크플로우 구조:** 이 다양한 데이터 포인트의 통합은 n8n의 복잡한 워크플로우 관리 효율성을 보여줍니다. 여러 정보 스트림을 하나의 노드로 모으는 방식으로 워크플로우는 분석 단계에서 모든 관련 데이터를 동시에 고려합니다.  \n-   **후속 워크플로우 단계 안내:** `Complete login info` 노드가 준비한 데이터셋은 워크플로우의 후속 단계를 위한 기반을 마련합니다. 이는 `Unknown threat?` 및 `Get last 10 logins from the same user`와 같은 후속 노드가 로그인 이벤트의 전체적인 관점에 기반한 정보에 입각한 결정을 내릴 수 있도록 필요한 맥락을 제공합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1e106297-b7db-4b2d-b08c-a35880782c8c",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1185,
+        691
+      ],
+      "parameters": {
+        "width": 663.6738255654103,
+        "height": 892.4220900613532,
+        "content": "## 📍 로그인 위치 이상 감지\n\n`Get last 10 logins from the same user` 노드를 따르는 노드들은 로그인 위치 패턴을 분석하여 이상을 식별하는 데 전념합니다.\n\n- **역사적 로그인 데이터 가져오기:** `Get last 10 logins from the same user` 노드는 Postgres 데이터베이스를 쿼리하여 사용자의 마지막 10회 로그인 기록을 가져옵니다. 이 데이터는 비정상적인 로그인 위치를 식별하기 위한 기준이 됩니다.\n\n- **현재 및 역사적 지리적 위치 데이터 비교:** `Query IP API1` 노드는 현재 로그인 시도의 지리적 위치 데이터를 가져옵니다. 이 데이터는 `New location?` 노드에서 역사적 로그인 위치와 비교됩니다.\n\n- **위치 이상 식별:** `New location?` 노드는 현재 로그인 시의 도시가 사용자의 로그인 역사에 있는 도시와 다르지 않은지 확인합니다. 이 비교는 새로운, 잠재적으로 의심스러운 위치에서의 로그인과 같은 비정상적인 로그인 패턴을 감지하는 데 중요합니다.\n\n- **위치 일관성 기반 라우팅:** 현재 로그인 위치가 역사적 패턴과 일치하는지에 따라 워크플로는 `New Location` 또는 `Known Location` 노드로 분기됩니다. `New Location` 노드는 새로운 도시에서의 로그인이 감지될 때 활성화되어 잠재적인 보안 위험을 나타냅니다. 반대로, `Known Location` 노드는 로그인 위치가 역사적 데이터와 일치할 때 활성화되어 일반적인 로그인 패턴을 나타냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e091a54-2fdc-491c-a168-0fb4fb704fd8",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2310.5877845770297,
+        691.4637444823477
+      ],
+      "parameters": {
+        "width": 629.1148167417672,
+        "height": 841.097003209987,
+        "content": "## 📧 비정상적인 로그인 시도에 대한 사용자 알림\n\n\"Suspicious Login Detection\" 워크플로의 최종 섹션에서 `User has email?`, `HTML`, 그리고 `Inform user` 노드가 함께 작동하여 비정상적인 로그인 시도를 사용자에게 알림으로써 시스템의 보안과 응답성을 강화합니다.\n\n- **이메일 가용성 확인:** `Query user by ID`로 사용자 세부 정보를 가져온 후, `User has email?` 노드가 사용자가 기록된 이메일 주소를 가지고 있는지 확인합니다. 이 확인은 유효한 이메일 주소를 가진 사용자에게만 알림 프로세스가 진행되도록 보장하는 데 중요합니다.\n\n- **알림 메시지 작성:** `HTML` 노드가 이메일 콘텐츠를 생성합니다. 이 노드는 새로운 기기나 위치에서의 최근 로그인을 사용자에게 알리는 잘 구성된 HTML 메시지를 생성합니다. 메시지에는 사용자 이름, 타임스탬프, 위치, 그리고 기기 정보와 같은 세부 사항이 포함되어 로그인 활동에 대한 구체적인 통찰을 제공합니다.\n\n- **이메일 알림 보내기:** 마지막으로, `Inform user` 노드가 이메일 알림을 보냅니다. 이 노드는 이전 단계에서 얻은 사용자 이메일 주소로 `HTML` 노드가 작성한 메시지를 Gmail을 통해 발송합니다.\n\n- **사용자 인식 및 보안 강화:** 비정상적인 로그인 활동을 사용자에게 알림으로써 워크플로는 보안을 강화할 뿐만 아니라, 로그인이 승인되지 않은 경우 즉시 조치를 취할 수 있도록 사용자에게 권한을 부여합니다. 이는 비밀번호 변경이나 보안 팀 연락과 같은 단계를 포함할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f9c6f726-ce2f-448b-a392-b86e0507ce13",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1858,
+        691.3527917931716
+      ],
+      "parameters": {
+        "width": 442.82773054232473,
+        "height": 839.4355618292594,
+        "content": "## 🧩 사용자 세부 정보 조회를 위한 향상된 컨텍스트\n\n`Query user by ID` 노드는 보안 분석을 위한 향상된 컨텍스트를 제공하기 위해 추가적인 사용자 특정 정보를 수집하는 데 중요한 역할을 합니다.\n\n-   **사용자 정보 검색:** `Query user by ID` 노드는 현재 로그인 시도와 연관된 사용자 ID에 대한 자세한 정보를 가져오기 위해 Postgres 데이터베이스와 상호작용합니다. 이 정보는 사용자의 프로필과 접근 패턴을 이해하는 데 필수적입니다.\n\n-   **위치 및 장치 분석 통합:** 이 노드는 `New Location` 또는 `New Device/Browser` 노드의 경고 후에 트리거됩니다. 이러한 경고는 현재 로그인 시도가 새로운 위치나 장치/브라우저 사용으로 인해 잠재적으로 의심스러운 것으로 나타냅니다.\n\n-   **보안 통찰력 강화:** 사용자의 자세한 데이터를 조회하여 워크플로는 사용자의 정상적인 접근 패턴과 프로필에 대한 더 깊은 이해를 얻습니다. 이 정보는 합법적인 사용자 행동과 잠재적인 무단 접근을 구분하는 데 중요한 역할을 할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fd1a35c-5abc-4655-b5b5-836b49129d24",
+      "name": "riot?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        520,
+        380
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $('GreyNoise').item.json.riot }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "123fa821-4eb0-42b9-99c9-a0157f7ffac8",
+      "name": "🔴 Priority: HIGH",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1180,
+        220
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "priority",
+              "value": "🔴 High"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "459d0152-8184-4031-8f70-6c100f2bc6c3",
+      "name": "🟡 Priority: MEDIUM",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1180,
+        360
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "priority",
+              "value": "🟡 Medium"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "58427db9-8ef7-4916-8564-727bd587401d",
+      "name": "🟢 Priority: LOW",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1180,
+        500
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "priority",
+              "value": "🟢 Low"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fd1e93a2-267e-4d5e-9724-6a4bb46b94b2",
+      "name": "GreyNoise",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        280,
+        440
+      ],
+      "parameters": {
+        "url": "=https://api.greynoise.io/v3/community/{{ $json.ip }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wwwfQfxzoBK7NH2a",
+          "name": "n8n greynoise api key"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "032b9558-a19b-4790-8593-8949ab2606d4",
+      "name": "IP API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        40,
+        1280
+      ],
+      "parameters": {
+        "url": "=http://ip-api.com/json/{{ $json.ip }}",
+        "options": {}
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "6cff0db9-27c3-4c4b-9af0-e8a8d55ad107",
+      "name": "UserParser",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        80,
+        1522
+      ],
+      "parameters": {
+        "url": "https://api.userparser.com/1.1/detect",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ua",
+              "value": "={{ $json.userAgent }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "33f1NrH1bLdXCGyw",
+          "name": "n8n Userparser API Key"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "65c7a039-5257-495d-86c2-18a44627ebe1",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -740,
+        880
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a038a10a-baaf-4649-9d38-4fa661dfc4ce",
+      "name": "Example event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -480,
+        880
+      ],
+      "parameters": {
+        "jsCode": "return {\n  json:\n  {\n    \"headers\": {\n      \"host\": \"internal.users.n8n.cloud\",\n      \"user-agent\": \"PostmanRuntime/7.32.3\",\n      \"content-length\": \"857\",\n      \"accept\": \"*/*\",\n      \"accept-encoding\": \"gzip, deflate, br\",\n      \"content-type\": \"application/json\",\n      \"postman-token\": \"e10e747f-0668-4238-9a3d-148b2c8591da\",\n      \"x-forwarded-for\": \"10.255.0.2\",\n      \"x-forwarded-host\": \"internal.users.n8n.cloud\",\n      \"x-forwarded-port\": \"443\",\n      \"x-forwarded-proto\": \"https\",\n      \"x-forwarded-server\": \"e591fa1c2d01\",\n      \"x-real-ip\": \"10.255.0.2\"\n    },\n    \"params\": {},\n    \"query\": {},\n    \"body\": {\n      \"anonymousId\": \"b4191c58-7d64-4c93-8bb4-479c3c95d283\",\n      \"context\": {\n        \"ip\": \"2.204.248.108\",\n        \"library\": {\n          \"name\": \"analytics.js\",\n          \"version\": \"next-1.53.0\"\n        },\n        \"locale\": \"en-US\",\n        \"page\": {\n          \"path\": \"/login\",\n          \"referrer\": \"https://github.com/\",\n          \"search\": \"\",\n          \"title\": \"n8n.cloud\",\n          \"url\": \"https://stage-app.n8n.cloud/login\"\n        },\n        \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0\"\n      },\n      \"event\": \"User signed in\",\n      \"integrations\": {},\n      \"messageId\": \"ajs-next-a14f5b6e9860c7318a27f1ac05b3182d\",\n      \"originalTimestamp\": \"2023-06-28T11:26:46.302Z\",\n      \"properties\": {},\n      \"receivedAt\": \"2023-06-28T11:26:46.550Z\",\n      \"sentAt\": \"2023-06-28T11:26:46.313Z\",\n      \"timestamp\": \"2023-06-28T11:26:46.539Z\",\n      \"type\": \"track\",\n      \"userId\": \"staging-2055\"\n    }\n  }\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "700a08d8-09ce-486c-bcfb-07d15f268d08",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -803,
+        -83
+      ],
+      "parameters": {
+        "width": 794.5711626683587,
+        "height": 1175.5321499586535,
+        "content": "![웹훅](https://i.imgur.com/D6SP9P0.png)  \n## 워크플로우 개요\n\nn8n의 `Suspicious Login Detection` 워크플로우로 향상된 사이버 보안을 경험하세요. 이는 실시간 모니터링과 의심스러운 로그인 활동에 대한 신속한 대응을 위한 최적의 솔루션입니다. 이 워크플로우는 테스트 및 운영 요구사항에 맞게 수동 및 자동 웹훅 트리거를 모두 지원합니다.\n\n이 [GreyNoise 가이드](https://docs.greynoise.io/docs/applying-greynoise-data-to-your-analysis)는 이 워크플로우의 아키텍터를 설계하는 데 사용되었으며, 이 워크플로우의 자체 버전을 만드는 데 유용한 가이드 역할을 할 수 있습니다.\n\n주요 기능:\n\n- 데이터 추출: 로그인 이벤트에서 IP 주소와 사용자 ID와 같은 중요한 데이터를 원활하게 추출합니다.\n- 삼중 위협 분석: IP 신뢰 평가를 위한 `GreyNoise`, 위치 정보 통찰을 위한 `IP-API`, 사용자 에이전트 세부 사항을 위한 `UserParser`를 사용하여 세 가지 경로로 분할하여 철저히 검토합니다.\n- 우선순위 알림: 알림 우선순위를 할당하고 `Slack`을 통해 신속하게 알림을 보내 고위험 활동에 즉시 주의를 기울입니다.\n- 심층 조사: 로그인 기록을 교차 참조하여 이상 징후를 식별하고 잠재적 위협을 플래그하여 보안 팀이 한 발 앞서게 합니다.\n\n설정이 쉽고 적응력이 강한 이 n8n 워크플로우는 디지털 환경을 보호하는 강력한 도구입니다.\n\n## ▶️초기 트리거: 의심스러운 로그인 감지\n\n이 워크플로우의 초기 트리거는 새로운 로그인 이벤트를 감지하는 것입니다. 이는 새로운 /login 이벤트를 트리거하도록 설정된 웹훅(`New /login event` 노드)과 테스트 목적으로 사용되는 수동 트리거(`When clicking \"Execute Workflow\"` 노드)의 조합으로 달성됩니다. 웹훅은 로그인 이벤트에서 IP 주소와 사용자 세부 정보와 같은 중요한 정보를 캡처하도록 구성됩니다.\n\n이 설정은 로그인 활동의 실시간 모니터링에 필수적입니다. 로그인 이벤트가 발생하면 워크플로우가 즉시 작동하여 `Extract relevant data` 노드를 사용하여 관련 데이터를 추출하고 처리합니다.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff6bbb3c-1c14-4e94-bfae-58e8cbb098c4",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0.113308604309168,
+        690
+      ],
+      "parameters": {
+        "width": 469.4801859287644,
+        "height": 736.6018800373852,
+        "content": "![ipapi](https://i.imgur.com/OMhn14b.png)  \n## 🌐 IP-API를 사용한 IP 지리 위치 정보  \n\"Suspicious Login Detection\" 워크플로우의 `IP API` 노드는 로그인 이벤트에 중요한 지리 위치 맥락을 추가합니다. 이전에 추출된 IP 주소에 대한 지리적 데이터를 IP-API에서 조회합니다.  \n\n- **지리적 통찰력:** 이 노드는 국가, 지역, 도시와 같은 지리적 세부 정보를 제공하여 보안 위험을 나타낼 수 있는 비정상적인 로그인 위치를 식별하는 데 도움이 됩니다.  \n- **보안 분석 강화:** 지리적 데이터는 로그인 시도의 합법성을 평가하는 데 도움이 되며, 보안 분석에 중요한 레이어를 추가합니다.  \n\n### 인증 - 무료 티어 사용 가능 (45 요청/분)  \n이 엔드포인트는 `IP 주소당 45회 요청/분`으로 제한됩니다.  \n\n제한을 초과하면 요청이 제한됩니다 `(HTTP 429)`까지 요금 한도 창이 재설정될 때까지. 지속적으로 제한을 초과하면 IP 주소가 1시간 동안 차단됩니다.  \n\n인증 불필요, [문서 보기.](https://ip-api.com/docs)  \n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57adbcf5-f927-4bdb-b863-bcff97be0ace",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1435
+      ],
+      "parameters": {
+        "width": 470.4372486447854,
+        "height": 1044.866146557656,
+        "content": "![userparser](https://i.imgur.com/IxvDyZB.png)  \n## 🔄 지리적 위치 및 사용자 에이전트 데이터 병합\n\n\"Suspicious Login Detection\" 워크플로우에서 `Merge` 노드는 `IP API` 및 `UserParser` 노드의 정보를 종합하는 핵심 역할을 합니다.\n\n- **데이터 통합:** `Merge` 노드는 `IP API` 노드의 지리적 위치 세부 정보와 `UserParser` 노드의 사용자 에이전트 정보를 결합합니다. 이 통합을 통해 각 로그인 이벤트에 대한 포괄적인 관점을 제공합니다.\n\n- **포괄적인 분석:** 지리적 위치와 사용자 에이전트 데이터를 병합하여 워크플로는 각 로그인 시도 뒤의 맥락을 더 완전히 이해할 수 있으며, 보안 위험을 정확하게 평가하는 데 필수적입니다.\n\n- **효율적인 워크플로우 설계:** `Merge` 노드의 사용은 n8n이 다양한 데이터 스트림을 효율적으로 처리하여 모든 관련 정보를 통합된 분석을 위해 모으는 것을 보여줍니다.\n\n### 인증 - 무료 티어 사용 가능 (월 10000 호출)  \n이 엔드포인트는 `하루 500 호출`으로 제한됩니다.\n\nUserParser의 API 키를 설정하려면 `UserParser HTTP Request` 노드를 열고 새 인증 자격증명을 추가하세요. `Generic Credential Type`을 선택한 후 `Query Auth`를 선택하세요. 마지막으로 `Credential for Query Auth`에서 이름을 `api_key`로, 값을 실제 `API 키`로 설정하세요.\n\n[문서를 보려면 여기를 클릭하세요.](https://www.userparser.com/docs/user-agent-and-geoip-lookup-api-v1.1)\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "44830be0-428a-492e-97f7-66289fac6231",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        1590
+      ],
+      "parameters": {
+        "width": 659.8254746666762,
+        "height": 845.1421530016269,
+        "content": "## 📱 장치 및 브라우저 이상 식별\n`Parse User Agent` 및 `New Device/Browser?` 노드는 로그인 이벤트의 장치 및 브라우저 사용에서 이상을 감지하는 데 중점을 둡니다.\n\n-   **User Agent 데이터 구문 분석:** `Parse User Agent` 노드는 UserParser API를 사용하여 현재 로그인 시도의 user agent 문자열을 분석합니다. 이 노드는 로그인에 사용된 브라우저, 운영 체제 및 장치 유형에 대한 자세한 정보를 추출하여 로그인 환경에 대한 중요한 통찰을 제공합니다.\n\n-   **과거 데이터와 비교:** User agent 데이터를 구문 분석한 후, 워크플로는 `New Device/Browser?` 노드로 진행됩니다. 이 노드는 현재 로그인의 장치 및 브라우저 세부 정보를 사용자의 과거 데이터( `Get last 10 logins from the same user` 노드에서 검색됨)와 비교하여 불일치를 확인합니다.\n\n-   **새 장치 또는 브라우저 사용 감지:** `New Device/Browser?` 노드는 브라우저 이름, 운영 체제 또는 장치 유형에 변경이 있는지 확인합니다. 변경이 있으면 현재 로그인이 새 장치 또는 브라우저에서 시도되고 있음을 나타낼 수 있으며, 이는 무단 접근의 신호일 수 있습니다.\n\n-   **장치 및 브라우저 일관성에 따른 라우팅:** 이 분석에 따라 워크플로가 분기됩니다. 새 장치 또는 브라우저가 감지되면 흐름이 `New Device/Browser` 노드로 이동하여 잠재적 보안 위험을 나타냅니다. 반대로, 장치 및 브라우저가 과거 패턴과 일치하면 `Old Device/Browser` 노드가 활성화되어 일상적인 로그인을 나타냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0bcc621-ff1f-47ca-a63a-f1af5c521c9a",
+      "name": "Known, Do Nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        960,
+        1440
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "92c08a63-6961-40f6-993e-052a311f4bb6",
+      "name": "Known Location",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1660,
+        1420
+      ],
+      "parameters": {},
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "bb1621e0-8297-4e6c-bcdf-eae683a4b830",
+      "name": "Old Device/Browser",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1674,
+        1765
+      ],
+      "parameters": {},
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "9c987dd1-8d27-4067-9956-712eae4a228c",
+      "name": "Not Riot",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cd2fd77a-2903-44b8-826a-6797efb5f871",
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Inform user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Complete login info",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "riot?": {
+      "main": [
+        [
+          {
+            "node": "Check trust level",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not Riot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IP API": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "noise?": {
+      "main": [
+        [
+          {
+            "node": "Check classification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "riot?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GreyNoise": {
+      "main": [
+        [
+          {
+            "node": "Complete login info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "noise?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UserParser": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "New Location": {
+      "main": [
+        [
+          {
+            "node": "Query user by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Example event": {
+      "main": [
+        [
+          {
+            "node": "Extract relevant data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New location?": {
+      "main": [
+        [
+          {
+            "node": "New Location",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Known Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query IP API1": {
+      "main": [
+        [
+          {
+            "node": "New location?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unknown threat?": {
+      "main": [
+        [
+          {
+            "node": "Get last 10 logins from the same user",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Known, Do Nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User has email?": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New /login event": {
+      "main": [
+        [
+          {
+            "node": "Extract relevant data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse User Agent": {
+      "main": [
+        [
+          {
+            "node": "New Device/Browser?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query user by ID": {
+      "main": [
+        [
+          {
+            "node": "User has email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check trust level": {
+      "main": [
+        [],
+        [
+          {
+            "node": "🔴 Priority: HIGH",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🟡 Priority: MEDIUM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🟢 Priority: LOW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Device/Browser": {
+      "main": [
+        [
+          {
+            "node": "Query user by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🟢 Priority: LOW": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete login info": {
+      "main": [
+        [
+          {
+            "node": "Unknown threat?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Device/Browser?": {
+      "main": [
+        [
+          {
+            "node": "New Device/Browser",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Old Device/Browser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔴 Priority: HIGH": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check classification": {
+      "main": [
+        [
+          {
+            "node": "🔴 Priority: HIGH",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🟡 Priority: MEDIUM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🟢 Priority: LOW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract relevant data": {
+      "main": [
+        [
+          {
+            "node": "GreyNoise",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "UserParser",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IP API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🟡 Priority: MEDIUM": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Example event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get last 10 logins from the same user": {
+      "main": [
+        [
+          {
+            "node": "Query IP API1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse User Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

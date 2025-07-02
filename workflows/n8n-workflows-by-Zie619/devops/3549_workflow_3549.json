@@ -1,0 +1,678 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "f8f5a571-c4de-469e-a182-faa60060d06b",
+      "name": "Has Shared with External Users",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        40,
+        -220
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "c72e9718-b50a-4c5f-8a26-7b3fda89e202",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.shared && $json.permissions.some(item => item.emailAddress ? !item.emailAddress.endsWith('example.com') : false)  }}",
+              "rightValue": ""
+            },
+            {
+              "id": "0479b4ae-fc0c-49c4-8813-6978ea55265a",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.permissions.find(item => item.type === 'anyone') }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "14b6d453-0403-476a-8537-cdeeace70115",
+      "name": "Create New Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -620,
+        -220
+      ],
+      "parameters": {
+        "title": "=audit-{{ $now.format('yyyyMMdd') }}",
+        "options": {},
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1V2aiLhp3_nH7EBniMn7D0kFHg7-A5NjpDZXMhb4F5UI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1V2aiLhp3_nH7EBniMn7D0kFHg7-A5NjpDZXMhb4F5UI/edit?usp=drivesdk",
+          "cachedResultName": "94. Gdrive Permissions Audit - Personal"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "394b91b3-0c70-40d5-8d48-4df6109780e7",
+      "name": "Normalise Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1140,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d2f091f-7740-47d1-9bf4-91cb620ffb1f",
+              "name": "file_id",
+              "type": "string",
+              "value": "={{ $('File Ref').item.json.id }}"
+            },
+            {
+              "id": "b7836ed5-7b14-436f-aa5b-be8a6c7f2957",
+              "name": "file_name",
+              "type": "string",
+              "value": "={{ $('File Ref').item.json.name }}"
+            },
+            {
+              "id": "b1d59c01-17d9-4d0b-b0f4-1593e47f968f",
+              "name": "type",
+              "type": "string",
+              "value": "={{ $json.type }}"
+            },
+            {
+              "id": "37f50a02-c780-49b3-ad8a-0d934566c770",
+              "name": "user_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "e16c385f-2ad2-484b-99a4-9021f77b6875",
+              "name": "user",
+              "type": "string",
+              "value": "={{ $json.emailAddress || 'n/a' }}"
+            },
+            {
+              "id": "3c825d9e-494c-4500-b04d-d9577c0d5f44",
+              "name": "role",
+              "type": "string",
+              "value": "={{ $json.role }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "74a7ca8b-3ad4-470e-8c4d-b2e3cb721c27",
+      "name": "For Each File",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        440,
+        -140
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "da0e4e55-9ffa-4939-acf3-a743ade6b3eb",
+      "name": "File Ref",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        620,
+        -140
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "26e0f66a-88d7-46df-94e5-127158c47191",
+      "name": "Permissions To Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        780,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "permissions"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5ed23aa6-1d9f-486c-ab56-4cb1144cdba9",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1320,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7308c98-b50a-42ee-80ae-5a4beea0a654",
+      "name": "Flatten Rows",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1600,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c23193c9-b348-493a-9a7b-fd737cfb656f",
+              "name": "=rows",
+              "type": "array",
+              "value": "={{\n$input.all().flatMap(item => item.json.data)\n}}"
+            }
+          ]
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d18606d0-501e-4f2b-9456-a60497dd5574",
+      "name": "Rows to Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1800,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "rows"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66daa856-b047-4396-8b64-29346bdb08a0",
+      "name": "Send Email Report (Execute Once)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2200,
+        -280
+      ],
+      "webhookId": "39eabb13-1a20-412f-bf61-d3c40d875f76",
+      "parameters": {
+        "sendTo": "jim@example.com",
+        "message": "=Hello,\nHere is the current Google Drive Permissions Audit for {{ $now.format('yyyy-MM-dd') }}.\n\nSee the full report here - [Audit Gsheet](https://docs.google.com/spreadsheets/d/{{ $('Create New Sheet').first().json.spreadsheetId}}/edit?gid={{ $('Create New Sheet').first().json.sheetId}})\n\n## Shared with Anyone (Public Link)\n{{\n$input.all().map(item => item.json)\n  .filter(row => row.type === 'anyone')\n  .map(row => `* ${row.file_name} ([link](https://docs.google.com/spreadsheets/d/${row.file_id}/edit?usp=sharing))`)\n  .join('\\n')\n}}\n\n## Shared with External Users (By Invite)\n{{\n$input.all().map(item => item.json)\n  .filter(row => row.type == 'user')\n  .map(row => `* ${row.file_name} ([link](https://docs.google.com/spreadsheets/d/${row.file_id}/edit?usp=sharing))`)\n  .join('\\n')\n}}\n\nPlease review if permissions for these documents need to be updated.\n\nBest regards,\nN8N Gdrive Permissions Audit Workflow",
+        "options": {
+          "appendAttribution": true
+        },
+        "subject": "=GDrive Audit for {{ $now.format('yyyy-MM-dd') }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sf5Gfl9NiFTNXFWb",
+          "name": "Gmail account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "41c2e73e-17cf-4d31-99fe-9c8c3b3d1a97",
+      "name": "Get Recently Active Documents",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -200,
+        -220
+      ],
+      "parameters": {
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "fileTypes": [
+            "application/vnd.google-apps.document",
+            "application/vnd.google-apps.spreadsheet",
+            "application/vnd.google-apps.presentation"
+          ],
+          "whatToSearch": "all"
+        },
+        "options": {
+          "fields": [
+            "permissions",
+            "shared",
+            "name",
+            "id",
+            "kind",
+            "mimeType"
+          ]
+        },
+        "resource": "fileFolder",
+        "queryString": "=modifiedTime > '{{ $now.minus({ 'days': 1 })}}' and trashed = false",
+        "searchMethod": "query"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yOwz41gMQclOadgu",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "68d83b74-be18-4b2e-8422-2fc9ec6a4b90",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 520,
+        "content": "## 1. 매일 감사 스케줄드 트리거\n\n[스케줄드 트리거 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.scheduletrigger)\n\n스케줄드 트리거는 데이터 액세스 감사 요구 사항을 충족하는 빈도로 이 워크플로를 자동화하는 데 사용됩니다. 여기서 매일 실행되도록 설정했으며, 각 실행 시 감사 결과 캡처를 위해 새 Google 시트가 생성됩니다.\n\n여기 예시 시트를 확인하세요: https://docs.google.com/spreadsheets/d/1V2aiLhp3_nH7EBniMn7D0kFHg7-A5NjpDZXMhb4F5UI/edit?gid=503992967"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c5416a4f-4fae-405d-ac41-35193349d16f",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -860,
+        -220
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d3009d45-9a5d-445f-ad99-745f28b9f705",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 520,
+        "content": "## 2. 가능한 액세스 제어 위험을 가진 문서 식별\n\n[Gdrive 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googledrive)\n\nGoogle Drive에서 파일 공유는 강력하지만, 습관적으로 또는 액세스 문제를 극복하기 위해 과도한 권한이나 가시성을 부여할 수 있습니다. 때로는 정당화될 수 있지만, 종종 액세스가 목적을 달성한 후에 권한 범위를 줄이는 것을 잊어버립니다.\n\n이 워크플로는 최근에 수정된 문서를 가져오고, 그에 할당된 현재 권한을 기록합니다. 링크를 가진 누구에게나 허용되거나 외부 사용자와 공유된 문서는 검토를 위해 표시될 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dff3abeb-7ae1-4038-8a05-75bf7630b63e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1160,
+        "height": 500,
+        "content": "## 3. 결과를 행으로 집계\n\n[Split Out 노드에 대해 자세히 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitout)\n\n우리의 목록을 행으로 변환하여 감사 시트에 추가해야 합니다.\n\nn8n의 몇 가지 데이터 변환 노드를 사용하여 이 작업을 완료할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c88f5d67-9712-4f08-bd2f-7ea9056b8640",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 460,
+        "content": "## 4. 결과 로그 및 감사 보고서 이메일 전송\n\n[Gmail 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/)\n\n마지막으로, 식별된 문서를 우리 Google 시트에 로그하고 보고서를 이메일로 보냅니다.\n\n대안으로, 다른 보안 관찰 소프트웨어 또는 귀하의 보안 팀으로 보낼 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c9ef29d8-d126-4aff-96a9-26c79483bc16",
+      "name": "Filter Out Owner of Document",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        960,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "310d287a-cab3-4a94-8aa5-615a1fcb970a",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.role }}",
+              "rightValue": "owner"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "1185fbd0-7632-4ea9-8648-7fcba63d1565",
+      "name": "Append to New Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2000,
+        -280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "file_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "file_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "file_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "file_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "user_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "user",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "role",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "role",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create New Sheet').first().json.sheetId }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create New Sheet').first().json.spreadsheetId }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "5755749e-16c1-43b0-ba14-76e593cd3404",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1480,
+        -1060
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 1260,
+        "content": "## 시도해 보세요!\n### 이 n8n 템플릿은 최근 활동한 Google Drive 파일을 검토하고 감사하며, 과도하게 개방된 권한을 가진 파일에 대해 보고합니다. 이는 액세스 제어 관리를 위한 간단한 SecOp 작업을 자동화하는 방법을 보여줍니다.\n\n파일 공유 권한은 동료, 클라이언트 및 사용자에게 액세스 필요성과 범위가 확대될 때 자주 남용됩니다. 종종 과도하게 개방된 권한을 부여하면 수많은 액세스 요청 알림을 처리하는 대신 작업으로 돌아갈 수 있습니다. 때로는 정당한 경우도 있지만, 문제는 이러한 권한이 필요가 없어진 후에 더 안전한 설정으로 되돌아가지 않는다는 것입니다.\n\n이 템플릿은 이러한 개방된 파일에 대한 빈번한 알림을 제공하여 보안 자세를 개선하며, 조치를 취하고 잊어버리지 않도록 합니다.\n\n예시 감사 보고서 보기: [https://docs.google.com/spreadsheets/d/1V2aiLhp3_nH7EBniMn7D0kFHg7-A5NjpDZXMhb4F5UI/edit?gid=503992967](https://docs.google.com/spreadsheets/d/1V2aiLhp3_nH7EBniMn7D0kFHg7-A5NjpDZXMhb4F5UI/edit?gid=503992967)\n\n### 작동 원리\n* 매일 예약된 트리거가 실행되어 새 감사 보고서를 생성합니다. 지정된 Google Sheets 문서에 새로운 시트가 생성되어 그날의 결과를 저장합니다.\n* Google Drive 노드는 고급 검색 매개변수를 사용하여 사용자의 최근 수정 파일을 가져오며, 각 파일 결과에 현재 권한 설정이 포함됩니다.\n* 결과는 \"링크를 가진 누구나\"와 도메인 via 외부 사용자와 공유되는 공개적으로 액세스 가능한 항목으로 필터링됩니다.\n* 결과를 조작하여 이전에 생성한 시트에 추가할 수 있도록 행으로 만듭니다.\n* 감사 Google Sheets가 결과로 업데이트되며, 사용자가 조치할 수 있도록 감사 보고서가 전송됩니다.\n\n### 사용 방법\n* 적절한 간격으로 예약된 트리거를 설정하여 자신이나 조직에 맞게 조정합니다.\n* 자주 공유하는 조직에 대해 허용 목록을 사용하여 위음성 결과를 줄이는 것을 고려합니다.\n* 결과를 필요에 따라 다른 보안 또는 분석 제품으로 전달할 수 있습니다.\n\n### 요구 사항\n* Google Drive for Document Management\n* Google Sheet for Reports and Data Collection\n* Gmail to Email Reports\n\n### 워크플로 커스터마이징\n* Google을 사용하지 않나요? Microsoft Sharepoint 또는 Dropbox를 사용하여 동일한 접근 방식을 적용하세요.\n\n### 도움이 필요하신가요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에 참여하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "File Ref": {
+      "main": [
+        [
+          {
+            "node": "Permissions To Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "For Each File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten Rows": {
+      "main": [
+        [
+          {
+            "node": "Rows to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Each File": {
+      "main": [
+        [
+          {
+            "node": "Flatten Rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File Ref",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rows to Items": {
+      "main": [
+        [
+          {
+            "node": "Append to New Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Sheet": {
+      "main": [
+        [
+          {
+            "node": "Get Recently Active Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create New Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append to New Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Email Report (Execute Once)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Permissions To Items": {
+      "main": [
+        [
+          {
+            "node": "Filter Out Owner of Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Out Owner of Document": {
+      "main": [
+        [
+          {
+            "node": "Normalise Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recently Active Documents": {
+      "main": [
+        [
+          {
+            "node": "Has Shared with External Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Shared with External Users": {
+      "main": [
+        [
+          {
+            "node": "For Each File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

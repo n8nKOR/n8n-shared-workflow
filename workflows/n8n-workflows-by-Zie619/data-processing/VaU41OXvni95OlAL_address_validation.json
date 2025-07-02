@@ -1,0 +1,1081 @@
+{
+  "id": "VaU41OXvni95OlAL",
+  "meta": {
+    "instanceId": "1bc0f4fa5e7d17ac362404cbb49337e51e5061e019cfa24022a8667c1f1ce287",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "address validation",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c6e389ae-6db2-416b-8f6f-91749fbc860f",
+      "name": "get order data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2500,
+        880
+      ],
+      "parameters": {
+        "url": "=https://api.billbee.io/api/v1/orders/{{ $json.orderID }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Billbee-Api-Key",
+              "value": "={{ $json['X-Billbee-Api-Key'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "1b27594b-af74-4c25-bb4f-27550bcd152e",
+      "name": "Split Out Order Data",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        2660,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "Data.ShippingAddress.BillbeeId, Data.ShippingAddress.FirstName, Data.ShippingAddress.LastName, Data.ShippingAddress.Street, Data.ShippingAddress.HouseNumber, Data.ShippingAddress.Zip, Data.ShippingAddress.City, Data.ShippingAddress.CountryISO2, Data.ShippingAddress.Line2, Data.ShippingAddress.NameAddition"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43808f6f-815d-419c-9e6f-c12d436108f2",
+      "name": "Set Address Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2820,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbda7791-09eb-4ae9-b1e8-7ce8582a5b4a",
+              "name": "first_name",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.FirstName'] }}"
+            },
+            {
+              "id": "1d13d702-b422-48c4-be04-db7869776897",
+              "name": "family_name",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.LastName'] }}"
+            },
+            {
+              "id": "9169466f-5639-4b58-80d3-c041ccea5e21",
+              "name": "Street",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.Street'] }}"
+            },
+            {
+              "id": "ea20b727-83c0-4c23-94c7-29f4f57eda78",
+              "name": "housenumber",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.HouseNumber'].replace(\"/\",\"\")}}"
+            },
+            {
+              "id": "81c3ebb0-6975-4b69-93f1-42dba7f2f60b",
+              "name": "zip",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.Zip'] }}"
+            },
+            {
+              "id": "2f1a6786-d48b-4475-805e-1db2fef2b5c3",
+              "name": "location",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.City'] }}"
+            },
+            {
+              "id": "4b6a4eb2-8867-4d9e-a4fb-32b66f466b58",
+              "name": "BillbeeID",
+              "type": "string",
+              "value": "={{ $('Webhook').item.json.query.Id }}"
+            },
+            {
+              "id": "814513e9-9e56-4fb8-84bc-fd01456af443",
+              "name": "BillbeeShippingAddressID",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.BillbeeId'] }}"
+            },
+            {
+              "id": "bd45c9b8-d9fb-4d3f-be13-d202b8a3430d",
+              "name": "CountryISO2",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.CountryISO2'] }}"
+            },
+            {
+              "id": "c8e08606-d860-4482-8b4e-c68fe4c1974f",
+              "name": "AddressLine2",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.Line2'] }}"
+            },
+            {
+              "id": "fe1cb8a4-6c21-4505-8337-e31f07386a8c",
+              "name": "NameAddition",
+              "type": "string",
+              "value": "={{ $json['Data.ShippingAddress.NameAddition'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "3e5f3fc5-d3e2-4f4a-978e-795893e016cc",
+      "name": "Check Address endereco api",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4140,
+        760
+      ],
+      "parameters": {
+        "url": "https://endereco-service.de/rpc/v1",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"addressCheck\",\n  \"params\": {\n    \"country\": \"{{ $json['CountryISO2']}}\",\n    \"language\": \"{{ $json[\"CountryISO2\"] }}\",\n    \"postCode\": \"{{ $json[\"zip\"] }}\",\n    \"cityName\": \"{{ $json[\"location\"] }}\",\n    \"street\": \"{{ $json[\"Street\"] }}\",\n    \"houseNumber\": \"{{ $json[\"housenumber\"] }}\"\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Auth-Key",
+              "value": "={{ $('ConfigNode').item.json['X-Auth-Key-Endereco'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Transaction-Id",
+              "value": "not_required"
+            },
+            {
+              "name": "X-Transaction-Referer",
+              "value": "n8n"
+            },
+            {
+              "name": "X-Agent",
+              "value": "n8n"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3b02a11e-719b-41ef-b84f-b1e06d83854a",
+      "name": "Split Out Corrected Address",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        4600,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "result.predictions"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3b6135a-6a0e-4c37-95ef-6e33f14c5e74",
+      "name": "set new delivery address to billbee",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4920,
+        720
+      ],
+      "parameters": {
+        "url": "=https://api.billbee.io/api/v1/customers/addresses/{{ $('Set Address Fields').item.json[\"BillbeeShippingAddressID\"] }}",
+        "method": "PATCH",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Housenumber",
+              "value": "={{ $json.houseNumber }}"
+            },
+            {
+              "name": "Street",
+              "value": "={{ $json.street }}"
+            },
+            {
+              "name": "Zip",
+              "value": "={{ $json.postCode }}"
+            },
+            {
+              "name": "City",
+              "value": "={{ $json.cityName }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Billbee-Api-Key",
+              "value": "={{ $('ConfigNode').item.json['X-Billbee-Api-Key'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "b170217c-b2d7-4514-b070-403e29964e4b",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2120,
+        960
+      ],
+      "webhookId": "0f7b87d2-ec90-4f54-9971-31e564206980",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "17ea8895-05cd-4ffd-af31-aace970f8073",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        4760,
+        720
+      ],
+      "webhookId": "b7a0738c-0890-45f5-a435-bc9d9a9062bb",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d8d005e4-3b94-49d6-82dc-2919ca69dd2f",
+      "name": "check if new address is not empty",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4320,
+        760
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2a9d055a-4607-4e87-bb6a-ecc1a31826e0",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result.predictions }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3ad15e79-e4c8-4adf-90a5-aaf61cfe4825",
+      "name": "set billbee tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4580,
+        920
+      ],
+      "parameters": {
+        "url": "=https://api.billbee.io/api/v1/orders/{{ $('Set Address Fields').item.json[\"BillbeeID\"] }}/tags",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"Tags\": [\n    \"endereco_address_failed\"\n  ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Billbee-Api-Key",
+              "value": "={{ $('ConfigNode').item.json['X-Billbee-Api-Key'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "6b0e5cfb-95d5-43a0-a665-6b8db6b6ad98",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        820
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 481,
+        "height": 198,
+        "content": "주문 데이터를 가져와 준비하기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2524895-b0dd-492b-b425-548ccbabf5c2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        460
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1110.4301052736698,
+        "height": 544.444950562247,
+        "content": "# **주소 유효성 검사 워크플로**\n### **요구사항**\n- **Billbee 개발자 API 키**: 이메일로 요청: `support@billbee.io`.\n- **Billbee 사용자 API 키**: **Billbee 설정**에서 찾을 수 있음.\n- **Endereco API 키**: [Endereco API](https://www.endereco.de/en/integrations/address-api/)에서 등록. **30일 무료 체험판** 이용 가능.\n## **About**\n이 워크플로는 고객 배송 주소를 유효성 검사하는 프로세스를 자동화하여 시간 절약과 오류 감소를 돕습니다. 귀하의 **창고 팀**이 이를 높이 평가할 것입니다!\n## **How it Works**\n1. **시작**: 워크플로는 Billbee에서 보내는 **Webhook**에 의해 트리거됩니다(구성 참조). Webhook은 **주문 ID**를 제공합니다.\n2. **주문 데이터 검색**: 주문 ID를 사용하여 **Billbee 주문 엔드포인트**를 호출합니다. 이로써 고객의 배송 주소를 가져옵니다.\n3. **데이터 매핑 및 조작**: 필드를 이름 변경하고 매핑합니다. 선택적인 필터 및 데이터 조정을 적용합니다.\n3.1 **집 번호 유효성 검사** (가장 흔한 오류)\n4. **주소 유효성 검사**: 배송 주소를 **Endereco API**에 보냅니다. API는 주소를 유효성 검사하고, 필요 시 수정된 주소를 제안합니다.\n5. **조건부 확인**: **새 주소가 제안되었나요?** **예**: Billbee에서 고객의 배송 주소를 업데이트합니다. **아니오**: Billbee 주문에 **\"유효성 검사 오류\"** 태그를 추가합니다.\n6. **주문 태그 지정**: 성공적으로 유효성 검사가 된 주문에 Billbee에서 처리됨을 표시하는 태그를 추가합니다.\n### **Benefits**\n- **시간 절약**: 주소 유효성 검사를 자동화하여 수동 작업을 줄입니다.\n- **오류 감소**: 잘못된 주소를 식별하고 자동으로 수정 제안을 합니다.\n- **투명성**: Billbee의 태그로 유효성 검사 상태를 추적합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "31bb6e73-e702-4577-8b7f-a9850e80cbaf",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        1040
+      ],
+      "parameters": {
+        "width": 276,
+        "height": 219,
+        "content": "## API 문서\n\nEndereco:  \nhttps://github.com/Endereco/enderecoservice_api\n\nBillbee:  \nhttps://app.billbee.io//swagger/ui/index"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4bb9d0c1-0838-449b-bb1e-c4912173d9df",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        1040
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 574.5277463210057,
+        "height": 573.7065374509425,
+        "content": "### Bilbee 설정\n\n### **규칙 설정**\n- **규칙 이름:** Endereco 주소 유효성 검사\n- **코멘트:** *코멘트가 제공되지 않음.*\n- **활성:** ✅ 활성\n- **이 규칙 후 규칙 처리 중지:** ⬜ 비활성\n### **트리거:**\n- **이벤트:** 주문 가져오기  \n- **가져오기 유형:** 모든 가져오기 유형\n### **조건:**\n- **상점 제한:** 규칙은 정의된 상점 중 하나에서 주문이 오는 경우에만 적용됩니다.\n### **작업:**\n- **외부 URL 호출:**  \n  - **URL:** `YOUR_N8N_WEBHOOK_LINK?Id={OrderId}`\n이 규칙은 특정 상점에서 가져온 모든 주문에 대해 외부 웹훅 URL이 `OrderId`를 매개변수로 하여 트리거되도록 합니다.\n\n### 옵션 2\n\n주문 상태가 \"gepackt\", \"In Fulfillment\"로 변경되면 Billbee 내에서 대부분의 주소가 정상적이므로 주문을 수동으로 수정할 수 있습니다. 상태가 다른 자동화를 트리거하지 않도록 하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ad409a55-db7f-4699-9d56-98d7a2164afe",
+      "name": "check if housenumer is not empty",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3260,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "5dbd8016-9c70-4cd8-9c7b-22b6779d7ae3",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.housenumber }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0131cf4e-983b-4cc5-8305-e4a644f9e700",
+      "name": "check if addressline 2 contains number",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3420,
+        980
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e758c0d9-caf6-40e8-9ceb-cd786e346709",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.AddressLine2.isNumeric() }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "14d67019-a6c2-4ad4-9c0e-383ee3e1f3e9",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1360,
+        1320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "13c4f784-fb7a-4a61-b106-eb92dbc8f2d0",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "851d9d42-2b50-4a40-8d46-7d3decf897c2",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        1300
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 239.63602562365423,
+        "content": "## 포함 필터\n\n독일에서 예를 들어 PickUp Shops나 Parcel Stations을 필터링하고 싶으신가요:\n\n\"Postfiliale, Paketshop, Packstation\"\n\n이것은 Billbee 내에서 설정할 수도 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a07c7816-bcb6-457d-a621-ccfebcc384ad",
+      "name": "set value of addressline2 as housenumber",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3600,
+        900
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c21cf08-4ae8-4856-ae2f-0f25053aebde",
+              "name": "housenumber",
+              "type": "string",
+              "value": "={{ $json.AddressLine2 }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c22fb34a-252f-4570-b576-089bb3243bfd",
+      "name": "Filter Out PickUpShops",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        3040,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "b6bf1576-9082-446b-9072-13130bf7d724",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Street }}",
+              "rightValue": "Postfiliale"
+            },
+            {
+              "id": "f7e18eb3-a3df-49df-adb4-d9c807963478",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Street }}",
+              "rightValue": "Packstation"
+            },
+            {
+              "id": "51c548d1-1eed-4caf-b32c-402b8ce73042",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Street }}",
+              "rightValue": "Paketshop"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b2b3c72a-d3d0-467f-8f60-17f40c7a3650",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3020,
+        820
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 155.04025478630723,
+        "height": 185.20127393153615,
+        "content": "ME 열기!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ea2e9abf-1461-4754-b663-83e771207627",
+      "name": "check if addressline 2 contains number and letter",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3560,
+        1080
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c82c2273-b34c-42e1-871d-31db72d2ad49",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json[\"AddressLine2\"].match(/^(?=.*\\d)(?=.*[A-Za-z]).+$/) !== null }}\n",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b532b22f-421e-4bd8-8241-ca559e77c3ca",
+      "name": "set billbee tag manual check",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3780,
+        1200
+      ],
+      "parameters": {
+        "url": "=https://api.billbee.io/api/v1/orders/{{ $('Set Address Fields').item.json[\"BillbeeID\"] }}/tags",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"Tags\": [\n    \"manual_address_check\"\n  ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Billbee-Api-Key",
+              "value": "={{ $('ConfigNode').item.json['X-Billbee-Api-Key'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "bdb10514-2fa7-4727-a8e7-aa8394fced6f",
+      "name": "set value of addressline2 as housenumber number+letter",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3760,
+        1020
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c21cf08-4ae8-4856-ae2f-0f25053aebde",
+              "name": "housenumber",
+              "type": "string",
+              "value": "={{ $json.AddressLine2 }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "cf0a516f-f019-40f8-8d09-ff02a034781d",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3000,
+        760
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 907.6568579769853,
+        "height": 627.257034553087,
+        "content": "집 번호 검증"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82a16bec-77e9-4717-8111-69f8f068c925",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4040,
+        700
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1325.4150814203485,
+        "height": 354.5727675883748,
+        "content": "주소 검증 및 수정"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07f54a0d-2b13-4996-95a4-4c225402abe1",
+      "name": "set billbee success",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5080,
+        720
+      ],
+      "parameters": {
+        "url": "=https://api.billbee.io/api/v1/orders/{{ $('Set Address Fields').item.json[\"BillbeeID\"] }}/tags",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"Tags\": [\n    \"endereco_address_validated\"\n  ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Billbee-Api-Key",
+              "value": "={{ $('ConfigNode').item.json['X-Billbee-Api-Key'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "bd2f3340-f389-48e1-a90d-1625b6845556",
+      "name": "ConfigNode",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1860,
+        960
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c4d1415a-636b-4673-bba5-699168af2b2e",
+              "name": "X-Billbee-Api-Key",
+              "type": "string",
+              "value": "INSERT BILLBEE DEVELOPER API KEY"
+            },
+            {
+              "id": "69c630d7-d64c-49be-a594-88b05d44a091",
+              "name": "X-Auth-Key-Endereco",
+              "type": "string",
+              "value": "INSERT ENDERECO API KEY"
+            },
+            {
+              "id": "75977810-a10a-45ea-b536-d4b8f0f59b15",
+              "name": "orderID",
+              "type": "string",
+              "value": "={{ $json.query.Id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7619e573-116a-4f87-b6d2-b652ee7a25b7",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1800,
+        1120
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 251.61012258936577,
+        "content": "### **설정**\n\n**BillbeeUser에 대한 기본 인증 생성**  \n- 이메일을 사용자명으로, 비밀번호를 사용자 API 키로  \n\nBillbee 개발자 키 (X 키)와 Endereco API 키를 붙여넣기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "31c17f6e-0e90-4db1-9048-4b13bd36cc90",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2500,
+        1100
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 150,
+        "height": 135.6842625042993,
+        "content": "### **설정**\n\nBillbeeUser 기본 인증을 선택하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca1e1a8b-6107-4e0c-81c4-2a3b715aed11",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1640,
+        960
+      ],
+      "webhookId": "786e8a93-9837-44e6-81ae-a173ce25a14f",
+      "parameters": {
+        "path": "786e8a93-9837-44e6-81ae-a173ce25a14f",
+        "options": {}
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {},
+          "query": {
+            "Id": "300000221273261"
+          },
+          "params": {},
+          "headers": {
+            "host": "sfx-ecommerce.app.n8n.cloud",
+            "x-real-ip": "49.12.91.132",
+            "tracestate": "dd=s:-1",
+            "traceparent": "00-00000000000000004c0234c4a8ce641b-3f1af42f856c7eb3-00",
+            "accept-encoding": "gzip",
+            "x-forwarded-for": "49.12.91.132",
+            "x-forwarded-host": "sfx-ecommerce.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-datadog-trace-id": "5476998116086277147",
+            "x-forwarded-server": "traefik-78bdf4fd45-vvczp",
+            "x-datadog-parent-id": "4547215258723057331",
+            "x-datadog-sampling-priority": "-1"
+          },
+          "webhookUrl": "https://sfx-ecommerce.app.n8n.cloud/webhook/786e8a93-9837-44e6-81ae-a173ce25a14f",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1f498c7a-468a-48c4-b044-64455eb51aa2",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "get order data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "set new delivery address to billbee",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ConfigNode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConfigNode": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get order data": {
+      "main": [
+        [
+          {
+            "node": "Split Out Order Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Address Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter Out PickUpShops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Order Data": {
+      "main": [
+        [
+          {
+            "node": "Set Address Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Out PickUpShops": {
+      "main": [
+        [
+          {
+            "node": "check if housenumer is not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Address endereco api": {
+      "main": [
+        [
+          {
+            "node": "check if new address is not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Corrected Address": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check if housenumer is not empty": {
+      "main": [
+        [
+          {
+            "node": "Check Address endereco api",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "check if addressline 2 contains number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check if new address is not empty": {
+      "main": [
+        [
+          {
+            "node": "Split Out Corrected Address",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "set billbee tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set new delivery address to billbee": {
+      "main": [
+        [
+          {
+            "node": "set billbee success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check if addressline 2 contains number": {
+      "main": [
+        [
+          {
+            "node": "set value of addressline2 as housenumber",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "check if addressline 2 contains number and letter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set value of addressline2 as housenumber": {
+      "main": [
+        [
+          {
+            "node": "Check Address endereco api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check if addressline 2 contains number and letter": {
+      "main": [
+        [
+          {
+            "node": "set value of addressline2 as housenumber number+letter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "set billbee tag manual check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set value of addressline2 as housenumber number+letter": {
+      "main": [
+        [
+          {
+            "node": "Check Address endereco api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

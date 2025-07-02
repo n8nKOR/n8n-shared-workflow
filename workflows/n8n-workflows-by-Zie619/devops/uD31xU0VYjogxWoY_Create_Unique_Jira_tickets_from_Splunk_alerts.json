@@ -1,0 +1,364 @@
+{
+  "id": "uD31xU0VYjogxWoY",
+  "meta": {
+    "instanceId": "03e9d14e9196363fe7191ce21dc0bb17387a6e755dcc9acc4f5904752919dca8"
+  },
+  "name": "Create_Unique_Jira_tickets_from_Splunk_alerts",
+  "tags": [
+    {
+      "id": "GCHVocImoXoEVnzP",
+      "name": "🛠️ In progress",
+      "createdAt": "2023-10-31T02:17:21.618Z",
+      "updatedAt": "2023-10-31T02:17:21.618Z"
+    },
+    {
+      "id": "QPJKatvLSxxtrE8U",
+      "name": "Secops",
+      "createdAt": "2023-10-31T02:15:11.396Z",
+      "updatedAt": "2023-10-31T02:15:11.396Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "3f9fa220-1966-4478-b7db-c39056564c9d",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -640,
+        320
+      ],
+      "webhookId": "f2a52578-2fef-40a6-a7ff-e03f6b751a02",
+      "parameters": {
+        "path": "f2a52578-2fef-40a6-a7ff-e03f6b751a02",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "375ac47e-7975-45cb-b7c1-cef1c7fca701",
+      "name": "Add Ticket Comment",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        240,
+        520
+      ],
+      "parameters": {
+        "comment": "=Timestamp: {{ $('Set Host Name').item.json.body.timestamp }}\nDescription: {{ $('Set Host Name').item.json.body.description }}",
+        "options": {},
+        "issueKey": "={{ $json.key }}",
+        "resource": "issueComment"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "OYvpDV2Q42eY6iyA",
+          "name": "Alex Jira Cloud"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a5dea875-6adf-4d18-aeb9-5fe31a0ebfae",
+      "name": "Search Ticket",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        -200,
+        320
+      ],
+      "parameters": {
+        "options": {
+          "jql": "=splunkhostname ~ \"{{ $json['splunk-host-name'] }}\" "
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "OYvpDV2Q42eY6iyA",
+          "name": "Alex Jira Cloud"
+        }
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3dac410e-1e37-463d-9aba-bc6abf3889f7",
+      "name": "Set Host Name",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -420,
+        320
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "splunk-host-name",
+              "value": "={{ $json.body.inputs.A.key['host.name'].replace(/[^a-zA-Z0-9 ]/g, '') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "465ec3b0-dd16-482e-b4b6-f8ed91fbb11b",
+      "name": "IF Ticket Not Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        20,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.key }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1315b76b-39fc-4fd3-9a45-a91e5e873874",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -26.960531840248223
+      ],
+      "parameters": {
+        "width": 643.8620281403546,
+        "height": 537.944771288002,
+        "content": "![바이러스토탈](https://i.imgur.com/spMd6AQ.png)  \n## 웹훅 노드  \nSplunk에 대한 웹훅 통합을 설정하려면, 먼저 Splunk이 웹훅으로 경고를 보내도록 설정되었는지 확인하세요. [설정 가이드](https://docs.splunk.com/observability/en/admin/notif-services/webhook.html)를 방문하세요. 아래 웹훅 노드를 열어 n8n 웹훅 URL을 복사하세요.  \n- **형식 접근 URL**:  \n  - **실행 모드**: `https://n8n.domain.com/webhook/test/webhookpath` - n8n 캔버스 내에서 워크플로를 대화형으로 실행하기 위해 사용하세요. 'Execute Workflow' 버튼을 눌러 실시간 실행 결과를 보세요. 웹훅 노드에 데이터를 고정하여 테스트를 쉽게 했습니다.  \n  - **Silent Mode**: `https://n8n.domain.com/webhook/webhookpath` - 캔버스 업데이트 없이 배경 실행을 위해 사용하세요. 결과는 silently 로그되며 'Executions' 탭에서 검토할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "636425b9-a11f-4891-aa00-2f3c42956c01",
+      "name": "Create Ticket",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "mode": "list",
+          "value": "10001",
+          "cachedResultName": "Service Desk"
+        },
+        "summary": "=Splunk Alert for host {{ $('Set Host Name').item.json.body.inputs.A.key[\"host.name\"] }}:  {{ $('Set Host Name').item.json.body.description }}",
+        "issueType": {
+          "__rl": true,
+          "mode": "list",
+          "value": "10004",
+          "cachedResultName": "[System] Incident"
+        },
+        "additionalFields": {
+          "description": "={{ $('Set Host Name').item.json.body.description }}\n\n{{ $('Set Host Name').item.json.body.messageBody }}",
+          "customFieldsUi": {
+            "customFieldsValues": [
+              {
+                "fieldId": {
+                  "__rl": true,
+                  "mode": "id",
+                  "value": "customfield_10063"
+                },
+                "fieldValue": "={{ $('Webhook').item.json[\"body\"][\"inputs\"][\"A\"][\"key\"][\"host.name\"].replace(/[^a-zA-Z0-9 ]/g, '') }}"
+              }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "OYvpDV2Q42eY6iyA",
+          "name": "Alex Jira Cloud"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47af8bdb-e0da-4923-8f0a-05deb86ac1b3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        98.72468966845895
+      ],
+      "parameters": {
+        "width": 401.99970102055784,
+        "height": 413.43480804607805,
+        "content": "![바이러스토탈](https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Jira_%28Software%29_logo.svg/320px-Jira_%28Software%29_logo.svg.png)  \n## 호스트 이름 정규화  \n특수 문자가 Jira로 전달되어 문제를 일으키지 않도록 하기 위해, 이 설정 노드는 `splunk-host-name`에서 특수 문자를 제거하고, 이를 사용하여 검색하고 티켓을 생성합니다. 이 호스트 이름은 사용자 정의 필드로 저장됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0bf09e6-ca08-4db6-aff0-a6528a8fb03b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -21.934709587377256
+      ],
+      "parameters": {
+        "width": 401.99970102055784,
+        "height": 348.38243930996134,
+        "content": "새 티켓 생성  \n이것은 당신의 프로젝트와 이슈 유형에 새 티켓을 생성합니다. 이 값들을 업데이트하여 올바르게 작동하도록 하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a175e343-83ed-4442-94df-7e7027b8c687",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        340
+      ],
+      "parameters": {
+        "width": 401.99970102055784,
+        "height": 341.08777742613927,
+        "content": "![바이러스토털](https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Jira_%28Software%29_logo.svg/320px-Jira_%28Software%29_logo.svg.png)  \n## 티켓 댓글 추가  \n이것은 기존 티켓에 경고를 댓글로 추가하여 데이터가 중복되지 않게 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "09143b8c-a4ce-4791-8937-3333d24b6e01",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        100.50445897107033
+      ],
+      "parameters": {
+        "width": 193.6032856277124,
+        "height": 415.27445353029793,
+        "content": "## 티켓이 발견되었는지 확인  \n이것은 `$json.key`를 확인하여 값이 발견되었는지 검사하고, 그에 따라 라우팅합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "tip": null,
+            "rule": "n8n-test",
+            "inputs": {
+              "A": {
+                "key": {
+                  "os.type": "linux",
+                  "host.name": "n8n-enterprise-demo",
+                  "sf_metric": "cpu.utilization"
+                },
+                "value": "0.1670342357065173",
+                "fragment": "data('cpu.utilization').publish(label='A')"
+              },
+              "_S2": {
+                "value": "0.2",
+                "fragment": "threshold(0.2)"
+              }
+            },
+            "status": "ok",
+            "detector": "n8n-test",
+            "imageUrl": "https://static.eu0.signalfx.com/signed/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb20uc2lnbmFsZnguYXBwIiwiZXhwIjoxNjk0NjE0NjI2LCJpSWQiOiJGNVZBcTEwQUVBQSIsIm9JZCI6IkY1V0JKZ2lBSUFBIiwiYlQiOiJlbmQifQ.udzyF5-HqKyV_EMRmT51EtgECK9g-wanl8nx_MH0i9Q/async",
+            "severity": "Critical",
+            "eventType": "F5Vx1EuAAKc__F5V-TcTAEJ8__n8n-test",
+            "sf_schema": 2,
+            "timestamp": "2023-09-06T14:17:00Z",
+            "detectorId": "F5V-TcTAEJ8",
+            "incidentId": "F5VAq10AEAA",
+            "runbookUrl": null,
+            "description": "The value of cpu.utilization is above 0.2.",
+            "detectorUrl": "https://app.eu0.signalfx.com/#/detector/F5V-TcTAEJ8/edit?incidentId=F5VAq10AEAA&is=ok",
+            "messageBody": "Rule \"n8n-test\" in detector \"n8n-test\" cleared at Wed, 6 Sep 2023 14:17:00 GMT.\n\nCurrent signal value for n8n.test: 0.1670342357065173\n\nSignal details:\n{sf_metric=cpu.utilization, host.name=n8n-enterprise-demo, os.type=linux}",
+            "messageTitle": "Back to normal: n8n-test (n8n-test)",
+            "statusExtended": "ok",
+            "detectOnCondition": "when(A > threshold(0.2))",
+            "originatingMetric": "cpu.utilization",
+            "triggeredWhileMuted": false
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "host": "internal.users.n8n.cloud",
+            "x-real-ip": "10.255.0.2",
+            "user-agent": "Apache-HttpClient/4.5.14 (Java/1.8.0_372)",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "1366",
+            "accept-encoding": "gzip,deflate",
+            "x-forwarded-for": "10.255.0.2",
+            "x-forwarded-host": "internal.users.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "e591fa1c2d01"
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3985cac2-7f23-4d27-b826-0edfb0544b58",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Host Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Ticket": {
+      "main": [
+        [
+          {
+            "node": "IF Ticket Not Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Host Name": {
+      "main": [
+        [
+          {
+            "node": "Search Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Ticket Not Exists": {
+      "main": [
+        [
+          {
+            "node": "Create Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Ticket Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

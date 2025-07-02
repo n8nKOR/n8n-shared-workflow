@@ -1,0 +1,770 @@
+{
+  "meta": {
+    "instanceId": "d6b502dfa4d9dd072cdc5c2bb763558661053f651289291352a84403e01b3d1b",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "0951fd33-1811-4a89-b84f-f46dc9e6fde1",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        20,
+        -340
+      ],
+      "webhookId": "cdc03fce-33b6-4eed-86b5-f628994e5e31",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "699c2f89-5547-4d28-92a9-5e216aecb251",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        240,
+        -340
+      ],
+      "parameters": {
+        "options": {
+          "maxIterations": 15,
+          "systemMessage": "=You are a helpful assistant.\nCurrent timestamp is {{ $now }}"
+        }
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "640c29f7-b67e-49f6-a864-c9b396c446b7",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        160,
+        -100
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "5LVOlVwHUgB8MAj2",
+          "name": "OpenAI - n8n project"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "807630b4-c138-4b66-a438-fb70eab12a07",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "position": [
+        840,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "132a97a3-239c-403f-843f-55b652e3efc5",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        840,
+        640
+      ],
+      "parameters": {
+        "jsCode": "// Ensure there's at least one input item.\nif (!items || items.length === 0) {\n  throw new Error(\"No input items found.\");\n}\n\n// Our input is expected to have a 'data' property containing the JSONP string.\nconst input = items[0].json;\n\nif (!input.data) {\n  throw new Error(\"Input JSON does not have a 'data' property.\");\n}\n\nconst rawData = input.data;\n\n// Use a regex to extract the JSON content from the Google Visualization JSONP response.\nconst regex = /google\\.visualization\\.Query\\.setResponse\\((.*)\\);?$/s;\nconst match = rawData.match(regex);\n\nif (!match) {\n  throw new Error(\"Input data does not match the expected Google Visualization JSONP format.\");\n}\n\nconst jsonString = match[1];\n\n// Parse the extracted JSON string.\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonString);\n} catch (error) {\n  throw new Error(\"Failed to parse JSON: \" + error.message);\n}\n\n// Verify that the parsed JSON has the expected 'table' structure with 'cols' and 'rows'.\nif (!parsed.table || !Array.isArray(parsed.table.cols) || !Array.isArray(parsed.table.rows)) {\n  throw new Error(\"Parsed JSON does not have the expected 'table' structure with 'cols' and 'rows'.\");\n}\n\nconst cols = parsed.table.cols;\nconst rows = parsed.table.rows;\n\n// Helper function to convert date string from \"Date(YYYY,M,D)\" to \"YYYY-MM-DD\"\nfunction formatDate(dateStr) {\n  const match = dateStr.match(/^Date\\((\\d+),(\\d+),(\\d+)\\)$/);\n  if (!match) return dateStr;\n  const year = parseInt(match[1], 10);\n  const month = parseInt(match[2], 10) + 1; // JavaScript months are 0-indexed\n  const day = parseInt(match[3], 10);\n  // Format with leading zeros\n  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;\n}\n\n// Map each row into an object using the column labels as keys.\nconst newItems = rows.map(row => {\n  const obj = {};\n  cols.forEach((col, index) => {\n    let value = row.c && row.c[index] ? row.c[index].v : null;\n    // If the column type is \"date\" and the value is a string that looks like \"Date(YYYY,M,D)\"\n    if (col.type === \"date\" && typeof value === \"string\") {\n      value = formatDate(value);\n    }\n    obj[col.label] = value;\n  });\n  return { json: obj };\n});\n\n// Return the new array of items.\nreturn newItems;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3dc1e670-bfb1-4b63-b9c8-85656134c843",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        280,
+        640
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "start_date"
+            },
+            {
+              "name": "end_date"
+            },
+            {
+              "name": "status"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "52a26e43-12a5-4b4a-a224-d70cdabf6aaf",
+      "name": "Records by date",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1020,
+        -120
+      ],
+      "parameters": {
+        "name": "records_by_date_and_or_status",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "a2BIIjr2gLBay06M",
+          "cachedResultName": "Template | Your first AI Data Analyst"
+        },
+        "description": "Use this tool to get records filtered by date. You can also filter by status at the same time, if you want.",
+        "workflowInputs": {
+          "value": {
+            "status": "={{ $fromAI(\"status\", \"Status of the transaction. Can be Completed, Refund or Error. Leave empty if you don't need this now.\", \"string\") }}",
+            "end_date": "={{ $fromAI(\"end_date\", \"End date in format YYYY-MM-DD\", \"string\") }}",
+            "start_date": "={{ $fromAI(\"start_date\", \"Start date in format YYYY-MM-DD\", \"string\") }}"
+          },
+          "schema": [
+            {
+              "id": "start_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "start_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "end_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e1811519-8699-4243-8c64-0db1ab26004d",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1280,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b129abd-ac9a-460c-abb3-007e2c94e284",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 400,
+        "content": "AI에게 모든 항목을 다시 보내기 위해, 우리는 모든 것을 하나의 항목으로 집계해야 합니다.\n\n그렇지 않으면, 한 번에 하나의 항목으로 응답할 것이고, AI는 도착하는 첫 번째 항목만 받을 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "645ac0f9-8022-4f2c-8c6c-5aadd6cf09cc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 400,
+        "content": "이 노드는 Google Sheets API에 맞춤 HTTP 요청을 보냅니다.\n\nGoogle Sheets API에서 날짜 범위로 필터링하는 것은 매우 복잡합니다.\n\n이 노드는 그 문제를 해결합니다.\n\n하지만 데이터베이스에서 동일한 작업을 하는 것은 훨씬 간단합니다. 도구가 서브-워크플로 없이 이를 할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14221a72-914d-4c75-866a-d64ba7f8109f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 400,
+        "content": "이 복잡한 요청의 출력도 혼란스럽습니다.\n\n그래서 ChatGPT가 생성한 일부 코드를 사용하여 데이터를 JSON 객체로 변환합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f12668ea-b59d-4caf-a997-381f78b7cfe7",
+      "name": "Google Sheets request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        560,
+        640
+      ],
+      "parameters": {
+        "url": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/gviz/tq",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "sheet",
+              "value": "Sheet1"
+            },
+            {
+              "name": "tq",
+              "value": "=SELECT * WHERE A >= DATE \"{{ $json.start_date }}\" AND A <= DATE \"{{ $json.end_date }}\""
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YR4pbjuZM5Xs4CTD",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f59a2606-0981-43d1-9a07-b802891b9220",
+      "name": "Get transactions by product name",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        1020,
+        -320
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $fromAI(\"product_name\", \"The product name\", \"string\") }}",
+              "lookupColumn": "Product"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?usp=sharing"
+        },
+        "descriptionType": "manual",
+        "toolDescription": "Find transactions by product.\nOur products are:\n- Widget A\n- Widget B\n- Widget C\n- Widget D"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YR4pbjuZM5Xs4CTD",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "1ed7168c-1639-4b3b-a3b4-ed162bcef880",
+      "name": "Get all transactions",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        840,
+        -120
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?usp=sharing"
+        },
+        "descriptionType": "manual",
+        "toolDescription": "Only use this as last resort, because it will pull all data at once."
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YR4pbjuZM5Xs4CTD",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "798453da-8a65-4d14-ae0a-778d64ab02ad",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -340
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 320,
+        "height": 340,
+        "content": "## 시도할 몇 가지 질문\n이 페이지에 빨간 버튼이 있어요. 그 버튼을 클릭하면 AI와 채팅할 수 있습니다.\n\n이 질문들을 시도해 보세요:\n\n- 1월에 환불이 몇 건 있었고, 환불된 금액은 얼마였나요?\n\n- 2025년 1월에 성공적인 판매가 몇 건 있었고, 그들의 최종 수입은 얼마였나요?\n\n- 환불의 가장 빈번한 이유는 무엇인가요?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b8336f1a-3855-4247-9589-2f9aa35d211f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -340
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "이 Sheets 파일을 귀하의 Google Drive에 복사하세요  \nhttps://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?gid=0#gid=0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99a55b39-965b-4454-b416-d3991f0bdfbc",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 200,
+        "height": 140,
+        "content": "계산기는 에이전트가 수학적 계산을 실행할 수 있게 해주는 도구입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ebebf56-e065-41c4-8270-f636785b0def",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -160
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 구글 시트에 연결하는 방법?\nn8n을 구글 시트에 연결하려면 구글 OAuth 자격 증명이 필요합니다.\n\n문서를 참조하세요 **[여기](https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/)**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b64df0dd-6425-4fc2-9f60-8c5a85412d61",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 170,
+        "height": 260,
+        "content": "## 👆\n여기에서 많은 모델을 사용할 수 있습니다. 무료 Google Gemini 옵션을 포함하여.\n\n철저히 테스트하세요. 일부 모델은 데이터 분석에 더 적합합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23c7bb52-b189-45f1-949b-ea588f065583",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 150,
+        "height": 260,
+        "content": "## 👆  \n이것은 단기 메모리입니다. 채팅 중에 이전 5개의 상호작용을 기억할 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6097e5a1-139b-4329-81ff-4fda16ea5221",
+      "name": "Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        360,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "6de4a7f2-5c58-4401-bd7c-19c5a73ba775",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        -320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 180,
+        "content": "**AI 도구 에이전트**는 모든 도구에 동시에 접근할 수 있습니다. 그것은 이름과 설명을 사용하여 각 도구를 언제 사용할지 결정합니다.\n\n알아두세요, 저는 모두에서 $fromAI 함수를 사용하고 있습니다.\n\n문서 보기를 [여기](https://docs.n8n.io/advanced-ai/examples/using-the-fromai-function/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a308d895-bc18-4b2c-9567-78f6c29f79e8",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 320,
+        "content": "## 👈 이것은 특별한 도구입니다\n이것은 다른 워크플로를 호출하는 데 사용됩니다.\n이 개념을 서브-워크플로라고 합니다.\n\n문서를 보세요 [여기](https://docs.n8n.io/flow-logic/subworkflows/).\n\n완전히 별도의 워크플로를 실행하는 대신, 아래 것을 호출하고 있습니다.\n\n이것은 같은 워크플로에 포함되어 있지만, 트리거를 사용하여 이 도구에 의해 호출될 때만 실행되도록 정의하고 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a6d94bc-21e1-4949-b7f4-c93abbecf08c",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1380,
+        "height": 520,
+        "content": "# 서브-워크플로우\nAI는 언제든지 **날짜별 기록** 도구를 사용하여 이 서브-워크플로우를 호출할 수 있습니다.\n\n서브-워크플로우는 자동으로 마지막 실행된 노드의 결과를 AI에게 반환합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e424615-6e49-4bd3-b066-005b9f0f773e",
+      "name": "Filter by status",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1060,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e50da873-bbbd-41d3-a418-83193907977c",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "={{ $('When Executed by Another Workflow').item.json.status }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0ad0102c-adb9-4ec9-bdf3-b1ce425b88ba",
+      "name": "Get transactions by status",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        840,
+        -320
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $fromAI(\"transaction_status\", \"Transaction status can be Refund, Completed or Error\", \"string\") }}",
+              "lookupColumn": "Status"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?usp=sharing"
+        },
+        "descriptionType": "manual",
+        "toolDescription": "Find transactions by status"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YR4pbjuZM5Xs4CTD",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "5b80cb08-6e19-47b2-8146-c299e709a34a",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        -540
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "content": "## Sheets 파일의 URL을 모든 Sheets 도구에서 변경하세요 👇"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ddc1351e-0ad0-480f-9742-30f2aa860d61",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        820
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 260,
+        "height": 100,
+        "content": "## 👆 Sheets 파일의 URL 변경"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab837a10-932f-4b14-8e2c-546077ca2c86",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 580,
+        "content": "# 저자  \n![Solomon](https://gravatar.com/avatar/79aa147f090807fe0d618fb47a1de932669e385bb0c84bf3a7f891ae7d174256?r=pg&d=retro&size=200)  \n### Solomon  \n브라질 출신의 프리랜스 컨설턴트로, 자동화 및 데이터 분석을 전문으로 합니다. 선택된 클라이언트와 함께 가장 어려운 프로젝트를 해결합니다.  \n\n현재 Simon과 함께 [스크레이프스 커뮤니티](https://www.skool.com/scrapes/about?ref=21f10ad99f4d46ba9b8aaea8c9f58c34)를 운영 중입니다. 💪  \n\n비즈니스 문의는 automations.solomon@gmail.com으로 이메일 주세요.  \n또는 더 빠른 응답을 위해 [Telegram](https://t.me/salomaoguilherme)에서 메시지 주세요.  \n\n## 다른 템플릿 확인하기  \n### 👉 https://n8n.io/creators/solomon/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e58351b3-3b18-4c03-9435-27ba853d03bb",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        620
+      ],
+      "parameters": {
+        "width": 740,
+        "height": 180,
+        "content": "# 도움이 필요하신가요?\n\n이 워크플로에 대한 도움을 받기 위해, 커뮤니티 포럼에 토픽을 생성해 주세요:\n\nhttps://community.n8n.io/c/questions/"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Filter by status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Records by date": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter by status": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all transactions": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transactions by status": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transactions by product name": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

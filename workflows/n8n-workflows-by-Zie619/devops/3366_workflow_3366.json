@@ -1,0 +1,447 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "1083afcb-1257-45a3-b331-d93fb8769548",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -840,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c3ec0759-a3d1-4866-978a-bfe4f49ee81d",
+      "name": "Get Hash of Contents",
+      "type": "n8n-nodes-base.crypto",
+      "position": [
+        380,
+        0
+      ],
+      "parameters": {
+        "value": "={{ $json.data }}",
+        "dataPropertyName": "hash"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4ad92ad3-6f99-43a5-9a61-374adb3b28f7",
+      "name": "Notify of Change",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1220,
+        0
+      ],
+      "webhookId": "cc4cbee1-ad57-48fb-810a-b21880357ab0",
+      "parameters": {
+        "sendTo": "jim@example.com",
+        "message": "=site: {{ $('Variables').first().json.url }}\ndate: {{ $now.toISO() }}\nhash: {{ $json.hash }}\ncontents: {{ $json.gdrive }}",
+        "options": {},
+        "subject": "=Change detected for {{ $('Variables').first().json.url }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sf5Gfl9NiFTNXFWb",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9385242a-86b1-4624-ada9-949851b68054",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "html": "={{ $json.content.trim() }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "663b6ba2-cbf9-44ea-a062-f88ccb0640c1",
+      "name": "Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -460,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa706ed3-7425-4f0e-9590-d9478b4e6692",
+              "name": "url",
+              "type": "string",
+              "value": "https://x.com/en/tos"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2ef69fff-4d7a-439a-b317-ea5fa3ce7869",
+      "name": "Only New Hashes",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "historySize": 1
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.hash }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "93e13d80-a26f-408f-be4e-b582ab9fd9bd",
+      "name": "Log Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "hash": "={{ $('Get Hash of Contents').first().json.hash }}",
+            "gdrive": "=https://drive.google.com/file/d/{{ $json.id }}/view?usp=sharing",
+            "website": "={{ $('Variables').first().json.url }}",
+            "date of change": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hash",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "hash",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date of change",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "date of change",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gdrive",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "gdrive",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K13OBMicH-ebhvJRYo4sHiOuHd1KIX2jiFxBLWy2UOk/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1K13OBMicH-ebhvJRYo4sHiOuHd1KIX2jiFxBLWy2UOk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K13OBMicH-ebhvJRYo4sHiOuHd1KIX2jiFxBLWy2UOk/edit?usp=drivesdk",
+          "cachedResultName": "86. Webpage Changes Tracker"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "dea15963-61de-4371-b716-7683e0e703a9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -540,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 380,
+        "content": "## 1. 웹 페이지 내용을 가져오기\n\n[HTTP 요청 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bcb1c0b1-fc77-4417-a9c0-6299ce8ca33e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 400,
+        "content": "## 2. 해싱을 사용하여 변경 감지\n\n[암호화 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.crypto/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eda51de6-80a2-42b1-83ba-66c551911c45",
+      "name": "Fetch Webpage",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -280,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8aa998f1-1558-4b54-a95a-7be9360a819a",
+      "name": "Extract Contents",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        -100,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "content",
+              "cssSelector": ".ct07",
+              "returnValue": "html"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ecb60054-563c-4c0b-949c-abdcd3896f6b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 400,
+        "content": "## 3. 변경 발생 시 알림  \n[Gmail 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "30774606-5e63-4d73-9894-ba14d5b1fc46",
+      "name": "Take a Snapshot",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        860,
+        0
+      ],
+      "parameters": {
+        "name": "={{\n$('Variables').item.json.url\n  .extractDomain()\n  .replace('.','_')\n  + $json.hash\n  + '.md'\n}}",
+        "content": "={{ $json.data }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1BbP5HRnjNkCvcDRFFg1bm0sNYBGZM6AU",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1BbP5HRnjNkCvcDRFFg1bm0sNYBGZM6AU",
+          "cachedResultName": "86. Monitor Webpage Changes"
+        },
+        "operation": "createFromText"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yOwz41gMQclOadgu",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9ae563ea-49a3-4dcc-9190-8746650018aa",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        -760
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 980,
+        "content": "## 사용해 보세요\n### 이 n8n 템플릿은 웹 페이지의 내용을 모니터링하고 변경을 감지하며, 변경이 발생할 때만 알림을 보내줍니다.\n\n공개적으로 이용 가능한 문서, 예를 들어 회사 이용 약관, 정부 정책 또는 경쟁사 페이지를 감시하고 추적하는 데 좋습니다.\n\n### 작동 원리\n* 스케줄된 트리거를 사용하여 매일 실행되도록 자동화합니다.\n* HTTP 요청 노드를 사용하여 웹사이트 페이지를 가져오고, HTML 노드를 통해 추적할 내용을 추출합니다.\n* 변경을 감지하기 위해 암호화 노드를 사용하여 내용의 해시를 생성하고, \"중복 제거\" 노드를 통해 이전에 본 해시와 비교합니다. 해시가 이전에 본 적이 있으면 워크플로가 여기서 중지됩니다.\n* 마지막으로, 새로운 변경이 감지되면 내용의 사본을 Google Drive에 업로드하고 Google 시트에 기록합니다. 필요한 경우 알림 이메일을 보낼 수도 있습니다.\n\n### 사용 방법\n* \"variables\"라는 노드에서 추적할 URL을 업데이트하고, HTML 노드에 원하는 내용을 가져오기 위한 선택자가 올바르게 설정되었는지 확인합니다.\n* Scheduled Trigger 노드를 사용할 때 시간대를 올바르게 설정하세요.\n\n### 도움이 필요하신가요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 커뮤니티에 참여하거나 [Forum](https://community.n8n.io/)에서 질문하세요!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Get Hash of Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variables": {
+      "main": [
+        [
+          {
+            "node": "Fetch Webpage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Record": {
+      "main": [
+        [
+          {
+            "node": "Notify of Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Webpage": {
+      "main": [
+        [
+          {
+            "node": "Extract Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only New Hashes": {
+      "main": [
+        [
+          {
+            "node": "Take a Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Take a Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Log Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Contents": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Hash of Contents": {
+      "main": [
+        [
+          {
+            "node": "Only New Hashes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

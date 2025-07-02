@@ -1,0 +1,842 @@
+{
+  "meta": {
+    "instanceId": "03e9d14e9196363fe7191ce21dc0bb17387a6e755dcc9acc4f5904752919dca8"
+  },
+  "nodes": [
+    {
+      "id": "be5b0c9c-de92-4e34-88cb-98e88b0c19df",
+      "name": "Start VM Scan in Qualys",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1340,
+        500
+      ],
+      "parameters": {
+        "": "",
+        "url": "={{ $json.platformurl }}/api/2.0/fo/scan/",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendQuery": true,
+        "curlImport": "",
+        "contentType": "multipart-form-data",
+        "infoMessage": "",
+        "sendHeaders": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "asset_groups",
+              "value": "={{ $json.asset_groups }}",
+              "parameterType": "formData"
+            },
+            {
+              "name": "scan_title",
+              "value": "={{ $json.scan_title }}",
+              "parameterType": "formData"
+            },
+            {
+              "name": "option_title",
+              "value": "={{ $json.option_title }}",
+              "parameterType": "formData"
+            }
+          ]
+        },
+        "specifyHeaders": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "launch"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Requested-With",
+              "value": "n8n"
+            }
+          ]
+        },
+        "httpVariantWarning": "",
+        "nodeCredentialType": "qualysApi",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "qualysApi": {
+          "id": "KdkmNjVYkDUzHAvw",
+          "name": "Qualys account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "qualysApi"
+    },
+    {
+      "id": "0d140ce1-89e0-4135-821f-0b32004fc6aa",
+      "name": "Convert XML to JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        1540,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "dataPropertyName": "=data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec737485-bf8b-4e8a-9843-2566c13106a8",
+      "name": "Fetch Scan Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2640,
+        460
+      ],
+      "parameters": {
+        "": "",
+        "url": "={{ $('Demo Data').item.json[\"platformurl\"] }}/api/2.0/fo/scan/vm/summary",
+        "method": "GET",
+        "options": {},
+        "sendBody": false,
+        "sendQuery": true,
+        "curlImport": "",
+        "infoMessage": "",
+        "sendHeaders": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "list"
+            },
+            {
+              "name": "scan_reference",
+              "value": "={{ $('Convert XML to JSON').item.json.SIMPLE_RETURN.RESPONSE.ITEM_LIST.ITEM[1].VALUE }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Requested-With",
+              "value": "n8n"
+            }
+          ]
+        },
+        "httpVariantWarning": "",
+        "nodeCredentialType": "qualysApi",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "qualysApi": {
+          "id": "KdkmNjVYkDUzHAvw",
+          "name": "Qualys account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "qualysApi"
+    },
+    {
+      "id": "56a60798-3db1-4c69-962f-75009f894196",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2220,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "reset": true
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "37ac0cdf-8412-40c7-b01c-d592e4d1f378",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 596.2964035541726,
+        "height": 493.43675548817004,
+        "content": "![Imgur](https://uploads.n8n.io/templates/qualys.png)  \nQualys 측에서 수행되는 쿼리에 대한 자세한 정보는 [Manage Scans Documentation](https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/scans/index.htm#t=vm_scans%2Fmanage_vm_scans.htm)을 확인하세요. 결과는 XML 형식으로 반환되며, n8n은 이를 기본적으로 JSON으로 변환할 수 있습니다. 이로 인해 n8n에서 상태를 쉽게 확인할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "075a4e21-cc30-4e31-a1f9-d2f872ab978c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1274.994996265108,
+        51.04030212612997
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 447.57018680355174,
+        "height": 642.6627860215806,
+        "content": "![Qualys](https://uploads.n8n.io/templates/qualys.png)  \n## Qualys 에이전트에서 스캔 트리거  \n스캔 시작에 대한 더 많은 정보를 위해, [시작 문서](https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/scans/index.htm#t=vm_scans%2Flaunch_vm_scan.htm)를 방문하세요. Qualys의 응답은 XML 형식으로 되어 있으며, n8n이 쉽게 처리합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5da3f500-0ccf-4eed-9d05-7709668cf2bb",
+      "name": "Wait 5 Min",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2440,
+        460
+      ],
+      "webhookId": "f2d07724-882a-4010-9ce2-ff389ee962af",
+      "parameters": {
+        "unit": "minutes"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5cf921ac-cd6b-4a27-b679-3d1ecdb3eb49",
+      "name": "Convert XML to JSON1",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        2800,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "dataPropertyName": "=data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0580bb11-38c4-49a1-ab00-4cdfb49c8f9d",
+      "name": "Check if Scan Finished",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3000,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ef397200-064a-428f-a5b2-19d2342a9113",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.SCAN_SUMMARY_OUTPUT.RESPONSE.SCAN_SUMMARY_LIST.SCAN_SUMMARY.SCAN_DETAILS.STATUS }}",
+              "rightValue": "FINISHED"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ec05f06b-e009-4f1c-97e4-223705d3be32",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1cbd10cd-342c-41bf-ae8f-832324cfbb30",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1043.6429958055905,
+        "height": 657.4661247924577,
+        "content": "![Slack](https://uploads.n8n.io/templates/slack.png)  \n## Slack 부모 워크플로우에서 트리거됨  \n워크플로우는 실행 워크플로우 트리거로 시작하지만, 수동 실행 트리거는 수동으로 테스트하기 위해 남겨져 있습니다. 수동으로 실행할 때 실행 워크플로우 트리거를 끄는 것을 확인하세요. 모든 Slack 노드에서 동일한 채널이 설정되도록 Edit 노드에서 Slack 채널 ID를 설정하세요. 그 후, n8n은 사용자가 요청을 처리 중임을 알리기 위해 Slack에 메시지를 보냅니다. 두 스레드가 병합되어 한 번에 하나의 작업만 수행되도록 합니다. 글로벌 변수에 Platform URL을 설정하는 것을 잊지 마세요. 이에 대한 자세한 정보는 Qualys의 [플랫폼 문서](https://www.qualys.com/platform-identification/) 페이지에서 찾을 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb59e00b-36c6-429e-8696-f49b78445925",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2160,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 387.82834121275613,
+        "height": 620.5198690828006,
+        "content": "![n8n](https://uploads.n8n.io/templates/n8n.png)  \n## n8n 루프 노드  \n보고서 객체가 쿼리된 다음 보고서가 완료된 상태를 반환할 때까지 5분마다 루프합니다. 우리는 보고서가 40분 이상 걸릴 수 있다는 것을 발견했습니다. 여기서 n8n이 개입하여 5분마다 우리를 위해 확인합니다. 스캔의 상태가 완료로 변경되면 루프가 종료되고 결과가 스캔 결과로 돌아가는 링크와 함께 Slack에 게시됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2337ad0e-e361-474a-9923-75c4826400b6",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3167,
+        184.84774251864644
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 679.3808146538605,
+        "height": 493.10714356069377,
+        "content": "![Imgur](https://uploads.n8n.io/templates/slack.png)  \n## 보고서 Slack에 업로드  \n스캔이 완료되면, 보고서의 요약과 보고서 객체에 대한 링크가 Slack에 게시되어 쉽게 검색할 수 있습니다. 또한 원래의 영수증 메시지가 삭제되어 새 메시지가 Slack 알림을 생성하도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "68a9eee6-05c4-4655-ab74-4a68fc68af26",
+      "name": "Post Receipt",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        740,
+        340
+      ],
+      "parameters": {
+        "text": "Vulnerability Scan request received, processing now. ",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Global Variables & Slack Channel').item.json[\"slackChannelId\"] }}"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "DZJDes1ZtGpqClNk",
+          "name": "Qualys Slack App"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "43af793b-061f-4048-b110-546903b803b6",
+      "name": "Confirm Waiting",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1800,
+        540
+      ],
+      "parameters": {
+        "ts": "={{ $('Save receipt message timestamp').item.json[\"ts\"] }}",
+        "text": "=Scan successfully initiated, now waiting for `{{ $('Convert XML to JSON').item.json.SIMPLE_RETURN.RESPONSE.ITEM_LIST.ITEM[1].VALUE }}` to complete. \n\nNo action is needed, and I will post the summary report and link to results when it's complete. ",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Global Variables & Slack Channel').item.json[\"slackChannelId\"] }}"
+        },
+        "operation": "update",
+        "updateFields": {
+          "parse": "client",
+          "link_names": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "DZJDes1ZtGpqClNk",
+          "name": "Qualys Slack App"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "326bb10c-0e8e-4df7-bc67-dad015240d15",
+      "name": "Delete Receipt",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3480,
+        440
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Global Variables & Slack Channel').item.json[\"slackChannelId\"] }}"
+        },
+        "operation": "delete",
+        "timestamp": "={{ $('Save receipt message timestamp').item.json[\"ts\"] }}"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "DZJDes1ZtGpqClNk",
+          "name": "Qualys Slack App"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c8668283-e6ec-4dbd-92d0-aec1f07c01a7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1740.3532113511565,
+        44.007696543933434
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 408.91770357210225,
+        "height": 645.055566466257,
+        "content": "![Slack](https://uploads.n8n.io/templates/slack.png)  \n## 사용자가 알도록 하세요, 이제 기다릴 시간이 되었습니다  \n좋은 고객 서비스는 커뮤니케이션에서 비롯됩니다. 이 섹션은 스캔이 성공적으로 트리거되었음을 사용자에게 알리고, 이제 완료될 때까지 기다려야 함을 알려줍니다. 필요에 따라 이 메시지를 자유롭게 변경하세요. 결과가 게시되면 삭제됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "defa2773-ea65-481d-a6d6-bb40c70e6762",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        40
+      ],
+      "parameters": {
+        "width": 646.7396383244529,
+        "height": 994.2389415638766,
+        "content": "![n8n](https://uploads.n8n.io/templates/n8n.png)  \n# Qualys 취약점 트리거 스캔 워크플로우\n\n## 이 워크플로는 Slack 단축키를 통해 시작된 상위 워크플로우에 의해 트리거됩니다. 활성화되면 Slack의 모달 창에서 입력을 수집하고 Qualys API를 사용하여 취약점 스캔을 시작합니다.\n\n**주요 기능:**  \n- **트리거:** Slack 단축키를 통해 모달 입력과 함께 상위 워크플로우에 의해 시작됩니다.  \n- **API 통합:** Qualys API를 사용하여 취약점 스캔을 수행합니다.  \n- **데이터 변환:** XML 스캔 결과를 JSON으로 변환하여 추가 처리를 합니다.  \n- **루프 메커니즘:** 스캔이 완료될 때까지 지속적으로 스캔 상태를 확인합니다.  \n- **Slack 알림:** 지정된 Slack 채널에 스캔 요약 및 상세 결과를 게시합니다.\n\n**워크플로우 노드:**  \n1. **Qualys에서 VM 스캔 시작:** 지정된 매개변수로 스캔을 시작합니다.  \n2. **XML을 JSON으로 변환:** 스캔 결과를 XML 형식에서 JSON으로 변환합니다.  \n3. **스캔 결과 가져오기:** Qualys에서 스캔 결과를 가져옵니다.  \n4. **스캔 완료 확인:** 스캔이 완료되었는지 확인합니다.  \n5. **루프 메커니즘:** 스캔 상태를 반복적으로 확인합니다.  \n6. **Slack 알림:** Slack에 업데이트 및 결과를 게시합니다.\n\n**관련 링크:**  \n- [Qualys API 문서](https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/scans/index.htm#t=vm_scans%2Flaunch_vm_scan.htm)  \n- [Qualys 플랫폼 문서](https://www.qualys.com/platform-identification/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de2c15bd-4144-4ca8-9c0d-370ecf334650",
+      "name": "Demo Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "070178a6-73b0-458b-8657-20ab4ff0485c",
+              "name": "option_title",
+              "type": "string",
+              "value": "Initial Options"
+            },
+            {
+              "id": "3605424b-5bfc-44f0-b6e4-e0d6b1130b8e",
+              "name": "scan_title",
+              "type": "string",
+              "value": "n8n Scan 1"
+            },
+            {
+              "id": "2320d966-b834-46fb-b674-be97cc08682e",
+              "name": "asset_groups",
+              "type": "string",
+              "value": "Group1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "0ec55480-424c-4686-b8f7-8a98b5941c8e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        700
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 535.8333316661617,
+        "height": 702.5170959123625,
+        "content": "이 모달에 입력된 데이터는 이 워크플로우에서 처리될 것입니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f6291ad-280f-4a0c-b84a-5eebfbb9172f",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1120,
+        500
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "multiplex"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "783d9bcd-faf1-4427-ab5c-de32df64f819",
+      "name": "Post Vulnerability Scan Summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3240,
+        500
+      ],
+      "parameters": {
+        "select": "channel",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"image\",\n\t\t\t\"block_id\": \"image_1\",\n\t\t\t\"image_url\": \"https://i.imgur.com/6BtgQVV.png\",\n\t\t\t\"alt_text\": \"{{ $('Convert XML to JSON').item.json[\"SIMPLE_RETURN\"][\"RESPONSE\"][\"ITEM_LIST\"][\"ITEM\"][0][\"VALUE\"] }}\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"header\",\n\t\t\t\"block_id\": \"header_1\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \"📊 Qualys Scan Summary\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"block_id\": \"section_scan_details\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"*📝 Scan Title:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"TITLE\"] }}\\n*👤 User:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"USER\"][\"USERNAME\"] }}\\n*🔍 Scan Status:* FINISHED\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"block_id\": \"section_general_info\",\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*⏱️ Scheduled:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"SCHEDULED\"] }}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*📋 Option Profile:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"OPTION_PROFILE\"][\"NAME\"] }}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*🎯 Targets:* IP List ({{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"TARGETS\"][\"IP_LIST\"][\"COUNT\"] }} IPs), Asset Group {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"TARGETS\"][\"ASSET_GROUP_LIST\"][\"ASSET_GROUP_DATA\"][\"ASSET_GROUP\"][\"NAME\"] }}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*🚀 Scan Launched:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_INPUT\"][\"SCAN_DATETIME\"] }}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*⏳ Duration:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_DETAILS\"][\"DURATION\"] }} seconds\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*🖥️ Detected Hosts:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"HOSTS\"][\"COUNT\"] }}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"block_id\": \"section_detections_summary\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"*🔎 Detections Summary:*\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"block_id\": \"section_detections_details\",\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*🛡️ Confirmed Vulnerabilities:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"CONFIRMED\"][\"TOTAL_COUNT\"] }}\\n   - Minimal Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"CONFIRMED\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_1\"] }}\\n   - Medium Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"CONFIRMED\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_2\"] }}\\n   - Serious Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"CONFIRMED\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_3\"] }}\\n   - Critical Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"CONFIRMED\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_4\"] }}\\n   - Urgent Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"CONFIRMED\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_5\"] }}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*📈 Information Gathered:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"IG\"][\"TOTAL_COUNT\"] }}\\n   - Minimal Severity:  {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"IG\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_1\"] }}\\n   - Medium Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"IG\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_2\"] }}\\n   - Serious Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"IG\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_3\"] }}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*⚠️ Potential Vulnerabilities:* {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"POTENTIAL\"][\"TOTAL_COUNT\"] }}\\n   - Minimal Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"POTENTIAL\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_1\"] }}\\n   - Medium Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"POTENTIAL\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_2\"] }}\\n   - Serious Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"POTENTIAL\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_3\"] }}\\n   - Critical Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"POTENTIAL\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_4\"] }}\\n   - Urgent Severity: {{ $json[\"SCAN_SUMMARY_OUTPUT\"][\"RESPONSE\"][\"SCAN_SUMMARY_LIST\"][\"SCAN_SUMMARY\"][\"SCAN_RESULTS\"][\"DETECTIONS\"][\"VULN\"][\"POTENTIAL\"][\"COUNT_BY_SEVERITY\"][\"SEVERITY_5\"] }}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"block_id\": \"final_section_with_button\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"🔗 View the full report in Qualys\"\n\t\t\t},\n\t\t\t\"accessory\": {\n\t\t\t\t\"type\": \"button\",\n\t\t\t\t\"text\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"text\": \"View Report in Qualys\",\n\t\t\t\t\t\"emoji\": true\n\t\t\t\t},\n\t\t\t\t\"value\": \"click_me_123\",\n\t\t\t\t\"style\": \"primary\",\n\t\t\t\t\"url\": \"{{ $('Demo Data').item.json[\"platformurl\"] }}/fo/report/report_view.php?id={{ $('Convert XML to JSON').item.json[\"SIMPLE_RETURN\"][\"RESPONSE\"][\"ITEM_LIST\"][\"ITEM\"][0][\"VALUE\"] }}&default=1&format=30\",\n\t\t\t\t\"action_id\": \"button-action\"\n\t\t\t}\n\t\t}\n\t]\n}",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Global Variables & Slack Channel').item.json[\"slackChannelId\"] }}"
+        },
+        "messageType": "block",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "DZJDes1ZtGpqClNk",
+          "name": "Qualys Slack App"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "91444583-66d8-4d5b-ba88-4d8869d508b6",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "disabled": true,
+      "position": [
+        260,
+        340
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4b8ade25-0377-4f00-a744-f610b17eea93",
+      "name": "Begin Wait Loop",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1800,
+        400
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b830b9d8-e7aa-49bb-9640-d1def697f3e1",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2020,
+        420
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "389381c3-bd51-4e22-a102-e47b5945576c",
+      "name": "Save receipt message timestamp",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        920,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "111526ec-0501-4af9-b66e-c677cb8fe25f",
+              "name": "ts",
+              "type": "string",
+              "value": "={{ $json.message.ts }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "51005deb-2676-4375-9ac8-780eb301f7f5",
+      "name": "Global Variables & Slack Channel",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        560,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9849fe48-7a7a-4f2b-a404-c7827249e9c2",
+              "name": "slackChannelId",
+              "type": "string",
+              "value": "C05LAN72WJK"
+            },
+            {
+              "id": "36aad8b5-b51a-4df0-b1a7-159a90b802b2",
+              "name": "platformurl",
+              "type": "string",
+              "value": "https://qualysapi.qg3.apps.qualys.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "7d6d5ab7-5a87-46c8-baa8-d79a05d8346d",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        700
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 596.6847639718076,
+        "height": 438.8903816479826,
+        "content": "🤖 이 워크플로우를 트리거링하는 것은 Slack에서 백슬래시를 입력하고 오른쪽 모달을 채우는 만큼 쉽습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Start VM Scan in Qualys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demo Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait 5 Min": {
+      "main": [
+        [
+          {
+            "node": "Fetch Scan Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Receipt": {
+      "main": [
+        [
+          {
+            "node": "Save receipt message timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Begin Wait Loop": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Waiting": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Wait 5 Min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Scan Results": {
+      "main": [
+        [
+          {
+            "node": "Convert XML to JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert XML to JSON": {
+      "main": [
+        [
+          {
+            "node": "Confirm Waiting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Begin Wait Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert XML to JSON1": {
+      "main": [
+        [
+          {
+            "node": "Check if Scan Finished",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Scan Finished": {
+      "main": [
+        [
+          {
+            "node": "Delete Receipt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Vulnerability Scan Summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start VM Scan in Qualys": {
+      "main": [
+        [
+          {
+            "node": "Convert XML to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Demo Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Global Variables & Slack Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Demo Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Global Variables & Slack Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save receipt message timestamp": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Global Variables & Slack Channel": {
+      "main": [
+        [
+          {
+            "node": "Post Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

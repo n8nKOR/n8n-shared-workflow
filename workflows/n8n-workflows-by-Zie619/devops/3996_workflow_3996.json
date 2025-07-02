@@ -1,0 +1,145 @@
+{
+  "nodes": [
+    {
+      "id": "142277c6-73a5-4b99-9e94-72655bbe0ea8",
+      "name": "n8n",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        -420,
+        -120
+      ],
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "4v19HuBPwx43oswi",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6adf03cb-4194-4616-99d0-6495a660c283",
+      "name": "TAG? Auto start",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -180,
+        -120
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "03241d00-9ec1-4215-8036-2d219a7874cb",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              },
+              "leftValue": "={{ $json.tags.map((obj) => obj.name) }}",
+              "rightValue": "Auto start"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8bd4868a-6dec-48b9-8593-36badf42d7ff",
+      "name": "n8n1",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        100,
+        -120
+      ],
+      "parameters": {
+        "operation": "activate",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "requestOptions": {}
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "4v19HuBPwx43oswi",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c2b7a716-ab5f-4e49-b340-eab6721c52e4",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -640,
+        -120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0090a343-73fd-4c53-b80b-27dd2789a849",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        -580
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "height": 420,
+        "content": "# 자동 시작기\n\n워크플로를 가져올 때 자동으로 시작되지 않습니다. 이전 버전이 실행 중이었더라도요. 이를 해결하기 위해 n8n이 시작된 후 실행할 수 있는 이 워크플로를 만들었습니다. 이는 우리의 자동 배포 파이프라인과 수정된 n8n 컨테이너에 맞습니다. 이 컨테이너는 워크플로를 가져오고, n8n을 시작하며, 태그된 워크플로를 시작합니다.\n\n- n8n이 시작된 후 이 워크플로를 시작하세요.\n- 실행 중인 n8n 인스턴스에서 모든 워크플로를 가져옵니다.\n- 파일에 **'자동 시작'** 태그가 있으면 워크플로가 시작됩니다.\n\n**구성**\n- **n8n API 키**를 구성해야 합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "TAG? Auto start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TAG? Auto start": {
+      "main": [
+        [
+          {
+            "node": "n8n1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

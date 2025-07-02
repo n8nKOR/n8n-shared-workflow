@@ -1,0 +1,285 @@
+{
+  "nodes": [
+    {
+      "id": "678e86bc-2755-4c79-97d6-fa4da1ed9ff9",
+      "name": "Postgres Trigger",
+      "type": "n8n-nodes-base.postgresTrigger",
+      "disabled": true,
+      "position": [
+        500,
+        480
+      ],
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "computed",
+          "cachedResultName": "computed"
+        },
+        "firesOn": "UPDATE",
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "users",
+          "cachedResultName": "users"
+        },
+        "additionalFields": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "8",
+          "name": "Postgres Product Analytics"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "accecdfc-283c-4119-9b23-4cf44bc5e68c",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "notes": "Filter out @n8n.io emails",
+      "position": [
+        980,
+        540
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.email }}",
+              "value2": "n8n.io",
+              "operation": "notContains"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "d16d7ae7-0c60-48f0-97fe-c7618cab73d3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        380
+      ],
+      "parameters": {
+        "width": 424,
+        "height": 559,
+        "content": "## 👋 이 템플릿을 사용하는 방법\n이 템플릿은 하나의 서비스에서 다른 서비스로 데이터를 동기화하는 방법을 보여줍니다. 이 예제에서 우리는 새로운 자격을 갖춘 리드를 Google Sheets 파일에 저장합니다. 템플릿을 테스트하는 방법은 다음과 같습니다:\n\n1. 우리의 [Google Sheets](https://docs.google.com/spreadsheets/d/1gVfyernVtgYXD-oPboxOSJYQ-HEfAguEryZ7gTtK0V8/edit?usp=sharing) 파일을 복제하세요.\n2. `Google Sheets` 노드를 더블 클릭하여 로그인하여 자격 증명을 생성하세요.\n3. 올바른 Google Sheets 문서와 시트를 선택하세요.\n4. `Execute Workflow` 버튼을 클릭하고 노드를 더블 클릭하여 입력 및 출력 데이터를 보세요.\n\n### 이를 귀하의 필요에 맞게 사용자 정의하려면 다음을 하세요:\n1. `Postgres trigger`를 활성화하거나 귀하의 용도에 맞는 서비스로 교체하세요.\n2. `Filter`를 귀하의 필요에 맞게 변경하세요.\n3. 위에서 설명한 대로 Google Sheets 노드를 조정하세요.\n4. `On clicking \"Execute Node\"` 및 `Code` 노드를 비활성화하거나 제거하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8bc7439e-d814-4960-8b75-fc77805f74c7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        380
+      ],
+      "parameters": {
+        "width": 344,
+        "height": 562,
+        "content": "1. 트리거 단계는 새로운 이벤트를 기다립니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "63b2bc4c-8e33-4432-af4b-4595b2012ce1",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        460
+      ],
+      "parameters": {
+        "width": 462,
+        "height": 407,
+        "content": "### 2. 데이터 필터링 및 변환\n\n이 경우, 이메일 주소에 `@n8n.io`가 없는 적격한 사용자만 저장하고 싶습니다.\n\n필터를 편집하려면, 입력 데이터를 필드로 간단히 드래그 앤 드롭하거나 값을 직접 변경하세요. **필터 외에도, n8n에는 [Set](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.set), [ItemList](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.itemlists/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.itemLists), [Code](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.code) 같은 다른 강력한 변환 노드가 더 있습니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "448e2c49-aa75-405b-ba51-3acbce0fb758",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1340,
+        460
+      ],
+      "parameters": {
+        "width": 342.52886836027733,
+        "height": 407.43618112665195,
+        "content": "### 3. 사용자를 Google 시트에 저장\n\n간단하게 하기 위해, 자격을 갖춘 사용자를 Google 시트에 저장합니다.\n\n** [Excel](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftexcel/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.microsoftExcel) , [HubSpot](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.hubspot) , [Pipedrive](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.pipedrive/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.pipedrive) , [Zendesk](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.zendesk/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.zendesk) 등과 같은 서비스로 이 노드를 대체할 수 있습니다. **"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0ee182d-4c31-488b-a547-5f2d2ba8786e",
+      "name": "On clicking \"Execute Node\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "For testing the workflow",
+      "position": [
+        500,
+        680
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "87f2a11e-f704-4c9e-ac8b-ee1f057cd347",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "notes": "Mock Data",
+      "position": [
+        680,
+        680
+      ],
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"id\": 1,\n    \"username\": \"max_mustermann\",\n    \"email\": \"max_mustermann@acme.com\",\n    \"company_size\": \"500-999\",\n    \"role\": \"Sales\",\n    \"users\": 50\n  }\n]"
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "0992077f-b6d3-47d2-94d2-c612dfbf5062",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Add to \"Users to contact\"",
+      "position": [
+        1400,
+        540
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "id": "={{ $json.id }}",
+            "email": "={{ $json.email }}",
+            "username": "={{ $json.username }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "username",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "username",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contacted",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "contacted",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gVfyernVtgYXD-oPboxOSJYQ-HEfAguEryZ7gTtK0V8/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1gVfyernVtgYXD-oPboxOSJYQ-HEfAguEryZ7gTtK0V8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gVfyernVtgYXD-oPboxOSJYQ-HEfAguEryZ7gTtK0V8/edit?usp=drivesdk",
+          "cachedResultName": "Qualified leads to contact"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9",
+          "name": "Google Sheets account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4
+    }
+  ],
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking \"Execute Node\"": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

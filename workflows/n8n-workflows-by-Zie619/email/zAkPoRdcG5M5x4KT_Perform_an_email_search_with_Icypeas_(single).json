@@ -1,0 +1,157 @@
+{
+  "id": "zAkPoRdcG5M5x4KT",
+  "meta": {
+    "instanceId": "a897062ac3223eacd9c7736276b653c446bc776a63cde2a42a2949ad984f7092"
+  },
+  "name": "Perform an email search with Icypeas (single)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7bd55522-62dd-40da-939d-e10c185dd44d",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1220,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "422bb377-afe7-4332-a134-15af150e8006",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        220
+      ],
+      "parameters": {
+        "height": 243.6494382022472,
+        "content": "## Icypeas를 사용한 이메일 검색 수행 (single)\n\n이 워크플로우는 Icypeas를 사용하여 이메일 검색을 수행하는 방법을 보여줍니다. 계정을 만들기 위해 https://icypeas.com을 방문하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a95bd610-e5e3-4343-afcc-4af22dca1f8f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1367,
+        296
+      ],
+      "parameters": {
+        "width": 506,
+        "height": 1042.9602832148855,
+        "content": "## 귀하의 Icypeas 계정에 인증합니다\n\n이 코드 노드는 귀하의 API 키, API 시크릿, 및 사용자 ID를 사용하여 Icypeas 계정과 연결을 설정합니다.\n\n이 노드를 열고 따옴표 안에 API 키, API 시크릿, 및 사용자 ID를 삽입하세요. 이러한 자격 증명은 Icypeas 프로필에서 https://app.icypeas.com/bo/profile에서 찾을 수 있습니다. 변경해야 할 부분의 추출은 다음과 같습니다 :\n\nconst API_KEY = \"**PUT_API_KEY_HERE**\";\nconst API_SECRET = \"**PUT_API_SECRET_HERE**\";\nconst USER_ID = \"**PUT_USER_ID_HERE**\";\n\n코드의 다른 줄은 변경하지 마세요.\n\n자체 호스팅 사용자인 경우, 크립토 모듈을 활성화하기 위해 다음 단계를 따르세요 :\n\n1. n8n 인스턴스에 접근하세요:\n웹 브라우저에서 인스턴스 URL로 이동하여 n8n 인스턴스에 로그인하세요. 예를 들어: http://your-n8n-instance.com.\n\n2. 설정으로 이동하세요:\n우측 상단의 사용자 이름 클릭 후 \"Settings\"를 선택하세요.\n\n3. 일반 설정 선택하세요:\n왼쪽 메뉴에서 \"General\"을 클릭하세요.\n\n4. 크립토 모듈 활성화:\n\"Additional Node Packages\" 섹션으로 스크롤하여 \"crypto\" 옵션 옆의 체크박스를 선택하세요. 이렇게 하면 크립토 모듈이 활성화됩니다.\n\n5. 변경사항 저장:\n페이지 하단의 \"Save\"를 클릭하여 변경사항을 적용하세요.\n\n이 단계를 따르신 후, 크립토 모듈이 자체 호스팅 n8n 인스턴스에서 활성화되어야 합니다. 변경사항을 저장하고 필요에 따라 n8n 인스턴스를 재시작하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0951515-48cf-4c1b-82fd-960959a51bb7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1873,
+        300
+      ],
+      "parameters": {
+        "width": 492,
+        "height": 961.061974298911,
+        "content": "## Icypeas 계정에서 이메일 검색 수행\n\n이 노드는 Icypeas를 사용하여 이메일 주소를 검색하기 위해 HTTP 요청(POST)을 실행합니다.\n\n### HTTP 요청 노드에서 자격 증명 생성 방법:\n\n➔ 헤더 인증 자격 증명에서 - 새 자격 증명 생성 -을 클릭합니다.\n➔ 이름 섹션에 “Authorization”을 입력합니다.\n➔ 값 섹션에서 표현식(필드 오른쪽 위에 호버하면 나타남)을 선택하고 {{ $json.api.key + ':' + $json.api.signature }}를 입력합니다.\n➔ 변경 사항을 저장하려면 “Save”를 클릭합니다.\n\n### 이메일 주소 검색 방법:\n\n➔ 본문 매개변수 섹션으로 이동합니다.\n➔ 새 매개변수를 생성합니다.\n➔ 이름 필드에 \"lastname\"를 입력합니다.\n➔ 검색할 사람의 성을 입력합니다.\n\n➔ 본문 매개변수 섹션으로 이동합니다.\n➔ 새 매개변수를 생성합니다.\n➔ 이름 필드에 \"firstname\"를 입력합니다.\n➔ 검색할 사람의 이름을 입력합니다.\n\n➔ 본문 매개변수 섹션으로 이동합니다.\n➔ 새 매개변수를 생성합니다.\n➔ 이름 필드에 \"domainOrCompany\"를 입력합니다.\n➔ 검색할 사람의 도메인/회사 이름을 입력합니다.\n\n결과는 여기에서 확인할 수 있습니다: https://app.icypeas.com/bo/singlesearch?task=email-search"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d12e09f-143a-46f1-9790-512d4f10f51f",
+      "name": "Authenticates to your Icypeas account",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1560,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const BASE_URL = \"https://app.icypeas.com\";\nconst PATH = \"/api/domain-search\";\nconst METHOD = \"POST\";\n\n// Change here\nconst API_KEY = \"PUT_API_KEY_HERE\";\nconst API_SECRET = \"PUT_API_SECRET_HERE\";\nconst USER_ID = \"PUT_USER_ID_HERE\";\n////////////////\n\nconst genSignature = (\n    path,\n    method,\n    secret,\n    timestamp = new Date().toISOString()\n) => {\n    const Crypto = require('crypto');\n    const payload = `${method}${path}${timestamp}`.toLowerCase();\n    const sign = Crypto.createHmac(\"sha1\", secret).update(payload).digest(\"hex\");\n\n    return sign;\n};\n\nconst fullPath = `${BASE_URL}${PATH}`;\n$input.first().json.api = {\n  timestamp: new Date().toISOString(),\n  secret: API_SECRET,\n  key: API_KEY,\n  userId: USER_ID,\n  url: fullPath,\n};\n$input.first().json.api.signature = genSignature(PATH, METHOD, API_SECRET, $input.first().json.api.timestamp);\nreturn $input.first();"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f62f87f-7a25-4030-bcd4-d87b24269504",
+      "name": "Run email search (single)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1940,
+        480
+      ],
+      "parameters": {
+        "url": "={{ $json.api.url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "lastname",
+              "value": "=Landoin"
+            },
+            {
+              "name": "firstname",
+              "value": "Pierre"
+            },
+            {
+              "name": "domainOrCompany",
+              "value": "icypeas"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ROCK-TIMESTAMP",
+              "value": "={{ $json.api.timestamp }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KGXtUrqC6lNLwW2w",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "34ee6b2d-673e-4d5d-a0b2-7c7a4af14d3c",
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Authenticates to your Icypeas account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticates to your Icypeas account": {
+      "main": [
+        [
+          {
+            "node": "Run email search (single)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "id": "pmJUJj7FAnrOS6Jc",
+  "meta": {
+    "instanceId": "f0243439e79874c29f002782f736673d3388e5328a2ff2db7dd45820643256f5"
+  },
+  "name": "Send Slack message from Webflow form submission",
+  "tags": [
+    {
+      "id": "7cKuF8oYmXKMRDsD",
+      "name": "webflow",
+      "createdAt": "2024-01-09T02:22:11.773Z",
+      "updatedAt": "2024-01-09T02:22:11.773Z"
+    },
+    {
+      "id": "hG7SoDK2ctruSDeL",
+      "name": "slack",
+      "createdAt": "2024-01-09T02:22:16.208Z",
+      "updatedAt": "2024-01-09T02:22:16.208Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "5211fb49-254f-407a-9e23-9d4e1511e127",
+      "name": "Does the channel exist?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1420,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b8fa7e94-ea10-40f0-ab0c-795620a5ee60",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.channel }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cf897863-3a2f-4cce-8664-d1a4f43a1b3b",
+      "name": "Send slack message to channel",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2360,
+        340
+      ],
+      "parameters": {
+        "text": "=test",
+        "select": "channel",
+        "blocksUi": "={{ JSON.stringify($json.slackMessageBlock) }}",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.channel.id }}"
+        },
+        "messageType": "block",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "st2Kcl1VITD4lWCE",
+          "name": "Slack Bot OAuth Token"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7c149cc3-cf17-4ca5-addc-2403c1009162",
+      "name": "Create Slack channel with form name",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1660,
+        540
+      ],
+      "parameters": {
+        "resource": "channel",
+        "channelId": "={{ $json.formName }}"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "st2Kcl1VITD4lWCE",
+          "name": "Slack Bot OAuth Token"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "eb2e83ce-cd53-4f01-8ed3-3b99d0aef3ee",
+      "name": "Transform data to send message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1880,
+        540
+      ],
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "formData",
+              "type": "objectValue",
+              "objectValue": "={{ $('Check if Webflow form has an existing channel').item.json.formData }}"
+            },
+            {
+              "name": "formName",
+              "stringValue": "={{ $('Check if Webflow form has an existing channel').item.json.formName }}"
+            },
+            {
+              "name": "channel",
+              "type": "objectValue",
+              "objectValue": "={\"id\":\"{{ $json.id }}\", \"name\": \"{{ $json.name }}\" }"
+            }
+          ]
+        },
+        "include": "none",
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "5b6a7b44-e33b-4e2f-8a7e-c3d4439bbf03",
+      "name": "Notify #general channel of newly created channel",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1880,
+        740
+      ],
+      "parameters": {
+        "text": "=A new channel was automatically created ",
+        "select": "channel",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"👋 a new channel was created automatically #{{ $json[\"name\"] }}\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"context\",\n\t\t\t\"elements\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"text\": \"sent by n8n bot\",\n\t\t\t\t\t\"emoji\": true\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C021Q05RF44",
+          "cachedResultName": "general"
+        },
+        "messageType": "block",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "st2Kcl1VITD4lWCE",
+          "name": "Slack Bot OAuth Token"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ffcd8ee3-a787-4bfe-867b-bc52a0572705",
+      "name": "Webflow Form Submission Trigger",
+      "type": "n8n-nodes-base.webflowTrigger",
+      "position": [
+        820,
+        360
+      ],
+      "webhookId": "0d173666-a9f4-4e8d-a07d-cf95d287477b",
+      "parameters": {
+        "site": "60e6f0f07c46af62aa2b1c98"
+      },
+      "credentials": {
+        "webflowApi": {
+          "id": "4EXZM1IWgHzU5zfE",
+          "name": "Webflow Tutum"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6e7ca24-9758-4f63-ad2d-311a793dbceb",
+      "name": "Compose Slack message",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2140,
+        340
+      ],
+      "parameters": {
+        "jsCode": "const webflowFormData = $input.all()[0].json.formData;\n\nconst objectToMarkdown = (obj) => {\n  return Object.entries(obj)\n    .map(([key, value]) => `*${key}*: ${value}`)\n    .join('\\n');\n}\n\nconst slackMessageBlock = {\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": `New form submission: \\n ${objectToMarkdown(webflowFormData)}`\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t}\n\t]\n};\nconst data = {...$input.all()[0].json, slackMessageBlock: slackMessageBlock};\nreturn data;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "50452ad0-2dfb-47fb-9673-916f608175b5",
+      "name": "List Slack Channels",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1020,
+        360
+      ],
+      "parameters": {
+        "filters": {
+          "excludeArchived": true
+        },
+        "resource": "channel",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "st2Kcl1VITD4lWCE",
+          "name": "Slack Bot OAuth Token"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "f04b1e79-5a1d-43b2-b29e-952791816224",
+      "name": "Check if Webflow form has an existing channel",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1220,
+        360
+      ],
+      "parameters": {
+        "jsCode": "\nconst transformedFormName = (inputString)=> {\n    // Convert to lowercase\n  const lowercaseString = inputString.toLowerCase();\n\n  // Split by space\n  const wordsArray = lowercaseString.split(' ');\n\n  // Join with hyphens\n  const resultString = wordsArray.join('-');\n\n  return resultString;\n}\n\nconst currentForm = transformedFormName($('Webflow Form Submission Trigger').all()[0].json[\"name\"]);\n\nconst doesChannelExist = (channelName)=> {\n  return channelName == currentForm\n}\n\nlet channels = [];\nfor (const item of $input.all()) {\n  let channel = {\n    name: item.json[\"name\"],\n    id: item.json[\"id\"],\n    channelExists: doesChannelExist(item.json[\"name\"]),\n  };\n  channels.push(channel);\n}\n\nlet data = [ { \n  channel: channels.filter((c)=>{return c.channelExists === true})[0],\n  formName: currentForm,\n  formData: $('Webflow Form Submission Trigger').all()[0].json[\"data\"]\n}\n  \n]\n\nreturn data;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d0c42e95-f0c3-4667-b8eb-8ddcd552100f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        40,
+        100
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 624.279069767441,
+        "height": 535.976744186046,
+        "content": "# Webflow 폼 제출을 Slack에서 관리하기  \n## 전체 가이드 비디오 포함  \n[전체 가이드 비디오 여기](https://blog.kreonovo.co.za/send-webflow-form-submissions-to-slack-automatically/)  \n\n이 워크플로는 Webflow 폼에 대해 동적으로 Slack 채널을 생성한 다음 해당 채널로 폼 제출을 보냅니다. Webflow 폼 이름이 채널 이름을 만드는 데 사용됩니다.  \n\n## 시작하기  \n1. Webflow 자격 증명을 API V1 토큰을 사용하여 생성하세요.  \n2. Slack 자격 증명을 생성하세요: 앱을 만들고 Bot User OAuth 토큰을 사용하세요 [Your Slack apps](https://api.slack.com/apps). 필요한 스코프 목록의 자세한 내용은 가이드에 링크된 비디오를 보세요. n8n은 자격 증명을 생성할 때 스코프 목록을 제공합니다.  \n3. 자격 증명을 캔버스에서 관련 노드에 연결하세요.  \n4. 워크플로를 활성화하고 Webflow 사이트에서 폼을 제출하세요.  \n\n그게 다예요! Webflow 폼이나 사이트에 사용자 정의 코드를 추가할 필요가 없습니다.  \n\nWebflow Designer의 폼 설정 섹션에서 폼 이름이 Slack 채널을 생성하는 데 사용됩니다. 이 워크플로는 자동으로 이를 처리합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1dc2873-9235-4f54-89b7-560d7fc63541",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        140
+      ],
+      "parameters": {
+        "width": 224.58139534883728,
+        "height": 379.4186046511628,
+        "content": "이 노드는 [Block Kit Builder](https://app.slack.com/block-kit-builder/T0227K0J1FS#%7B%22blocks%22:%5B%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22Hello,%20Assistant%20to%20the%20Regional%20Manager%20Dwight!%20*Michael%20Scott*%20wants%20to%20know%20where%20you'd%20like%20to%20take%20the%20Paper%20Company%20investors%20to%20dinner%20tonight.%5Cn%5Cn%20*Please%20select%20a%20restaurant:*%22%7D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Farmhouse%20Thai%20Cuisine*%5Cn:star::star::star::star:%201528%20reviews%5Cn%20They%20do%20have%20some%20vegan%20options,%20like%20the%20roti%20and%20curry,%20plus%20they%20have%20a%20ton%20of%20salad%20stuff%20and%20noodles%20can%20be%20ordered%20without%20meat!!%20They%20have%20something%20for%20everyone%20here%22%7D,%22accessory%22:%7B%22type%22:%22image%22,%22image_url%22:%22https://s3-media3.fl.yelpcdn.com/bphoto/c7ed05m9lC2EmA3Aruue7A/o.jpg%22,%22alt_text%22:%22alt%20text%20for%20image%22%7D%7D,%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Kin%20Khao*%5Cn:star::star::star::star:%201638%20reviews%5Cn%20The%20sticky%20rice%20also%20goes%20wonderfully%20with%20the%20caramelized%20pork%20belly,%20which%20is%20absolutely%20melt-in-your-mouth%20and%20so%20soft.%22%7D,%22accessory%22:%7B%22type%22:%22image%22,%22image_url%22:%22https://s3-media2.fl.yelpcdn.com/bphoto/korel-1YjNtFtJlMTaC26A/o.jpg%22,%22alt_text%22:%22alt%20text%20for%20image%22%7D%7D,%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Ler%20Ros*%5Cn:star::star::star::star:%202082%20reviews%5Cn%20I%20would%20really%20recommend%20the%20%20Yum%20Koh%20Moo%20Yang%20-%20Spicy%20lime%20dressing%20and%20roasted%20quick%20marinated%20pork%20shoulder,%20basil%20leaves,%20chili%20&%20rice%20powder.%22%7D,%22accessory%22:%7B%22type%22:%22image%22,%22image_url%22:%22https://s3-media2.fl.yelpcdn.com/bphoto/DawwNigKJ2ckPeDeDM7jAg/o.jpg%22,%22alt_text%22:%22alt%20text%20for%20image%22%7D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22actions%22,%22elements%22:%5B%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Farmhouse%22,%22emoji%22:true%7D,%22value%22:%22click_me_123%22%7D,%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Kin%20Khao%22,%22emoji%22:true%7D,%22value%22:%22click_me_123%22,%22url%22:%22https://google.com%22%7D,%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Ler%20Ros%22,%22emoji%22:true%7D,%22value%22:%22click_me_123%22,%22url%22:%22https://google.com%22%7D%5D%7D%5D%7D)를 사용하여 Slack에서 메시지를 형식화합니다. 빌더를 사용하여 다양한 리치 메시지 블록을 구성할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "656a7d50-9c11-4337-b917-043faf39956e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        760
+      ],
+      "parameters": {
+        "width": 323.0232558139535,
+        "height": 304.69767441860455,
+        "content": "False branch  \nWebflow의 폼 이름을 사용하여 새로운 Slack 채널을 생성합니다. 채널 이름은 소문자로 변환되고 단어는 대시로 구분되어야 합니다.  \n\n새로운 채널이 생성되면 #general 채널에 새로운 채널로의 직접 링크가 포함된 메시지를 보냅니다.  \n\n마지막으로 Webflow 폼 제출을 새로운 채널에 메시지로 보냅니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "972e7dae-7f75-428f-a5d6-35041ef12865",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        120
+      ],
+      "parameters": {
+        "width": 498.5581395348835,
+        "height": 190.8372093023257,
+        "content": "### 폼 이름 기반으로 일치하는 Slack 채널 찾기 논리\n\nWebflow 폼 제출은 당신의 웹사이트에 있는 어떤 폼에 대해서든 트리거될 것입니다. Webflow에서 폼 ID를 지속적으로 유지하기 위해 Slack을 사용할 수 없지만, 적어도 Slack 채널은 고유한 이름만 가질 수 있습니다. Webflow에서 폼은 다른 페이지에서 같은 이름을 가질 수 있지만, Webflow가 그들에게 고유한 ID를 할당하기 때문에 데이터가 충돌하지 않을 것입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2dcc28a0-f3eb-4449-a698-a5189c9fd5fb",
+  "connections": {
+    "List Slack Channels": {
+      "main": [
+        [
+          {
+            "node": "Check if Webflow form has an existing channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Slack message": {
+      "main": [
+        [
+          {
+            "node": "Send slack message to channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Does the channel exist?": {
+      "main": [
+        [
+          {
+            "node": "Compose Slack message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Slack channel with form name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform data to send message": {
+      "main": [
+        [
+          {
+            "node": "Compose Slack message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webflow Form Submission Trigger": {
+      "main": [
+        [
+          {
+            "node": "List Slack Channels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Slack channel with form name": {
+      "main": [
+        [
+          {
+            "node": "Transform data to send message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify #general channel of newly created channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Webflow form has an existing channel": {
+      "main": [
+        [
+          {
+            "node": "Does the channel exist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

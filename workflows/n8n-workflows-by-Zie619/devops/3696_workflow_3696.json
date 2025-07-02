@@ -1,0 +1,301 @@
+{
+  "meta": {
+    "instanceId": "96b96d0aa1e4ff5d5b6779332b149e3ef3364191562d79083d0309cf3ddfa53e"
+  },
+  "nodes": [
+    {
+      "id": "0e78a29e-87ba-4665-84c1-a413c45e25dc",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -420,
+        -40
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "fe7b054a-e0c9-4642-a97f-6bec60a1ec55",
+      "name": "Edit Image (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        500,
+        -40
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/images/edits",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "prompt",
+              "value": "add a mask with horns"
+            },
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "n",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            },
+            {
+              "name": "quality",
+              "value": "high"
+            }
+          ]
+        },
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "JyI0PkPec1FrpMkt",
+          "name": "OpenAi AIFB account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1e1df05c-d8f9-4033-87ee-70be344ab961",
+      "name": "Create image call",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -120,
+        -40
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/images/generations",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "prompt",
+              "value": "A cute red panda like dark super hero"
+            },
+            {
+              "name": "n",
+              "value": "={{Number(1)}}"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            },
+            {
+              "name": "moderation",
+              "value": "low"
+            },
+            {
+              "name": "background",
+              "value": "auto"
+            }
+          ]
+        },
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "JyI0PkPec1FrpMkt",
+          "name": "OpenAi AIFB account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4c44da91-0d12-4e7f-bc89-5accddd837d7",
+      "name": "Convert json binary to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        200,
+        -40
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "name_example",
+          "mimeType": "image/png"
+        },
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3b8936b7-f0a2-4776-b10a-f06ceb9af31d",
+      "name": "Convert json binary to File final",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        820,
+        -40
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "",
+          "mimeType": "image/png"
+        },
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3d3238d5-6040-4b74-8e6a-9e1e64198099",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -200
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "### 🧪 수동 트리거\n작업 흐름을 수동으로 시작합니다. 테스트와 디버깅 목적으로 이상적입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c3378100-f688-4199-a038-83b9220afa91",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        -320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 280,
+        "height": 440,
+        "content": "### 🎨 이미지 생성 (OpenAI)  \nOpenAI의 /v1/images/generations 엔드포인트로 POST 요청을 보냅니다.  \n\n- gpt-image-1 모델을 사용합니다  \n- 주어진 프롬프트에서 이미지를 생성합니다  \n- base64로 인코딩된 이미지 (`b64_json`)을 반환합니다  \n\n📌 출력: `data[0].b64_json`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82a880de-74de-44e5-8448-f487c9376d0e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        -200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 280,
+        "height": 320,
+        "content": "### 🧾 Base64를 파일로 변환\n`b64_json` 필드를 이진 PNG 파일로 변환하여 다음 단계에서 사용합니다.\n\n📤 출력: `data` 필드에 있는 이진 이미지"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42ccb29f-b820-4791-9683-4eb0f00ff2d3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 280,
+        "height": 440,
+        "content": "### ✏️ 이미지 편집 (OpenAI)  \n이진 이미지를 OpenAI의 `/v1/images/edits` 엔드포인트에 설명적인 프롬프트와 함께 보냅니다.  \n\n- 모델: `gpt-image-1`  \n- 형식: `multipart/form-data`  \n- 실제 파일이 필요합니다 (base64가 아님)  \n- 선택적 `mask` 입력을 지원합니다  \n\n📥 입력: `data`에서 이진 이미지  \n📤 출력: `b64_json`에서 편집된 이미지"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c8846ab-b3f2-4c7c-9283-5a40a55b816d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        -240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 280,
+        "height": 360,
+        "content": "### 🧾 최종 변환 (base64 → 파일)\n편집된 이미지 (`b64_json`)를 다운로드하거나 미리 볼 수 있는 PNG 파일로 변환합니다.\n\n📤 출력: 최종 이진 이미지"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b2533f8-b7aa-4499-970e-9b0546b73c0e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 700,
+        "height": 980,
+        "content": "## 🧠 이미지 AI 워크플로 개요\n\n이 워크플로는 `gpt-image-1` 모델과 함께 OpenAI의 이미지 생성 및 편집 API를 사용합니다.\n\n### 🔑 요구 사항:\n- 자신의 OpenAI API 키를 https://platform.openai.com/account/api-keys에서 **사용해야 합니다**.\n- n8n에서 `OpenAi AIFB account`라는 이름의 자격 증명을 생성하세요 (또는 자신의 이름을 사용하세요).\n\n---\n\n### 💰 비용 경고:\n- 이 모델은 **강력하지만 비용이 많이 듭니다**.\n- 각 이미지 생성 비용은 해상도와 유형에 따라 **$0.020에서 $0.190**입니다.\n- 항상 [OpenAI 대시보드](https://platform.openai.com/account/usage)를 통해 사용량을 모니터링하세요.\n\n---\n\n### 🔍 `gpt-image-1`을 사용하는 이유:\n- 뛰어난 **의미적 제어**: 세부적인 프롬프트로 이미지의 특정 부분을 편집할 수 있습니다.\n- **다중 입력 이미지** 지원, 일관된 편집, 그리고 미래의 다중 모달 작업.\n- 투명도 `마스크` 유무에 관계없이 편집이 가능합니다.\n\n---\n\n### 🔧 워크플로 확장 추천 노드:\n- **웹훅** (프론트엔드나 앱을 통해 트리거)\n- **Telegram / Slack** (채팅에서 이미지 생성 프롬프트)\n- **Set 노드** (동적 프롬프트나 사용자 컨텍스트 주입)\n- **IF / Switch** (프롬프트 유형에 따라 동작 변경)\n- **Merge** (다중 이미지 생성 결합)\n- **HTTP Request** (생성된 이미지를 외부 API나 CMS로 전송)\n\n---\n\n### 💡 예시 사용 사례:\n- 마케팅 팀: 필요 시 제품 시각 자료 생성\n- 디자이너: Photoshop 없이 일러스트레이션 편집 및 스타일 재설정\n- E-커머스: 테마별 모형 동적 생성\n- 콘텐츠 크리에이터: 대량 블로그 및 소셜 썸네일 생성\n\n---\n\n> ⚠️ 대량 생성 시 레이트 리미팅이나 배치 제어를 추가하는 것을 잊지 마세요!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create image call": {
+      "main": [
+        [
+          {
+            "node": "Convert json binary to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Convert json binary to File final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert json binary to File": {
+      "main": [
+        [
+          {
+            "node": "Edit Image (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Create image call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

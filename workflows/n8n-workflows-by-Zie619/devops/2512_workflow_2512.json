@@ -1,0 +1,675 @@
+{
+  "meta": {
+    "instanceId": "03e9d14e9196363fe7191ce21dc0bb17387a6e755dcc9acc4f5904752919dca8"
+  },
+  "nodes": [
+    {
+      "id": "1de0b08b-585a-43a9-bf32-34cdd763fbb0",
+      "name": "Global Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1180,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a8a0cbf-bf3e-4702-956e-a35966d8b9c5",
+              "name": "base_url",
+              "type": "string",
+              "value": "https://qualysapi.qg3.apps.qualys.com"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "cc10e116-1a16-4bd9-bdbb-27baa680dc91",
+      "name": "Fetch Report IDs",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1400,
+        500
+      ],
+      "parameters": {
+        "": "",
+        "url": "={{ $json.base_url }}/msp/report_template_list.php",
+        "method": "GET",
+        "options": {},
+        "sendBody": false,
+        "sendQuery": false,
+        "curlImport": "",
+        "infoMessage": "",
+        "sendHeaders": false,
+        "authentication": "predefinedCredentialType",
+        "httpVariantWarning": "",
+        "nodeCredentialType": "qualysApi",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "qualysApi": {
+          "id": "KdkmNjVYkDUzHAvw",
+          "name": "Qualys account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "qualysApi"
+    },
+    {
+      "id": "69e097c2-ba05-4964-af82-ce07fb2a6535",
+      "name": "Convert XML To JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        1580,
+        500
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2a2001a-4df8-4482-9ecf-62a7aed90a9c",
+      "name": "Launch Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1760,
+        500
+      ],
+      "parameters": {
+        "": "",
+        "url": "={{ $('Global Variables').item.json[\"base_url\"] }}/api/2.0/fo/report/",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendQuery": true,
+        "curlImport": "",
+        "contentType": "multipart-form-data",
+        "infoMessage": "",
+        "sendHeaders": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "template_id",
+              "value": "={{ $jmespath($json[\"REPORT_TEMPLATE_LIST\"][\"REPORT_TEMPLATE\"], \"[?TITLE == '\"+$('Global Variables').item.json.template_name+\"'].ID\") | [0] }}",
+              "parameterType": "formData"
+            },
+            {
+              "name": "=output_format",
+              "value": "={{ $('Global Variables').item.json.output_format }}",
+              "parameterType": "formData"
+            },
+            {
+              "name": "report_title",
+              "value": "={{ $('Global Variables').item.json.report_title }}",
+              "parameterType": "formData"
+            }
+          ]
+        },
+        "specifyHeaders": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "launch"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Requested-With",
+              "value": "n8n"
+            }
+          ]
+        },
+        "httpVariantWarning": "",
+        "nodeCredentialType": "qualysApi",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "qualysApi": {
+          "id": "KdkmNjVYkDUzHAvw",
+          "name": "Qualys account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "qualysApi"
+    },
+    {
+      "id": "3f525e48-2866-42ba-a09d-05b8f5aa092d",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2200,
+        480
+      ],
+      "parameters": {
+        "options": {
+          "reset": true
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "e202aab9-f9fe-4f6e-ac50-4d4b3b30c1f4",
+      "name": "Wait 1 Minute",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2400,
+        500
+      ],
+      "webhookId": "b99241f2-8b9b-4699-a006-9a3e8457c42c",
+      "parameters": {
+        "unit": "minutes",
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "eb8db4f0-eacb-4d3d-ae8c-77c096bbb289",
+      "name": "Check Status of Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2560,
+        500
+      ],
+      "parameters": {
+        "": "",
+        "url": "={{ $('Global Variables').item.json.base_url }}/api/2.0/fo/report",
+        "method": "GET",
+        "options": {},
+        "sendBody": false,
+        "sendQuery": true,
+        "curlImport": "",
+        "infoMessage": "",
+        "sendHeaders": false,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "list"
+            },
+            {
+              "name": "id",
+              "value": "={{ $('Convert Report Launch XML to JSON').item.json[\"SIMPLE_RETURN\"][\"RESPONSE\"][\"ITEM_LIST\"][\"ITEM\"][\"VALUE\"] }}"
+            }
+          ]
+        },
+        "httpVariantWarning": "",
+        "nodeCredentialType": "qualysApi",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "qualysApi": {
+          "id": "KdkmNjVYkDUzHAvw",
+          "name": "Qualys account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "qualysApi"
+    },
+    {
+      "id": "7cfcaa0c-7b0e-4704-8268-d5869677a58e",
+      "name": "Is Report Finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2900,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "97935da6-84fa-4756-83e1-4fbf5861baec",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.REPORT_LIST_OUTPUT.RESPONSE.REPORT_LIST.REPORT.STATUS.STATE }}",
+              "rightValue": "Finished"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b1a1f2bf-ddb1-4343-be2e-929128ed502c",
+      "name": "Download Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3080,
+        500
+      ],
+      "parameters": {
+        "": "",
+        "url": "={{ $('Global Variables').item.json.base_url }}/api/2.0/fo/report/",
+        "method": "GET",
+        "options": {},
+        "sendBody": false,
+        "sendQuery": true,
+        "curlImport": "",
+        "infoMessage": "",
+        "sendHeaders": false,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "fetch"
+            },
+            {
+              "name": "id",
+              "value": "={{ $('Convert Report Launch XML to JSON').item.json.SIMPLE_RETURN.RESPONSE.ITEM_LIST.ITEM.VALUE }}"
+            }
+          ]
+        },
+        "httpVariantWarning": "",
+        "nodeCredentialType": "qualysApi",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "qualysApi": {
+          "id": "KdkmNjVYkDUzHAvw",
+          "name": "Qualys account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "qualysApi"
+    },
+    {
+      "id": "aa1bb6b0-12db-4624-a682-d719e7463bdb",
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3400,
+        540
+      ],
+      "parameters": {
+        "options": {
+          "channelId": "=C05LAN72WJK",
+          "initialComment": "=📊 *Test Report* (Scan) by `aztec3am1` is ready!\n\n- *ID:* {{ $('Download Report').item.json[\"REPORT_LIST_OUTPUT\"][\"RESPONSE\"][\"REPORT_LIST\"][\"REPORT\"][\"ID\"] }}\n- *Launch Time:* {{ $('Download Report').item.json[\"REPORT_LIST_OUTPUT\"][\"RESPONSE\"][\"REPORT_LIST\"][\"REPORT\"][\"LAUNCH_DATETIME\"] }}\n- *Output Format:* {{ $('Download Report').item.json[\"REPORT_LIST_OUTPUT\"][\"RESPONSE\"][\"REPORT_LIST\"][\"REPORT\"][\"OUTPUT_FORMAT\"] }}\n- *Size:* {{ $('Download Report').item.binary.data.fileSize }}\n- *Status:* ✅ Finished\n- *Expiration Time:* {{ $('Download Report').item.json[\"REPORT_LIST_OUTPUT\"][\"RESPONSE\"][\"REPORT_LIST\"][\"REPORT\"][\"EXPIRATION_DATETIME\"] }}\n"
+        },
+        "resource": "file"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "hOkN2lZmH8XimxKh",
+          "name": "TheHive Slack App"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3ab2cc79-9634-4a8a-ac72-c8e32370572a",
+      "name": "Convert Report Launch XML to JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        1980,
+        500
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c24e8997-8594-4abc-8313-0198abfc7f5d",
+      "name": "Convert Report List to JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        2740,
+        500
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "33fa7420-b65f-4af1-8dad-19840b43e8cc",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        860,
+        500
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2c8b286a-0e00-49e1-81c2-e94ef5b7725e",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820.9673276258711,
+        38.56257011400896
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 489.3146851921929,
+        "height": 655.6477214487218,
+        "content": "![슬랙](https://uploads.n8n.io/templates/slack.png)  \n## Slack 부모 워크플로우에서 트리거됨  \n\n이 섹션은 부모 n8n 워크플로우인 `Qualys Slack Shortcut Bot`에 의해 트리거됩니다. 사용자가 슬랙 모달 팝업에 데이터를 입력하고 제출 버튼을 누를 때 트리거됩니다.  \n\n이러한 모달은 다양한 작업을 수행하도록 커스터마이즈할 수 있으며, 모바일 친화적으로 설계되어 유연성과 사용 편의성을 보장합니다.  \n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "96cd5a16-f12d-4373-be7b-9ebe1549ccb8",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 816.4288734746297,
+        "height": 662.0100319801938,
+        "content": "![Qualys](https://uploads.n8n.io/templates/qualys.png)  \n## 보고서 ID가 검색되고 Qualys에서 스캔 보고서가 요청됩니다  \n이 섹션에서 프로세스는 \"Fetch Report IDs\" 노드에서 시작하며, 이 노드는 사용 가능한 보고서 템플릿 목록을 검색하기 위해 HTTP GET 요청을 수행합니다.  \n\n이 요청은 미리 정의된 API 자격 증명을 사용하며, 출력은 XML 형식으로, \"Convert XML to JSON\" 노드에 의해 JSON으로 변환되어 더 쉽게 조작할 수 있습니다. 그 다음, \"Launch Report\" 노드는 Qualys에 HTTP POST 요청을 보내서 템플릿 ID, 출력 형식, 보고서 제목과 같은 매개변수를 기반으로 보고서 생성을 시작합니다. 이 매개변수는 글로벌 변수에서 동적으로 가져옵니다.  \n\n이 노드에는 쿼리 매개변수 및 헤더와 같은 추가 구성을 포함하여 요청을 맞춤화합니다. 마지막으로, \"Convert Report Launch XML to JSON\" 노드는 보고서 시작의 XML 응답을 처리하여 JSON 형식으로 변환합니다. 이 순서는 Qualys 내에서 보고서 생성 작업을 간소화하고 자동화하여 효율적인 데이터 처리와 워크플로 내 통합을 촉진합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec51d524-4cef-4d78-a5d0-38dbe6c53825",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2140,
+        33.01345938069812
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 391.7799748314626,
+        "height": 664.948136798539,
+        "content": "![n8n](https://uploads.n8n.io/templates/n8n.png)\n\n## n8n 루프 노드\n\n이 노드는 보고서 상태를 정기적인 간격(매 분)으로 조회하여 보고서가 완료로 표시될 때까지 반복합니다. 보고서가 완료되면 루프가 종료되고, 결과가 PDF 첨부 파일로 Slack에 게시되어 팀이 즉시 통보됩니다. \n\nSOC의 경우, 지속적인 모니터링은 시의적절한 업데이트를 보장하며, 대기 기간의 자동화는 분석가의 시간을 다른 작업에 사용할 수 있게 합니다. Slack에 대한 즉시 알림은 완료된 보고서에 대한 빠른 조치를 가능하게 하여 전체 효율성을 향상시킵니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "894b9ea3-ab3b-4459-8576-49fd107d4c7f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2540,
+        36.092592419318635
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 670.8185951020379,
+        "height": 655.5577875573053,
+        "content": "![Qualys](https://uploads.n8n.io/templates/qualys.png)  \n## Qualys API에서 보고서 상태 확인  \n\n이 노드는 Qualys API에서 보고서의 상태를 확인합니다. 보고서가 완전한지 확인하기 위해 XML 응답을 파싱한 후, 보고서 세부 정보를 Slack에 제출합니다.  \n\n이 단계는 자동화되고 효율적인 워크플로를 유지하는 데 중요합니다. SOC의 경우, 자동화된 모니터링은 수동 확인의 필요성을 줄여주며, 완성된 보고서만 추가 처리되도록 하여 데이터 무결성을 유지합니다.  \n\n또한, Slack과 통합하여 보고서 상태를 원활하게 전달하여 운영을 간소화합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "24a96b8a-1ed9-42ee-802b-952000f3cfab",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3220,
+        40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 473.6487484083029,
+        "height": 650.1491670103001,
+        "content": "![Slack](https://uploads.n8n.io/templates/slack.png)  \n## 보고서를 Slack에 업로드\n\n이 노드는 생성된 보고서를 지정된 Slack 채널에 업로드하는 프로세스를 자동화합니다. \n\n보고서가 PDF 또는 HTML 형식에 상관없이 팀이 쉽게 접근할 수 있도록 하여, 커뮤니케이션을 간소화하고 협력을 강화합니다. \n\n보안 운영 센터(SOC)의 경우, 이 기능은 접근성을 크게 향상시키며, 팀 구성원이 Slack에서 직접 최신 보고서를 빠르게 확인할 수 있습니다. \n\n또한 보고서를 공통 커뮤니케이션 플랫폼에서 공유하여 협력을 강화하고, 실시간 업데이트를 제공하여 적시 검토와 조치를 가능하게 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c179e45b-37a8-423f-a542-74e6166b09f0",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        80
+      ],
+      "parameters": {
+        "width": 646.7396383244529,
+        "height": 1327.6335333503064,
+        "content": "![n8n](https://uploads.n8n.io/templates/n8n.png)  \n# Qualys 스캔 Slack 보고서 서브워크플로우 생성\n\n## Qualys 보고서 생성 워크플로우 소개—Qualys API에서 보안 보고서를 생성하고 검색하는 것을 자동화하는 강력한 솔루션입니다.\n\n이 워크플로우는 `Qualys Slack Shortcut Bot` 워크플로우의 서브 워크플로우입니다. 이는 `Qualys Slack Shortcut Bot`에 의해 생성된 Slack 모달 팝업을 누군가가 채우면 트리거됩니다.\n\n이 워크플로우를 배포할 때, Execute Workflow Trigger를 통해 입력되는 데이터를 시뮬레이션하기 위해 Demo Data 노드를 사용하세요. 그 데이터는 Global Variables Node로 흐르고, 워크플로우의 나머지 부분에서 참조됩니다.\n\n이 워크플로우에는 보고서 ID를 가져오는 노드, 보고서를 시작하는 노드, 보고서 상태를 주기적으로 확인하는 노드, 완료된 보고서를 다운로드하는 노드, 그리고 이를 Slack에 게시하여 쉽게 접근할 수 있도록 하는 노드가 포함되어 있습니다.\n\n보안 운영 센터(SOCs)에서 이 워크플로우는 지루한 작업을 자동화하여, 적시 업데이트를 보장하고, 효율적인 데이터 처리를 촉진하여 상당한 이점을 제공합니다.\n\n**작동 원리:**\n\n- **보고서 템플릿 가져오기:** \"Fetch Report IDs\" 노드는 Qualys에서 사용 가능한 보고서 템플릿 목록을 가져옵니다. 이 자동화된 검색은 시간을 절약하고 최신 템플릿을 사용하도록 하여 보고서의 정확성과 관련성을 높입니다.\n  \n- **XML을 JSON으로 변환:** 응답을 JSON 형식으로 변환하여 조작을 쉽게 합니다. 이 단계는 데이터 처리를 간소화하여 SOC 분석가들이 데이터를 쉽게 작업하고 다른 도구나 프로세스에 통합할 수 있도록 합니다.\n  \n- **보고서 시작:** 템플릿 ID와 보고서 제목과 같은 지정된 매개변수를 사용하여 Qualys에 POST 요청을 보내 보고서 생성을 시작합니다. 이 단계를 자동화하면 일관성을 유지하고 인간 오류의 가능성을 줄여 보고서의 신뢰성을 높입니다.\n  \n- **루프 및 상태 확인:** 워크플로우가 매 분마다 루프를 돌며 보고서 생성이 완료되었는지 확인합니다. 지속적인 모니터링은 대기 과정을 자동화하여 SOC 분석가들이 더 중요한 작업에 집중할 수 있게 하며, 보고서가 준비되면 즉시 알림을 받을 수 있도록 합니다.\n  \n- **보고서 다운로드:** 보고서가 준비되면 Qualys에서 다운로드합니다. 자동화된 다운로드는 수동 개입 없이 항상 최신 데이터를 사용할 수 있도록 하여 효율성을 높입니다.\n  \n- **Slack에 게시:** 최종 보고서를 지정된 Slack 채널에 게시하여 빠른 접근을 가능하게 합니다. Slack과의 이 통합은 팀이 보고서를 즉시 접근하고 검토할 수 있도록 하여 신속한 조치와 의사결정을 촉진합니다.\n\n**시작하기:**\n\n- [Slack](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.slack/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.slack)과 [Qualys](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-creds-base.qualysApi) 통합이 제대로 설정되었는지 확인하세요.\n- 워크플로우를 귀하의 특정 보고서 요구사항에 맞게 커스터마이즈하세요.\n\n**도움이 필요하신가요?**\n\n- 포럼에서 토론에 참여하거나 Discord에서 리소스를 확인하세요!\n\n이 워크플로우를 배포하여 보안 보고서 생성 프로세스를 간소화하고, 응답 시간을 개선하며, 보안 운영의 효율성을 높이세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32479679-791d-4c1d-b0c8-9102c3b879a5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1420,
+        700
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 532.5097590794944,
+        "height": 726.1144174692245,
+        "content": "이 워크플로우는 이 Slack 모달에 의해 트리거됩니다. 보고서 템플릿 드롭다운은 다른 서브 워크플로우에 의해 구동됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0340d311-8b41-4c3e-a023-9ea50301247c",
+      "name": "Demo Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1020,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47cd1502-3039-4661-a6b1-e20a74056550",
+              "name": "report_title",
+              "type": "string",
+              "value": "Test Report"
+            },
+            {
+              "id": "9a15f4db-f006-4ad8-a2c0-4002dd3e2655",
+              "name": "output_format",
+              "type": "string",
+              "value": "pdf"
+            },
+            {
+              "id": "13978e05-7e7f-42e9-8645-d28803db8cc9",
+              "name": "template_name",
+              "type": "string",
+              "value": "Technical Report"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "f007312a-ea15-4188-8461-2f69550d9214",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        700
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 596.6847639718076,
+        "height": 438.8903816479826,
+        "content": "🤖 이 워크플로를 트리거하는 것은 Slack에서 백슬래시를 입력하고 오른쪽 모달을 채우는 만큼 쉽습니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Demo Data": {
+      "main": [
+        [
+          {
+            "node": "Global Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Report": {
+      "main": [
+        [
+          {
+            "node": "Convert Report Launch XML to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Minute": {
+      "main": [
+        [
+          {
+            "node": "Check Status of Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Report": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Wait 1 Minute",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Report IDs": {
+      "main": [
+        [
+          {
+            "node": "Convert XML To JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Global Variables": {
+      "main": [
+        [
+          {
+            "node": "Fetch Report IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert XML To JSON": {
+      "main": [
+        [
+          {
+            "node": "Launch Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Report Finished?": {
+      "main": [
+        [
+          {
+            "node": "Download Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status of Report": {
+      "main": [
+        [
+          {
+            "node": "Convert Report List to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Demo Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Report List to JSON": {
+      "main": [
+        [
+          {
+            "node": "Is Report Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Report Launch XML to JSON": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

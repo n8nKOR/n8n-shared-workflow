@@ -1,0 +1,271 @@
+{
+  "meta": {
+    "instanceId": "97d44c78f314fab340d7a5edaf7e2c274a7fbb8a7cd138f53cc742341e706fe7",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "1ec0e1ad-0666-417b-b5af-b381b06e126f",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -120,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c34a92d3-b4bd-4c2f-9fa0-66832729a31c",
+      "name": "Upload photo",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        980,
+        180
+      ],
+      "parameters": {
+        "url": "=https://graph.microsoft.com/v1.0/sites/root/drive/root:{{ $json.TARGET_FOLDER }}/{{ $json.FILE_NAME }}:/content",
+        "method": "PUT",
+        "options": {},
+        "sendBody": true,
+        "contentType": "binaryData",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/octet-stream"
+            }
+          ]
+        },
+        "inputDataFieldName": "data"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "49ce594c-83c7-4b47-be03-6811ebdcc57b",
+      "name": "Set config (sensitive data)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        100,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "399d42f3-41e0-4043-9a57-85771bf5cd07",
+              "name": "TENANT_ID",
+              "type": "string",
+              "value": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+              "id": "dd63a519-3681-46c4-b122-ab379ed11c42",
+              "name": "CLIENT_ID",
+              "type": "string",
+              "value": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+              "id": "4d50c934-c306-4198-853a-68198b8b84eb",
+              "name": "CLIENT_SECRET",
+              "type": "string",
+              "value": "uU~8Q~THEQLIE2TX7UsecretT2g_JCADyxBxN0bx3"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "53b78aa9-d86f-461b-bff5-bd2a63a693b5",
+      "name": "Get photo (for testing purposes)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        540,
+        180
+      ],
+      "parameters": {
+        "url": "https://fastly.picsum.photos/id/459/200/300.jpg?hmac=4Cn5sZqOdpuzOwSTs65XA75xvN-quC4t9rfYYyoTCEI",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a551951c-f192-4b15-accb-ca936baef9a8",
+      "name": "Set destination",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        760,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f66b3f9-c161-45f4-bdc0-8cf736b53eda",
+              "name": "TARGET_FOLDER",
+              "type": "string",
+              "value": "/uploads/pictures from n8n"
+            },
+            {
+              "id": "e8584729-2746-48a0-ad80-d0308a49e195",
+              "name": "FILE_NAME",
+              "type": "string",
+              "value": "example.jpg"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "66129973-bf5f-4799-b676-2ee40fd2b519",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -220
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 200,
+        "content": "## 전제 조건\n1. [애플리케이션 사용자 만들기](https://learn.microsoft.com/en-us/power-platform/admin/manage-application-users)\n2. 다음 권한이 설정되었는지 확인하세요:\n   - Sites.ReadWrite.All - SharePoint 사이트 접근을 위해\n   - Files.ReadWrite.All - 파일 업로드 작업을 위해"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43bbf2cd-3ac5-4c46-b3c0-bd6158dbe25e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -280
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 340,
+        "content": "## 인증\n성공적인 인증을 위해 다음을 제공해야 합니다:\n\n- TENANT_ID\n- CLIENT_ID\n- CLIENT_SECRET\n---\n## 주의!\n데모 목적과 템플릿 제한으로 인해 이러한 값을 'Set' 노드에 저장하지만, 프로덕션 환경에서는 자격 증명, 보안 보관소 또는 기타 안전한 방법으로 이러한 데이터의 안전을 보장하십시오."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "daa3e6b9-a9ea-4bb4-8e2d-faa516c699ea",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -280
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 340,
+        "content": "## 목적지 설정\n\n이 단계에서 목적지를 설정하겠습니다.\n\n목적지는 두 개의 매개변수로 구성됩니다:\n\n- TARGET_FOLDER\n- FILE_NAME\n---\n\n### 예시\n\n이것이 우리의 원하는 파일 위치라고 가정해 보겠습니다:\n\n`https://contoso.sharepoint.com/uploads/pictures from n8n/example.jpg`\n\n따라서 다음과 같이 설정하겠습니다:\n\n- TARGET_FOLDER = `/uploads/pictures from n8n`\n- FILE_NAME = `example.jpg`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "52bd314b-6a5e-499a-904e-a7e9becbbd59",
+      "name": "Authentication",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Get an access token for graph API",
+      "position": [
+        320,
+        180
+      ],
+      "parameters": {
+        "url": "=https://login.microsoftonline.com/{{ $json.TENANT_ID }}/oauth2/token",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "client_id",
+              "value": "={{ $json.CLIENT_ID }}"
+            },
+            {
+              "name": "client_secret",
+              "value": "={{ $json.CLIENT_SECRET }}"
+            },
+            {
+              "name": "resource",
+              "value": "https://graph.microsoft.com"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Authentication": {
+      "main": [
+        [
+          {
+            "node": "Get photo (for testing purposes)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set destination": {
+      "main": [
+        [
+          {
+            "node": "Upload photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config (sensitive data)": {
+      "main": [
+        [
+          {
+            "node": "Authentication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get photo (for testing purposes)": {
+      "main": [
+        [
+          {
+            "node": "Set destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set config (sensitive data)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

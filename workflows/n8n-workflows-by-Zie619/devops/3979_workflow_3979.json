@@ -1,0 +1,2493 @@
+{
+  "meta": {
+    "instanceId": "3da9aa1165fccd6e57ad278dd59febaa1dfaafc31e0e52a95d11801200f09024",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "c983fae5-a779-4a56-ace0-304aaefe0433",
+      "name": "Append Material Request",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        6780,
+        3240
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Product ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity Requested",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Quantity Requested",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Measurement Unit",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Measurement Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requested By",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Requested By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Issue Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submission ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Submission ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approval Link",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Approval Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Request Date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Request Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 328307238,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=328307238",
+          "cachedResultName": "Materials Issued"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "25d745c1-8167-4c55-9f88-461f94843286",
+      "name": "Get Approvals",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        5900,
+        4060
+      ],
+      "webhookId": "33876465-33a7-4cc1-bbb5-bc8c630edd9f",
+      "parameters": {
+        "path": "/approve-issue",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4d96a9c-b70b-4e40-bf9d-5e8f9426ee22",
+      "name": "Standardize Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        6120,
+        3400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "77dc2acf-9657-4013-9675-99311d299abe",
+              "name": "Timestamp",
+              "type": "string",
+              "value": "={{ $json[\"Timestamp\"] || new Date().toISOString() }}"
+            },
+            {
+              "id": "a5706f57-d7ba-4ffa-a8c6-030bdb2e3d55",
+              "name": "Product ID",
+              "type": "string",
+              "value": "={{ $json.body['Product ID'] }}"
+            },
+            {
+              "id": "53e04ca2-88cb-49a6-b878-4d7abde8806d",
+              "name": "Quantity Requested",
+              "type": "number",
+              "value": "={{ $json.body['Quantity Requested'] }}"
+            },
+            {
+              "id": "9612c7a7-1f76-4168-9c89-d89421cc7c5a",
+              "name": "Requested By",
+              "type": "string",
+              "value": "={{ $json.body['Requested By'] }}"
+            },
+            {
+              "id": "4b0f98cc-3e9f-42a4-81e7-c4c8c0a904eb",
+              "name": "Description",
+              "type": "string",
+              "value": "={{ $json.body.Description }}"
+            },
+            {
+              "id": "a6a134ac-280c-4ef2-bbd6-e121376f9bbf",
+              "name": "Submission ID",
+              "type": "string",
+              "value": "={{ $json.body['Submission ID'] }}"
+            },
+            {
+              "id": "e3a62912-773f-43f2-bf35-5b5e757c345d",
+              "name": "Approval Link",
+              "type": "string",
+              "value": "=https://test.app.n8n.cloud/webhook/approve-issue?submissionId={{ $json.body['Submission ID'] }}\n\n"
+            },
+            {
+              "id": "22fb6d08-5f7e-42dc-a3ea-015f1f4f890c",
+              "name": "Status",
+              "type": "string",
+              "value": "Pending"
+            },
+            {
+              "id": "2c3340dc-b995-4342-9e51-fff09d3d4ca6",
+              "name": "Measurement Unit",
+              "type": "string",
+              "value": "={{ $json.body['Measurement Unit'] }}"
+            }
+          ]
+        },
+        "includeOtherFields": "="
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "47d2bb01-99e6-4ab1-b19d-bc9912243150",
+      "name": "Update Stock",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7440,
+        3860
+      ],
+      "parameters": {
+        "jsCode": "const currentStock = parseFloat($input.first().json['Current Stock']\n );\nconst approvedQuantity = parseFloat(\n $('Verify Approval Data').first().json['Approved Quantity']);\nconst newStock = currentStock - approvedQuantity;\n\nif (newStock < 0) throw new Error(`Insufficient stock for ${\n  $('Retrieve Issue Request Details').first().json['Product ID']}`);\n\nreturn {\n  json: {\n    ...$json,\n    \"Updated Current Stock\": newStock,\n\"Material Name\":$input.first().json['Material Name'],\"Measurement Unit\":$input.first().json['Measurement Unit'],\n\"Minimum Stock Level\": \n  $input.first().json['Minimum Stock Level'],\n  \"Issue Date\":\n    $('Retrieve Issue Request Details').first().json['Issue Date'],\n\"Product ID\": \n  $('Retrieve Issue Request Details').first().json['Product ID']\n \n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dcbb196f-1ecf-4137-af29-e511c4b7b9d9",
+      "name": "Receive Issue Request",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        5900,
+        3400
+      ],
+      "webhookId": "73d4bdfc-2d8b-42f4-85d5-43ecae0953c1",
+      "parameters": {
+        "path": "raw-materials-issue",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "430599b6-3758-4eb7-a924-8530a7c5dc7e",
+      "name": "Send Approval Request",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        7660,
+        3400
+      ],
+      "webhookId": "db24c5e3-8113-4d8a-b562-9c248f47fa3c",
+      "parameters": {
+        "sendTo": "example@gmail.com",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Material Issue Request Approval</title>\n  <style>\n    /* Reset and Base Styles */\n    body {\n      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n      line-height: 1.5;\n      color: #444;\n      background-color: #f0f4f8;\n      margin: 0;\n      padding: 0;\n    }\n    .container {\n      width: 90%;\n      max-width: 550px;\n      margin: 15px auto;\n      background-color: #ffffff;\n      border-radius: 8px;\n      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);\n      overflow: hidden;\n      border: 1px solid #e0e6ed;\n    }\n    /* Header with Gradient */\n    .header {\n      background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);\n      padding: 15px;\n      text-align: center;\n      border-top-left-radius: 8px;\n      border-top-right-radius: 8px;\n    }\n    h2 {\n      color: #ffffff;\n      font-size: 20px;\n      margin: 0;\n      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);\n    }\n    /* Content Area */\n    .content {\n      padding: 15px;\n    }\n    p {\n      margin: 5px 0;\n      font-size: 14px;\n    }\n    p.greeting {\n      font-size: 16px;\n      font-weight: 500;\n      color: #2c3e50;\n    }\n    /* Details List */\n    ul {\n      list-style-type: none;\n      padding: 0;\n      margin: 10px 0;\n      background-color: #f8fafc;\n      padding: 10px;\n      border-radius: 6px;\n      border-left: 4px solid #3498db;\n      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);\n    }\n    ul li {\n      margin: 6px 0;\n      font-size: 13px;\n      display: flex;\n      align-items: center;\n    }\n    ul li strong {\n      display: inline-block;\n      width: 130px;\n      color: #2c3e50;\n      font-weight: 600;\n    }\n    /* Action Buttons */\n    .actions {\n      text-align: center;\n      margin: 10px 0;\n      display: flex;\n      justify-content: center;\n      gap: 10px;\n    }\n    .btn {\n      display: inline-block;\n      padding: 8px 20px;\n      text-decoration: none;\n      color: #ffffff;\n      font-size: 13px;\n      font-weight: 600;\n      border-radius: 20px;\n      transition: transform 0.2s ease, box-shadow 0.3s ease;\n      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);\n    }\n    .btn:hover {\n      transform: translateY(-2px);\n      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);\n    }\n    .btn-approve {\n      background: linear-gradient(90deg, #2ecc71, #27ae60);\n    }\n    .btn-reject {\n      background: linear-gradient(90deg, #e74c3c, #c0392b);\n    }\n    /* Footer */\n    .footer {\n      text-align: center;\n      padding: 10px;\n      background-color: #f8fafc;\n      border-bottom-left-radius: 8px;\n      border-bottom-right-radius: 8px;\n      font-size: 12px;\n      color: #777;\n      border-top: 1px solid #e0e6ed;\n    }\n    .footer p {\n      margin: 0;\n    }\n    /* Responsive Adjustments */\n    @media (max-width: 600px) {\n      .container {\n        width: 95%;\n        margin: 10px auto;\n      }\n      .header {\n        padding: 10px;\n      }\n      h2 {\n        font-size: 18px;\n      }\n      .content {\n        padding: 10px;\n      }\n      ul li {\n        flex-direction: column;\n        align-items: flex-start;\n      }\n      ul li strong {\n        width: auto;\n        margin-bottom: 3px;\n      }\n      .actions {\n        flex-direction: column;\n        gap: 8px;\n      }\n      .btn {\n        width: 80%;\n      }\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <!-- Header -->\n    <div class=\"header\">\n      <h2>Material Issue Request Approval</h2>\n    </div>\n\n    <!-- Content -->\n    <div class=\"content\">\n      <p class=\"greeting\">Dear XXX,</p>\n      <p>Please review the following material issue request:</p>\n\n      <ul>\n        <li><strong>Product ID:</strong> {{ $('Append Material Request').item.json['Product ID'] }}</li>\n        <li><strong>Material:</strong> {{ $json[\"Material Name\"] }}</li>\n        <li><strong>Quantity Requested:</strong> {{ $('Append Material Request').item.json['Quantity Requested'] }} {{ $json[\"Measurement Unit\"] }}</li>\n        <li><strong>Current Stock:</strong> {{ $json[\"Current Stock\"] }} {{ $json[\"Measurement Unit\"] }}</li>\n        <li><strong>Requested By:</strong> {{ $('Append Material Request').item.json['Requested By'] }}</li>\n       \n        <li><strong>Description:</strong> {{ $('Append Material Request').item.json['Description'] }}</li>\n        <li><strong>Submission ID:</strong> {{ $('Append Material Request').item.json['Submission ID'] }}</li>\n        <li><strong>Stock Available:</strong> {{ $json[\"Is Enough\"] ? \"Yes\" : \"No\" }}</li>\n      </ul>\n\n      <div class=\"actions\">\n        <p><strong>To approve:</strong></p>\n        <a href=\"{{ $('Append Material Request').item.json['Approval Link'] }}&action=approve&quantity={{ $('Append Material Request').item.json['Quantity Requested'] }}&approvedBy=PB\" class=\"btn btn-approve\">Approve Request</a>\n        <p><strong>To reject:</strong></p>\n        <a href=\"{{ $('Append Material Request').item.json['Approval Link'] }}&action=reject&approvedBy=PB\" class=\"btn btn-reject\">Reject Request</a>\n      </div>\n    </div>\n\n    <!-- Footer -->\n    <div class=\"footer\">\n      <p>Regards,<br>Your Company<</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "=Approval Required: Material Issue Request - {{ $json['Product ID'] }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7c68ef5d-5518-4236-803c-157fe8c581dd",
+      "name": "Prepare Approval",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7440,
+        3400
+      ],
+      "parameters": {
+        "jsCode": "const currentStock = parseFloat(\n  $input.first().json['Current Stock']|| 0);\nconst quantityRequested = parseFloat(\n$('Append Material Request').first().json['Quantity Requested']);\nconst isEnough = currentStock >= quantityRequested;\n\nreturn {\n  json: {\n  ...$json,\n    \"Current Stock\": currentStock,\n    \"Is Enough\": isEnough,\n    \"Material Name\":$input.first().json['Material Name'],\n\"Unit\":$input.first().json['Measurement Unit'],\n\"Minimum Stock Level\": $input.first().json['Minimum Stock Level']\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bf6487d1-dd4e-4bc1-9447-c3aaeffd5df0",
+      "name": "Create Record Issue",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        6780,
+        3560
+      ],
+      "parameters": {
+        "tableId": "Materials Issued",
+        "dataToSend": "autoMapInputData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86899f38-6412-447f-9b6d-a402f6c39fcd",
+      "name": "Search Product ID",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        7000,
+        3560
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Product ID",
+              "keyValue": "={{ $json[\"Product ID\"] }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "tableId": "Current Stock",
+        "operation": "getAll"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6bb9053b-9a46-4e9e-9097-d5e2ae99e259",
+      "name": "Searck Issues",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        6560,
+        4220
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Submission ID",
+              "keyValue": "={{ $json[\"Submission ID\"] }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "tableId": "Materials Issued",
+        "operation": "getAll"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "420d242b-6a17-4538-bca1-09283a49742f",
+      "name": "Update Current Stck",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        7680,
+        3740
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Product ID",
+              "keyValue": "={{ $json['Product ID'] }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "tableId": "Current Stock",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Material Name",
+              "fieldValue": "={{ $json['Material Name'] }}"
+            },
+            {
+              "fieldId": "Previous Stock",
+              "fieldValue": "={{ $json['Current Stock'] }}"
+            },
+            {
+              "fieldId": "Current Stock",
+              "fieldValue": "={{ $json['Updated Current Stock'] }}"
+            },
+            {
+              "fieldId": "Last Updated",
+              "fieldValue": "={{ $json['Last Updated'] }}"
+            },
+            {
+              "fieldId": "Minimum Stock Level",
+              "fieldValue": "={{ $json['Minimum Stock Level'] }}"
+            }
+          ]
+        },
+        "operation": "update"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4c8cb13-acd9-4d7e-ac73-fb528c1700e1",
+      "name": "Merge Lookups",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        7220,
+        3400
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "0cc01e7c-aa88-4783-af20-5b98f8795935",
+      "name": "Update Current Stock1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7660,
+        3960
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Product ID": "={{ $json['Product ID'] }}",
+            "Last Updated": "={{ $json['Last Updated'] }}",
+            "Current Stock": "={{ $json['Updated Current Stock'] }}",
+            "Material Name": "={{ $json['Material Name'] }}",
+            "Previous Stock": "={{ $json['Current Stock'] }}",
+            "Minimum Stock Level": "={{ $json['Minimum Stock Level'] }}"
+          },
+          "schema": [
+            {
+              "id": "Product ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Product ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Material Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Material Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Previous Stock",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Previous Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Stock",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Current Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Measurement Unit",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Measurement Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Minimum Stock Level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Minimum Stock Level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Product ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "67cf6b2c-7166-4075-904b-67c82d94df70",
+      "name": "LookUp Current stock1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7880,
+        3960
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json['Product ID'] }}",
+              "lookupColumn": "Product ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "bb65a800-e307-46a9-a668-b3e7afa32792",
+      "name": "Low stock Detection1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        8100,
+        3960
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const currentStock = parseFloat($input.item.json[\"Current Stock\"]);\nconst minStock = parseFloat($input.item.json[\"Minimum Stock Level\"]);\n\n// Check if stock is below minimum\nconst isLow = currentStock < minStock;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    \"Is Low\": isLow,\n    \"Alert Message\": isLow ? \n      `Low stock alert: ${$input.item.json[\"Material Name\"]} (ID: ${$input.item.json[\"Product ID\"]}) - Current Stock: ${currentStock} ${$input.item.json[\"Measurement Unit\"]}, Minimum: ${minStock}` \n      : null\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "02bd1da9-ecdf-4d05-aa1f-9974f00849b7",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        6780,
+        4060
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "1e06a4e7-243a-40cd-8aef-1a06a373778a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5840,
+        3060
+      ],
+      "parameters": {
+        "width": 2820,
+        "height": 1400,
+        "content": "자재 발행 요청 및 승인"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee7270e1-83ff-4d91-8ba8-db4f13c63a57",
+      "name": "Append Raw Materials",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        6660,
+        1820
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Product ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Supplier Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Supplier Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Material Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Material Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity Received",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Quantity Received",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Measurement Unit",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Measurement Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unit Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Unit Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date of Delivery",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date of Delivery",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Received By",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Received By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Total Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submission ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Submission ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1680576943,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1680576943",
+          "cachedResultName": "Raw Materials"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "21c17077-9f9a-489a-b6a5-ea7a70a85cee",
+      "name": "Calculate Total Price",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6340,
+        2040
+      ],
+      "parameters": {
+        "jsCode": "// Get the input data\nconst input = $input.all()[0].json;\n\n// Debug: Log the entire input to see all available fields\nconsole.log(\"Complete Input Data:\", JSON.stringify(input, null, 2));\n\n// Improved number parser that handles different formats\nconst getNumber = (value) => {\n  if (value === undefined || value === null || value === \"\") return null;\n  \n  // Remove any currency symbols, commas, or extra spaces\n  const cleaned = String(value)\n    .replace(/[^\\d.-]/g, '')\n    .trim();\n    \n  const num = parseFloat(cleaned);\n  return isNaN(num) ? null : num;\n};\n\n// Use EXACT field names from your webhook payload\nconst quantity = getNumber(input[\"Quantity Received\"]);  // Not \"Quantity Received\"\nconst unitPrice = getNumber(input[\"Unit Price\"]);    // Not \"Unit Price\"\n\n// Validate\nif (quantity === null) throw new Error(`Invalid quantity: ${input[\"Quantity Received\"]}`);\nif (unitPrice === null) throw new Error(`Invalid price: ${input[\"Unit Price\"]}`);\n\n// Calculate total\nconst totalPrice = quantity * unitPrice;\n\n// Return results\n// Return clean output without debug info\nreturn {\n  json: {\n    \"Timestamp\": new Date().toISOString(),\n    \"Product ID\": input[\"Product ID\"],\n    \"Supplier Name\": input[\"Supplier Name\"],\n    \"Material Name\": input[\"Material Name\"],\n    \"Quantity Received\": quantity,\n    \"Description\": input[\"Description\"] || \"\",\n    \"Measurement Unit\": input[\"Measurement Unit\"],\n    \"Unit Price\": unitPrice,\n    \"Total Price\": totalPrice.toFixed(2),\n    \"Date of Delivery\": input[\"Date of Delivery\"],\n    \"Received By\": input[\"Received By\"],\n    \"Submission ID\": input[\"Submission ID\"]\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4ce817b0-2283-438f-82c7-6f4901fffdd3",
+      "name": "Calculate Updated Current Stock",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7640,
+        1840
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const existingStock = parseFloat(\n$('Lookup Existing Stock').first().json['Current Stock']\n|| 0);\nconst newQuantity = parseFloat(\n  $('Validate Quantity Received').first().json['Quantity Received']);\nconst updatedStock = existingStock + newQuantity;\n\n\n  \nreturn {\n  json: {\n    ...$json,\n    \"Updated Current Stock\": updatedStock\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79fa9b6a-45c7-43bd-b5ba-bc2526a87d1e",
+      "name": "Validate Quantity Received",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6840,
+        1820
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.all()[0].json;\n\nconst getNumber = (value) => {\n  if (!value) return 0; // Default to 0 if null/undefined\n  const cleaned = String(value).replace(/[^\\d.-]/g, '').trim();\n  const num = parseFloat(cleaned);\n  return isNaN(num) ? 0 : num;\n};\n\n\n// Use EXACT field names from your webhook payload\nconst quantity = getNumber(input[\"Quantity Received\"]);  // Not \"Quantity Received\"\nif (quantity === 0) throw new Error(`Invalid quantity: ${input[\"Quantity Received\"]}`);\n\nreturn {\n  json: {\n    ...input,\n    \"Quantity Received\": quantity // Ensure it’s a number\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "298cee40-074c-4888-af10-05b0be136a75",
+      "name": "Initialize New Product stock",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7860,
+        2200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Product ID": "={{ $('Validate Quantity Received').item.json['Product ID'] }}",
+            "Last Updated": "={{ $('Validate Quantity Received').item.json['Date of Delivery'] }}",
+            "Current Stock": "={{ $('Validate Quantity Received').item.json['Quantity Received'] }}",
+            "Material Name": "={{ $('Validate Quantity Received').item.json['Material Name'] }}",
+            "Previous Stock": "=0",
+            "Measurement Unit": "={{ $('Validate Quantity Received').item.json['Measurement Unit'] }}",
+            "Minimum Stock Level": "50"
+          },
+          "schema": [
+            {
+              "id": "Product ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Product ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Material Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Material Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Previous Stock",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Previous Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Stock",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Current Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Measurement Unit",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Measurement Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Minimum Stock Level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Minimum Stock Level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "4f102052-db49-4767-b856-41d5e4a6cf33",
+      "name": "Update Current Stock",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7860,
+        1940
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Product ID": "={{ $json[\"Product ID\"] }}",
+            "Last Updated": "={{ $json['Last Updated'] }}",
+            "Current Stock": "={{ $json['Updated Current Stock'] }}",
+            "Material Name": "={{ $json['Material Name'] }}",
+            "Measurement Unit": "={{ $json['Measurement Unit'] }}",
+            "Minimum Stock Level": "50"
+          },
+          "schema": [
+            {
+              "id": "Product ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Product ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Material Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Material Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Previous Stock",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Previous Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Stock",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Current Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Measurement Unit",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Measurement Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Minimum Stock Level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Minimum Stock Level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Product ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "33d107ac-960e-44aa-b643-993ef4973beb",
+      "name": "LookUp Current stock",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        8080,
+        1940
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json['Product ID'] }}",
+              "lookupColumn": "Product ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e0c03d90-f580-43f4-b794-2d278d123b08",
+      "name": "New Row Current Stock",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        7860,
+        2520
+      ],
+      "parameters": {
+        "tableId": "Current Stock",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Product ID",
+              "fieldValue": "={{ $('Validate Quantity Received').item.json['Product ID'] }}"
+            },
+            {
+              "fieldId": "Material Name",
+              "fieldValue": "={{ $('Validate Quantity Received').item.json['Material Name'] }}"
+            },
+            {
+              "fieldId": "Previous Stock",
+              "fieldValue": "0"
+            },
+            {
+              "fieldId": "Current Stock",
+              "fieldValue": "={{ $('Validate Quantity Received').item.json['Quantity Received'] }}"
+            },
+            {
+              "fieldId": "Measurement Unit",
+              "fieldValue": "={{ $('Validate Quantity Received').item.json['Measurement Unit'] }}"
+            },
+            {
+              "fieldId": "Last Updated",
+              "fieldValue": "={{ $('Validate Quantity Received').item.json['Date of Delivery'] }}"
+            },
+            {
+              "fieldId": "Minimum Stock Level",
+              "fieldValue": "50"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f9e1fae8-ce0a-4ab7-9dbb-f2eaccdf0ac9",
+      "name": "Current Stock Update",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        7860,
+        1720
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Product ID",
+              "keyValue": "={{ $json['Product ID'] }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "tableId": "Current Stock",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Product ID",
+              "fieldValue": "={{ $json['Product ID'] }}"
+            },
+            {
+              "fieldId": "Material Name",
+              "fieldValue": "={{ $json['Material Name'] }}"
+            },
+            {
+              "fieldId": "Current Stock",
+              "fieldValue": "={{ $json['Updated Current Stock'] }}"
+            },
+            {
+              "fieldId": "Measurement Unit",
+              "fieldValue": "={{ $json['Measurement Unit'] }}"
+            },
+            {
+              "fieldId": "Last Updated",
+              "fieldValue": "={{ $json['Last Updated'] }}"
+            },
+            {
+              "fieldId": "Minimum Stock Level",
+              "fieldValue": "50"
+            }
+          ]
+        },
+        "operation": "update"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef8ac9f6-a26e-4e74-b0f6-59066991a343",
+      "name": "Search Current Stock",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        6960,
+        2260
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Product ID",
+              "keyValue": "={{ $json[\"Product ID\"] }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "tableId": "Current Stock",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3e519621-e955-4033-8197-249c5e153dea",
+      "name": "Format response",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        7620,
+        2220
+      ],
+      "parameters": {
+        "operation": "removeDuplicates"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "16b0aefb-b295-47ef-b818-ab133ac8190f",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        7200,
+        2040
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d7f06346-91fc-427a-ad23-e1547180f3e3",
+      "name": "Low stock Detection2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        8380,
+        1940
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const currentStock = parseFloat($input.item.json[\"Current Stock\"]);\nconst minStock = parseFloat($input.item.json[\"Minimum Stock Level\"]);\n\n// Check if stock is below minimum\nconst isLow = currentStock < minStock;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    \"Is Low\": isLow,\n    \"Alert Message\": isLow ? \n      `Low stock alert: ${$input.item.json[\"Material Name\"]} (ID: ${$input.item.json[\"Product ID\"]}) - Current Stock: ${currentStock} ${$input.item.json[\"Measurement Unit\"]}, Minimum: ${minStock}` \n      : null\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c054902-eb01-4f22-9e0b-31077a0ea978",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5820,
+        1620
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 2840,
+        "height": 1380,
+        "content": "원자재 입고 및 재고 업데이트"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0003f1e-1ab5-4b7e-a241-02eeed000c51",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        8720,
+        1620
+      ],
+      "parameters": {
+        "width": 2700,
+        "height": 2840,
+        "content": "![인벤토리 자동화 시스템.png](1)  \n# Google Sheets와 Supabase를 사용한 n8n 웹훅으로 원자재 인벤토리 관리\n\n## 서론  \n이 n8n 자동화는 원자재 인벤토리 관리를 간소화하여 원자재 수령, 승인 후 발급, 재고 수준 업데이트, 저재고 알림을 자동화합니다. 웹훅, Google Sheets, Supabase, Gmail을 통합하여 효율적인 인벤토리 추적과 커뮤니케이션을 보장합니다.\n\n## 문제 진술  \n수동 인벤토리 관리는 시간이 많이 들고 오류가 발생하기 쉽습니다. 이는 재고 불일치, 발급 승인 지연, 저재고 알림 누락으로 이어질 수 있습니다. 이 자동화는 원자재 수령, 발급 요청 처리, 실시간 재고 모니터링을 위한 원활한 워크플로를 제공하여 이러한 문제를 해결합니다.\n\n## 대상 사용자  \n이 템플릿은 다음을 위한 것입니다:  \n- 원자재 인벤토리를 관리하는 중소기업.  \n- 재고 업데이트와 승인을 자동화하려는 인벤토리 관리자.  \n- Google Sheets, Supabase, Gmail 통합에 익숙한 n8n 사용자.\n\n## 설명\n\n### 플로우 1: 원자재 수령 및 재고 업데이트  \n**목적**: 원자재 수령을 자동화하여 비용 계산, 재고 업데이트, 저재고 알림을 수행합니다.  \n\n- **원자재 수령 웹훅**  \n  - **목적**: 폼 제출로부터 웹훅 URL에서 HTTP POST를 통해 원자재 데이터를 수신합니다.  \n  - **입력**: `product_id`, `quantity_received`, `unit_price` 등의 필드를 포함한 JSON(예: Google Forms 또는 커스텀 폼).  \n  - **출력**: 원시 웹훅 데이터.  \n  - **노트**: `Content-Type: application/json`을 예상합니다.  \n\n- **원자재 데이터 표준화**  \n  - **목적**: 웹훅 데이터를 일관된 형식으로 매핑합니다.  \n  - **입력**: 폼 제출로부터의 웹훅 JSON.  \n  - **출력**: `Timestamp`, `Product ID`, `Quantity Received` 등의 필드를 포함한 JSON.  \n  - **노트**: 후속 노드를 위해 필드 이름을 맞춥니다.  \n\n- **총 가격 계산**  \n  - **목적**: 총 비용을 계산하고 숫자 입력을 검증합니다.  \n  - **입력**: 표준화된 JSON.  \n  - **출력**: `Total Price`(Quantity Received * Unit Price)를 포함한 JSON.  \n  - **노트**: 유효하지 않은 숫자를 처리하기 위해 커스텀 함수를 사용합니다.  \n\n- **원자재 추가**  \n  - **목적**: Google Sheets에 수령을 기록합니다.  \n  - **입력**: 계산된 JSON.  \n  - **출력**: 새 레코드가 추가된 \"Raw Materials\" 시트.  \n  - **노트**: Google Sheets 자격 증명(사용자가 구성해야 함)이 필요합니다.  \n\n- **수령 수량 유효성 검사**  \n  - **목적**: `Quantity Received`가 양수인지 확인합니다.  \n  - **입력**: 원자재 추가로부터의 JSON.  \n  - **출력**: 숫자 `Quantity Received`가 포함된 유효한 JSON.  \n  - **노트**: 유효하지 않으면 오류를 발생시킵니다.  \n\n- **기존 재고 조회**  \n  - **목적**: `Product ID`의 기존 재고를 검색합니다.  \n  - **입력**: 유효한 JSON.  \n  - **출력**: \"Current Stock\" 시트로부터 `Current Stock`를 포함한 JSON.  \n  - **노트**: Google Sheets에서 `Product ID`로 조회합니다.  \n\n- **제품 존재 확인**  \n  - **목적**: `Product ID`가 재고에 존재하는지 기반으로 분기합니다.  \n  - **입력**: 기존 재고 조회로부터의 JSON.  \n  - **출력**: True/False 분기.  \n  - **노트**: `Product ID` 존재 여부를 확인하는 조건입니다.  \n\n- **업데이트된 현재 재고 계산** (True 분기)  \n  - **목적**: `Quantity Received`를 추가하여 재고를 업데이트합니다.  \n  - **입력**: 기존 재고가 포함된 JSON.  \n  - **출력**: `Updated Current Stock`를 포함한 JSON.  \n  - **노트**: 숫자 정확성을 보장합니다.  \n\n- **현재 재고 업데이트** (True 분기)  \n  - **목적**: \"Current Stock\" 시트를 새 재고로 업데이트합니다.  \n  - **입력**: 업데이트된 재고 JSON.  \n  - **출력**: 업데이트된 \"Current Stock\" 시트.  \n  - **노트**: `Product ID`로 일치시킵니다.  \n\n- **업데이트된 재고 조회** (True 분기)  \n  - **목적**: 저재고 확인을 위한 업데이트된 재고를 검색합니다.  \n  - **입력**: 업데이트된 재고 JSON.  \n  - **출력**: 현재 재고 데이터를 포함한 JSON.  \n  - **노트**: Google Sheets 조회.  \n\n- **저재고 수준 감지** (True 분기)  \n  - **목적**: 재고가 최소 수준 이하인지 플래그합니다.  \n  - **입력**: 검색된 재고 데이터.  \n  - **출력**: `Is Low` 플래그와 `Alert Message`를 포함한 JSON.  \n  - **노트**: `Minimum Stock Level`(기본값: 50)과 비교합니다.  \n\n- **저재고 알림 트리거** (True 분기)  \n  - **목적**: 재고가 낮으면 알림을 트리거합니다.  \n  - **입력**: 저재고 감지 JSON.  \n  - **출력**: True 분기가 이메일을 보냅니다.  \n  - **노트**: 조건: `{{ $json['Is Low'] }}`.  \n\n- **저재고 이메일 알림 보내기** (True 분기, Low)  \n  - **목적**: 재고 관리자에게 저재고 알림 이메일을 보냅니다.  \n  - **입력**: 알림 세부사항이 포함된 JSON.  \n  - **출력**: 사용자 구성 이메일 주소로 HTML 이메일.  \n  - **노트**: 제품 정보와 재주문 링크를 포함합니다; 이메일 주소는 사용자가 설정해야 합니다.  \n\n- **새 제품 재고에 추가** (False 분기)  \n  - **목적**: \"Current Stock\" 시트에 새 제품을 추가합니다.  \n  - **입력**: 유효한 JSON.  \n  - **출력**: 초기 재고(Quantity Received)와 새 행.  \n  - **노트**: `Minimum Stock Level`을 50으로 설정합니다.  \n\n- **현재 재고 업데이트** (True 분기, Supabase)  \n  - **목적**: Supabase `Current Stock` 테이블을 업데이트합니다.  \n  - **입력**: 업데이트된 재고 JSON.  \n  - **출력**: 업데이트된 Supabase 레코드.  \n  - **노트**: `Product ID`로 일치시킵니다; 사용자가 Supabase 자격 증명을 구성해야 합니다.  \n\n- **새 행 현재 재고** (False 분기, Supabase)  \n  - **목적**: Supabase `Current Stock` 테이블에 새 제품을 삽입합니다.  \n  - **입력**: 유효한 JSON.  \n  - **출력**: 새 Supabase 레코드.  \n  - **노트**: 초기 재고 설정; Supabase 자격 증명이 필요합니다.  \n\n- **현재 재고 검색** (Supabase)  \n  - **목적**: `Product ID`의 `Current Stock` 레코드를 검색합니다.  \n  - **입력**: `Product ID`가 포함된 JSON.  \n  - **출력**: 일치하는 레코드 배열 JSON.  \n  - **노트**: `returnAll: true`를 사용합니다.  \n\n- **새 레코드 원자재** (Supabase)  \n  - **목적**: Supabase `Raw Materials` 테이블에 원자재 레코드를 삽입합니다.  \n  - **입력**: 계산된 JSON.  \n  - **출력**: 새 Supabase 레코드.  \n  - **노트**: 입력 데이터를 자동 매핑합니다.  \n\n- **응답 형식화**  \n  - **목적**: 응답에서 중복을 제거합니다.  \n  - **입력**: 현재 재고 검색 데이터.  \n  - **출력**: 정리된 JSON 배열.  \n  - **노트**: 고유 레코드를 보장합니다.  \n\n- **재고 업데이트 분기 결합**  \n  - **목적**: 기존/새 제품 분기를 결합합니다.  \n  - **입력**: 제품 존재 확인 분기 출력.  \n  - **출력**: 병합된 JSON.  \n  - **노트**: 데이터 연속성을 보장합니다.  \n\n**영향**: 원자재 수령을 자동화하여 정확한 재고 업데이트와 적시 저재고 알림을 제공합니다.\n\n### 플로우 2: 자재 발급 요청 및 승인  \n**목적**: 자재 발급 요청을 자동화하여 승인/거부 처리, 재고 업데이트, 저재고 알림을 수행합니다.  \n\n- **자재 발급 웹훅 수령**  \n  - **목적**: 폼 제출로부터 웹훅 URL에서 HTTP POST를 통해 자재 발급 요청을 수신합니다.  \n  - **입력**: `Product ID`, `Quantity Requested` 등의 JSON(예: Google Forms 또는 커스텀 폼).  \n  - **출력**: 원시 웹훅 데이터.  \n  - **노트**: 발급 요청을 위한 웹훅 트리거.  \n\n- **데이터 표준화**  \n  - **목적**: 요청 데이터를 정규화하고 승인 링크를 생성합니다.  \n  - **입력**: 폼 제출로부터의 웹훅 JSON.  \n  - **출력**: `Status` \"Pending,\" `Approval Link`를 포함한 JSON.  \n  - **노트**: 폼 필드를 일관되게 매핑합니다.  \n\n- **발급 요청 데이터 유효성 검사**  \n  - **목적**: `Quantity Requested`가 양수인지 확인합니다.  \n  - **입력**: 표준화된 JSON.  \n  - **출력**: 유효한 JSON 또는 오류.  \n  - **노트**: JavaScript 유효성 검사.  \n\n- **요청 수량 확인**  \n  - **목적**: `Product ID` 및 `Submission ID`와 같은 추가 필드를 유효성 검사합니다.  \n  - **입력**: 유효한 JSON.  \n  - **출력**: 추가 유효성 검사된 JSON 또는 오류.  \n  - **노트**: 데이터 무결성을 보장합니다.  \n\n- **자재 요청 추가**  \n  - **목적**: \"Materials Issued\" 시트에 요청을 기록합니다.  \n  - **입력**: 확인된 JSON.  \n  - **출력**: 업데이트된 \"Materials Issued\" 시트.  \n  - **노트**: Google Sheets 추가 작업.  \n\n- **발급 가능 재고 확인**  \n  - **목적**: `Product ID`의 `Current Stock`를 검색합니다.  \n  - **입력**: 추가된 JSON.  \n  - **출력**: 재고 데이터를 포함한 JSON.  \n  - **노트**: Google Sheets 조회.  \n\n#### 승인 프로세스  \n다음 단계는 자재 발급 요청의 승인을 처리하여 요청이 검토된 후 승인 또는 거부되도록 합니다.  \n\n- **승인 준비**  \n  - **목적**: 요청을 이행할 수 있는 재고가 충분한지 확인합니다.  \n  - **입력**: 발급 가능 재고 확인으로부터의 재고 데이터.  \n  - **출력**: `Is Enough` 플래그(JSON: `Current Stock` >= `Quantity Requested`)를 포함한 JSON.  \n  - **노트**: 승인 이메일을 위한 데이터 준비.  \n\n- **승인 요청 보내기**  \n  - **목적**: 승인자에게 Approve/Reject 버튼이 포함된 이메일을 보냅니다.  \n  - **입력**: `Is Enough`, `Product ID`, `Quantity Requested`, `Approval Link`를 포함한 JSON.  \n  - **출력**: 사용자 구성 이메일 주소로 HTML 이메일.  \n  - **노트**: 이메일에 버튼을 포함하여 Receive Approval Response 웹훅에 링크; 이메일 주소는 사용자가 설정해야 합니다.  \n\n- **승인 응답 수령**  \n  - **목적**: Approve/Reject 클릭으로 트리거된 웹훅을 통해 승인자의 결정을 캡처합니다.  \n  - **입력**: `submissionId`, `action`(\"approve\" 또는 \"reject\"), `quantity`와 같은 웹훅 매개변수.  \n  - **출력**: 승인 세부사항이 포함된 원시 웹훅 데이터.  \n  - **노트**: 웹훅 URL을 승인 이메일의 링크와 일치하도록 구성해야 합니다.  \n\n- **승인 응답 형식화**  \n  - **목적**: 승인 응답을 처리하고 메타데이터를 추가합니다.  \n  - **입력**: 승인 응답 수령으로부터의 웹훅 JSON.  \n  - **출력**: `Action`, `Approved Quantity`, `Approval Date`를 포함한 JSON.  \n  - **노트**: `Approval Date`를 현재 타임스탬프로 설정합니다.  \n\n- **승인 데이터 확인**  \n  - **목적**: 승인 응답이 완전하고 올바른지 확인합니다.  \n  - **입력**: 형식화된 JSON.  \n  - **출력**: 유효한 JSON 또는 오류.  \n  - **노트**: 유효한 `Submission ID`, `Action`, `Approved Quantity`(> 0)를 확인합니다.  \n\n- **발급 요청 세부사항 검색**  \n  - **목적**: 업데이트를 위해 원래 발급 요청을 검색합니다.  \n  - **입력**: `Submission ID`가 포함된 유효한 JSON.  \n  - **출력**: \"Materials Issued\" 시트로부터 요청 데이터를 포함한 JSON.  \n  - **노트**: Google Sheets에서 `Submission ID`로 조회합니다.  \n\n- **승인 결정 처리**  \n  - **목적**: 승인자의 결정에 따라 플로를 분기합니다.  \n  - **입력**: `Action`(\"approve\" 또는 \"reject\")을 포함한 JSON.  \n  - **출력**: True 분기(승인) 또는 False 분기(거부).  \n  - **노트**: 조건: `{{ $json['Action'] === \"approve\" }}`.  \n\n#### 승인 후 단계  \n- **발급 업데이트용 재고 가져오기** (True 분기, Approved)  \n  - **목적**: 업데이트 전에 최신 `Current Stock`를 검색합니다.  \n  - **입력**: 승인된 JSON.  \n  - **출력**: 재고 데이터를 포함한 JSON.  \n  - **노트**: Google Sheets 조회.  \n\n- **발급 재고 차감** (True 분기, Approved)  \n  - **목적**: `Approved Quantity`만큼 재고를 감소시킵니다.  \n  - **입력**: 재고 및 승인 데이터.  \n  - **출력**: `Updated Current Stock`를 포함한 JSON.  \n  - **노트**: 재고가 부족하면 오류를 발생시킵니다.  \n\n- **발급 후 재고 업데이트** (True 분기, Approved)  \n  - **목적**: \"Current Stock\" 시트를 새 재고로 업데이트합니다.  \n  - **입력**: 업데이트된 재고 JSON.  \n  - **출력**: 업데이트된 \"Current Stock\" 시트.  \n  - **노트**: `Product ID`로 일치시킵니다.  \n\n- **발급 후 재고 검색** (True 분기, Approved)  \n  - **목적**: 저재고 확인을 위한 업데이트된 재고를 검색합니다.  \n  - **입력**: 업데이트된 재고 JSON.  \n  - **출력**: 재고 데이터를 포함한 JSON.  \n  - **노트**: Google Sheets 조회.  \n\n- **발급 후 저재고 감지** (True 분기, Approved)  \n  - **목적**: 발급 후 재고가 낮으면 플래그합니다.  \n  - **입력**: 검색된 재고 데이터.  \n  - **출력**: `Is Low` 플래그와 `Alert Message`를 포함한 JSON.  \n  - **노트**: `Minimum Stock Level`과 비교합니다.  \n\n- **발급 후 저재고 알림 트리거** (True 분기, Approved)  \n  - **목적**: 재고가 낮으면 알림을 트리거합니다.  \n  - **입력**: 저재고 감지 JSON.  \n  - **출력**: True 분기가 이메일을 보냅니다.  \n  - **노트**: 조건: `{{ $json['Is Low'] }}`.  \n\n- **발급 후 저재고 이메일 알림 보내기** (True 분기, Low)  \n  - **목적**: 저재고 알림 이메일을 보냅니다.  \n  - **입력**: 알림 세부사항이 포함된 JSON.  \n  - **출력**: 사용자 구성 이메일 주소로 HTML 이메일.  \n  - **노트**: 제품 정보를 포함합니다; 이메일 주소는 사용자가 설정해야 합니다.  \n\n- **발급 요청 상태 업데이트** (True/False 분기)  \n  - **목적**: \"Materials Issued\" 시트에서 요청 상태를 업데이트합니다.  \n  - **입력**: 승인 작업 JSON.  \n  - **출력**: `Status` \"Approved\" 또는 \"Rejected\"로 업데이트된 시트.  \n  - **노트**: Google Sheets 업데이트; 승인된 경우 `Approved By` 및 `Approval Date`를 포함합니다.  \n\n- **재고 조회 결과 결합**  \n  - **목적**: 발급 가능 재고 확인 및 Search Stock by Product ID의 출력 결합.  \n  - **입력**: 출력.  \n  - **출력**: 병합된 JSON.  \n  - **노트**: 데이터 연속성을 보장합니다.  \n\n- **발급 레코드 생성** (Supabase)  \n  - **목적**: Supabase `Materials Issued` 테이블에 발급 요청을 삽입합니다.  \n  - **입력**: 확인된 JSON.  \n  - **출력**: 새 Supabase 레코드.  \n  - **노트**: 데이터를 자동 매핑합니다; 사용자가 자격 증명을 구성해야 합니다.  \n\n- **제품 ID로 재고 검색** (Supabase)  \n  - **목적**: `Current Stock` 레코드를 검색합니다.  \n  - **입력**: `Product ID`가 포함된 JSON.  \n  - **출력**: 레코드 배열 JSON.  \n  - **노트**: `Product ID`로 필터링.  \n\n- **발급 테이블 업데이트** (Supabase, True/False 분기)  \n  - **목적**: Supabase `Materials Issued` 테이블을 업데이트합니다.  \n  - **입력**: 승인 작업 JSON.  \n  - **출력**: 업데이트된 Supabase 레코드.  \n  - **노트**: `Submission ID`로 일치시킵니다.  \n\n- **현재 재고 업데이트** (Supabase, True 분기)  \n  - **목적**: Supabase `Current Stock` 테이블을 업데이트합니다.  \n  - **입력**: 업데이트된 재고 JSON.  \n  - **출력**: 업데이트된 Supabase 레코드.  \n  - **노트**: `Product ID`로 일치시킵니다.  \n\n- **발급 조회 분기 결합**  \n  - **목적**: 발급 조회 분기를 결합합니다.  \n  - **입력**: Retrieve Issue Request Details 및 Search Issue by Submission ID의 출력.  \n  - **출력**: 병합된 JSON.  \n  - **노트**: 데이터 연속성을 보장합니다.  \n\n- **제출 ID로 발급 검색** (Supabase)  \n  - **목적**: `Submission ID`의 발급 레코드를 검색합니다.  \n  - **입력**: 유효한 JSON.  \n  - **출력**: 레코드 배열 JSON.  \n  - **노트**: `Submission ID`로 필터링.  \n\n**영향**: 자재 발급을 간소화하여 정확한 재고 업데이트와 사전 저재고 알림을 제공합니다.\n\n## 결론  \n이 자동화는 n8n을 Google Sheets, Supabase, Gmail과 통합하여 인벤토리 관리를 향상시킵니다. 수동 작업을 줄이고 데이터 정확성을 보장하며 적시 알림으로 팀을 유지합니다. 커뮤니티 피드백과 기여를 환영합니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b6ee379-d020-44d7-892f-7b5479fa6944",
+      "name": "Receive Raw Materials Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        5940,
+        2040
+      ],
+      "webhookId": "be8290c0-bdd9-489e-938a-ba7a3dd5745e",
+      "parameters": {
+        "path": "Pb-raw-materials",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "087a3182-2a5d-47a0-a3ac-33f1f3eb6a31",
+      "name": "Standardize Raw Material Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        6160,
+        2040
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3b4487d-ab8e-4b5d-9bea-19ec7195a76c",
+              "name": "Timestamp",
+              "type": "string",
+              "value": "={{ $json.body.timestamp }}"
+            },
+            {
+              "id": "f2f15ff8-d8f6-4bd6-b892-ec2fc1f92c29",
+              "name": "Product ID",
+              "type": "string",
+              "value": "={{ $json.body.product_id }}"
+            },
+            {
+              "id": "9e48b196-6176-4077-bac9-32bef81dd1c0",
+              "name": "Supplier Name",
+              "type": "string",
+              "value": "={{ $json.body.supplier_name }}"
+            },
+            {
+              "id": "4b79875e-f4ee-4452-8507-5c7f2d85786e",
+              "name": "Quantity Received",
+              "type": "number",
+              "value": "={{ $json.body.quantity_received }}"
+            },
+            {
+              "id": "d223e0fa-f80a-4cdb-9d34-60f453feecc0",
+              "name": "Description",
+              "type": "string",
+              "value": "={{ $json.body.description }}"
+            },
+            {
+              "id": "f87b4c22-d8db-470b-9c65-14a3e07ba31a",
+              "name": "Measurement Unit",
+              "type": "string",
+              "value": "={{ $json.body.measurement_unit }}"
+            },
+            {
+              "id": "0a0be214-59b7-4cb6-9d0e-0c3e06bba070",
+              "name": "Unit Price",
+              "type": "number",
+              "value": "={{ $json.body.unit_price }}"
+            },
+            {
+              "id": "0bbac1f8-c89b-4af8-a82e-3f937014bbce",
+              "name": "Date of Delivery",
+              "type": "string",
+              "value": "={{ $json.body.date_of_delivery }}"
+            },
+            {
+              "id": "02cd7f92-cd88-48ed-9f9d-8a64a5d1c95e",
+              "name": "Received By",
+              "type": "string",
+              "value": "={{ $json.body.received_by }}"
+            },
+            {
+              "id": "5a484f8b-a3f7-48bf-a34c-78e1f5e22af5",
+              "name": "Total Price",
+              "type": "string",
+              "value": "={{ $json.body.total_price }}"
+            },
+            {
+              "id": "2bbf891b-372c-4f81-9176-bc50a94a543a",
+              "name": "Material Name",
+              "type": "string",
+              "value": "={{ $json.body.material_name }}"
+            },
+            {
+              "id": "f5ce72d9-a704-4410-ae5b-2c0b1a3b907b",
+              "name": "Submission ID",
+              "type": "string",
+              "value": "={{ $json.body.submissionId }}"
+            }
+          ]
+        },
+        "includeOtherFields": "="
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ff7d279b-2447-4423-a0ff-4512e4a8a913",
+      "name": "Lookup Existing Stock",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7000,
+        1820
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json[\"Product ID\"] }}",
+              "lookupColumn": "Product ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "52698913-69d6-4473-9e77-7ef4530bf81a",
+      "name": "Check If Product ID Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        7420,
+        2040
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bcff2100-54d5-4480-87ab-1d7ce23bd007",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json[\"Product ID\"] }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ecc30bd0-206e-448f-952a-7a2c4ea98bc5",
+      "name": "New Record Row",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        6700,
+        2260
+      ],
+      "parameters": {
+        "tableId": "Raw Materials",
+        "dataToSend": "autoMapInputData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ffaeb38-b6fc-47f7-8611-c7da61c9cd08",
+      "name": "Trigger Low Stock Alert",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        8200,
+        2280
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0493b94-1e9c-4f68-ba66-4abd2bd5b569",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json['Is Low'] }}",
+              "rightValue": "="
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "469bb7fe-5595-4503-9034-8df0c974cbc2",
+      "name": "Send Low Stock Email Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        8440,
+        2260
+      ],
+      "webhookId": "fd7aff46-cf63-4ca3-9406-0b90c2f8aa8b",
+      "parameters": {
+        "sendTo": "example@gmail.com",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Low Stock Alert</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      line-height: 1.6;\n      color: #333;\n      background-color: #f4f4f4;\n      margin: 0;\n      padding: 0;\n    }\n    .container {\n      width: 80%;\n      max-width: 600px;\n      margin: 20px auto;\n      background-color: #fff;\n      padding: 20px;\n      border-radius: 8px;\n      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\n    }\n    h2 {\n      color: #e74c3c;\n      text-align: center;\n    }\n    p {\n      margin: 10px 0;\n    }\n    .alert-message {\n      background-color: #ffe6e6;\n      padding: 15px;\n      border-left: 4px solid #e74c3c;\n      margin: 20px 0;\n      font-weight: bold;\n    }\n    ul {\n      list-style-type: none;\n      padding: 0;\n      margin: 20px 0;\n      background-color: #f9f9f9;\n      padding: 15px;\n      border-left: 4px solid #3498db;\n    }\n    ul li {\n      margin: 8px 0;\n    }\n    ul li strong {\n      display: inline-block;\n      width: 150px;\n    }\n    .action {\n      text-align: center;\n      margin: 20px 0;\n    }\n    .btn {\n      display: inline-block;\n      padding: 10px 20px;\n      text-decoration: none;\n      color: #fff;\n      background-color: #3498db;\n      border-radius: 5px;\n      font-weight: bold;\n    }\n    .footer {\n      text-align: center;\n      margin-top: 20px;\n      font-size: 0.9em;\n      color: #777;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h2>Low Stock Alert</h2>\n    <p>Dear Stock Manager,</p>\n\n    <p>We have detected a low stock level for the following material:</p>\n\n    <div class=\"alert-message\">\n      {{ $json[\"Alert Message\"] }}\n    </div>\n\n    <ul>\n      <li><strong>Product ID:</strong> {{ $json[\"Product ID\"] }}</li>\n      <li><strong>Material:</strong> {{ $json[\"Material Name\"] }}</li>\n      <li><strong>Current Stock:</strong> {{ $json[\"Current Stock\"] }} {{ $json[\"Measurement Unit\"] }}</li>\n      <li><strong>Minimum Stock:</strong> {{ $json[\"Minimum Stock Level\"] }} {{ $json[\"Measurement Unit\"] }}</li>\n    </ul>\n\n    <div class=\"action\">\n      <p>Please take action to reorder this material.</p>\n      <a href=\"https://forms.gle/reorder-form\" class=\"btn\">Reorder Now</a>\n    </div>\n\n    <div class=\"footer\">\n      <p>Regards,<br>Your Company</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "Low Stock Alert: Immediate Action Required"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "24fb479d-6f25-4d69-bc5a-925645ae4837",
+      "name": "Low Stock Email Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        8540,
+        3940
+      ],
+      "webhookId": "fd7aff46-cf63-4ca3-9406-0b90c2f8aa8b",
+      "parameters": {
+        "sendTo": "example@gmail.com",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Low Stock Alert</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      line-height: 1.6;\n      color: #333;\n      background-color: #f4f4f4;\n      margin: 0;\n      padding: 0;\n    }\n    .container {\n      width: 80%;\n      max-width: 600px;\n      margin: 20px auto;\n      background-color: #fff;\n      padding: 20px;\n      border-radius: 8px;\n      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\n    }\n    h2 {\n      color: #e74c3c;\n      text-align: center;\n    }\n    p {\n      margin: 10px 0;\n    }\n    .alert-message {\n      background-color: #ffe6e6;\n      padding: 15px;\n      border-left: 4px solid #e74c3c;\n      margin: 20px 0;\n      font-weight: bold;\n    }\n    ul {\n      list-style-type: none;\n      padding: 0;\n      margin: 20px 0;\n      background-color: #f9f9f9;\n      padding: 15px;\n      border-left: 4px solid #3498db;\n    }\n    ul li {\n      margin: 8px 0;\n    }\n    ul li strong {\n      display: inline-block;\n      width: 150px;\n    }\n    .action {\n      text-align: center;\n      margin: 20px 0;\n    }\n    .btn {\n      display: inline-block;\n      padding: 10px 20px;\n      text-decoration: none;\n      color: #fff;\n      background-color: #3498db;\n      border-radius: 5px;\n      font-weight: bold;\n    }\n    .footer {\n      text-align: center;\n      margin-top: 20px;\n      font-size: 0.9em;\n      color: #777;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h2>Low Stock Alert</h2>\n    <p>Dear Stock Manager,</p>\n\n    <p>We have detected a low stock level for the following material:</p>\n\n    <div class=\"alert-message\">\n      {{ $json[\"Alert Message\"] }}\n    </div>\n\n    <ul>\n      <li><strong>Product ID:</strong> {{ $json[\"Product ID\"] }}</li>\n      <li><strong>Material:</strong> {{ $json[\"Material Name\"] }}</li>\n      <li><strong>Current Stock:</strong> {{ $json[\"Current Stock\"] }} {{ $json[\"Measurement Unit\"] }}</li>\n      <li><strong>Minimum Stock:</strong> {{ $json[\"Minimum Stock Level\"] }} {{ $json[\"Measurement Unit\"] }}</li>\n    </ul>\n\n    <div class=\"action\">\n      <p>Please take action to reorder this material.</p>\n      <a href=\"https://forms.gle/reorder-form\" class=\"btn\">Reorder Now</a>\n    </div>\n\n    <div class=\"footer\">\n      <p>Regards,<br>Your Company</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "Low Stock Alert: Immediate Action Required"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ac8781e9-f694-467d-b40b-95bdbab98880",
+      "name": "Validate Issue Request Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6340,
+        3400
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.all()[0].json;\nconst quantityRequested= input[\"Quantity Requested\"];\n\nif (quantityRequested <= 0) throw new Error(`Invalid quantity Requested: ${quantityRequested}. Must be greater than 0`);\n\nreturn { json: input };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6d88db70-6b4f-47c5-8093-ab339762edbe",
+      "name": "Verify Requested Quantity",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6560,
+        3400
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.all()[0].json;\nconst quantityRequested = input[\"Quantity Requested\"];\nif (!input[\"Product ID\"]) throw new Error(\"Product ID is missing\");\nif (quantityRequested <= 0) throw new Error(`Invalid quantity requested: ${quantityRequested}`);\nif (!input[\"Submission ID\"]) throw new Error(\"Submission ID is missing\");\nreturn { json: input };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bd2313cc-e3c9-4405-a1ed-8f64969e5bca",
+      "name": "Check Available Stock for Issue",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7000,
+        3240
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json[\"Product ID\"] }}",
+              "lookupColumn": "Product ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "8cd87b7d-8dc8-41c7-b76e-b5ebe35278b0",
+      "name": "Format Approval Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        6120,
+        4060
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b3dd2ac-a54f-49ea-8302-f3e490de5d00",
+              "name": "Submission ID",
+              "type": "string",
+              "value": "={{ $json.query.submissionId }}"
+            },
+            {
+              "id": "007d727d-09f1-4414-a114-6f526afe877a",
+              "name": "Action",
+              "type": "string",
+              "value": "={{ $json.query.action }}"
+            },
+            {
+              "id": "dbb729e9-feac-48de-add1-ba1f810fafde",
+              "name": "Approved Quantity",
+              "type": "number",
+              "value": "={{ $json.query.quantity }}"
+            },
+            {
+              "id": "8b516a0b-9ca1-4c12-90b3-7b442fef0f17",
+              "name": "Approved By",
+              "type": "string",
+              "value": "={{ $json.query.approvedBy }}"
+            },
+            {
+              "id": "b5a2e71a-038d-4bf7-9edc-2ea606bec091",
+              "name": "Approval Date",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6749923b-1032-4adb-b805-eda6efd5ee1c",
+      "name": "Verify Approval Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6340,
+        4060
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.all()[0].json;\nif (!input[\"Submission ID\"]) throw new Error(\"Submission ID is missing\");\nif (![\"approve\", \"reject\"].includes(input[\"Action\"])) throw new Error(\"Invalid action\");\nif (input[\"Action\"] === \"approve\" && input[\"Approved Quantity\"] <= 0) throw new Error(\"Approved quantity must be greater than 0\");\nreturn { json: input };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c5e34da4-81ec-47dc-aacf-4d6e0cf4256c",
+      "name": "Retrieve Issue Request Details",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        6560,
+        3840
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json[\"Submission ID\"] }}",
+              "lookupColumn": "Submission ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 328307238,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=328307238",
+          "cachedResultName": "Materials Issued"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e3c9b60b-fa41-4ec2-9f8f-789ac4fc6323",
+      "name": "Process Approval Decision",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        6980,
+        4060
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c5734b4b-e63a-4ec4-866f-8c1dace02ef1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Verify Approval Data').item.json.Action === \"approve\" }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "406226c7-89b3-4a09-ba05-4b640a619ae1",
+      "name": "Get Stock for Issue Update from Current",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7220,
+        3780
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json['Product ID'] }}",
+              "lookupColumn": "Product ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1019183415,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=1019183415",
+          "cachedResultName": "Current Stock"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "75046f2a-7949-4280-b6a8-500848e41357",
+      "name": "Update Stock After Issue",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7240,
+        4040
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "={{ $('Verify Approval Data').item.json.Action === \"approve\" ? \"Approved\" : $('Verify Approval Data').item.json.Action === \"reject\" ? \"Rejected\" : $json[\"action\"] }}\n\n",
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Issue Date": "={{ $('Verify Approval Data').item.json['Approval Date'] }}",
+            "Product ID": "={{ $json['Product ID'] }}",
+            "Description": "={{ $json.Description }}",
+            "Requested By": "={{ $json['Requested By'] }}",
+            "Approval Link": "={{ $json['Approval Link'] }}",
+            "Submission ID": "={{ $json['Submission ID'] }}",
+            "Measurement Unit": "={{ $json['Measurement Unit'] }}",
+            "Quantity Requested": "={{ $json['Quantity Requested'] }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Product ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity Requested",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Quantity Requested",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Measurement Unit",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Measurement Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requested By",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Requested By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Issue Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submission ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Submission ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approval Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Approval Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Submission ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 328307238,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit#gid=328307238",
+          "cachedResultName": "Materials Issued"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q0S6AVK7uxZG8sUQkpcZr01KToHPjOZ0gG3zKHLR6lw/edit?usp=drivesdk",
+          "cachedResultName": "Plumbee Raw Material Delivery  (Responses)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3005f241-e0c3-4acd-9998-9b3f2cdece0c",
+      "name": "Materials Issue Table Update",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        7220,
+        4260
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Submission ID",
+              "keyValue": "={{ $json[\"Submission ID\"] }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "tableId": "Materials Issued",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Timestamp",
+              "fieldValue": "={{ $json.Timestamp }}"
+            },
+            {
+              "fieldId": "Product ID",
+              "fieldValue": "={{ $json['Product ID'] }}"
+            },
+            {
+              "fieldId": "Quantity Requested",
+              "fieldValue": "={{ $json['Quantity Requested'] }}"
+            },
+            {
+              "fieldId": "Measurement Unit",
+              "fieldValue": "={{ $json['Measurement Unit'] }}"
+            },
+            {
+              "fieldId": "Requested By",
+              "fieldValue": "={{ $json['Requested By'] }}"
+            },
+            {
+              "fieldId": "Description",
+              "fieldValue": "={{ $json.Description }}"
+            },
+            {
+              "fieldId": "Status",
+              "fieldValue": "={{ $('Verify Approval Data').item.json.Action === \"approve\" ? \"Approved\" : $('Verify Approval Data').item.json.Action === \"reject\" ? \"Rejected\" : $json[\"action\"] }}"
+            },
+            {
+              "fieldId": "Approval Link",
+              "fieldValue": "={{ $json['Approval Link'] }}"
+            },
+            {
+              "fieldId": "Submission ID",
+              "fieldValue": "={{ $json['Submission ID'] }}"
+            },
+            {
+              "fieldId": "Issue Date",
+              "fieldValue": "={{ $('Verify Approval Data').item.json['Approval Date'] }}"
+            }
+          ]
+        },
+        "operation": "update"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "808ce6c2-6620-40ae-8c6d-518cf28dce26",
+      "name": "Is Stock is Low",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        8300,
+        3960
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0493b94-1e9c-4f68-ba66-4abd2bd5b569",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json['Is Low'] }}",
+              "rightValue": "="
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Check If Product ID Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Process Approval Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Stock": {
+      "main": [
+        [
+          {
+            "node": "Update Current Stock1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Current Stck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Approvals": {
+      "main": [
+        [
+          {
+            "node": "Format Approval Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Lookups": {
+      "main": [
+        [
+          {
+            "node": "Prepare Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Searck Issues": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "New Record Row": {
+      "main": [
+        [
+          {
+            "node": "Search Current Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format response": {
+      "main": [
+        [
+          {
+            "node": "Initialize New Product stock",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Row Current Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Stock is Low": {
+      "main": [
+        [
+          {
+            "node": "Low Stock Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Approval": {
+      "main": [
+        [
+          {
+            "node": "Send Approval Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Standardize Data": {
+      "main": [
+        [
+          {
+            "node": "Validate Issue Request Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Product ID": {
+      "main": [
+        [
+          {
+            "node": "Merge Lookups",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Record Issue": {
+      "main": [
+        [
+          {
+            "node": "Search Product ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Raw Materials": {
+      "main": [
+        [
+          {
+            "node": "Validate Quantity Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LookUp Current stock": {
+      "main": [
+        [
+          {
+            "node": "Low stock Detection2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low stock Detection1": {
+      "main": [
+        [
+          {
+            "node": "Is Stock is Low",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low stock Detection2": {
+      "main": [
+        [
+          {
+            "node": "Trigger Low Stock Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Current Stock": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Current Stock": {
+      "main": [
+        [
+          {
+            "node": "LookUp Current stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Approval Data": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Issue Request Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Searck Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Total Price": {
+      "main": [
+        [
+          {
+            "node": "Append Raw Materials",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Record Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LookUp Current stock1": {
+      "main": [
+        [
+          {
+            "node": "Low stock Detection1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Existing Stock": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Issue Request": {
+      "main": [
+        [
+          {
+            "node": "Standardize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Current Stock1": {
+      "main": [
+        [
+          {
+            "node": "LookUp Current stock1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Material Request": {
+      "main": [
+        [
+          {
+            "node": "Check Available Stock for Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Low Stock Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Low Stock Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Approval Response": {
+      "main": [
+        [
+          {
+            "node": "Verify Approval Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Approval Decision": {
+      "main": [
+        [
+          {
+            "node": "Update Stock After Issue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Materials Issue Table Update",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Stock for Issue Update from Current",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Requested Quantity": {
+      "main": [
+        [
+          {
+            "node": "Append Material Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Record Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Product ID Exists": {
+      "main": [
+        [
+          {
+            "node": "Calculate Updated Current Stock",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Quantity Received": {
+      "main": [
+        [
+          {
+            "node": "Lookup Existing Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Issue Request Data": {
+      "main": [
+        [
+          {
+            "node": "Verify Requested Quantity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Raw Materials Webhook": {
+      "main": [
+        [
+          {
+            "node": "Standardize Raw Material Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Standardize Raw Material Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate Total Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Issue Request Details": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Updated Current Stock": {
+      "main": [
+        [
+          {
+            "node": "Update Current Stock",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Current Stock Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Available Stock for Issue": {
+      "main": [
+        [
+          {
+            "node": "Merge Lookups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stock for Issue Update from Current": {
+      "main": [
+        [
+          {
+            "node": "Update Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

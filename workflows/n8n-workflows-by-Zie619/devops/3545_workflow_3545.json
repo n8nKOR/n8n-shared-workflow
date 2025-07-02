@@ -1,0 +1,690 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "b87cc222-82ec-4b46-9573-68f41d096969",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 680,
+        "content": "## 2. XLSX를 수동으로 Markdown으로 변환  \n[Extract From File 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.extractfromfile/)  \n\n오늘날의 LLM들은 Excel 파일을 직접 파싱할 수 없으므로, 가장 좋은 방법은 스프레드시트를 그들이 처리할 수 있는 형식, 즉 마크다운으로 변환하는 것입니다. 이 변환은 실제로 데이터 시트가 아닌 Excel 파일에 대해서도 좋은 해결책입니다 - 셀들이 레이아웃 요소처럼 사용되고 있죠 - 이는 청구서와 구매 주문서에서 여전히 일반적입니다.  \n\n변환을 수행하기 위해, 'Extract from File' 노드를 사용하여 xlsx에서 각 행을 가져온 다음, 코드 노드를 사용하여 반복하고 연결하여 마크다운 테이블을 형성할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4c55042-02c8-4364-ae7e-d1ec5a75437a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 680,
+        "content": "## 3. AI를 사용하여 구매 주문 세부 정보 추출\n\n[정보 추출기에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.information-extractor)\n\n데이터 입력은 아마도 AI/LLMs를 필요로 하는 가장 큰 이유일 것입니다. 이 시간 소모적이고 단조로운 작업은 몇 초 만에 고도의 정확도로 완료할 수 있습니다. 여기서, 우리는 AI에게 구조화된 출력으로 각 이벤트를 용어 날짜와 함께 이벤트 목록으로 추출하도록 요청합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9530f93-464b-4116-add7-da218fe8eb12",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -700,
+        -80
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 1400,
+        "content": "## 이를 시도해 보세요!\n### 이 n8n 템플릿은 Outlook에서 구매 주문 제출을 가져와서 첨부된 XLSX 형식의 구매 주문 양식을 구조화된 출력으로 변환합니다.\n\n사용자가 제출한 XLSX 양식의 데이터 입력 작업은 시간이 많이 걸리고 지루하지만 비즈니스 운영에 필수적이며, 아마도 유산 시스템으로부터 상속된 중요한 작업일 것입니다.\n\n시스템 개편과 현대화를 꿈꿀 수는 있지만, 사실 변화는 어렵습니다. 그러나 다른 방법이 있습니다 - n8n과 AI를 사용하세요!\n\n### 작동 원리\n* Outlook 트리거를 사용하여 공유된 받은 편지함을 통해 제출된 구매 주문 양식을 감시합니다.\n* 제출된 이메일 첨부 파일은 XLSX 형식의 양식으로, 예를 들어 https://1drv.ms/x/c/8f1f7dda12b7a145/ETWH8dKwgZ1OiVz7ISUWYf8BwiyihBjXPXEbCYkVi8XDyw?e=WWU2eR 와 같은 파일로 워크플로에 가져옵니다.\n* 'Extract from File' 노드를 'code' 노드와 함께 사용하여 XLSX 파일을 마크다운으로 변환합니다. 이는 LLM이 이를 이해할 수 있게 하기 위함입니다.\n* Information Extractor 노드를 사용하여 양식에서 관련 구매 주문 세부 사항과 품목을 읽고 추출합니다.\n* 간단한 검증 단계를 사용하여 PO 번호 누락이나 금액 불일치와 같은 일반적인 오류를 확인합니다. 오류가 발생하면 구매자에게 자동으로 알림을 보내 답변합니다.\n* 검증이 통과되면 구매자에게 확인을 보내고, 구매 주문 구조화된 출력을 내부 시스템으로 보낼 수 있습니다.\n\n### 사용 방법\n* 이 템플릿은 XLSX 형식의 양식을 기대하고 받는 경우에만 작동합니다. 이는 송장, 요청 양식, 구매 주문 양식 등일 수 있습니다.\n* Outlook 노드를 필요한 이메일로 업데이트하세요.\n* 다음 단계는? ERP나 회계 시스템으로 보내는 마지막 단계를 생략했습니다. 이는 조직에 따라 다르기 때문입니다.\n\n### 요구 사항\n* Outlook for Emails\n  * 자격 증명 설정 방법은 여기를 확인하세요: https://docs.n8n.io/integrations/builtin/credentials/microsoft/\n* OpenAI for LLM document understanding and extraction.\n\n### 워크플로 커스터마이징\n* 이 템플릿은 다른 Excel 파일에도 적용될 수 있습니다. 일부 파일은 더 복잡할 수 있으므로 다양한 파서와 추출 도구 및 전략을 실험해 보세요.\n* Information Extractor Schema를 커스터마이즈하여 필요한 특정 데이터를 추출하세요. 예를 들어, 구매자가 제공한 노트나 댓글을 캡처하세요.\n\n### 도움이 필요하세요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에 가입하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5a2d1e7-f73b-4bfa-8e02-f30db275bbcc",
+      "name": "Extract Purchase Order Details",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        1500,
+        920
+      ],
+      "parameters": {
+        "text": "={{ $json.table }}",
+        "options": {
+          "systemPromptTemplate": "Capture the values as seen. Do not convert dates."
+        },
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"purchase_order_number\": { \"type\": \"string\" },\n    \"purchase_order_date\": { \"type\": \"string\" },\n    \"purchase_order_total\": { \"type\": \"number\" },\n    \"vendor_name\": { \"type\": \"string\" },\n    \"vendor_address\": { \"type\": \"string\" },\n    \"vendor_contact\": { \"type\": \"string\" },\n    \"delivery_contact\": { \"type\": \"string\" },\n    \"delivery_address\": { \"type\": \"string\" },\n    \"delivery_method\": { \"type\": \"string\" },\n    \"items\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"description\": { \"type\": \"string\" },\n          \"part_number\": { \"type\": \"string\" },\n          \"quantity\": { \"type\": \"number\" },\n          \"unit\": { \"type\": \"number\" },\n          \"unit_price\": { \"type\": \"number\" }\n        }\n      }\n    }\n  }\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ce545f0-8147-4ad2-bb9e-14ef0b0c26ef",
+      "name": "Is Excel Document?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        760,
+        1020
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f723ab0a-8f2d-4501-8273-fd6455c57cdd",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $binary.data.mimeType }}",
+              "rightValue": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ccbd9531-66be-4e07-8b73-faf996622f9f",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 140,
+        "content": "구매 주문 예제\n\n이것은 이 템플릿의 예제로 사용되는 구매 주문 XLSX입니다.\n\nhttps://1drv.ms/x/c/8f1f7dda12b7a145/ETWH8dKwgZ1OiVz7ISUWYf8BwiyihBjXPXEbCYkVi8XDyw?e=WWU2eR"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef8b00eb-dba6-47dd-a825-1aa5c85ee215",
+      "name": "Run Checks",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2160,
+        940
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "049c7aca-7663-4eed-93b4-9eec3760c058",
+              "name": "has_po_number",
+              "type": "boolean",
+              "value": "={{ Boolean($json.output.purchase_order_number) }}"
+            },
+            {
+              "id": "94d2224a-cf81-4a42-acd0-de5276a5e493",
+              "name": "has_valid_po_date",
+              "type": "boolean",
+              "value": "={{ $json.output.purchase_order_date.toDateTime() < $now.plus({ 'day': 1 }) }}"
+            },
+            {
+              "id": "a8f69605-dad6-4ec2-a22f-d13ff99e27cd",
+              "name": "has_items",
+              "type": "boolean",
+              "value": "={{ $json.output.items.length > 0 }}"
+            },
+            {
+              "id": "c11db99e-9cc2-40b7-b3a5-f3c65f88dc13",
+              "name": "is_math_correct",
+              "type": "boolean",
+              "value": "={{\n$json.output.items.map(item => item.unit_price * item.quantity).sum().round(2) === $json.output.purchase_order_total.round(2) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "801848cc-558c-4a30-aab5-eb403564b68f",
+      "name": "Is Valid Purchase Order?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2360,
+        940
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "11fa8087-7809-4bc9-9fbe-32bfd35821a6",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.has_po_number }}",
+              "rightValue": ""
+            },
+            {
+              "id": "c45ae85a-e060-4416-aa2c-daf58db8ba0e",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.has_valid_po_date }}",
+              "rightValue": ""
+            },
+            {
+              "id": "d0ae9518-2f4b-43fb-87b1-7108a6a75424",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.has_items }}",
+              "rightValue": ""
+            },
+            {
+              "id": "eed09f78-ce1a-4e09-8940-febcf7e41078",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_math_correct }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7c7dd7a0-45fe-4549-8341-3b3fd18e1725",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        980,
+        920
+      ],
+      "parameters": {
+        "options": {
+          "rawData": true,
+          "headerRow": false,
+          "includeEmptyCells": true
+        },
+        "operation": "xlsx"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfb6b00f-fe50-42d6-8597-8fdcb562714b",
+      "name": "XLSX to Markdown Table",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1180,
+        920
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(item => item.json.row);\nconst maxLength = Math.max(...rows.map(row => row.length));\n\nconst table = [\n  '|' + rows[0].join('|') + '|',\n  '|' + Array(maxLength).fill(0).map(_ => '-').join('|') + '|',\n  rows.slice(1, rows.length)\n    .filter(row => row.some(Boolean))\n    .map(row =>\n      '|' + row.join('|') + '|'\n    ).join('\\n')\n].join('\\n')\n\nreturn { table }"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1a3de516-1d21-4664-b2e3-8c8d6ec90ef2",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1600,
+        1080
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1a29236f-5eaa-4a38-a0a1-6e19abd77d2c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2060,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 940,
+        "height": 680,
+        "content": "## 4. 간단한 검증을 사용하여 시간과 노력을 절약하세요  \n[Edit Fields node에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set)  \n\n우리의 추출된 출력으로 관리 시간을 절약하기 위해 간단한 검증 검사를 실행할 수 있습니다. 구매 주문 번호 누락이나 비용 금액 오산과 같은 일반적인 오류는 쉽게 감지할 수 있으며, 빠른 응답을 할 수 있습니다. 검증이 통과되면, 추출된 출력을 다음에 어떻게 사용하는지는 당신에게 달려 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79a39a03-5f71-4021-bcfd-06edbc285e8a",
+      "name": "Reply Invalid Format",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        980,
+        1120
+      ],
+      "webhookId": "9464583e-9505-49ec-865e-58aa1ab3c2ed",
+      "parameters": {
+        "message": "PO rejected due to invalid file format. Please try again with XLSX.",
+        "options": {},
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Outlook Trigger').first().json.id }}"
+        },
+        "operation": "reply",
+        "additionalFields": {},
+        "replyToSenderOnly": true
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ec973438-4d6c-4d2e-8702-1d195f514528",
+      "name": "Outlook Trigger",
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "position": [
+        -120,
+        920
+      ],
+      "parameters": {
+        "fields": [
+          "body",
+          "categories",
+          "conversationId",
+          "from",
+          "hasAttachments",
+          "internetMessageId",
+          "sender",
+          "subject",
+          "toRecipients",
+          "receivedDateTime",
+          "webLink"
+        ],
+        "output": "fields",
+        "filters": {
+          "hasAttachments": true,
+          "foldersToInclude": []
+        },
+        "options": {
+          "downloadAttachments": true
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fcb173ce-7dad-497a-9376-9650c2a24a84",
+      "name": "Reply Rejection",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        2580,
+        1040
+      ],
+      "webhookId": "9464583e-9505-49ec-865e-58aa1ab3c2ed",
+      "parameters": {
+        "message": "=PO Rejected due to the following errors:\n{{\n[\n  !$json.has_po_number ? '* PO number was not provided' : '',\n  !$json.has_valid_po_date ? '* PO date was missing or invalid' : '',\n  !$json.has_items ? '* No line items detected' : '',\n  !$json.is_math_correct ? '* Line items prices do not match up to PO total' : ''\n]\n  .compact()\n  .join('\\n')\n}}",
+        "options": {},
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Outlook Trigger').first().json.id }}"
+        },
+        "operation": "reply",
+        "additionalFields": {},
+        "replyToSenderOnly": true
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "64ced193-6b12-4ee9-b1e2-735040648051",
+      "name": "Reply Accepted",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        2580,
+        820
+      ],
+      "webhookId": "9464583e-9505-49ec-865e-58aa1ab3c2ed",
+      "parameters": {
+        "message": "=Thank you for the purchase order.\nThis is an automated reply.",
+        "options": {},
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Outlook Trigger').first().json.id }}"
+        },
+        "operation": "reply",
+        "additionalFields": {},
+        "replyToSenderOnly": true
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7bfe0e44-cd5d-4290-ba2e-0064c95bc4e2",
+      "name": "Do Something with Purchase Order",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2800,
+        940
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6f517f2f-6072-46a2-8a9d-cca4e958d601",
+      "name": "Fix Excel Dates",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1840,
+        920
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{\n{\n  output: {\n    ...$json.output,\n    purchase_order_date: $json.output.purchase_order_date\n      ? new Date((new Date(1900, 0, 1)).getTime() + (Number($json.output.purchase_order_date) - 2) * (24 * 60 * 60 * 1000))\n      : $json.output.purchase_order_date\n  }\n}\n}}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f3a31b63-ebcb-4d93-8c5a-f626897b7d68",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 840,
+        "height": 680,
+        "content": "## 1. 수신 구매 주문 대기\n\n[Outlook 트리거에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.microsoftoutlooktrigger)\n\n우리의 템플릿은 Outlook Trigger 노드를 사용하여 공유 인박스(예: \"purchase-orders@example.com\")에 대한 새 이메일을 감시하는 것으로 시작합니다. 우리의 목표는 구매자 구매 주문을 식별하고 캡처하여 자동으로 검증하고 AI를 사용하여 데이터 입력 시간과 비용을 대규모로 줄이는 것입니다.\n\n또한 Text Classifier 노드를 사용하여 의도를 검증할 수 있습니다. 이는 유효한 제출 사항을 포착하도록 하며, 단지 구매 주문에 대한 쿼리나 답변이 아닐 수 있도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb395dfc-2831-4e57-90c9-62f13f84302e",
+      "name": "Is Submitting a Purchase Order?",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "position": [
+        80,
+        920
+      ],
+      "parameters": {
+        "options": {
+          "fallback": "other"
+        },
+        "inputText": "=from: {{ $json.from.emailAddress.name }} <{{ $json.from.emailAddress.address }}>\nsubject: {{ $json.subject }}\nmessage:\n{{ $json.body.content }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "is_purchase_order",
+              "description": "The message's intent is to submit a purchase order"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e52ec2e2-8be5-40ab-b1f8-8d7c0b161e1a",
+      "name": "Do Nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        420,
+        1040
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5ca6be4e-bc33-42d7-91bc-d30f7ccfdd25",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        180,
+        1080
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run Checks": {
+      "main": [
+        [
+          {
+            "node": "Is Valid Purchase Order?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Accepted": {
+      "main": [
+        [
+          {
+            "node": "Do Something with Purchase Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Excel Dates": {
+      "main": [
+        [
+          {
+            "node": "Run Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outlook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Submitting a Purchase Order?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "XLSX to Markdown Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Purchase Order Details",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Excel Document?": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Invalid Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Is Submitting a Purchase Order?",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XLSX to Markdown Table": {
+      "main": [
+        [
+          {
+            "node": "Extract Purchase Order Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid Purchase Order?": {
+      "main": [
+        [
+          {
+            "node": "Reply Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Purchase Order Details": {
+      "main": [
+        [
+          {
+            "node": "Fix Excel Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Submitting a Purchase Order?": {
+      "main": [
+        [
+          {
+            "node": "Is Excel Document?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Do Nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

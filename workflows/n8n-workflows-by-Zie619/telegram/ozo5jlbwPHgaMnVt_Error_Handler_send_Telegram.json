@@ -1,0 +1,116 @@
+{
+  "id": "ozo5jlbwPHgaMnVt",
+  "meta": {
+    "instanceId": "2c69a61055797162319204105e5a124e409f0c7fbfaba08ee106324374f4ae73"
+  },
+  "name": "Error Handler send Telegram",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3968e71e-d9fb-4810-81bb-18ecf073b3ee",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        520,
+        -200
+      ],
+      "webhookId": "b3f6e388-8313-4bc1-8077-d81471b2f95d",
+      "parameters": {
+        "text": "=Workflow: {{ $('Error Trigger').first().json.workflow.name }}\nData & Time: {{ $now }}\nURL: {{ $('Error Trigger').first().json.execution.url }}\nLast Node: {{ $('Error Trigger').first().json.execution.lastNodeExecuted }}\nError Detal: {{ $('Error Trigger').first().json.execution.error.message }}\n",
+        "chatId": "={{ $('Config').item.json.telegramChatId }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "BCYwPAl9pdnRqKeR",
+          "name": "Telegram n8n Log Test"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "bbb54150-b749-49e2-9c49-720341691151",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        60,
+        -200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "68bc359d-4c7f-4027-8e76-c2bc6b612ede",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        -820
+      ],
+      "parameters": {
+        "width": 1420,
+        "height": 1240,
+        "content": "### 텔레그램 오류 알림기 사용 방법\n\n### **1단계: 전제 조건**\n1. **텔레그램 봇:**\n   - [BotFather](https://core.telegram.org/bots#botfather)를 사용하여 봇을 생성하고 봇 토큰을 얻습니다.\n   - 봇을 텔레그램 그룹/채널에 추가하고 `chatId`를 기록합니다.\n\n2. **n8n 설정:**\n   - **Telegram** 및 **Error Trigger** 노드가 설치되어 있는지 확인합니다.\n---\n### **2단계: 워크플로 구성**\n1. **텔레그램 채팅 ID 업데이트:**\n   - **Config** 노드를 엽니다.\n   - `telegramChatId`를 실제 텔레그램 그룹/채널 ID로 교체합니다:\n     ```json\n     return [\n       {\n         \"telegramChatId\": 123456789, // 실제 채팅 ID로 교체, 형식 123456789 또는 -123456789\n       }\n     ];\n     ```\n\n2. **텔레그램 봇 자격 증명 설정:**\n   - **Telegram** 노드를 엽니다.\n   - **Credentials** 섹션에 봇 토큰을 추가합니다.\n\n3. **워크플로 활성화:**\n   - **Active** 스위치를 토글하여 워크플로를 활성화합니다.\n---\n### **3단계: 오류 워크플로 설정**\n1. 오류 알림을 원하는 워크플로를 엽니다.\n2. **Settings** > **Error Workflow**로 이동합니다.\n3. 드롭다운에서 **Telegram Error Notifier**를 선택합니다.\n4. 변경 사항을 저장합니다.\n---\n### **4단계: 워크플로 테스트**\n1. 워크플로에서 오류를 트리거합니다.\n2. 텔레그램에서 오류 알림을 확인합니다. 알림에는 다음이 포함됩니다:\n   - 워크플로 이름\n   - 날짜 및 시간\n   - 실행 URL\n   - 마지막으로 실행된 노드\n   - 오류 세부 사항\n---\n### **예시 알림**\n```\n워크플로: My Workflow 1\n날짜 및 시간: 2023-10-27T12:34:56Z\nURL: https://n8n.example.com/execution/12345\n마지막 노드: HTTP Request\n오류 세부 사항: 서버에 연결하지 못했습니다.\n```\n---\n### **문제 해결**\n- **알림 없음:**  \n  워크플로가 활성화되어 있고, 봇 토큰/채팅 ID가 올바른지 확인합니다.\n- **권한 문제:**  \n  봇이 텔레그램 그룹/채널에서 메시지를 보낼 수 있는지 확인합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6bcf5a24-643d-4fbe-81c9-c8830dc8f1b6",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        300,
+        -200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bf7b1294-b50d-49f7-a5f1-76b0d6845aea",
+              "name": "telegramChatId",
+              "type": "string",
+              "value": "123456789"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e3a6d588-a83c-4d4e-afdc-232624479723",
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

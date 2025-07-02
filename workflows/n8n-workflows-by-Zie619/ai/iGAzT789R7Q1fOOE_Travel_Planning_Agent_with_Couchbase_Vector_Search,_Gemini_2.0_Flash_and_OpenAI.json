@@ -1,0 +1,366 @@
+{
+  "id": "iGAzT789R7Q1fOOE",
+  "meta": {
+    "instanceId": "7a1e9dd164c758cbdeb7cf88274e567a937a36ed99d4d22ff24b645841097c48",
+    "templateId": "3577",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Travel Planning Agent with Couchbase Vector Search, Gemini 2.0 Flash and OpenAI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "0f361616-a552-43ed-9754-794780113955",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        380,
+        240
+      ],
+      "webhookId": "c22b2240-ff07-44e5-a1aa-63584150a1cb",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e8b9815d-0fe5-4e7c-a20b-1602384580cd",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        560,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a4b15997-de4d-4c78-b623-e936442134af",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        280
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 800,
+        "height": 500,
+        "content": "## Couchbase로 구동되는 AI 여행 에이전트.\n\n### 다음을 수행해야 합니다:\n1. Gemini LLM용 Google API 자격 증명을 설정하세요.\n2. OpenAI 임베딩 노드용 OpenAI 자격 증명을 설정하세요.\n3. Couchbase 클러스터를 생성하세요 (클라우드에서 [Couchbase Capella](https://cloud.couchbase.com/)를 사용하거나 Couchbase Server를 사용).\n4. 수행할 작업에 적합한 권한으로 [데이터베이스 자격 증명](https://docs.couchbase.com/cloud/clusters/manage-database-users.html#create-database-credentials)을 추가하세요.\n5. n8n 인스턴스에 대한 [허용 IP 주소](https://docs.couchbase.com/cloud/clusters/allow-ip-address.html)를 구성하세요. 테스트를 쉽게 하기 위해 `0.0.0.0/0`을 사용하세요.\n6. 버킷, 스코프 및 컬렉션을 생성하세요. 다음을 추천합니다:\n   - 버킷: `travel-agent`\n   - 스코프: `vectors`\n   - 컬렉션: `points-of-interest`\n7. 데이터 도구로 이동하여 검색 탭을 클릭한 후, 검색 인덱스 가져오기를 클릭하세요. [여기](https://gist.github.com/ejscribner/6f16343d4b44b1af31e8f344557814b0)에서 찾을 수 있는 다음 JSON 파일을 업로드하세요.\n\n모든 설정이 완료되면 로딩 웹훅을 일부 데이터 포인트와 함께 보내야 합니다 (예시 참조).\n\n이것은 `points-of-interest` 컬렉션에 벡터화된 데이터를 생성할 것입니다.\n\n데이터 포인트가 생성된 후에는 에이전트에게 데이터 포인트에 대한 질문을 하고 응답을 테스트하세요. 예: \"로맨틱한 휴가를 위해 어디로 가야 할까요?\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34866f8e-00b0-4706-82d7-491b9531a8b6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        800,
+        1000
+      ],
+      "webhookId": "3ca6fbdd-a157-4e9d-9042-237048da85b6",
+      "parameters": {
+        "path": "3ca6fbdd-a157-4e9d-9042-237048da85b6",
+        "options": {
+          "rawBody": true
+        },
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "26d4e62a-42b0-4e09-8585-827e5bcc9fff",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1180,
+        1360
+      ],
+      "parameters": {
+        "options": {},
+        "jsonData": "={{ $json.body.raw_body.point_of_interest.title }} - {{ $json.body.raw_body.point_of_interest.description }}",
+        "jsonMode": "expressionData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "63fc308f-4d1c-4d24-9b20-68d7e6c2dbba",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1280,
+        1540
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "84f8c32b-8e0c-457c-aaec-17827042674d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        1060
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 460,
+        "content": "## 데이터 수집을 위한 CURL 명령어.\n\n웹훅이 활성화되어 요청을 받을 준비가 되면 데이터를 로드하는 방법의 예입니다.\n\n```\ncurl -X POST \"웹훅 URL\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"raw_body\": {\n      \"point_of_interest\": {\n        \"title\": \"에펠 탑\",\n        \"description\": \"파리 샹 드 마르에 위치한 상징적인 철제 격자 탑.\"\n      }\n    }\n  }'\n```\n\n(웹훅 노드에 나와 있는 URL로 웹훅 URL을 바꾸세요)\n\n여섯 개의 데이터 포인트를 일괄 삽입하는 쉘 스크립트는 [여기](https://gist.github.com/ejscribner/355a46a0a383a4878e65e2230b92c6b5)에 있습니다. 스크립트를 실행할 때는 워크플로를 활성화하고 프로덕션 웹훅 URL을 사용하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2cf8788-849c-4420-b448-bd49caa4941e",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        720,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "0bf7fef9-f999-42a8-a6a8-ab111fe9a084",
+      "name": "AI Travel Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        600,
+        240
+      ],
+      "parameters": {
+        "options": {
+          "maxIterations": 10,
+          "systemMessage": "You are a helpful assistant for a trip planner. You have a vector search capability to locate points of interest, Use it and don't invent much."
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "3af3c8ce-582b-407c-847a-8063f9ad2e1a",
+      "name": "Retrieve docs with Couchbase Search Vector",
+      "type": "n8n-nodes-couchbase.vectorStoreCouchbaseSearch",
+      "position": [
+        860,
+        500
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "topK": 10,
+        "options": {},
+        "toolName": "PointofinterestKB",
+        "embedding": "embedding",
+        "textFieldKey": "description",
+        "couchbaseScope": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "couchbaseBucket": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "toolDescription": "The list of Points of Interest from the database.",
+        "vectorIndexName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "couchbaseCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "77a4e857-607a-4bbc-a28d-8a715f9415d5",
+      "name": "Insert docs with Couchbase Search Vector",
+      "type": "n8n-nodes-couchbase.vectorStoreCouchbaseSearch",
+      "position": [
+        1100,
+        1120
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "embedding": "embedding",
+        "textFieldKey": "description",
+        "couchbaseScope": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "couchbaseBucket": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "vectorIndexName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "embeddingBatchSize": 1,
+        "couchbaseCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4c0274c3-6647-4f45-b7d4-d63cfe2102ea",
+      "name": "Generate OpenAI Embeddings using text-embedding-3-small",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        960,
+        740
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "83f864fa-a298-4738-a102-ca2d283377de",
+      "name": "Generate OpenAI Embeddings using text-embedding-3-small1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1000,
+        1340
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "versionId": "80e40e5a-35a3-4fa4-b90e-ac9d76897bbd",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Insert docs with Couchbase Search Vector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Travel Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Insert docs with Couchbase Search Vector",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Travel Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Travel Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve docs with Couchbase Search Vector": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate OpenAI Embeddings using text-embedding-3-small": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve docs with Couchbase Search Vector",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate OpenAI Embeddings using text-embedding-3-small1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Insert docs with Couchbase Search Vector",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

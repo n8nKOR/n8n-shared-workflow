@@ -1,227 +1,142 @@
 # HR 워크플로우
 
-이 폴더에는 인사 관리 자동화, 채용 프로세스, 직원 관리, AI 기반 HR 도구들이 포함되어 있습니다.
+이 폴더에는 hr 관련 **29개의 워크플로우**가 포함되어 있습니다.
 
-## 🤖 AI 기반 채용 시스템
+## 📋 워크플로우 목록
 
-### 지능형 인터뷰 자동화
-[![BeyondPresence AI 인터뷰](4514.png)](4514.json)
-**BeyondPresence Agent HR 인터뷰 시스템**
-AI 기반 자동화된 인터뷰 시스템으로, 채용 담당자가 인터뷰 에이전트를 생성하고 실시간 분석 결과를 받아볼 수 있습니다. Google Sheets와 연동되어 후보자 응답을 자동으로 분석하고 저장합니다.
+[![워크플로우 2328](2328.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2328.json)
+**워크플로우 2328**
+4. 이 도구는 캘린더 이벤트를 생성합니다 이 도구는 이벤트 세부 정보와 참석자 목록이 주어지면, 새로운 Google 캘린더 이벤트를 생성하고 참석자를 추가할 것입니다.
 
-[![AI 인터뷰 스케줄러](3363.png)](3363.json)
-**인터뷰 스케줄러**
-AI 기반 인터뷰 일정 조정 시스템으로 Google Calendar와 연동됩니다. 후보자와 자연스러운 대화를 통해 선호하는 날짜와 시간을 확인하고 자동으로 인터뷰 일정을 예약합니다.
+[![워크플로우 2413](2413.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2413.json)
+**워크플로우 2413**
+Notion 지식 베이스 어시스턴트 [v1] [30 Day AI Sprint](https://30dayaisprint.notion.site/)의 일부로 [@maxtkacz](https://x.com/maxtkacz)에 의해 제작됨
 
-### 이력서 분석 및 평가
-[![자동화된 이력서 채용 매칭](4330.png)](4330.json)
-**자동화된 이력서 채용 매칭 엔진**
-Bright Data와 OpenAI 4o mini를 활용하여 LinkedIn에서 채용 정보를 실시간으로 스크래핑하고 이력서와 자동으로 매칭시키는 지능형 시스템입니다.
+[![워크플로우 2415](2415.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2415.json)
+**워크플로우 2415**
+특정 Notion DB 스키마에 대한 새 워크플로 버전 생성 Notion 데이터베이스 URL을 입력하고, 이 템플릿에 기반하여 해당 URL에 대한 AI Assistant 챗봇 워크플로를 얻습니다: https://n8n.io/workflows/2413-notion-knowledge-base-ai-assistant/ Notion 프로젝트: https://www...
 
-[![이력서 스크리너](3546.png)](3546.json)
-**이력서 스크리너: Gmail에서 Sheets로**
-Gmail로 접수된 이력서를 AI가 자동으로 분석하여 평점을 매기고, 이름, 이메일, LinkedIn 프로필을 추출하여 Google Sheets에 정리하는 자동화 시스템입니다.
+[![워크플로우 2416](2416.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2416.json)
+**워크플로우 2416**
+저를 시험해 보세요! 이 워크플로는 후보자 이력서 PDF를 이미지로 변환한 후, Vision Language Model (VLM)에 의해 '읽음'됩니다. VLM은 후보자의 CV가 원하는 역할에 적합한지 평가합니다. 이 접근법은 이력서에 심어진 '숨겨진 프롬프트'를 방지하기 위해 사용될 수 있으며, 이는 AI를 사용하여 자동 ATS 시스템을 우회하거나 조작하...
 
-[![자동화된 이력서 검토](3318.png)](3318.json)
-**자동화된 이력서 검토 시스템**
-폼으로 제출된 이력서를 OpenAI로 분석하여 구조화된 정보를 추출하고 AI가 채용 적합성을 평가한 후 Google Sheets에 저장하는 완전 자동화 시스템입니다.
+[![워크플로우 2530](2530.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2530.json)
+**워크플로우 2530**
+워크시트가 존재하는지 확인
 
-[![HR 중심 자동화 파이프라인](2860.png)](2860.json)
-**HR 중심 자동화 파이프라인**
-AI 기반 CV 평가 시스템으로 이력서에서 학력, 경력, 기술을 추출하고 요약하여 채용 결정에 도움을 주는 종합적인 HR 자동화 도구입니다.
+[![워크플로우 2572](2572.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2572.json)
+**워크플로우 2572**
+CV와 직무 설명에 직접 링크 추가
 
-[![이력서 분석 및 채용 공고 매칭](3051.png)](3051.json)
-**이력서 분석 및 적합한 채용 공고 찾기**
-Google Drive에서 이력서 PDF를 가져와 AI로 분석한 후 적합한 채용 공고를 찾아 Google Sheets에 정리하는 양방향 매칭 시스템입니다.
+[![워크플로우 2579](2579.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2579.json)
+**워크플로우 2579**
+1. 이력서 업로드 신청 양식 [Form Trigger 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.formtrigger/) 우리의 지원 프로세스는 지원자의 이력서를 처리하기 위해 간단한 파일 업로드로 시작합니다.
 
-[![HR 채용 공고 및 평가](2773.png)](2773.json)
-**HR 채용 공고 및 평가 with AI**
-온라인 채용 공고 폼과 연동되어 지원자 정보를 Airtable에 저장하고 AI로 이력서를 분석하여 점수를 매기는 완전한 채용 관리 시스템입니다.
+[![워크플로우 2651](2651.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2651.json)
+**워크플로우 2651**
+... 또는 설정 비디오 보기 [10분]
 
-## 📊 팀 관리 및 커뮤니케이션
+[![워크플로우 2752](2752.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2752.json)
+**워크플로우 2752**
+1. 내부 정책 문서 다운로드 및 추출 [HTTP Request Tool에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest) 먼저, 내부 정책과 FAQ가 포함된 PDF 문서를 가져오세요. 이 문서들은 Internal Helpdesk Assista...
 
-### 자동 보고서 생성
-[![Microsoft Teams 주간 보고서](3971.png)](3971.json)
-**Microsoft Teams 주간 보고서 생성**
-Microsoft Teams 채널 메시지를 분석하여 팀원별 주간 활동 보고서를 자동 생성하고, AI가 성과와 과제를 요약하여 매주 월요일에 공유합니다.
+[![워크플로우 2772](2772.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2772.json)
+**워크플로우 2772**
+동기화 유지 매핑을 업데이트하면, 다른 노드에서도 변경하세요!
 
-[![Slack 주간 팀 보고서](3969.png)](3969.json)
-**Slack 기반 주간 팀 보고서 생성**
-Slack 채널의 지난 주 메시지들을 분석하여 개별 팀원과 전체 팀의 주간 보고서를 AI로 생성하는 자동화된 팀 관리 도구입니다.
+## 📋 워크플로우 목록 (11-20)
 
-### 온보딩 및 직원 관리
-[![OnboardAIgen 온보딩 자동화](3860.png)](3860.json)
-**OnboardAIgen - Slack x Jira x Drive 온보딩 자동화**
-신규 직원 온보딩을 위한 통합 자동화 시스템으로 Slack, Jira, Google Drive를 연결하여 신입사원의 첫 출근 준비를 완전 자동화합니다.
+[![워크플로우 2773](2773.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2773.json)
+**워크플로우 2773**
+사용자 세부 정보를 가져와 Airtable에 업데이트
 
-[![고객 온보딩 캘린더 에이전트](3958.png)](3958.json)
-**고객 온보딩 캘린더 에이전트**
-웹훅을 통해 신규 고객 정보를 받아 AI 캘린더 에이전트가 자동으로 환영 이메일, 온보딩 미팅 일정, CSM 배정을 처리하는 완전 자동화 시스템입니다.
+[![워크플로우 2808](2808.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2808.json)
+**워크플로우 2808**
+Google 시트를 생성하세요. 'linkedin_url'이라는 이름의 단 하나의 열을 만들고, 풍부화하고 싶은 프로필로 채우세요.
 
-## 🔍 채용 데이터 수집 및 분석
+[![워크플로우 2825](2825.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2825.json)
+**워크플로우 2825**
+ScrapingBee, Glassdoor, OpenAI, 및 QuickChart를 사용하여 직장 차별 패턴을 감지하세요
 
-### 채용 공고 스크래핑
-[![LinkedIn 채용 데이터 스크래퍼](3580.png)](3580.json)
-**LinkedIn 채용 데이터 스크래퍼**
-Bright Data를 통해 LinkedIn에서 실시간 채용 공고를 스크래핑하고 정리하여 Google Sheets로 전송하는 고급 채용 정보 수집 도구입니다.
+[![워크플로우 2850](2850.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2850.json)
+**워크플로우 2850**
+1단계: 회사 정책을 검색하여 가져오고 이를 벡터 저장소에 로드하세요
 
-[![Hacker News 채용 공고 스크래핑](2924.png)](2924.json)
-**Hacker News "Who is Hiring" 스크래핑**
-Hacker News의 월간 채용 공고를 자동으로 스크래핑하여 AI로 구조화된 정보로 파싱하고 저장하는 효율적인 채용 정보 수집 시스템입니다.
+[![워크플로우 2860](2860.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2860.json)
+**워크플로우 2860**
+HR 전문가 이 워크플로우는 구인 지원서 처리 프로세스를 자동화하여, 제출된 이력서에서 관련 정보를 추출하고, 지원자의 자격을 미리 정의된 프로필과 비교 분석한 후, 결과를 Google 스프레드시트에 저장합니다.
 
-[![LinkedIn 프로필 강화](2808.png)](2808.json)
-**LinkedIn 프로필 자동 강화 도구**
-RapidAPI를 통해 LinkedIn 프로필 데이터를 가져와 Google Sheets의 연락처 정보를 자동으로 보강하는 영업 및 채용 지원 도구입니다.
+[![워크플로우 2924](2924.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2924.json)
+**워크플로우 2924**
+https://hn.algolia.com으로 이동하세요 - "Ask HN: Who is hiring?"로 필터링하세요 (인용부호를 사용하여 완전 일치하도록 중요) - 날짜로 정렬하세요 - Chrome 네트워크 탭 > API 호출 찾기 > "Copy as cURL" 클릭 - n8n HTTP 노드 -> cURL 가져오기 및 붙여넣기 - API 키를 Header...
 
-### AI 기반 차별 패턴 분석
-[![직장 차별 패턴 탐지](2825.png)](2825.json)
-**AI 기반 직장 차별 패턴 탐지**
-회사의 다양성 데이터를 AI로 분석하여 잠재적인 차별 패턴을 감지하고 개선 방안을 제시하는 고급 HR 분석 도구입니다.
+[![워크플로우 2979](2979.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/2979.json)
+**워크플로우 2979**
+🗂️ Google Drive에 대한 대량 파일 업로드 및 폴더 관리 개요 이 워크플로우는 폼 제출을 처리하며, 다음을 허용합니다: - 여러 파일 업로드 (모든 형식) - 대상 폴더 이름 입력 워크플로우는 자동으로: - 지정된 폴더가 Google Drive에 존재하는지 확인 - 폴더가 존재하지 않으면 생성 - 모든 파일을 올바른 폴더에 업로드 - 원본 파일 ...
 
-## 🤖 HR 지원 시스템
+[![워크플로우 3051](3051.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3051.json)
+**워크플로우 3051**
+번역된 텍스트: 아무런 입력 텍스트가 제공되지 않았으므로, 번역할 내용이 없습니다.
 
-### AI 챗봇 및 정책 관리
-[![BambooHR AI 정책 챗봇](2850.png)](2850.json)
-**BambooHR AI 정책 및 혜택 챗봇**
-회사 정책 문서와 혜택 정보를 벡터 데이터베이스에 저장하고 직원들이 자연어로 질문할 수 있는 지능형 HR 챗봇 시스템입니다.
+[![워크플로우 3145](3145.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3145.json)
+**워크플로우 3145**
+👆 폼에 인증을 추가하세요. Basic Auth를 선택하여 무단 접근을 방지하세요.
 
-[![HR & IT 헬프데스크 챗봇](2752.png)](2752.json)
-**HR & IT 헬프데스크 챗봇**
-음성 전사 기능이 포함된 다기능 헬프데스크 챗봇으로 회사 정책 문서를 기반으로 직원들의 HR 및 IT 관련 질문에 답변합니다.
+[![워크플로우 3318](3318.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3318.json)
+**워크플로우 3318**
+제출, Google Drive에 저장 및 추출 **폼에서 사용자 정보를 캡처합니다.** **이력서를 Google Drive에 업로드합니다.** **PDF(이력서)에서 데이터를 추출합니다.**
 
-### 회의 및 시간 관리
-[![AI 회의 분석](2328.png)](2328.json)
-**AI 기반 회의 분석 워크플로우**
-Google Meet 회의 전사록을 AI로 분석하여 핵심 내용을 요약하고 후속 조치를 자동으로 생성하는 회의 효율성 향상 도구입니다.
+## 📋 워크플로우 목록 (21-29)
 
-[![위치 기반 출석 시스템](2530.png)](2530.json)
-**위치 기반 자동 출석 시스템**
-iPhone 단축어와 Google Sheets를 활용하여 직원의 위치를 감지해 자동으로 출퇴근을 기록하는 스마트 출석 관리 시스템입니다.
+[![워크플로우 3363](3363.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3363.json)
+**워크플로우 3363**
+체크 데이 네임스 도구 1. 이 흐름의 이 부분은 "체크 데이 네임스 도구"에 내장된 것의 복사본일 뿐입니다. 실행되지 않습니다. 2. 이 흐름의 이 부분을 업데이트하려면, ctrl-c로 복사하여 다른 통합 문서에 붙여넣으세요. 서브-워크플로 실행을 추가하세요. 워크플로가 모든 데이터를 수용하도록 설정하세요. 흐름을 복사하세요. "체크 데이 네임스 도구" ...
 
-## 📄 문서 자동화 및 관리
+[![워크플로우 3546](3546.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3546.json)
+**워크플로우 3546**
+이력서 스크리너: Gmail에서 Sheets로 📃시작하기 전에 다음이 필요합니다: - [n8n 설치](https://n8n.partnerlinks.io/n8nTTVideoGenTemplate) - [OpenAI API 키](https://platform.openai.com/api-keys) - [Google Cloud Console](https://cons...
 
-### 문서 생성 및 처리
-[![폼에서 Google Docs 생성](3145.png)](3145.json)
-**폼에서 Google Docs 자동 생성**
-온라인 폼 제출 내용을 기반으로 Google Docs 템플릿을 복사하여 자동으로 개인화된 문서를 생성하는 문서 자동화 도구입니다.
+[![워크플로우 3580](3580.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3580.json)
+**워크플로우 3580**
+LinkedIn 작업 데이터 스크래퍼를 Google Sheets로 LinkedIn에서 Bright Data를 통해 실시간 작업 게시물을 스크래핑하고, 이를 정리한 후 Google Sheets로 보내기. 사용 목적: ✅ 작업 수색 — 신선하고 필터링된 역할 ✅ 판매 잠재 고객 탐색 — 채용 중인 회사 찾기 (즉, 성장 중인 회사) ⚙️ 사용된 도구 n8n 노...
 
-[![배치 파일 업로드](2979.png)](2979.json)
-**Google Drive 배치 파일 업로드**
-여러 파일을 한 번에 Google Drive의 특정 폴더로 업로드하는 편리한 파일 관리 자동화 도구입니다.
+[![워크플로우 3860](3860.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3860.json)
+**워크플로우 3860**
+아웃풋
 
-### 작업 관리 및 동기화
-[![Notion Todoist 양방향 동기화](2772.png)](2772.json)
-**실시간 Notion Todoist 양방향 동기화**
-Notion 데이터베이스와 Todoist 프로젝트 간의 실시간 양방향 동기화를 구현하는 강력한 생산성 관리 템플릿입니다.
+[![워크플로우 3958](3958.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3958.json)
+**워크플로우 3958**
+무엇을 하는가? 목적: 새로운 고객을 위한 온보딩 프로세스를 간소화하여, 필요한 모든 자원과 지원을 받을 수 있도록 합니다. 트리거: 새로운 고객이 추가될 때 웹훅 트리거나 CRM 트리거(예: HubSpot 또는 Salesforce)를 설정합니다. 환영 이메일 보내기: Gmail 또는 SMTP 노드를 사용하여 고객에게 개인화된 환영 이메일을 보냅니다. 환영...
 
-### 지식 관리
-[![Notion 지식베이스 어시스턴트](2413.png)](2413.json)
-**Notion 기반 지식베이스 어시스턴트**
-AI 검색 기능이 탑재된 Notion 지식베이스 시스템으로 직원들이 필요한 정보를 빠르게 찾고 FAQ에 대한 답변을 자동으로 제공합니다.
+[![워크플로우 3969](3969.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3969.json)
+**워크플로우 3969**
+1. 지난 주 모든 활동 가져오기 [Slack 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.slack) 우리는 지난 7일 동안 우리 팀 채널의 모든 활동을 가져와 메시지 작성자별로 그룹화하는 것으로 시작하겠습니다. Slack 노드와 DateTime 필터를 사...
 
-## 📈 추가 워크플로우들
+[![워크플로우 3971](3971.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/3971.json)
+**워크플로우 3971**
+1. 지난 주 채널 메시지 모두 가져오기 [MS Teams 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftteams) 지난 7일 동안 우리 팀 채널의 모든 활동을 가져와 메시지 작성자별로 그룹화하겠습니다. 이를 MS Teams 노드를 사용하...
 
-### 기타 관리 도구들
-[![2651.png](2651.png)](2651.json)
-**워크플로우 2651** - 추가 HR 자동화 도구
+[![워크플로우 4330](4330.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/4330.json)
+**워크플로우 4330**
+면책 조항 이 템플릿은 n8n 자체 호스팅에서만 이용 가능합니다. 왜냐하면 MCP 클라이언트를 위한 커뮤니티 노드를 사용하고 있기 때문입니다.
 
-[![2572.png](2572.png)](2572.json)
-**워크플로우 2572** - HR 프로세스 최적화
+[![워크플로우 4514](4514.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/hr/4514.json)
+**워크플로우 4514**
+📝 1단계: 귀하의 직무 설명 추가 **아래의 노란색 상자에 귀하의 완전한 직무 공고를 간단히 붙여넣으세요** 포함: - 직무 제목 - 회사 이름 - 책임 - 요구사항 - 기타 관련 세부 사항 AI가 귀하의 텍스트에서 모든 것을 이해할 것입니다!
 
-[![2579.png](2579.png)](2579.json)
-**워크플로우 2579** - 직원 관리 시스템
+## 🔧 구현 가이드
 
-[![2415.png](2415.png)](2415.json)
-**워크플로우 2415** - HR 데이터 분석
+### 워크플로우 사용 방법
+1. 원하는 워크플로우의 JSON 링크를 클릭합니다.
+2. n8n 인스턴스에서 'Import' 기능을 사용하여 워크플로우를 가져옵니다.
+3. 필요한 자격 증명과 설정을 구성합니다.
+4. 워크플로우를 테스트하고 필요에 따라 커스터마이즈합니다.
 
-[![2416.png](2416.png)](2416.json)
-**워크플로우 2416** - 인사 관리 자동화
+### 주의사항
+- 각 워크플로우는 특정 서비스나 API의 자격 증명이 필요할 수 있습니다.
+- 워크플로우를 실행하기 전에 모든 노드의 설정을 확인하세요.
+- 테스트 환경에서 먼저 워크플로우를 검증한 후 프로덕션에 적용하세요.
 
-## 🚀 구현 가이드
+---
 
-### 기본 설정
-1. **필수 자격 증명**
-   - OpenAI API 키 (AI 분석용)
-   - Google Workspace OAuth (Gmail, Sheets, Drive, Calendar)
-   - Slack/Teams API (팀 커뮤니케이션)
-   - 채용 플랫폼 API (LinkedIn, Indeed 등)
-
-2. **데이터베이스 설정**
-   - PostgreSQL (벡터 저장소용)
-   - Redis (캐싱용, 선택사항)
-
-### 보안 고려사항
-- 개인정보 보호 규정 (GDPR, CCPA) 준수
-- 이력서 및 개인 데이터 암호화 저장
-- API 키 및 민감한 정보의 안전한 관리
-- 액세스 권한 및 감사 로그 구현
-
-### 확장성 전략
-- 마이크로서비스 아키텍처 적용
-- 로드 밸런싱 및 자동 스케일링 설정
-- 다중 지역 배포 (글로벌 기업용)
-- 실시간 모니터링 및 알림 시스템
-
-### 성능 최적화
-- AI 모델 응답 시간 최적화
-- 데이터베이스 쿼리 성능 튜닝
-- 캐싱 전략 구현
-- 배치 처리를 통한 대용량 데이터 처리
-
-## 🔧 주요 통합 서비스
-
-### AI 및 머신러닝
-- **OpenAI**: GPT-4, GPT-3.5, 임베딩 생성
-- **LangChain**: AI 워크플로우 체인 구성
-- **Vector Databases**: 지능형 검색 및 매칭
-
-### 커뮤니케이션 플랫폼
-- **Slack**: 팀 커뮤니케이션 및 봇
-- **Microsoft Teams**: 엔터프라이즈 협업
-- **Telegram**: 알림 및 간단한 상호작용
-
-### 데이터 관리
-- **Google Workspace**: Sheets, Docs, Drive, Calendar
-- **Airtable**: 구조화된 데이터베이스
-- **Notion**: 지식 관리 및 문서화
-
-### 채용 플랫폼
-- **LinkedIn**: 프로필 데이터 및 채용 공고
-- **BeyondPresence**: AI 인터뷰 플랫폼
-- **BambooHR**: HR 관리 시스템
-
-## 📚 관련 자료
-
-### 문서 및 가이드
-- [n8n HR 자동화 모범 사례](https://docs.n8n.io/workflows/hr/)
-- [AI 기반 채용 가이드](https://docs.n8n.io/ai-recruiting/)
-- [GDPR 준수 체크리스트](https://docs.n8n.io/security/gdpr/)
-
-### 커뮤니티 리소스
-- [n8n HR 자동화 포럼](https://community.n8n.io/c/hr-automation/)
-- [HR 워크플로우 템플릿 라이브러리](https://n8n.io/workflows/hr/)
-- [AI HR 도구 비교](https://n8n.io/blog/ai-hr-tools/)
-
-### 교육 자료
-- [HR 자동화 온라인 코스](https://learn.n8n.io/hr-automation/)
-- [AI 기반 채용 웨비나](https://n8n.io/webinars/ai-recruiting/)
-- [실무 적용 사례 연구](https://n8n.io/case-studies/hr/)
-
-## 💡 사용 사례
-
-### 스타트업 (1-50명)
-- 기본적인 이력서 스크리닝 자동화
-- 간단한 온보딩 프로세스
-- AI 기반 FAQ 챗봇
-
-### 중견기업 (50-500명)
-- 포괄적인 채용 파이프라인 자동화
-- 팀 성과 분석 및 보고
-- 직원 피드백 수집 및 분석
-
-### 대기업 (500명+)
-- 엔터프라이즈급 HR 자동화
-- 다양성 및 포용성 분석
-- 글로벌 인재 관리 시스템
-
-이 HR 워크플로우 컬렉션은 채용부터 직원 관리까지 인사 업무의 모든 측면을 자동화하고 AI로 향상시켜 조직의 효율성과 직원 경험을 크게 개선할 수 있습니다.
+💡 **총 29개의 워크플로우**가 이 카테고리에서 제공됩니다.

@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "instanceId": "237600ca44303ce91fa31ee72babcdc8493f55ee2c0e8aa2b78b3b4ce6f70bd9"
+  },
+  "nodes": [
+    {
+      "id": "cc514d10-89cc-4fcf-8c1f-b65395cd168a",
+      "name": "On new invoice in Clockify",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        460,
+        460
+      ],
+      "webhookId": "8af31ab8-e16a-4401-84b7-b246c65ba6a9",
+      "parameters": {
+        "path": "8af31ab8-e16a-4401-84b7-b246c65ba6a9",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef9e5ce6-cb3e-4cb9-b33d-3b05a2ab589d",
+      "name": "Create database page",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        680,
+        460
+      ],
+      "parameters": {
+        "title": "={{ $json[\"body\"][\"number\"] }}",
+        "resource": "databasePage",
+        "databaseId": "ea3219a7-0a1a-4792-8dd6-ab450204dc06",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Issue date|date",
+              "date": "={{ $json[\"body\"][\"issuedDate\"] }}"
+            },
+            {
+              "key": "Due date|date",
+              "date": "={{ $json[\"body\"][\"dueDate\"] }}"
+            },
+            {
+              "key": "Amount|number",
+              "numberValue": "={{ $json[\"body\"][\"amount\"] }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "9",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e2ecb86f-2f0c-4fe7-8919-e9095abdb5a0",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        240
+      ],
+      "parameters": {
+        "width": 462,
+        "height": 595,
+        "content": "## Clockify의 새 인보이스를 Notion 데이터베이스에 보내기\n### 작동 원리\n1. `Clockify의 새 인보이스` 웹훅 노드가 Clockify에서 새 인보이스가 생성될 때 트리거됩니다. 설정이 필요합니다.\n2. `Create database page` Notion 노드가 Clockify 트리거에서 지정된 정보를 사용하여 데이터베이스 페이지를 생성합니다. 필요에 따라 추가 필드를 설정에 따라 추가할 수 있습니다.\n\n### 설정\n1. Clockify의 [웹훅 섹션](https://app.clockify.me/webhooks)으로 이동하여 Clockify 웹훅을 생성합니다.\n2. \"Invoice created\" 이벤트를 지정하고 `On new invoice in Clockify` 웹훅 단계에서 제공된 URL을 붙여넣어 웹훅을 생성합니다.\n3. 이제 Notion으로 이동하여 Clockify 인보이스를 저장할 새 데이터베이스를 생성합니다.\n4. 새 Notion 데이터베이스에서 다음 필드를 생성합니다:\n    - 인보이스 번호 (\"Name\" 필드에서 이름 변경)\n    - 발행 날짜 (date field)\n    - 마감 날짜 (date field)\n    - 금액 (number field)\n5. Notion에 더 많은 필드를 추가하려면, Notion에서 해당 필드를 생성하고 `Create database page` 노드에서 적절히 매핑합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "On new invoice in Clockify": {
+      "main": [
+        [
+          {
+            "node": "Create database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,490 @@
+{
+  "id": "R4EuB1gx1IpMXCJM",
+  "meta": {
+    "instanceId": "a5283507e1917a33cc3ae615b2e7d5ad2c1e50955e6f831272ddd5ab816f3fb6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "CoinMarketCap_Crypto_Agent_Tool",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -240,
+        260
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3638379c-fad2-4d3b-bb90-b32242da4cc7",
+      "name": "CoinMarketCap Crypto Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        260,
+        260
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are an AI cryptocurrency analyst. You have access to six live CoinMarketCap tools, each linked to a real API endpoint. These tools allow you to retrieve price data, metadata, market rankings, conversions, and global market stats.\n\nUse the most relevant tool based on the user’s intent. Below is a list of your currently connected tools, their functions, and accepted input parameters.\n\n---\n\n### 🔧 **Connected Tools & Supported Inputs**\n\n---\n\n#### 1. **Crypto Map**\n- **Endpoint**: `/v1/cryptocurrency/map`\n- **Purpose**: Get CoinMarketCap IDs, symbols, and names.\n- **Supported Inputs**:\n  - `symbol` – (Optional) Comma-separated crypto symbols (e.g., BTC,ETH)\n  - `listing_status` – `active`, `inactive`, or `untracked`\n  - `start` – (Pagination start)\n  - `limit` – (Number of results)\n- **Use Cases**:\n  - “What is the CoinMarketCap ID for SOL?”\n  - “List all active cryptocurrencies.”\n\n---\n\n#### 2. **Crypto Info**\n- **Endpoint**: `/v2/cryptocurrency/info`\n- **Purpose**: Get metadata like description, whitepaper, and social links.\n- **Supported Inputs**:\n  - `symbol` – (Required) Comma-separated symbols\n- **Use Cases**:\n  - “Show me the whitepaper for ETH.”\n  - “What’s the website and Twitter handle of DOGE?”\n\n---\n\n#### 3. **Crypto Listings**\n- **Endpoint**: `/v1/cryptocurrency/listings/latest`\n- **Purpose**: Ranked list of coins sorted by market cap.\n- **Supported Inputs**:\n  - `start` – (e.g., 1 for top coin, 101 for rank 101+)\n  - `limit` – (e.g., 10 for top 10)\n  - `convert` – Currency to convert values into (e.g., USD, EUR)\n- **Use Cases**:\n  - “Show me the top 20 coins.”\n  - “What are the top 5 coins in EUR?”\n\n---\n\n#### 4. **CoinMarketCap Price**\n- **Endpoint**: `/v2/cryptocurrency/quotes/latest`\n- **Purpose**: Real-time price, volume, and market cap.\n- **Supported Inputs**:\n  - `symbol` – (Required) Single or multiple symbols\n  - `convert` – Currency to display results in (e.g., USD)\n- **Use Cases**:\n  - “What’s the current price of ADA?”\n  - “How much volume has BTC traded in the last 24h?”\n\n---\n\n#### 5. **Global Metrics**\n- **Endpoint**: `/v1/global-metrics/quotes/latest`\n- **Purpose**: Global crypto market stats.\n- **Supported Inputs**:\n  - *(None required)*\n- **Use Cases**:\n  - “What’s the total crypto market cap?”\n  - “How dominant is Bitcoin?”\n\n---\n\n#### 6. **Price Conversion**\n- **Endpoint**: `/v1/tools/price-conversion`\n- **Purpose**: Convert one crypto/fiat into another.\n- **Supported Inputs**:\n  - `amount` – (Required) Numerical amount to convert\n  - `symbol` – (Required) The crypto to convert from\n  - `convert` – (Required) The target currency (e.g., BTC, USD)\n- **Use Cases**:\n  - “Convert 5 ETH to USD.”\n  - “What’s 1000 DOGE in BTC?”\n\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "52e42df6-6b67-45d6-80a0-5361259a9d8f",
+      "name": "Crypto Agent Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -300,
+        520
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "yUizd8t0sD5wMYVG",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8387d236-2e94-48de-b5b9-0838762440f9",
+      "name": "Crypto Agent Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -120,
+        520
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a48f47a0-9bef-412c-91b8-df57ce3dba12",
+      "name": "CoinMarketCap Price",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        600,
+        520
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "symbol"
+            },
+            {
+              "name": "convert"
+            }
+          ]
+        },
+        "toolDescription": "The tool going to recieve input of cryptocurrency name and then request the price from CoinMarketCap and send the price back in a message.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "valueProvider": "fieldValue"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OKXROn8aWkgAOvvV",
+          "name": "CoinMarketCap Standard"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d5d5e847-efbc-41cd-b581-095eb3825bfd",
+      "name": "Crypto Map",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        60,
+        520
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "symbol",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "listing_status",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "start",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "limit",
+              "valueProvider": "modelOptional"
+            }
+          ]
+        },
+        "toolDescription": "Get a map of all cryptocurrencies with CoinMarketCap ID, name, and symbol.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OKXROn8aWkgAOvvV",
+          "name": "CoinMarketCap Standard"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ac224086-1243-4dcb-85eb-dbf59fc927ac",
+      "name": "Crypto Info",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        240,
+        520
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v2/cryptocurrency/info",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "symbol"
+            }
+          ]
+        },
+        "toolDescription": "Get metadata for one or more cryptocurrencies including logo, description, and links.\n\n",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OKXROn8aWkgAOvvV",
+          "name": "CoinMarketCap Standard"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b261f3ed-a1dc-4dd0-bc63-31e77041bb01",
+      "name": "Crypto Listings",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        420,
+        520
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "start"
+            },
+            {
+              "name": "limit"
+            },
+            {
+              "name": "convert"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a ranked list of cryptocurrencies sorted by market cap. Supports pagination and conversion currency.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OKXROn8aWkgAOvvV",
+          "name": "CoinMarketCap Standard"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "cfa6badf-0eed-4b37-bb1d-2ffcd39a23fc",
+      "name": "Global Metrics",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        800,
+        520
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest",
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Returns global crypto market metrics including market cap, 24h volume, BTC dominance, and total active cryptocurrencies.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OKXROn8aWkgAOvvV",
+          "name": "CoinMarketCap Standard"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ca40fc60-8cdd-48ec-98ba-63259582a16e",
+      "name": "Price Conversion",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1000,
+        520
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/tools/price-conversion",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "amount"
+            },
+            {
+              "name": "symbol"
+            },
+            {
+              "name": "convert"
+            }
+          ]
+        },
+        "toolDescription": "Convert cryptocurrency or fiat value from one currency to another.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OKXROn8aWkgAOvvV",
+          "name": "CoinMarketCap Standard"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "360bb74c-0ca6-4cd7-95ab-7f14a2c89e6c",
+      "name": "Crypto Agent Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1140,
+        -760
+      ],
+      "parameters": {
+        "width": 840,
+        "height": 840,
+        "content": "# 🧠 CoinMarketCap_Crypto_Agent_Tool Guide\n\n이 에이전트는 **n8n**의 **CoinMarketCap AI Analyst** 시스템의 일부로, **암호화폐 수준 쿼리**에 초점을 맞춘 모듈형 시스템으로, 가격, 공급량, 메타데이터, 랭킹, 변환 등을 처리합니다.\n\n## 🔌 지원 엔드포인트:\n1. `/v1/cryptocurrency/map` – ID, 심볼, 이름 가져오기\n2. `/v2/cryptocurrency/info` – 메타데이터, 로고, 화이트페이퍼 가져오기\n3. `/v1/cryptocurrency/listings/latest` – 시가총액 기준 시장 랭킹\n4. `/v2/cryptocurrency/quotes/latest` – 가격, 거래량, 공급량\n5. `/v1/global-metrics/quotes/latest` – 전체 시장 시가총액, BTC 지배력\n6. `/v1/tools/price-conversion` – 법정화폐 및 암호화폐 변환\n\n## 🧠 노드 개요:\n- **🧠 Brain**: `GPT-4o Mini`\n- **💾 Memory**: 세션 컨텍스트 버퍼\n- **⚙️ Tools**: 6개의 라이브 API 엔드포인트\n\n## ⚙️ 필수 입력:\n- `message` – 사용자 쿼리\n- `sessionId` – 호출 간 메모리 유지에 사용\n\n## 📝 팁:\n다음과 같은 설명적인 프롬프트를 사용하세요:\n- “ETH의 CoinMarketCap ID는 무엇인가요?”\n- “1000 DOGE를 BTC로 변환하세요.”\n- “시가총액 기준 상위 10개 토큰을 보여주세요.”"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2f24886-4157-40f5-9731-dea431fb6cb8",
+      "name": "Usage & Examples",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        -760
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 720,
+        "height": 900,
+        "content": "## 📌 사용 지침\n\n### ✅ 1단계: 입력 제공\n`symbol`, `amount`, `convert`, `start`, `limit`을 필요에 따라 사용하세요.\n\n### ✅ 2단계: 감독자로부터 트리거\n감독자 AI가 메시지와 sessionId를 이 에이전트에게 보냅니다.\n\n### ✅ 3단계: 출력 검토\n원시 JSON 또는 형식화된 통찰력을 반환합니다.\n\n---\n\n## 🔍 샘플 프롬프트\n\n### 1️⃣ 5 ETH를 USD로 변환\n```plaintext\nGET /v1/tools/price-conversion?amount=5&symbol=ETH&convert=USD\n```\n\n### 2️⃣ SHIB의 CoinMarketCap ID 가져오기\n```plaintext\nGET /v1/cryptocurrency/map?symbol=SHIB\n```\n\n### 3️⃣ 전체 시장 가치 보기\n```plaintext\nGET /v1/global-metrics/quotes/latest\n```\n\n### 4️⃣ 상위 5개 코인 EUR로\n```plaintext\nGET /v1/cryptocurrency/listings/latest?limit=5&convert=EUR\n```\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06d501a6-8730-4093-a145-53fd9378fa8e",
+      "name": "Errors & Licensing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        -760
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 600,
+        "height": 560,
+        "content": "## ⚠️ API 오류 및 문제 해결\n\n| 코드 | 메시지 |\n|------|---------|\n| 200  | OK ✅ |\n| 400  | 잘못된 요청 – 입력 확인 |\n| 401  | 인증되지 않음 – 유효하지 않거나 누락된 API 키 |\n| 429  | 요청 제한 초과 – 속도 줄이기 |\n| 500  | CoinMarketCap 서버 문제 |\n\n### ✅ 팁:\n- 기호와 변환 매개변수를 다시 확인하세요\n- `start`, `limit`, `convert`를 페이지네이션을 위해 사용하세요\n- 429 요청 제한을 피하기 위해 지연을 추가하세요\n\n---\n\n## 🛠️ 도움이 필요하신가요?\n🔗 [Don Jayamaha – LinkedIn](https://linkedin.com/in/donjayamahajr)\n\n© 2025 Treasurium Capital Limited Company. 모든 권리 보유.\n이 AI 워크플로우 아키텍처, 로직, 디자인 및 프롬프트 구조는 Treasurium Capital Limited Company의 지적 재산입니다. 미국 저작권법에 따라 무단 복제, 재배포 또는 재판매는 금지됩니다. 라이선스된 용도만 허용됩니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a6a08338-6720-4a3a-bf3b-ed9559257b10",
+  "connections": {
+    "Crypto Map": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Info": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Global Metrics": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Listings": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Price Conversion": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Agent Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap Price": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Agent Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
