@@ -1,0 +1,998 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "59b7eed3-8622-4722-b93f-f225cc0aa4e0",
+      "name": "Spam Detection",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "position": [
+        260,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "inputText": "={{ $json.content }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "is_spam",
+              "description": "This text is a promotion, sales pitch or likely spam message to get members to visit another site."
+            },
+            {
+              "category": "is_not_spam",
+              "description": "This text is not spam."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "74420874-d831-4ff0-a8f4-e7c3b6551c57",
+      "name": "Get Recent Messages",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        -1020,
+        40
+      ],
+      "webhookId": "7aa72e1f-06f4-4fe8-82ec-ad0e87a5b6b9",
+      "parameters": {
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "123456789"
+        },
+        "options": {
+          "simplify": true
+        },
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1248678443432808512",
+          "cachedResultUrl": "https://discord.com/channels/1248678443432808509/1248678443432808512",
+          "cachedResultName": "general"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "YUwD52E3oHsSUWdW",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6db26c7e-f1eb-45b8-a444-01270fab157f",
+      "name": "Only Once",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -820,
+        40
+      ],
+      "parameters": {
+        "options": {
+          "historySize": 100
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "36923da1-5ebc-40fc-9780-74845ff2b268",
+      "name": "Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        240,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "o3-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "af01bb60-fdef-4fa1-bf33-1862a18ebc99",
+      "name": "Warn User",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        2880,
+        20
+      ],
+      "webhookId": "88bdd468-8eb9-41b8-b017-1deec91c9498",
+      "parameters": {
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('When Executed by Another Workflow').first().json.author.id }}"
+        },
+        "content": "=Warning: Please do not spam our channels\nYour message was deleted to be in violation of our community terms & conditions and was subsequently deleted.\n\nFurther violations will result in a ban.\n\nIf you think this is a mistake, please message the moderation team.",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "123456789"
+        },
+        "options": {},
+        "resource": "message"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "YUwD52E3oHsSUWdW",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "04e9f167-f816-4056-813a-3168dc22f209",
+      "name": "Warn User Only",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        2540,
+        180
+      ],
+      "webhookId": "88bdd468-8eb9-41b8-b017-1deec91c9498",
+      "parameters": {
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('When Executed by Another Workflow').first().json.author.id }}"
+        },
+        "content": "=Warning: Please do not spam our channels\nYour message was flagged to be in violation of our community terms & conditions. Please consider other members before posting.\n\nFurther violations will result in a ban.\n\nIf you think this is a mistake, please message the moderation team.",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "123456789"
+        },
+        "options": {},
+        "resource": "message"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "YUwD52E3oHsSUWdW",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "41240c95-c5c1-4ac2-81e7-782ff8f3511b",
+      "name": "Group By User",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -540,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const groupByUser = {};\n\nfor (const item of $input.all()) {\n  if (!groupByUser[item.json.author.id]) {\n    groupByUser[item.json.author.id] = [];\n  }\n  groupByUser[item.json.author.id].push(item.json);\n}\n\nreturn { json : { groupByUser } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "03d56683-c307-455d-bd03-84107d30f328",
+      "name": "For Each User...",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -160,
+        100
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "e7eb71a8-cfe5-4e3b-81c1-66ea18cc55ec",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -360,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "groupByUser"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b74a7092-2b51-452b-bf29-6620969b3efb",
+      "name": "Message to List",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        100,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const messages = $input.first().json;\nreturn Object.keys(messages).map(key => messages[key]);"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "762e3a5e-e013-4ca3-a2a9-cf7d5b0dd3f4",
+      "name": "Notify Moderators with Send & Wait",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1980,
+        180
+      ],
+      "webhookId": "644a85f3-5add-4321-9d8a-bcc4acfa33f1",
+      "parameters": {
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "123456789"
+        },
+        "message": "=**Spam Detected**\nUser: @{{ $json.author.username }}\nMessage:\n{{\n$input.all().map(item =>\n  `* [${DateTime.fromISO(item.json.timestamp).format('yyyy-MM-dd @ hh:mm')}] ${item.json.content}`).join('\\n')\n}}",
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=_moderation"
+        },
+        "operation": "sendAndWait",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Action",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Delete Message and Warn User"
+                  },
+                  {
+                    "option": "Do nothing and Warn User"
+                  },
+                  {
+                    "option": "Do nothing"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "responseType": "customForm"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "YUwD52E3oHsSUWdW",
+          "name": "Discord Bot account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "f35bc6b0-855c-451b-aee7-e2af4e268893",
+      "name": "Flag as Spam",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        620,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1eddfbe-c32d-4a3b-9660-07800f52f4c4",
+              "name": "is_spam",
+              "type": "boolean",
+              "value": true
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f77a0101-d209-4d3c-ab4a-405579a1f539",
+      "name": "Flag as Not Spam",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        620,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1eddfbe-c32d-4a3b-9660-07800f52f4c4",
+              "name": "is_spam",
+              "type": "boolean",
+              "value": false
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "eefe79e2-603f-4f12-a385-fab4b8bdbc65",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        800,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "f7d6cccc-0d4a-4353-bc30-9a760196361f",
+      "name": "Spam Messages Only",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1060,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1dd7aa3-4215-47b5-830c-0d8d17e97c17",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_spam }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "7b4257b9-a5d3-4542-b4e2-563bf5634aa5",
+      "name": "Has Flagged Messages?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1240,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f085cf62-e82d-4a15-806b-4a740e3b119c",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0282a8bf-ab06-427f-b58b-83131205b26c",
+      "name": "Get Message IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2540,
+        20
+      ],
+      "parameters": {
+        "jsCode": "return $('When Executed by Another Workflow').all().map(item => ({ json: {\n  id: item.json.id,\n  channel_id: item.json.channel_id\n}}))"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fc43a315-6b81-4d93-8e11-7955b7650b94",
+      "name": "Delete Messages",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        2720,
+        20
+      ],
+      "webhookId": "6fa8bb1c-c5b7-4498-af63-dbe43691e602",
+      "parameters": {
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "123456789"
+        },
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.channel_id }}"
+        },
+        "messageId": "={{ $json.id }}",
+        "operation": "deleteMessage"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "YUwD52E3oHsSUWdW",
+          "name": "Discord Bot account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "3868754b-26df-4f06-b27b-dba3959cb365",
+      "name": "Receive Instructions",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2180,
+        180
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Delete & Warn",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "c9a82ef5-49f7-4196-9ee3-977d34bd1ec9",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.Action }}",
+                    "rightValue": "Delete Message and Warn User"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Warn User Only",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0e0d56da-bae0-4624-b712-fa44413eb17f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.Action }}",
+                    "rightValue": "Do nothing and Warn User"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Do nothing",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "2f85cdf6-db7b-4e30-9577-20ddee437807",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.Action }}",
+                    "rightValue": "Do nothing"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "27ea2dd8-07f0-438a-bee8-8c4a6ee7b5f7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 520,
+        "content": "## 1. 채널 메시지 가져오기\n\n[예약된 트리거에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.scheduletrigger/)\n\n예약된 트리거는 이 워크플로를 하루 종일 실행하는 데 사용됩니다. 커뮤니티의 활동 정도에 따라, 가져오는 메시지를 늘리거나 더 짧은 간격을 설정하고 싶을 수 있습니다. “중복 제거” 노드는 새 메시지만 처리하도록 보장합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66e770ab-4eaa-40b6-be73-c36bad254c2a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 520,
+        "content": "## 2. 사용자별 메시지 그룹화\n\n[루프 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitinbatches/)\n\n사용자와 메시지와 같은 중첩된 데이터를 다룰 때, 루프 노드를 사용하는 것은 항목 참조가 혼동되지 않도록 하는 훌륭한 방법입니다. 여기서, 우리는 사용자를 그룹화하여 그들의 메시지를 일괄 처리하고 보내야 할 알림 수를 최소화하는 데 도움이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "963074bf-91e5-4a47-886d-0dbcbbba8fc4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 960,
+        "height": 620,
+        "content": "## 3. AI 기반 텍스트 분류를 사용한 스팸 감지\n[텍스트 분류 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.text-classifier)\n\n이 템플릿에서 우리의 목표는 스팸 메시지를 조절하는 것입니다. 이를 위한 한 가지 방법은 AI 텍스트 분류기를 사용하는 것입니다. 이 접근법은 Reasoning LLM을 사용하여 메시지가 일반화된 스팸 기준(예: 프로모션)에 해당하는지 판단합니다. 프로덕션 용도에 맞게 이 프롬프트를 커스터마이즈하는 것을 선호할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0cbcfe9d-7f66-423c-b930-a3c700636bd8",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 620,
+        "content": "## 5. Human-in-the-Loop를 사용한 중재\n\n[n8n의 human-fallback 기능에 대해 더 읽기](https://docs.n8n.io/advanced-ai/examples/human-fallback/)\n\n이 단계에서, Discord 노드의 \"Send and Wait for Response\" 작업을 사용해 인간 중재자가 플래그가 지정된 메시지에 대해 어떤 조치를 취할지 결정할 수 있습니다. 현재 3가지 응답 유형이 사용 가능하며, 이 템플릿에서 커스텀 폼 옵션을 사용할 것입니다. 이 옵션은 중재자가 미리 정의된 행동 목록에서 선택할 수 있는 드롭다운 목록을 지정할 수 있게 합니다. 이 접근 방식을 사용하면, 모든 중재자 간에 일관성을 보장할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c808c1a9-818e-4652-a92b-b6be1cb12706",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2440,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 680,
+        "content": "## 6. 중재 조치 실행\n\n[Discord 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.discord/)\n\n마지막으로, 중재 조치는 중재자의 대리자로 실행될 수 있으며, 이를 통해 그들의 시간을 절약할 수 있습니다. 삭제 조치의 경우, 템플릿은 플래그가 지정된 메시지를 정확하게 일괄 제거하며, 여러 채널에 걸쳐서도 가능합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c08416cb-a477-4ccc-b682-85c35d9c2cd6",
+      "name": "Moderation Subworkflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        1460,
+        200
+      ],
+      "parameters": {
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f130b908-1653-4cb4-a72d-ae539c7a08dc",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 620,
+        "content": "## 4. 서브워크플로우를 사용한 동시 처리\n\n[서브워크플로우 트리거에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow)\n\n루프 안에 인간 개입 단계가 있으면, 나중 사용자가 현재 사용자가 처리될 때까지 처리되지 않을 수 있습니다. 이를 해결하는 한 가지 방법은 서브워크플로우를 사용하는 것입니다. 서브워크플로우를 사용하면 나머지 워크플로우 단계를 별도의 실행에서 실행할 수 있으며, 특히 \"서브워크플로우 완료 대기\"를 \"off\"로 설정하면 현재 루프를 차단하지 않습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dc5e79f1-1ed9-4171-a787-a6b9dfee71f2",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1780,
+        180
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "df28cb07-a4fe-4edf-afd0-18f4fa12521d",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1700,
+        -580
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 940,
+        "content": "## 시도해 보세요\n### 이 n8n 템플릿은 Discord에 대한 human-in-the-loop 기능을 사용하여 커뮤니티 중재를 자동화하는 방법을 보여줍니다.\n\n이 용례는 사전 정의된 일관된 방식으로 스팸 메시지를 감지하고 처리하기 위한 것입니다. Human-in-the-loop은 과도하게 공격적인 봇과 중재 팀의 시간 및 노력을 균형 있게 합니다.\n\n### 작동 원리\n* 예약된 트리거를 사용하여 Discord 채널의 가장 최근 메시지를 스캔합니다. 메시지는 \"Remove Duplicates\" 노드를 통해 태그되어 미래에 다시 처리되지 않습니다.\n* 메시지는 사용자를 기준으로 그룹화하여 보내는 알림 수를 최소화합니다.\n* AI 텍스트 분류기 노드를 사용하여 각 사용자의 메시지에 스팸이 있는지 감지합니다.\n* 스팸이 감지되면, Discord의 Send-and-wait 모드를 사용하여 중재 채널에 알림을 보냅니다. 이 알림에는 스팸 메시지 처리에 대한 미리 정의된 행동 목록이 포함된 n8n 양식과 드롭다운 리스트가 있습니다. 알림을 보낸 후 워크플로는 응답이 수신될 때까지 기다립니다.\n* 중재자가 행동을 선택하면, 워크플로는 계속 진행되어 미리 정의된 중재 행동을 실행합니다.\n\n### 사용 방법\n* 커뮤니티의 활동 정도와 스패머의 빈도에 따라 예약된 간격을 늘릴 수 있습니다.\n* 필요한 만큼 중재 행동을 추가하거나 제거하세요.\n* 워크플로를 활성화하여 시작하세요.\n\n### 도움이 필요하신가요?\n[Discord](https://discord.com/invite/XPKeKXeB7d)에 참여하세요 또는 [Forum](https://community.n8n.io/)에서 문의하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a437d4f3-af31-4677-b853-99832ff6c051",
+      "name": "No Action Taken",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2540,
+        340
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "82a5b512-296b-4ad7-aa50-2f34ff2cf681",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1220,
+        40
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Spam Messages Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Spam Detection",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Once": {
+      "main": [
+        [
+          {
+            "node": "Group By User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "For Each User...",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Warn User": {
+      "main": [
+        []
+      ]
+    },
+    "Flag as Spam": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group By User": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spam Detection": {
+      "main": [
+        [
+          {
+            "node": "Flag as Spam",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag as Not Spam",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Warn User Only": {
+      "main": [
+        []
+      ]
+    },
+    "Delete Messages": {
+      "main": [
+        [
+          {
+            "node": "Warn User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Message IDs": {
+      "main": [
+        [
+          {
+            "node": "Delete Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message to List": {
+      "main": [
+        [
+          {
+            "node": "Spam Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag as Not Spam": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "For Each User...": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Message to List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spam Messages Only": {
+      "main": [
+        [
+          {
+            "node": "Has Flagged Messages?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Messages": {
+      "main": [
+        [
+          {
+            "node": "Only Once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Instructions": {
+      "main": [
+        [
+          {
+            "node": "Get Message IDs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Warn User Only",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action Taken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Flagged Messages?": {
+      "main": [
+        [
+          {
+            "node": "Moderation Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "For Each User...",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Moderation Subworkflow": {
+      "main": [
+        [
+          {
+            "node": "For Each User...",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Notify Moderators with Send & Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Moderators with Send & Wait": {
+      "main": [
+        [
+          {
+            "node": "Receive Instructions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "154458b0-dde3-4224-9fa8-d38a025aa0d3",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -640,
+        -140
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0fc88546-50ef-4183-8fb2-dcea939f3bcf",
+      "name": "Get Recent Messages",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        -440,
+        -140
+      ],
+      "webhookId": "48619a9a-d7a5-47af-983d-146e377d8767",
+      "parameters": {
+        "fields": [
+          "body",
+          "categories",
+          "conversationId",
+          "from",
+          "hasAttachments",
+          "internetMessageId",
+          "sender",
+          "subject",
+          "toRecipients",
+          "receivedDateTime",
+          "webLink"
+        ],
+        "output": "fields",
+        "options": {},
+        "filtersUI": {
+          "values": {
+            "filters": {
+              "receivedAfter": "={{ $now.minus({ \"hour\": 1 }).toISO() }}"
+            }
+          }
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "EWg6sbhPKcM5y3Mr",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d056be7e-43ed-4fea-8aef-36579c656633",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        280,
+        40
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e4b6fd9d-2506-45bf-bd80-a81a2c04306b",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        480,
+        40
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"labels\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    },\n    \"priority\": { \"type\": \"number\" },\n    \"summary\": { \"type\": \"string\" },\n    \"description\": { \"type\": \"string\" }\n  }\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3cef25fc-2581-4556-bf54-7704815d98b3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 540,
+        "content": "## 2. 티켓 생성 및 분류 자동화\n\n[기본 LLM 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainllm)\n\n새 티켓은 항상 적절하게 레이블링되고 우선순위가 매겨져야 하지만, 인력이 부족한 경우 모든 들어오는 티켓을 업데이트하는 것이 항상 가능한 것은 아닙니다. AI를 사용하는 것은 티켓 분류에 대한 훌륭한 용례이며, 그 맥락적 이해가 이 단계를 자동화하는 데 도움이 됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d6ba8c9b-3e39-442f-8b79-cafe11c15a18",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        100,
+        -140
+      ],
+      "parameters": {
+        "html": "={{ $json.body.content }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb7c6d7c-df30-43de-8f37-9e394a8ad7aa",
+      "name": "Create Issue",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        900,
+        -140
+      ],
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "mode": "id",
+          "value": "10000"
+        },
+        "summary": "={{ $json.output.summary }}",
+        "issueType": {
+          "__rl": true,
+          "mode": "id",
+          "value": "10000"
+        },
+        "additionalFields": {
+          "labels": "={{ $json.output.labels }}",
+          "priority": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.output.priority }}"
+          },
+          "description": "={{ $json.output.description }}"
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "IH5V74q6PusewNjD",
+          "name": "Jira SW Cloud account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e26f402-36da-40e1-a736-db4fe16de54a",
+      "name": "Mark as Seen",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -240,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b5f49877-e494-4712-a937-1f348198700e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 540,
+        "content": "## 1. Outlook 받은 편지함에서 지원 이메일 감시\n\n[Outlook 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftoutlook/)\n\n**이 템플릿은 지원 티켓 전용 공유 받은 편지함을 가정합니다!** 일반 받은 편지함을 가지고 있다면, 각 메시지를 분류하고 필터링해야 할 수 있으며, 이는 비용이 발생할 수 있습니다. \"중복 제거\" 노드(즉, \"읽음으로 표시\")는 각 이메일을 정확히 한 번만 처리하도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9d08834-14ad-4cdf-bc20-411033eee5b7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 440,
+        "content": "## 3. JIRA에서 이슈 생성\n\n[JIRA 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.jira/)\n\n이것은 JIRA에서 이슈를 생성하는 단순한 예제일 뿐이지만, 더 많은 것을 추가하기 쉽게 확장할 수 있습니다!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6942a39-1893-44cf-a846-c6b4d9c37e92",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1160,
+        -720
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 940,
+        "content": "## 이를 시도해 보세요!\n### 이 n8n 템플릿은 아웃룩 공유 받은 편지함에서 지원 메시지를 감시하고, 이에 해당하는 문제를 JIRA에 생성합니다.\n\n### 작동 원리\n* 예약된 트리거가 지원 요청을 수집하는 공유 받은 편지함에서 최근 아웃룩 메시지를 가져옵니다.\n* 이러한 지원 요청은 한 번만 처리되도록 필터링되며, HTML 본문을 더 쉽게 구문 분석할 수 있도록 마크다운으로 변환됩니다.\n* 각 지원 요청은 AI 에이전트를 통해 분류되며, 적절한 레이블을 추가하고, 우선순위를 평가하며, 원래 요청의 제목과 설명을 요약합니다.\n* 마지막으로, AI가 생성한 값을 사용하여 JIRA에서 문제를 생성하여 조치합니다.\n\n### 사용 방법\n* 가져온 메시지가 오로지 지원 요청만이어야 합니다. 그렇지 않으면 처리 전에 메시지를 분류해야 합니다.\n* AI 에이전트의 시스템 프롬프트에서 사용할 레이블과 우선순위를 지정합니다.\n\n### 요구 사항\n* 아웃룩(지원 요청 수신용)\n* OpenAI(LLM용)\n* JIRA(문제 관리용)\n\n### 이 워크플로우 사용자 정의\n* 문제 생성 후 문제 해결 시도나 용량 계획과 같은 추가 단계를 자동화하는 것을 고려합니다.\n\n### 도움이 필요하신가요?\n[Discord](https://discord.com/invite/XPKeKXeB7d) 에 가입하거나 [포럼](https://community.n8n.io/)에서 문의하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71a906b2-7b01-43a8-aa82-7d9810d95e23",
+      "name": "Generate Issue From Support Request",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        300,
+        -140
+      ],
+      "parameters": {
+        "text": "=Reported by {{ $json.from.emailAddress.name }} <{{ $json.from.emailAddress.address }}>\nReported at: {{ $now.toISO() }}\nSummary: {{ $json.subject }}\nDescription:\n{{ $json.data.replaceAll('\\n', ' ') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Your are JIRA triage assistant who's task is to\n1) classify and label the given issue.\n2) Prioritise the given issue.\n3) Rewrite the issue summary and description.\n\n## Labels\nUse one or more. Use words wrapped in \"[]\" (square brackets):\n* Technical\n* Account\n* Access\n* Billing\n* Product\n* Training\n* Feedback\n* Complaints\n* Security\n* Privacy\n\n## Priority\n* 1 - highest\n* 2 - high\n* 3 - medium\n* 4 - low\n* 5 - lowest\n\n## Write Summary and Description\n* Remove emotional and anedotal phrases or information\n* Keep to the facts of the matter\n* Highlight what was attempted and is/was failing"
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Generate Issue From Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Seen": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Issue From Support Request",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Messages": {
+      "main": [
+        [
+          {
+            "node": "Mark as Seen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Issue From Support Request",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Issue From Support Request": {
+      "main": [
+        [
+          {
+            "node": "Create Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

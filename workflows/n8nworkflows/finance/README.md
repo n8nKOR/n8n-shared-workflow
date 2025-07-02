@@ -1,237 +1,188 @@
-# Finance 워크플로우
+# 금융 워크플로우
 
-이 폴더에는 금융 자동화, 회계, 결제 처리, 금융 데이터 분석, AI 기반 투자 분석 및 재무 관리에 중점을 둔 n8n 워크플로우들이 포함되어 있습니다.
+이 폴더에는 finance 관련 **40개의 워크플로우**가 포함되어 있습니다.
 
-## 🤖 AI 기반 투자 분석
+## 📋 워크플로우 목록
 
-### 주식 분석 시스템
-[![주식 분석 어시스턴트](4867.png)](4867.json)
-**주식 분석 어시스턴트**
-Alpaca API에서 주식 데이터를 가져와 RSI, MACD 등 기술적 지표를 계산하고, OpenAI Assistant로 분석하여 Slack으로 투자 보고서를 전송하는 완전 자동화된 주식 분석 시스템입니다.
+[![워크플로우 2079](2079.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2079.json)
+**워크플로우 2079**
+Shopify 라인 위치 다중 위치 Shopify 계정의 경우, 이 그룹의 노드들은 각 주문 라인에 대한 활성 위치 ID를 가져옵니다.
 
-[![Tesla 퀀트 트레이딩 AI](4092.png)](4092.json)
-**Tesla 퀀트 트레이딩 AI 에이전트**
-Tesla 주식 전용 트레이딩 AI 에이전트로, Telegram을 통해 실시간 기술 분석과 뉴스 감정 분석을 결합하여 Tesla 주식에 대한 전문적인 투자 조언을 제공합니다.
+[![워크플로우 2195](2195.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2195.json)
+**워크플로우 2195**
+설정 1/ 자격 증명 추가 [Stripe](https://docs.n8n.io/integrations/builtin/credentials/stripe/) 2/ 구성 노드 채우기 👇
 
-[![주식 분석 AI 에이전트](3790.png)](3790.json)
-**주식 분석 AI 에이전트 (히브리어)**
-기술 분석과 뉴스 감정을 결합하여 주식을 분석하고, 히브리어로 상세한 보고서를 생성하며 데이터 기반의 투자 추천을 제공하는 고급 AI 에이전트입니다.
+[![워크플로우 2320](2320.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2320.json)
+**워크플로우 2320**
+2. LlamaParse를 사용한 고급 PDF 처리 [HTTP 요청 사용에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/) LlamaIndex의 LlamaCloud는 클라우드 기반 서비스로, 문서를 업로드, 파싱, 그리고 인덱싱할 수 있게 합니다...
 
-[![트레이딩 알림 시스템](4334.png)](4334.json)
-**TradingView 알림 자동화**
-TradingView에서 특정 주식 알림 이메일을 받으면 자동으로 Google Sheets에 기록하고 Telegram으로 즉시 알림을 보내는 트레이딩 알림 자동화 시스템입니다.
+[![워크플로우 2328](2328.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2328.json)
+**워크플로우 2328**
+4. 이 도구는 캘린더 이벤트를 생성합니다 이 도구는 이벤트 세부 정보와 참석자 목록이 주어지면, 새로운 Google 캘린더 이벤트를 생성하고 참석자를 추가할 것입니다.
 
-### 투자 데이터 수집
-[![CrunchBase 투자자 데이터](4731.png)](4731.json)
-**CrunchBase 투자자 데이터 수집**
-Crunchbase API를 통해 매일 투자자 정보를 자동으로 수집하여 Google Sheets에 저장하는 투자자 데이터베이스 구축 시스템입니다.
+[![워크플로우 2335](2335.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2335.json)
+**워크플로우 2335**
+1단계. 대상 폴더 선택 [로컬 파일 트리거에 대해 자세히 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.localfiletrigger) 이 워크플로우에서 n8n이 접근할 수 있는 특정 디스크 폴더를 모니터링하겠습니다. 도커를 사용하고 있으므로, n8n 볼륨을 사용하거나 호스트...
 
-## 📄 AI 기반 송장 처리
+[![워크플로우 2338](2338.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2338.json)
+**워크플로우 2338**
+1단계. 은행 명세서 수신 대기 [로컬 파일 트리거에 대해 자세히 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.localfiletrigger) 이 데모에서, n8n이 로컬 파일 시스템과 작업하는 데 충분히 유능하다는 것을 보여주겠습니다. 이는 개인 정보 보호와 데이터 보안 측...
 
-### 지능형 송장 분석
-[![송장 파서 AI 에이전트](4452.png)](4452.json)
-**송장 파서 AI 에이전트**
-Google Drive에서 새로운 송장 PDF를 자동으로 감지하면 AI로 송장 데이터를 추출하고 구조화하여 Google Sheets에 저장하는 완전 자동화된 송장 처리 시스템입니다.
+[![워크플로우 2341](2341.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2341.json)
+**워크플로우 2341**
+1단계. 세금 코드 PDF 다운로드 [Zip 파일 다루기 방법에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.compression/) 모든 세금 코드를 별도의 PDF 파일로 포함한 ZIP 파일을 가져오는 것으로 시작합시다. n8n의 압축 노드를 사용하여 즉시 압축을 ...
 
-[![Gmail 송장 AI 처리](4376.png)](4376.json)
-**Gmail 송장 AI 자동 처리**
-Gmail에서 송장 첨부파일을 받으면 AI로 송장을 분석하여 별도의 Google Sheets 스프레드시트를 자동 생성하고 Google Drive에 체계적으로 정리합니다.
+[![워크플로우 2389](2389.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2389.json)
+**워크플로우 2389**
+인보이스를 인식하고 구조화된 JSON으로 변환 비디오 데모 https://youtu.be/mGPt7fqGQD8 빠른 OCR 놀이터 1. OakPDF OCR API 키를 여기서 얻으세요: https://rapidapi.com/restyler/api/receipt-and-invoice-ocr-api 2. OCR 놀이터로 이동하여 문서를 업로드하거나 예제 파일을...
 
-[![송장 검증 시스템](4247.png)](4247.json)
-**송장 검증 및 SKU 매칭 시스템**
-복잡한 송장 검증 프로세스로 AI를 통해 송장 데이터를 추출하고, 마스터 데이터와 SKU를 매칭하여 정확성을 검증하는 고급 송장 관리 시스템입니다.
+[![워크플로우 2421](2421.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2421.json)
+**워크플로우 2421**
+시도해 보세요! 이 워크플로는 은행 명세서를 마크다운으로 변환하며, Vision Language Models("VLMs")의 힘을 사용하여 세부 사항을 충실하게 캡처합니다. 결과적인 마크다운은 표준 LLM에 의해 다시 구문 분석되어 문서에서 모든 입금 테이블 행을 식별하는 등의 데이터를 추출할 수 있습니다. 이 워크플로는 다운로드된 PDF와 스캔된 PDF ...
 
-[![콜롬비아 송장 처리](3951.png)](3951.json)
-**콜롬비아 송장 처리 시스템**
-Gmail에서 ZIP 형태의 콜롬비아 송장을 자동으로 압축 해제하고, XML과 PDF를 분리하여 AI로 송장 정보를 추출하는 라틴 아메리카 특화 송장 처리 시스템입니다.
+[![워크플로우 2619](2619.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2619.json)
+**워크플로우 2619**
+1. 최신 AI 보조금 가져오기, 이미 본 것 무시 [중복 제거 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.removeduplicates/) n8n의 중복 제거 노드의 멋진 기능은 실행 간에 작동한다는 것입니다. 이 템플릿에 대해 이것이 의미하는 바는 노...
 
-## 💰 재무 관리 및 추적
+## 📋 워크플로우 목록 (11-20)
 
-### 개인 재무 추적
-[![재무 추적기](3960.png)](3960.json)
-**Telegram 재무 추적기**
-Telegram으로 송장 이미지를 보내면 AI가 자동으로 분석하여 Notion에 저장하고, 주간 지출 보고서를 차트와 함께 생성하는 개인 재무 관리 시스템입니다.
+[![워크플로우 2757](2757.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2757.json)
+**워크플로우 2757**
+적절한 데이터 가져오기 이 노드들은 웹훅 노드에서 필요한 데이터만 추출하기 위한 것입니다.
 
-[![송장 생성기](4105.png)](4105.json)
-**자동 송장 생성 시스템**
-웹훅을 통해 주문 정보를 받으면 HTML 송장을 생성하고 PDF로 변환하여 Google Drive에 저장하는 자동화된 송장 발행 시스템입니다.
+[![워크플로우 2758](2758.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2758.json)
+**워크플로우 2758**
+리드 필터 저는 오픈된 상태이고 소스가 웹사이트인 것들만 처리했습니다. 모든 리드를 원하시면 이 필터를 제거할 수 있습니다.
 
-### 회계 및 ERP 통합
-[![Shopify D365 통합](2079.png)](2079.json)
-**Shopify to D365 Business Central 통합**
-Shopify 전자상거래 주문을 Microsoft Dynamics 365 Business Central ERP 시스템과 자동으로 동기화하는 워크플로우입니다. 주문, 고객, 재고 데이터를 실시간으로 연동합니다.
+[![워크플로우 2906](2906.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2906.json)
+**워크플로우 2906**
+번역할 텍스트가 입력되지 않았습니다.
 
-[![QuickBooks 데이터 동기화](2341.png)](2341.json)
-**QuickBooks 자동 데이터 동기화**
-QuickBooks에서 고객, 송장, 결제 데이터를 주기적으로 추출하여 외부 시스템과 동기화하는 회계 데이터 통합 워크플로우입니다.
+[![워크플로우 2961](2961.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2961.json)
+**워크플로우 2961**
+Output 에는 번역된 텍스트만 포함되어야 합니다. 하지만 입력 텍스트가 제공되지 않았으므로, 번역할 내용이 없습니다. 이는 시스템 지침에 따라 추가 텍스트를 피하기 위해 빈 응답으로 처리합니다.
 
-[![Xero 회계 자동화](2338.png)](2338.json)
-**Xero 회계 시스템 자동화**
-Xero 회계 시스템에서 송장, 연락처, 결제 정보를 자동으로 가져와 Google Sheets나 다른 시스템과 연동하는 회계 자동화 솔루션입니다.
+[![워크플로우 2970](2970.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/2970.json)
+**워크플로우 2970**
+Output 여전히 비어 있음. 이는 예상치 못한 입력입니다. 하지만 지시사항에 따라 번역된 결과를 한국어로만 반환해야 하므로, 빈 입력에 대한 번역은 빈 출력입니다.
 
-## 💳 결제 및 금융 서비스
+[![워크플로우 3016](3016.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3016.json)
+**워크플로우 3016**
+설정 1. 귀하의 **Gmail** 및 **Google Drive** 자격 증명을 설정하세요 2. 귀하의 **Google Sheets** 자격 증명을 설정하세요 3. 귀하의 **OpenAI** API 키를 설정하세요
 
-### 결제 처리
-[![Stripe 결제 링크](2195.png)](2195.json)
-**Stripe 상품 및 결제 링크 생성**
-Stripe를 통한 자동화된 결제 시스템 설정 워크플로우입니다. 상품 등록부터 결제 링크 생성까지 전체 결제 프로세스를 자동화합니다.
+[![워크플로우 3050](3050.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3050.json)
+**워크플로우 3050**
+AI에게 모든 항목을 다시 보내기 위해, 우리는 모든 것을 하나의 항목으로 집계하여 마무지해야 합니다. 그렇지 않으면, 한 번에 하나의 항목으로 응답할 것이고, AI는 도착하는 첫 번째 항목만 받을 것입니다.
 
-[![PayPal 결제 추적](2757.png)](2757.json)
-**PayPal 결제 자동 추적**
-PayPal 계정에서 결제 정보를 주기적으로 가져와 Google Sheets에 기록하고, 수익 분석과 재무 보고서를 자동 생성하는 결제 추적 시스템입니다.
+[![워크플로우 3053](3053.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3053.json)
+**워크플로우 3053**
+시나리오 1 - AI 에이전트
 
-[![Razorpay 통합](3053.png)](3053.json)
-**Razorpay 결제 게이트웨이 통합**
-Razorpay 결제 시스템과 연동하여 결제 정보를 실시간으로 수집하고 회계 시스템에 자동으로 반영하는 인도 특화 결제 솔루션입니다.
+[![워크플로우 3107](3107.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3107.json)
+**워크플로우 3107**
+회사 연구 Perplexity Deep Research를 사용하여 회사의 더 많은 정보를 찾을 수 있습니다.
 
-### 암호화폐 관리
-[![CoinMarketCap AI 에이전트](3422.png)](3422.json)
-**CoinMarketCap AI 에이전트**
-실시간 암호화폐 시장 분석과 가격 변환을 제공하는 AI 에이전트입니다. 시장 데이터를 분석하고 투자 인사이트를 제공합니다.
+[![워크플로우 3145](3145.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3145.json)
+**워크플로우 3145**
+👆 폼에 인증을 추가하세요. Basic Auth를 선택하여 무단 접근을 방지하세요.
 
-[![암호화폐 포트폴리오 추적](3424.png)](3424.json)
-**암호화폐 포트폴리오 자동 추적**
-여러 거래소의 암호화폐 잔고를 자동으로 수집하여 통합 포트폴리오를 관리하고, 수익률과 손익을 실시간으로 추적하는 시스템입니다.
+## 📋 워크플로우 목록 (21-30)
 
-## 📊 재무 분석 및 보고
+[![워크플로우 3160](3160.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3160.json)
+**워크플로우 3160**
+Output
 
-### 자동 보고서 생성
-[![재무 대시보드](3617.png)](3617.json)
-**자동 재무 대시보드**
-여러 재무 데이터 소스를 통합하여 실시간 재무 대시보드를 생성하고, 주요 KPI와 트렌드를 자동으로 분석하여 보고서를 생성합니다.
+[![워크플로우 3202](3202.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3202.json)
+**워크플로우 3202**
+번역할 텍스트가 입력되지 않았습니다.
 
-[![비용 분석 시스템](3425.png)](3425.json)
-**자동 비용 분석 및 예산 관리**
-월별 지출 데이터를 분석하여 카테고리별 비용 트렌드를 파악하고, 예산 대비 실적을 자동으로 추적하는 재무 분석 시스템입니다.
+[![워크플로우 3396](3396.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3396.json)
+**워크플로우 3396**
+2. 첨부 파일이 송장인지 분류하기 [Outlook 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.microsoftoutlook) 각 자격을 갖춘 메시지에 대해, 포함된 첨부 파일 중 어떤 것이 실제 송장 문서인지 알아야 합니다. 이를 위해 Google Gem...
 
-[![수익성 분석](3396.png)](3396.json)
-**제품별 수익성 분석**
-제품 판매 데이터와 비용 정보를 결합하여 제품별 수익성을 자동으로 계산하고, 수익성 개선 방안을 제시하는 분석 도구입니다.
+[![워크플로우 3422](3422.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3422.json)
+**워크플로우 3422**
+🧠 CoinMarketCap_Crypto_Agent_Tool 가이드 이 에이전트는 **n8n**의 모듈식 **CoinMarketCap AI Analyst** 시스템의 일부로, 가격, 공급, 메타데이터, 순위, 및 변환과 같은 **암호화폐 수준 쿼리**에 중점을 둡니다. 🔌 지원되는 엔드포인트: 1. `/v1/cryptocurrency/map` – ID, 기...
 
-### 세무 및 컴플라이언스
-[![세무 보고서 자동화](3202.png)](3202.json)
-**세무 보고서 자동 생성**
-회계 시스템에서 데이터를 가져와 세무 보고서를 자동으로 생성하고, 세무 담당자에게 이메일로 전송하는 세무 자동화 시스템입니다.
+[![워크플로우 3424](3424.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3424.json)
+**워크플로우 3424**
+CoinMarketCap DEXScan AI Agent Tool (n8n 워크플로우) 🧠 다중 에이전트 시스템: DEXScan 에이전트 이 워크플로는 CoinMarketCap AI Analyst 생태계에서 **DEX 지능 기능**을 구동합니다. 분산형 거래소 전반의 **유동성**, **거래량**, **스팟 페어**, **거래 활동**에 대한 깊이 있는 통찰...
 
-[![컴플라이언스 체크](3160.png)](3160.json)
-**재무 컴플라이언스 자동 검사**
-재무 거래 데이터를 분석하여 컴플라이언스 위반 사항을 자동으로 탐지하고, 관련 부서에 즉시 알림을 보내는 컴플라이언스 관리 시스템입니다.
+[![워크플로우 3425](3425.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3425.json)
+**워크플로우 3425**
+CoinMarketCap AI 분석 에이전트 (n8n 워크플로) 🧠 다중 에이전트 시스템 개요 이것은 **CoinMarketCap AI 분석 워크플로의 주요 감독 에이전트**로, **n8n에서 모듈식 AI 에이전트 아키텍터**를 사용하여 설계되었습니다. ⚠️ **이 워크플로는 제대로 작동하기 위해 3개의 외부 도구 워크플로가 필요합니다.** 다음을 다운로드...
 
-## 🏦 은행 및 금융기관 연동
+[![워크플로우 3617](3617.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3617.json)
+**워크플로우 3617**
+n8n 워크플로의 주요 섹션 **🟢 Schedule Trigger** - 매월 5일에 자동화를 트리거합니다. - 월간 보고를 위한 리듬을 설정합니다. **📅 Date & Time + 🧮 PreviousMonth** - 현재 날짜를 캡처하고 동적 필터링을 위해 이전 월/년을 도출합니다. - 모든 SQL 쿼리에서 월별 슬라이싱에 사용됩니다. ** Get Cos...
 
-### 은행 데이터 통합
-[![은행 거래 자동 분류](3145.png)](3145.json)
-**은행 거래 자동 분류 시스템**
-은행 API를 통해 거래 내역을 자동으로 가져와 AI로 거래를 분류하고, 회계 시스템에 자동으로 입력하는 거래 관리 시스템입니다.
+[![워크플로우 3719](3719.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3719.json)
+**워크플로우 3719**
+Gmail PDF 송장/영수증 분류기 및 Google Drive 업로더 (n8n 및 OpenAI를 통해) _**면책 조항**: AI 분류는 완벽하지 않습니다. 올바른 문서가 식별되고 업로드되었는지 항상 확인하세요._ 이 n8n 워크플로우는 웹훅을 통해 트리거되며, 지정된 날짜 범위 내 Gmail에서 이메일을 검색하여 PDF 첨부 파일을 추출하고, OpenA...
 
-[![잔고 모니터링](3107.png)](3107.json)
-**다중 계좌 잔고 모니터링**
-여러 은행 계좌의 잔고를 실시간으로 모니터링하고, 설정된 임계값 이하로 떨어지면 자동으로 알림을 보내는 자금 관리 시스템입니다.
+[![워크플로우 3751](3751.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3751.json)
+**워크플로우 3751**
+텔레그램 응답 보내기 최종 AI 생성 요약을 사용자에게 보냅니다. ⚠️ chatId를 >와 같은 동적 값으로 바꾸어 올바른 사용자에게 보내도록 하세요.
 
-[![자동 이체 관리](3050.png)](3050.json)
-**자동 이체 및 결제 관리**
-정기 결제와 자동 이체를 관리하고, 실패한 거래를 추적하여 재처리하는 자동화된 결제 관리 시스템입니다.
+[![워크플로우 3790](3790.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3790.json)
+**워크플로우 3790**
+AI 에이전트 GPT-4o에 의해 구동되는 AI 에이전트로, 기술 분석과 뉴스 감정을 결합하여 주식을 분석하고, 히브리어로 상세한 보고서를 생성하며 데이터 기반의 투자 추천을 제공합니다.
 
-## 💼 비즈니스 재무 관리
+## 📋 워크플로우 목록 (31-40)
 
-### 현금 흐름 관리
-[![현금 흐름 예측](3016.png)](3016.json)
-**현금 흐름 예측 시스템**
-과거 재무 데이터를 분석하여 미래 현금 흐름을 예측하고, 자금 부족 시점을 미리 경고하는 재무 계획 도구입니다.
+[![워크플로우 3951](3951.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3951.json)
+**워크플로우 3951**
+🧾 콜롬비아 전자 송장 처리 이 N8N 워크플로우는 **개인 전자 송장**을 Gmail을 통해 수신한 후 추출 및 조직화하는 작업을 자동화합니다. 주요 단계는 다음과 같습니다: 🔁 플로우 요약 1. **이메일 트리거** - `.zip` 첨부 파일이 포함된 이메일을 **30분마다** Gmail에서 확인합니다 (송장을 포함한다고 가정). - 콜롬비아 DIAN ...
 
-[![채권 관리](2970.png)](2970.json)
-**미수금 및 채권 관리**
-고객별 미수금을 추적하고, 연체 채권에 대한 자동 알림을 보내며, 채권 회수율을 분석하는 채권 관리 시스템입니다.
+[![워크플로우 3960](3960.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/3960.json)
+**워크플로우 3960**
+자동화된 재무 추적기: Telegram 인보이스를 Notion으로 AI 요약 및 보고서와 함께
 
-[![예산 관리](2961.png)](2961.json)
-**부서별 예산 관리 시스템**
-부서별 예산을 설정하고 실제 지출을 추적하여 예산 대비 실적을 모니터링하는 예산 관리 자동화 도구입니다.
+[![워크플로우 4092](4092.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4092.json)
+**워크플로우 4092**
+들어오는 텔레그램 명령 트리거 이 노드는 새로운 텔레그램 메시지를 감지하여 보고서 생성을 시작합니다.
 
-### 투자 관리
-[![포트폴리오 분석](2906.png)](2906.json)
-**투자 포트폴리오 자동 분석**
-투자 포트폴리오의 성과를 자동으로 분석하고, 리스크 지표와 수익률을 계산하여 투자 보고서를 생성하는 시스템입니다.
+[![워크플로우 4105](4105.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4105.json)
+**워크플로우 4105**
+웹훅 쿼리를 시뮬레이션하기 위한 고정 데이터
 
-[![자산 배분 최적화](2758.png)](2758.json)
-**자산 배분 최적화 도구**
-현재 자산 배분을 분석하고 목표 배분과 비교하여 리밸런싱 권장 사항을 제시하는 자산 관리 도구입니다.
+[![워크플로우 4247](4247.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4247.json)
+**워크플로우 4247**
+로컬에서 인보이스의 PDF 파일 읽기
 
-## 🔄 추가 재무 워크플로우
+[![워크플로우 4334](4334.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4334.json)
+**워크플로우 4334**
+이메일 읽기
 
-### 고급 재무 도구
-[![재무 감사 자동화](2619.png)](2619.json)
-**재무 감사 자동화 시스템**
-재무 데이터의 무결성을 자동으로 검사하고, 이상 거래를 탐지하여 감사팀에 보고하는 자동화된 감사 도구입니다.
+[![워크플로우 4376](4376.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4376.json)
+**워크플로우 4376**
+AI 송장 처리 에이전트: 이메일에서 구조화된 데이터로 자동으로 Gmail 첨부 파일에서 송장 데이터를 추출, 분석 및 구조화된 Google Sheets로 정리합니다. 완벽한 솔루션: ✅ 회계사 및 부기 담당자 — 송장에서 수동 데이터 입력 제거 ✅ 소규모 사업체 — 송장 처리 및 추적 간소화 ✅ 재무 팀 — 미지급금 워크플로 자동화 ⚙️ 사용된 도구 n8...
 
-[![환율 모니터링](2421.png)](2421.json)
-**실시간 환율 모니터링**
-실시간 환율 정보를 모니터링하고, 설정된 조건에 따라 환전 알림을 보내는 외환 관리 시스템입니다.
+[![워크플로우 4452](4452.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4452.json)
+**워크플로우 4452**
+설정 필요 Google Sheets 구조: 시트: "Invoices" • 열 A: 송장 번호 • 열 B: 송장 날짜 • 열 C: 마감 날짜 • 열 D: 공급업체 이름 • 열 E: 총 금액 • 열 F: 통화 • 열 G: 항목 • 열 H: 세금 • 열 I: 카테고리 • 열 J: 승인됨 • 열 K: 승인 노트 • 열 L: 검토자 필요한 자격증명: • Google...
 
-[![재무 KPI 대시보드](2389.png)](2389.json)
-**재무 KPI 실시간 대시보드**
-주요 재무 지표를 실시간으로 수집하여 경영진을 위한 KPI 대시보드를 자동으로 업데이트하는 시스템입니다.
+[![워크플로우 4731](4731.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4731.json)
+**워크플로우 4731**
+🔷 **섹션 1: Crunchbase에서 데이터 가져오기** 🧩 노드: 1. 🕒 **일일 투자자 데이터 트리거** 2. 🌐 **Crunchbase 투자자 데이터 가져오기** --- 🔍 이 섹션에서 일어나는 일? 이 섹션은 **자동으로 Crunchbase에서 투자자 데이터를 일정에 따라 가져오며**, 수동 작업이 필요하지 않습니다. --- 🕒 1. **일일 ...
 
-[![비용 최적화](2335.png)](2335.json)
-**비용 최적화 분석 도구**
-지출 패턴을 분석하여 비용 절감 기회를 식별하고, 최적화 방안을 제시하는 비용 관리 시스템입니다.
+[![워크플로우 4867](4867.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/finance/4867.json)
+**워크플로우 4867**
+🧠 주식 분석 어시스턴트 이 워크플로우는 선택된 S&P 500 주식을 RSI 및 MACD 지표를 사용하여 분석하고, 통찰을 평범한 영어로 요약하며, 미국 시장 시간(월요일부터 금요일) 동안 매 시간 Slack에 업데이트를 게시합니다.
 
-[![신용 위험 관리](2328.png)](2328.json)
-**고객 신용 위험 자동 평가**
-고객의 재무 정보를 분석하여 신용 위험을 자동으로 평가하고, 신용 한도를 동적으로 조정하는 리스크 관리 시스템입니다.
+## 🔧 구현 가이드
 
-[![자금 조달 분석](2320.png)](2320.json)
-**자금 조달 옵션 분석**
-다양한 자금 조달 옵션을 비교 분석하고, 최적의 자금 조달 방안을 제시하는 재무 계획 도구입니다.
+### 워크플로우 사용 방법
+1. 원하는 워크플로우의 JSON 링크를 클릭합니다.
+2. n8n 인스턴스에서 'Import' 기능을 사용하여 워크플로우를 가져옵니다.
+3. 필요한 자격 증명과 설정을 구성합니다.
+4. 워크플로우를 테스트하고 필요에 따라 커스터마이즈합니다.
 
-## 📋 구현 가이드
+### 주의사항
+- 각 워크플로우는 특정 서비스나 API의 자격 증명이 필요할 수 있습니다.
+- 워크플로우를 실행하기 전에 모든 노드의 설정을 확인하세요.
+- 테스트 환경에서 먼저 워크플로우를 검증한 후 프로덕션에 적용하세요.
 
-### 주요 통합 서비스
-- **클라우드 플랫폼**: Google Sheets, Google Drive, Notion
-- **결제 게이트웨이**: Stripe, PayPal, Razorpay
-- **회계 시스템**: QuickBooks, Xero, Dynamics 365
-- **금융 데이터**: Alpha Vantage, Alpaca, CoinMarketCap
-- **AI 서비스**: OpenAI, Google Gemini
-- **커뮤니케이션**: Slack, Telegram, 이메일
+---
 
-### 보안 고려사항
-- 모든 금융 API 연결에 적절한 인증 및 암호화 사용
-- 민감한 재무 데이터에 대한 접근 권한 제한
-- 정기적인 보안 감사 및 컴플라이언스 검토
-- 데이터 백업 및 재해 복구 계획 수립
-
-### 성능 최적화
-- 대용량 재무 데이터 처리를 위한 배치 처리 구현
-- 실시간 모니터링을 위한 웹훅 활용
-- 데이터 캐싱을 통한 응답 시간 최적화
-- 오류 처리 및 재시도 메커니즘 구현
-
-### 확장성 전략
-- 모듈식 워크플로우 설계로 쉬운 확장 가능
-- 표준화된 데이터 형식으로 시스템 간 호환성 보장
-- 클라우드 네이티브 아키텍처로 무제한 확장
-- API 우선 접근 방식으로 외부 시스템 통합 용이
-
-## 🔗 관련 자료
-
-### 문서 및 가이드
-- [n8n 공식 문서](https://docs.n8n.io/)
-- [금융 API 통합 가이드](https://docs.n8n.io/integrations/builtin/app-nodes/)
-- [AI 기반 재무 분석 튜토리얼](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
-
-### 커뮤니티 리소스
-- [n8n 커뮤니티 포럼](https://community.n8n.io/)
-- [재무 자동화 사례 연구](https://n8n.io/blog/)
-- [금융 워크플로우 템플릿](https://n8n.io/workflows/)
-
-## 💡 사용 사례
-
-이러한 워크플로우들은 다음과 같은 조직에 적합합니다:
-
-- **스타트업**: 재무 프로세스 자동화를 통한 효율성 향상
-- **중소기업**: 비용 효율적인 재무 관리 솔루션
-- **회계 사무소**: 클라이언트 재무 데이터 자동 처리
-- **투자 회사**: 포트폴리오 관리 및 분석 자동화
-- **전자상거래**: 결제 및 재고 관리 통합
-- **프리랜서**: 개인 재무 추적 및 송장 관리
-
-각 워크플로우는 특정 재무 요구사항에 맞게 맞춤화할 수 있으며, 여러 워크플로우를 결합하여 완전한 재무 관리 시스템을 구축할 수 있습니다.
+💡 **총 40개의 워크플로우**가 이 카테고리에서 제공됩니다.

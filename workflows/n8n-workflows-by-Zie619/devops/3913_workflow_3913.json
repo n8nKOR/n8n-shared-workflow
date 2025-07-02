@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "instanceId": "854c212d3baca2d6108faeb1187a4f6d9a3e60117068e7e872ad5e663327af93"
+  },
+  "nodes": [
+    {
+      "id": "c02e3038-96e8-4bfe-a4fa-925207fef0ee",
+      "name": "Create data pix",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab15b0f8-c40f-4874-8724-ddae8f99e646",
+              "name": "data",
+              "type": "string",
+              "value": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCA1LjEuMvu8A7YAAAC2ZVhJZklJKgAIAAAABQAaAQUAAQAAAEoAAAAbAQUAAQAAAFIAAAAoAQMAAQAAAAIAAAAxAQIAEAAAAFoAAABphwQAAQAAAGoAAAAAAAAAYAAAAAEAAABgAAAAAQAAAFBhaW50Lk5FVCA1LjEuMgADAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAWgBAABAAAAlAAAAAAAAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAADp1fY4ytpsegAAAA1JREFUGFdjYGBgYAAAAAUAAYoz4wAAAAAASUVORK5CYII="
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "09573a6a-88e8-48c5-a78e-d45fb37a8b87",
+      "name": "Create img bin",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "mimeType": "image/png"
+        },
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "binaryPropertyName": "pixel"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "07c42dab-9b60-4f51-b8ab-78df26bc2cdd",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "binary"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "cb0df6bc-d733-4e07-9506-c413d390e482",
+      "name": "Request img",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "db4880e7-2134-4994-94e5-a4a3aa120440",
+      "parameters": {
+        "path": "db4880e7-2134-4994-94e5-a4a3aa120440",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b7153f9a-f635-48c4-b8fe-d9e93deb33ed",
+      "name": "Do anything to log",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        660,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e4143c-f321-4632-9adf-e95ca718210f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        360
+      ],
+      "parameters": {
+        "width": 980,
+        "height": 1280,
+        "content": "## 📬 워크플로우: 이메일 열림 감지를 위한 투명 추적 픽셀\n\n### 📌 설명\n이 워크플로우는 **1x1 투명 PNG 이미지**를 웹훅을 통해 제공하며, 이를 이메일에 삽입하여 **이메일이 열릴 때를 추적**합니다. 수신자의 이메일 클라이언트에서 이미지가 로드되면 웹훅이 트리거되며, 선택적으로 `userId`를 캡처하여 이메일을 연 사람을 식별합니다.\n\n---\n\n### 📂 워크플로우 단계\n\n1. **웹훅 트리거** (`Request img`)\n   - **경로:** `/webhook/change-with-your-id`\n   - HTTP 요청(예: 이메일에서 이미지가 로드될 때)에 의해 트리거됩니다.\n   - 수신자를 식별하기 위한 쿼리 매개변수 `id`를 수락합니다.\n\n2. **Base64 데이터 설정** (`Create data pix`)\n   - 변수 `data`를 생성하여 Base64로 인코딩된 투명 PNG 이미지(1x1 픽셀)를 포함합니다.\n\n3. **이진 변환** (`Create img bin`)\n   - Base64 `data` 문자열을 이진 파일로 변환합니다.\n   - MIME 유형을 `image/png`으로 설정합니다.\n\n4. **웹훅 응답** (`Respond to Webhook`)\n   - HTTP 응답에 이진 이미지 파일을 보냅니다.\n\n5. **로깅** (`Do anything to log`)\n   - `id` 또는 요청 메타데이터를 로깅하거나 처리하는 플레이스홀더 노드입니다.\n   - `id`를 `{{$json[\"query\"][\"id\"]}}`를 사용하여 접근할 수 있습니다.\n   - 원하는 매개변수를 사용할 수 있습니다.\n\n---\n\n### ✉️ 이메일에서 사용 방법\n\nHTML 이메일에 이미지를 다음과 같이 삽입합니다:\n\n```html\n<img src=\"https://<your-n8n-instance>/webhook/db4880e7-2134-4994-94e5-a4a3aa120440?id=1234\" width=\"1\" height=\"1\" style=\"display:none;\" alt=\"\" />\n```\n\n이메일이 열리고 이미지가 로드되면 워크플로우가 트리거됩니다.\n\n---\n\n### 🛠️ 주의사항\n- 일부 이메일 클라이언트는 기본적으로 이미지를 차단합니다; 이는 추적을 방해할 수 있습니다.\n- 워크플로우를 확장하여 열림 이벤트를 데이터베이스에 저장하거나, 타임스탬프, IP 또는 사용자 에이전트를 로깅할 수 있습니다.\n- 데이터 프라이버시 및 동의 규정(예: GDPR)을 준수해야 합니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Request img": {
+      "main": [
+        [
+          {
+            "node": "Create data pix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create img bin": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Do anything to log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create data pix": {
+      "main": [
+        [
+          {
+            "node": "Create img bin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

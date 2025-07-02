@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "instanceId": "e634e668fe1fc93a75c4f2a7fc0dad807ca318b79654157eadb9578496acbc76",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "a5f5621a-bd4c-45b8-be09-ebdda13ebb3e",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -280,
+        120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9447f0d4-1be3-4b8c-b172-3ff856f2197b",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -280,
+        -160
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4ffd30f6-6f56-42cd-9f1c-07b58adbe312",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 371.1995072042308,
+        "height": 600.88409546716,
+        "content": "## Squarespace 뉴스레터를 기반으로 Mailchimp 연락처 생성\n\n이 워크플로는 Squarespace 뉴스레터 가입자를 가져와서 지정된 Mailchimp 오디언스에 새로운 Mailchimp 연락처를 생성합니다.\n\n이는 Squarespace 폼과 Mailchimp 연결의 제한을 극복합니다. 여기서 새로운 빈 오디언스만 사용할 수 있습니다.\n\n이 워크플로를 필요에 따라 또는 일정에 따라 실행할 수 있습니다.\n\n## 스프레드시트 템플릿\n\n시트 열은 Squarespace 뉴스레터 블록 연결에서 영감을 받았습니다. 하지만 새 열 형식을 적용하기 위해 노드를 변경할 수 있습니다.\n\n[샘플 시트 여기를 복제하세요](https://docs.google.com/spreadsheets/d/1wi2Ucb4b35e0-fuf-96sMnyzTft0ADz3MwdE_cG_WnQ/edit?usp=sharing)\n\n- 제출됨\t\n- 이메일 주소\t\n- 이름"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7af3d027-ffb8-4ca0-84d4-06dbf3902e80",
+      "name": "Squarespace newsletter submissions",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15A3ZWzIBfONL4U_1XGJvtsS8HtMQ69qrpxd5C5L6Akg/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "15A3ZWzIBfONL4U_1XGJvtsS8HtMQ69qrpxd5C5L6Akg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15A3ZWzIBfONL4U_1XGJvtsS8HtMQ69qrpxd5C5L6Akg/edit?usp=drivesdk",
+          "cachedResultName": "n8n-submission"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JgI9maibw5DnBXRP",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "f0fe2c40-2971-4068-b5b0-57e70f65ff72",
+      "name": "Loop Over each item",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "ebad2d00-56b3-4dec-9e3b-d9cb6cc4aaf1",
+      "name": "Add new member to Mailchimp",
+      "type": "n8n-nodes-base.mailchimp",
+      "onError": "continueErrorOutput",
+      "position": [
+        540,
+        20
+      ],
+      "parameters": {
+        "email": "={{ $json['Email Address'] }}{{ $json.row_number }}",
+        "status": "subscribed",
+        "options": {
+          "timestampSignup": "={{ $json['Submitted On'] }}"
+        },
+        "mergeFieldsUi": {
+          "mergeFieldsValues": [
+            {
+              "name": "FNAME",
+              "value": "={{ $json.Name }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "mailchimpApi": {
+          "id": "E6kRZLAOwvNxFpNz",
+          "name": "Mailchimp account"
+        }
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Squarespace newsletter submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over each item": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Add new member to Mailchimp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add new member to Mailchimp": {
+      "main": [
+        [
+          {
+            "node": "Loop Over each item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Squarespace newsletter submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Squarespace newsletter submissions": {
+      "main": [
+        [
+          {
+            "node": "Loop Over each item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

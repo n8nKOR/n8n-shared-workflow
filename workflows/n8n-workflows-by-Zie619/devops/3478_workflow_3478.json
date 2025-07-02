@@ -1,0 +1,448 @@
+{
+  "meta": {
+    "instanceId": "160aba527cc3058f06f5c3afbfdaa77f24ad6a273269f4a7e247245d0eb0c124",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "0c46db99-4216-4132-a705-62560e8ebff0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -100
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 275,
+        "height": 239,
+        "content": "👈  \nGoogle Drive 자격 증명 설정하기.\n\n선택된 Google Drive 폴더에 새로운 사진/비디오 또는 캐러셀이 Instagram에 게시하기 위해 업로드되면, 이 트리거가 활성화됩니다.\n\n단계를 따르세요 (YouTube 비디오):  \nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bea7e9cb-c125-4469-a902-71f949d82858",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -480
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 492,
+        "height": 100,
+        "content": "Google Drive, AI 캡션 및 Facebook Graph API 에이전트를 사용한 인스타그램 게시물 자동화 (설정하기 쉽습니다) (설정하기 쉽습니다)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b56d4729-cc93-41d9-be09-27547d0d8204",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -100
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 275,
+        "height": 239,
+        "content": "👈  \nGoogle Drive 자격 증명을 설정하세요.  \n\n이 노드는 n8n 워크플로우에서 게시 파일을 다운로드할 것입니다.  \n\n단계 따르기 (YouTube 비디오):  \nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f70fd011-9eab-46b4-a861-148ddd90bca1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -100
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 275,
+        "height": 239,
+        "content": "👈  \nOpenAI Message Model을 설정하세요.  \n\n자격 증명을 설정하세요.  \n\n이 노드는 게시물에 대한 캡션을 생성할 것입니다.  \n\n단계에 따라 하세요 (YouTube 비디오):  \nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a85fd3c-66a8-40cf-be58-030568b953cf",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -100
+      ],
+      "parameters": {
+        "width": 275,
+        "height": 399,
+        "content": "👈  \nGoogle Sheets 노드를 설정하세요.  \n\n자격 증명을 설정하세요.  \n\nGoogle Sheets에서 새 시트를 만드세요 (예: Instagram 게시물).  \n\n3개의 열을 만드세요: 이름, 캡션, 그리고 이미지/릴 링크. Google 시트를 이 노드와 연결하세요. & 열을 Google Drive Node와 연결하세요 (이름 열과 URL 열을 Google Drive Node의 2개 매개변수와 연결) 그리고 캡션 열을 OpenAI 매개변수 하나와 연결하세요.  \n\n단계를 따르세요 (YouTube 비디오):  \nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5e855a8f-3a45-43bc-a8e6-9c590fb77c3d",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        -100
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 275,
+        "height": 379,
+        "content": "👈 가장 어려운 단계 (Facebook Graph API):\n\nFacebook Graph API Node를 설정하세요.\n\n자격 증명을 설정하세요.\n\n쿼리 매개변수를 Google Sheets 매개변수와 연결하세요.\n\n이 노드는 Google Sheets에서 캡션을 포함한 게시 파일에 접근할 것입니다.\n\n단계를 따르세요 (YouTube 비디오):\nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "515cef5a-52fd-49af-831c-50957e58564a",
+      "name": "Finally Post to Instagram",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1560,
+        -280
+      ],
+      "parameters": {
+        "edge": "media_publish",
+        "node": "17841465053058137",
+        "hostUrl": "graph-video.facebook.com",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v22.0",
+        "httpRequestMethod": "POST"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "vDjaXB1lRcGeYQV3",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3114251-0799-44a2-a838-0231103d8f87",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -100
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 275,
+        "height": 299,
+        "content": "👈  \n1. Facebook Graph API 노드 설정  \n2. 자격 증명 설정  \n\n3. 이 노드가 귀하의 인스타그램에 직접 게시합니다.  \n\n단계 따르기 (YouTube 비디오)  \nhttps://youtu.be/L3NUp2XP_h0?si=KAtjHYE2-qedlM-n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c3f1ec2-8765-4445-b93b-253e43c102d2",
+      "name": "Post File Upload in Google Drive Folder  Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        300,
+        -280
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1VfkhYImlmEXw70IrJvvZKO6mM164zMD6",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1VfkhYImlmEXw70IrJvvZKO6mM164zMD6",
+          "cachedResultName": "n8n reels automation on instagram"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "bugAjkJYMXx2rSaD",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c5d5251-f55e-4f1a-b0c3-103e34ac2128",
+      "name": "Post File Download in N8N (Google Drive Node)",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        520,
+        -280
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "bugAjkJYMXx2rSaD",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "e5e336e2-2a07-4611-9700-8c973aefd0f8",
+      "name": "AI Caption generated by OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        740,
+        -280
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=Generate an engaging Instagram caption for a {{ $('Post File Upload in Google Drive Folder  Trigger').item.json.name }}  about [Description]. Include:\t\n2-3 sentences with emojis\n\n3-5 relevant hashtags\n\nA call-to-action\n\nKeep it under 150 characters as you are skilled at writing detailed captions based on a file name. write a clear, engaging caption that helps viewers understand and appreciate the post withoutj using too many whimsical words or using too many adjectives. make it relatable and suitable for an instagram audience, encouraging people to connect with the post and respond in the comments. "
+            },
+            {}
+          ]
+        },
+        "simplify": false
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "BiRkxZ4Wi3R6gMpn",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "19054395-234d-4fae-a0e9-2976df11919d",
+      "name": "Post File Save in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1120,
+        -280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $('Post File Download in N8N (Google Drive Node)').item.json.name }}",
+            "Captions": "={{ $json.choices[0].message.content }}",
+            "Reel Urls ": "={{ $('Post File Download in N8N (Google Drive Node)').item.json.webViewLink }}",
+            "Reel Thumbnail": "={{ $('Post File Download in N8N (Google Drive Node)').item.json.thumbnailLink }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Captions",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Captions",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reel Urls ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Reel Urls ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reel Thumbnail",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Reel Thumbnail",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fb token for api",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "fb token for api",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Name"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1S-7cZM6W4EpbNH-DRAt1L3zXUt9JTmQEs8EZ_Csq_Fg/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1S-7cZM6W4EpbNH-DRAt1L3zXUt9JTmQEs8EZ_Csq_Fg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1S-7cZM6W4EpbNH-DRAt1L3zXUt9JTmQEs8EZ_Csq_Fg/edit?usp=drivesdk",
+          "cachedResultName": "IG Reel Pass to Meta API  "
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aQLnLORao3LXvlT1",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "d331ddfb-9131-4776-a610-feb830b736b6",
+      "name": "Connect Facebook API for Publishing Instagram Post using N8N",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1340,
+        -280
+      ],
+      "parameters": {
+        "edge": "media",
+        "node": "17841465053058137",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "video_url",
+                "value": "={{ $json['Reel Urls '] }}"
+              },
+              {
+                "name": "media-type",
+                "value": "REELS"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $json.Captions }}"
+              },
+              {
+                "name": "image_url",
+                "value": "={{ $json['Reel Thumbnail'] }}"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v22.0",
+        "httpRequestMethod": "POST"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "vDjaXB1lRcGeYQV3",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Caption generated by OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Post File Save in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Save in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Connect Facebook API for Publishing Instagram Post using N8N",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Download in N8N (Google Drive Node)": {
+      "main": [
+        [
+          {
+            "node": "AI Caption generated by OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Upload in Google Drive Folder  Trigger": {
+      "main": [
+        [
+          {
+            "node": "Post File Download in N8N (Google Drive Node)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Connect Facebook API for Publishing Instagram Post using N8N": {
+      "main": [
+        [
+          {
+            "node": "Finally Post to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,719 @@
+{
+  "meta": {
+    "instanceId": "5e2cdd86a9e1ca2fc82cc63db38d1710d5d6a5c6fe352258a6f7112815bcd512",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "c4dca8f0-98fa-4b06-a806-1ab271f024a2",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        120,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a916dcbd-d681-4e09-9ce9-0f50a1b4290b",
+              "name": "keep",
+              "type": "string",
+              "value": "=last"
+            },
+            {
+              "id": "949a2f76-5981-4fd2-9665-b10db26e2f48",
+              "name": "action",
+              "type": "string",
+              "value": "=flag"
+            },
+            {
+              "id": "7f4502b4-c330-4c9c-ab89-ba53874aafbb",
+              "name": "owner",
+              "type": "string",
+              "value": "={{ $json.owner || $json.owners[0].emailAddress }}"
+            },
+            {
+              "id": "592eb79e-28db-4470-8347-36b2a661cb03",
+              "name": "folder",
+              "type": "string",
+              "value": "={{ $json.folder || $json.parents[0]}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2562ed4a-8ecd-4a32-ae51-bc85daa9817b",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1800,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d28f976-2467-4d18-8698-556d29a5f8c0",
+              "name": "isDuplicate",
+              "type": "boolean",
+              "value": "={{ $json.isDuplicate }}"
+            },
+            {
+              "id": "e9d8eb20-7668-4287-bfb4-d4f66c019f73",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "587e5f8e-bd94-4ec5-80f2-066c99922135",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.name }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e7f0482c-77c7-46a0-8a36-e61bb624c422",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        2020,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bd33247c-4c88-4c0b-bdfe-6f9dca0205e3",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isDuplicate }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "28768732-29a4-4446-8b12-dda187976bf9",
+      "name": "Deduplicate Keep First",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1580,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// Sort files by creation time (oldest first)\nconst sorted = items.sort((a, b) => \n  new Date(a.json.createdTime) - new Date(b.json.createdTime));\n\nconst seen = {};\nfor (const item of sorted) {\n  const md5 = item.json.md5Checksum;\n\n  // Failsafe: Skip if md5Checksum is missing or empty\n  if (!md5) {\n    item.json.isDuplicate = false; // Mark as not duplicate to avoid issues\n    continue; // Skip to the next item\n  }\n\n  item.json.isDuplicate = md5 in seen;\n  if (!item.json.isDuplicate) seen[md5] = true;\n}\nreturn items;"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "1f6f9529-2283-4806-ad5a-b0425f9f68e2",
+      "name": "Deduplicate Keep Last",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1580,
+        360
+      ],
+      "parameters": {
+        "jsCode": "// Sort files by creation time (latest first)\nconst sorted = items.sort((a, b) => \n  new Date(b.json.createdTime) - new Date(a.json.createdTime));\n\nconst seen = {};\nfor (const item of sorted) {\n  const md5 = item.json.md5Checksum;\n\n  // Failsafe: Skip if md5Checksum is missing or empty\n  if (!md5) {\n    item.json.isDuplicate = false; // Mark as not duplicate to avoid issues\n    continue; // Skip to the next item\n  }\n\n  if (md5 in seen) {\n    item.json.isDuplicate = true;\n  } else {\n    item.json.isDuplicate = false;\n    seen[md5] = true;\n  }\n}\nreturn items;"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "c5250dd1-6eeb-4b89-b2e7-e44a8d88212c",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 440,
+        "height": 800,
+        "content": "# 2. 구성  \n워크플로의 **keep** 및 **action** 동작을 선택하세요  \n\n1. **keep** 매개변수는 중복이 감지될 때 첫 번째나 마지막으로 받은 파일을 유지할지 결정합니다. (가능한 값: `first`, `last`. 기본값: `last`)  \n2. **action** 매개변수는 감지된 중복 파일을 어떻게 처리할지 결정합니다. 휴지통으로 보내거나, DUPLICATE- 접두사를 붙여 이름을 변경하여 표시합니다. (가능한 값: `trash`, `flag`. 기본값: `flag`) 이미 DUPLICATE- 접두사가 붙은 파일은 다시 표시되지 않습니다.  \n\n매개변수 `owner` 및 `folder`은 트리거에서 가져오며, 변경할 필요가 거의 없을 것입니다:  \n- **folder**는 작업할 폴더를 가리킵니다. 기본적으로 트리거에서 가져옵니다.  \n- **owner** 매개변수는 파일의 소유자와 일치해야 합니다. 이 워크플로는 이 사용자가 소유한 파일만 처리합니다. 사용자 이메일로 지정되며, 트리거의 첫 번째 파일 소유자에서 가져옵니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67c4d02f-b170-4504-9bae-7bf14db7abd3",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 500,
+        "content": "## 작업 폴더\n\"Working Folder\" 노드가 파일을 중복 제거하기 위해 선택할 수 있게 합니다.\n\n이 워크플로는 깊이 수준 1의 단 하나의 폴더에서만 작동하도록 필터를 포함합니다. 중첩된 폴더의 파일과는 작동하지 않습니다.\n\n폴더 필터를 제거하여 전체 드라이브에서 작동하거나 다른 필터를 추가할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ed26ef0-da89-43c5-9e12-2ec97b2e51f6",
+      "name": "Send Duplicates to Trash",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2760,
+        320
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "deleteFile"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VypmUgEf64twpmiZ",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "fcfd08fa-7a19-4974-b3bb-6ed27a2030cf",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2800,
+        600
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "de7967e7-eb3b-456c-b12e-6de3165ad29a",
+      "name": "Is Flagged",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2540,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c8d8eac5-e03a-4673-bcf9-a8acaa95cb8e",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              },
+              "leftValue": "={{ $('Trash/Flag Duplicates').item.json.name }}",
+              "rightValue": "DUPLICATE-"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d227d6ee-97e7-4b4d-b1a2-4cd402be99d5",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        -360,
+        460
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes",
+              "value": 15
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1-tjf96Ooj0SL8qaE04BGIeCGnd-O1R8c",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1-tjf96Ooj0SL8qaE04BGIeCGnd-O1R8c",
+          "cachedResultName": "2025/04\n"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VypmUgEf64twpmiZ",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22e1638e-5c2e-41bc-b66e-fcee6af05762",
+      "name": "Drop Google Apps files",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        940,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1e7d9666-fba0-4fe7-b03a-1a4e5c07b389",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              },
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "application/vnd.google-apps"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ec80f4de-5dff-4693-bff4-2509fd581d70",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 500,
+        "content": "# 발견된 Google Apps 문서 무시  \nDocs, Sheets, Forms, Slides, Drawings 등은 실제 바이너리 파일이 아니며, 그 내용이 직접 확인할 수 없기 때문에 무시됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66ee766a-3dea-449f-827c-1922c6e053f3",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 440,
+        "height": 800,
+        "content": "# 1. 트리거 설정 및 작업 폴더\n\nGoogle Drive Trigger를 사용할 때 **폴링 시간**과 **폴더**를 구성하세요.\n\n기본적으로 트리거는 15분마다 *파일 업로드*를 확인하도록 구성되어 있습니다.\n\n드라이브의 특정 폴더로 구성된 경우 워크플로는 해당 폴더에 직접 있는 파일만 처리합니다 (하위 폴더의 파일은 확인/수정하지 않습니다).\n\n드라이브의 루트 (/) 폴더로 구성된 경우 모든 폴더와 하위 폴더의 모든 파일을 확인하므로 **이것을 주의해서 사용하세요** 중요한 파일이 삭제되거나 이름이 변경될 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f8a7855-2ee3-426d-879f-afb303d5aa20",
+      "name": "Working Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        560,
+        460
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Config').item.json.folder }}"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {
+          "fields": [
+            "*"
+          ]
+        },
+        "resource": "fileFolder",
+        "returnAll": true,
+        "queryString": "='{{$('Config').item.json.owner}}' in owners",
+        "searchMethod": "query"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VypmUgEf64twpmiZ",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6f69e6d3-96ca-4411-9a48-160ebdb2a273",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2500,
+        540
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 540,
+        "height": 220,
+        "content": "이미 *DUPLICATE-*로 시작하는 파일들은 다시 플래그되지 않습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65b4ba42-89ce-437c-a3e8-bf3f9b01cc21",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2500,
+        780
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 240,
+        "content": "Google Drive의 휴지통 파일은 영구적으로 삭제되기 전에 30일 동안 보관됩니다. 그 30일 동안에 검토하고 복원할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99374aa8-e597-4919-8b64-c376b246621a",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2880,
+        800
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "update",
+        "newUpdatedFileName": "=DUPLICATE-{{ $json.name }}"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VypmUgEf64twpmiZ",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6ae62c31-4cf0-48e7-aa42-19fc259c5981",
+      "name": "Keep First/Last",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1300,
+        460
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "last",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7f5ba21d-8f3d-4736-9c34-ac7ebd6a9699",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Config').item.json.keep }}",
+                    "rightValue": "last"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "first",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "93a013f6-6c59-47ad-bce3-8b34cc8f026c",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Config').item.json.keep }}",
+                    "rightValue": "first"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "9cb84da7-3cd9-4a53-af09-8b63f1cf8a34",
+      "name": "Trash/Flag Duplicates",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2240,
+        440
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "send to trash",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0314ac48-e7b7-406b-abcd-8cd1ab872c79",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Config').item.json.action }}",
+                    "rightValue": "trash"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "flag as duplicate",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "70d8e5f1-16a6-4921-ad9c-ab00049e507d",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Config').item.json.action }}",
+                    "rightValue": "flag"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Working Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Trash/Flag Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Flagged": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Working Folder": {
+      "main": [
+        [
+          {
+            "node": "Drop Google Apps files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep First/Last": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Keep Last",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deduplicate Keep First",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Keep Last": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trash/Flag Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Send Duplicates to Trash",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Flagged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Keep First": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drop Google Apps files": {
+      "main": [
+        [
+          {
+            "node": "Keep First/Last",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

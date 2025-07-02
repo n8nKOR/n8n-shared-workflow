@@ -1,0 +1,212 @@
+{
+  "id": "xEij0kj2I1DHbL3I",
+  "meta": {
+    "instanceId": "31e69f7f4a77bf465b805824e303232f0227212ae922d12133a0f96ffeab4fef"
+  },
+  "name": "🌐🪛 AI Agent Chatbot with Jina.ai Webpage Scraper",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ea5369a0-4283-46fc-b738-8cf787181e93",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        0,
+        -280
+      ],
+      "webhookId": "e298fd8c-2af9-4db2-bb8b-94d70fbc2938",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "07c8338b-d47e-467b-996f-99c9fbe67f89",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 680,
+        "height": 700,
+        "content": "Jina.ai 웹 스크래퍼를 사용한 AI 에이전트 챗봇  \nhttps://jina.ai/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00da1c9b-b5f7-42b8-8bdd-938a8daf7410",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        520,
+        20
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f14426ee-709d-4651-a0b7-e823bff5ee74",
+      "name": "Jina.ai Web Scraping Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        -280
+      ],
+      "parameters": {
+        "text": "=You have access to a powerful scrape_website tool that can retrieve real-time web content. Use this tool to extract any needed information from the website, analyze the data, and craft a clear, accurate, and concise answer to the user's question. Be sure to include relevant details from the scraped content. \n\nUser Question: {{ $json.chatInput }}\n\n",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "3ce16f26-073b-4ccc-a65f-2ca870a9bd16",
+      "name": "gpt-4o-mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        340,
+        20
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "jEMSvKmtYfzAkhe6",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3a503859-ef0a-492d-81c6-37e4f0c4c25e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        -20
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 320,
+        "content": "## Jina.ai 웹 스크래퍼 도구\n### API 키 필요 없음\nhttps://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolhttprequest/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "833d19c0-3a98-4cb0-a60c-412ea4d3a67a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        -460
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 760,
+        "content": "**AI Agent Chatbot with Jina.ai Web Scraper** 워크플로는 실시간 웹 스크래핑 기능을 AI 기반 채팅봇에 통합하도록 설계된 강력한 자동화입니다. 작동 방식과 그 중요성에 대해 설명하겠습니다:\n\n### **작동 방식**\n1. **채팅 트리거**: 사용자가 채팅 메시지를 보내는 것으로 워크플로가 시작되며, \"When chat message received\" 노드가 트리거됩니다.\n2. **AI 에이전트 처리**: 입력이 \"Jina.ai Web Scraping Agent\"로 전달되며, 이는 고급 AI 로직을 사용하여 사용자의 쿼리를 해석하고 필요한 정보를 결정합니다.\n3. **웹 스크래핑**: 에이전트는 \"HTTP Request\" 노드를 이용하여 사용자 제공 URL에서 실시간 데이터를 스크래핑합니다. 이로 인해 채팅봇이 웹사이트의 라이브 콘텐츠를 가져와 분석할 수 있습니다.\n4. **메모리 관리**: \"Window Buffer Memory\" 노드가 대화 기록을 저장하고 관리하여 맥락을 유지하며, 원활한 상호작용을 가능하게 합니다.\n5. **언어 모델 통합**: 스크래핑된 데이터는 \"gpt-4o-mini\" 언어 모델을 통해 처리되며, 이는 사용자에게 명확하고 정확하며 맥락적으로 적합한 응답을 생성합니다.\n\n### **중요성**\n- **실시간 정보 검색**: 이 워크플로는 사용자가 채팅봇을 통해 최신 웹 콘텐츠에 직접 접근할 수 있게 하여 수동 웹 검색의 필요성을 제거합니다.\n- **향상된 사용자 경험**: 웹 스크래핑과 대화형 AI를 결합하여 사용자 쿼리에 맞춤화된 정확한 답변을 실시간으로 제공합니다.\n- **다양성**: 고객 지원, 연구, 데이터 분석 등 다양한 분야에 적용될 수 있어 기업과 개인에게 유용한 도구입니다.\n- **자동화 효율성**: 웹 스크래핑과 응답 생성을 자동화하여 시간과 노력을 절약하며 정확성을 보장합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e9cc23b-9881-44ab-bd20-5c9176ba1c43",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 320,
+        "content": "## 나를 시험해 보세요!\n\n### 사용자 프롬프트는 초기 질문을 포함한 URL을 포함해야 합니다.\n\n프롬프트 예시:\n\n\"Ollama를 Windows에 설치하는 방법은 https://github.com/ollama/ollama의 문서를 사용하여 어떻게 하나요?\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a95efbfd-f908-4f7b-bf47-05b993250ed2",
+      "name": "Jina.ai Web Scraper Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        860,
+        140
+      ],
+      "parameters": {
+        "url": "=https://r.jina.ai/{url}",
+        "toolDescription": "Call this tool to scrape a website.  Extract the URL from the user prompt.",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "url",
+              "type": "string",
+              "description": "User provided website url"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ce466c5-2195-4038-9c52-cc7debd5f4b8",
+  "connections": {
+    "gpt-4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Jina.ai Web Scraping Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Jina.ai Web Scraping Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jina.ai Web Scraper Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jina.ai Web Scraping Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Jina.ai Web Scraping Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

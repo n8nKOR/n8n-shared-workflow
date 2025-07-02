@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "instanceId": "95b3ab5a70ab1c8c1906357a367f1b236ef12a1409406fd992f60255f0f95f85",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "0b6d74c3-e034-40be-9f42-df42c2ffbb03",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        1040
+      ],
+      "parameters": {
+        "width": 1219,
+        "height": 674,
+        "content": "### 소개\n이 워크플로우는 Facebook Lead Ads를 통해 리드를 캡처하고 이를 자동으로 KlickTipp으로 전송하는 프로세스를 간소화합니다. 연락처 데이터가 정확하게 매핑되어 KlickTipp에 추가되며, 개인화된 이메일 캠페인을 트리거합니다.\n\n### 이점\n- **자동화된 리드 가져오기**: Facebook 폼의 새 리드가 수동 작업 없이 자동으로 KlickTipp에 동기화됩니다.\n- **원활한 캠페인 활성화**: 프로세스 중에 태그를 할당하여 웰컴 이메일이나 웨비나 알림과 같은 후속 캠페인을 즉시 트리거할 수 있습니다.\n- **신뢰할 수 있는 데이터 구조**: 검증된 폼 항목이 미리 정의된 커스텀 필드로 매핑되어 KlickTipp에서 고품질의 연락처 기반을 보장합니다.\n\n### 주요 기능\n- **Facebook Lead Ads 트리거**: Facebook 광고의 폼 제출을 실시간으로 캡처합니다.\n- **데이터 처리**: 필드 매핑에 따라 리드 데이터를 할당하고 형식화합니다:\n  - 표준 Facebook 필드(이름, 이메일)를 직접 매핑합니다.\n  - 커스텀 필드(코스 선택, 지불 방법, 댓글)를 KlickTipp의 커스텀 필드에 매칭합니다.\n- **KlickTipp의 구독자 관리**: 연락처를 추가하거나 업데이트하며, 구조화된 매핑을 통해 커스텀 필드를 사용합니다. 세그먼테이션을 위해 동적으로 태그를 추가할 수 있습니다:\n  - 개인 데이터: 이름, 이메일 주소.\n  - 폼 응답: 선택된 코스, 지불 방법, 댓글.\n  - 태그 기반 세그먼테이션으로 자동화된 워크플로우를 지원합니다.\n\n#### 설정 지침\n1. n8n 인스턴스에서 Facebook Lead Ads(폼 선택)와 KlickTipp 노드(옵트인, 태깅 및 필드 매핑 선택)를 설정합니다.\n2. Facebook Lead Ads 및 KlickTipp 계정을 인증합니다.\n3. 데이터 구조에 맞는 필요한 커스텀 필드를 생성합니다.\n4. 워크플로우에서 필드 할당을 확인하고 사용자 지정 폼 및 구독자 목록 설정에 맞게 조정합니다.\n\n커스텀 필드:\n   - `Facebook_Leads_Ads_Kommentar` (텍스트)\n   - `Facebook_Leads_Ads_Kursauswahl` (텍스트)\n   - `Facebook_Leads_Ads_Zahlungsweise` (텍스트)\n\n### 테스트 및 배포\n1. Meta 개발자 도구를 사용하여 전송을 테스트합니다. (⚠️ 주의: KlickTipp은 검증 규칙으로 인해 test@fb.com과 같은 테스트 주소를 거부합니다. 이메일을 수신할 수 없기 때문입니다. 테스트를 위해 노드 출력에서 조작할 수 있습니다.)\n2. 매핑된 필드와 태그가 포함된 새 구독자가 KlickTipp에 나타나는지 확인합니다.\n3. Facebook에서 완전 자동화된 상태로 캠페인을 시작합니다.\n\n- **커스터마이징**: Make의 KlickTipp 모듈에서 태그 이름과 필드 매핑을 사용자 설정에 맞게 조정합니다. 동기화 오류를 방지하기 위해 추가 필드는 미리 KlickTipp에서 생성하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "84d11f91-5a50-49a0-a511-93d83fa434f4",
+      "name": "Facebook Lead Ads Trigger",
+      "type": "n8n-nodes-base.facebookLeadAdsTrigger",
+      "notes": "This node listens for new leads generated via Facebook Lead Ads. When a user submits a form on Facebook or Instagram, it triggers the workflow and captures the lead's details.",
+      "position": [
+        1460,
+        840
+      ],
+      "webhookId": "04c33978-2df7-4ab1-a37c-3ab3c0a0d21f",
+      "parameters": {
+        "form": {
+          "__rl": true,
+          "mode": "list",
+          "value": "989636452637732",
+          "cachedResultName": "Integrations Manual - Kursregistrierung"
+        },
+        "page": {
+          "__rl": true,
+          "mode": "list",
+          "value": "315574741814190",
+          "cachedResultUrl": "https://facebook.com/315574741814190",
+          "cachedResultName": "KlickTipp"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "facebookLeadAdsOAuth2Api": {
+          "id": "bBzZPOu1M8YbIM9L",
+          "name": "Facebook Lead Ads account 3"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "e4532533-b447-4340-b750-6e3c47809cb8",
+      "name": "Subscribe lead in KlickTipp",
+      "type": "n8n-nodes-klicktipp.klicktipp",
+      "notes": "Subscribes the incoming Facebook lead to the KlickTipp. This allows automatic follow-up, tagging, or integration with email campaigns.",
+      "position": [
+        1780,
+        840
+      ],
+      "parameters": {
+        "email": "={{ $json.data.email }}",
+        "fields": {
+          "dataFields": [
+            {
+              "fieldId": "fieldFirstName",
+              "fieldValue": "={{ // Extracts the first name (the first part of the full name), which will be identified by the letters before the first empty space \" \". This implementation only supports the first name.\n$json[\"data\"][\"full name\"].split(\" \")[0] }}"
+            },
+            {
+              "fieldId": "fieldLastName",
+              "fieldValue": "={{ // Extracts the last name (the last part of the full name), which will be identified by the letters after the last empty space \" \". This implementation does not support double names.\n$json[\"data\"][\"full name\"].split(\" \").pop() }}"
+            },
+            {
+              "fieldId": "field216784",
+              "fieldValue": "={{ $json.data['hast_du_zusätzliche_kommentare_für_uns?'] }}"
+            },
+            {
+              "fieldId": "field216785",
+              "fieldValue": "={{ $json.data['welcher_kurs_interessiert_dich?'] }}"
+            },
+            {
+              "fieldId": "field216786",
+              "fieldValue": "={{ $json.data['was_ist_deine_bevorzugte_zahlungsweise?'] }}"
+            }
+          ]
+        },
+        "listId": "358895",
+        "resource": "subscriber",
+        "operation": "subscribe"
+      },
+      "credentials": {
+        "klickTippApi": {
+          "id": "K9JyBdCM4SZc1cXl",
+          "name": "DEMO KlickTipp account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Facebook Lead Ads Trigger": {
+      "main": [
+        [
+          {
+            "node": "Subscribe lead in KlickTipp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

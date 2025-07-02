@@ -1,0 +1,256 @@
+{
+  "nodes": [
+    {
+      "id": "764c42ae-3761-4375-9de4-69ecdaf82b10",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        520
+      ],
+      "parameters": {
+        "width": 377.1993316649719,
+        "height": 590.2004455566864,
+        "content": "## 👋 이 템플릿을 사용하는 방법\n이 템플릿은 어떤 서비스의 이벤트를 가져와 데이터를 변환하고 원하는 앱에 알림을 보낼 수 있는 방법을 보여줍니다. 사용 방법은 다음과 같습니다:\n\n1. Slack 노드를 더블 클릭하여 Credential을 생성하여 Slack 계정에 연결하세요.\n2. Slack 노드에서 채널 이름을 Slack에 있는 채널이나 사용자으로 변경하세요.\n2. 워크플로우 실행 버튼을 클릭한 후, 노드를 더블 클릭하여 입력 및 출력 데이터를 보세요.\n\n### 이 템플릿을 사용자에 맞게 커스터마이즈하는 방법:\n1. Linear trigger를 활성화하거나 사용 사례에 맞는 서비스로 교체하세요.\n2. 데이터 변환을 필요에 맞게 변경하세요.\n3. Slack 노드를 조정하거나 사용 사례에 맞는 노드로 교체하세요.\n4. 「Execute Workflow를 클릭할 때」와 「Code」 노드를 비활성화하거나 제거하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b35b39f5-2937-437e-b4bb-bfd4fc06b2e2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        423.0997586567955,
+        520
+      ],
+      "parameters": {
+        "width": 398.2006312053042,
+        "height": 600.6569416091058,
+        "content": "### 1. 트리거 단계가 새로운 이벤트를 수신합니다\n\n우리는 `Linear 트리거`를 추가했습니다. 이 트리거는 `Product & Design` 팀에서 `Issue` 이벤트가 발생할 때마다 워크플로를 시작합니다. \n\n**이 노드를 원하는 트리거로 교체할 수 있습니다. 예를 들어 [Jira](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.jiratrigger/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.jiraTrigger), [Clickup](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.clickuptrigger/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.clickUpTrigger), [HubSpot](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.hubspottrigger/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.hubspotTrigger), [Google Sheets](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.googlesheetstrigger/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.googleSheetsTrigger) 등입니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "466097b6-a830-43fb-9776-d3c7f676fc9a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        620
+      ],
+      "parameters": {
+        "width": 317.52886836027733,
+        "height": 408.7361996915138,
+        "content": "### 3. 올바른 채널 알림\n\n마지막으로 우리는 Slack의 `#important-bugs` 채널에 메시지를 보내고 있습니다.\n\n**이 노드를 Teams, Telegram, Email 등과 같은 다른 서비스로 대체할 수 있습니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99b3eadc-f3ff-4f73-91c2-909ab17ea8ff",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        620
+      ],
+      "parameters": {
+        "width": 462,
+        "height": 407,
+        "content": "### 2. 데이터를 필터링하고 변환하기\n\n팀에 알리기를 원하는 것은 이벤트가 긴급 버그를 생성할 때뿐입니다.\n\n노드를 편집하려면, 입력 데이터를 필드로 간단히 드래그 앤 드롭하거나 값을 직접 변경하세요. **필터 외에도, n8n에는 [Set](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.set), [ItemList](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.itemlists/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.itemLists), [Code](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.code)와 더 많은 강력한 변환 노드가 있습니다.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90e3e605-f497-4aaa-b0be-cb064e9b9ac9",
+      "name": "Linear Trigger",
+      "type": "n8n-nodes-base.linearTrigger",
+      "disabled": true,
+      "position": [
+        500,
+        600
+      ],
+      "webhookId": "b705f01f-3262-46d4-90f2-fc9f962e6766",
+      "parameters": {
+        "teamId": "583b87b7-a8f8-436b-872c-61373503d61d",
+        "resources": [
+          "issue"
+        ]
+      },
+      "credentials": {
+        "linearApi": {
+          "id": "15",
+          "name": "Linear account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f956bf3b-b119-4006-b964-6fdb089ff877",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "For testing the workflow",
+      "position": [
+        500,
+        800
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "2b347886-f7a8-44eb-b26a-57c436eda594",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "notes": "Mock Data",
+      "position": [
+        680,
+        800
+      ],
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"action\": \"create\",\n    \"createdAt\": \"2023-06-27T13:15:14.118Z\",\n    \"data\": {\n      \"id\": \"204224f8-3084-49b0-981f-3ad7f9060316\",\n      \"createdAt\": \"2023-06-27T13:15:14.118Z\",\n      \"updatedAt\": \"2023-06-27T13:15:14.118Z\",\n      \"number\": 647,\n      \"title\": \"Test event\",\n      \"priority\": 3,\n      \"boardOrder\": 0,\n      \"sortOrder\": -48454,\n      \"teamId\": \"583b87b7-a8f8-436b-872c-61373503d61d\",\n      \"previousIdentifiers\": [],\n      \"creatorId\": \"49ae7598-ae5d-42e6-8a03-9f6038a0d37a\",\n      \"stateId\": \"49c4401a-3d9e-40f6-a904-2a5eb95e0237\",\n      \"priorityLabel\": \"No priority\",\n      \"subscriberIds\": [\n        \"49ae7598-ae5d-42e6-8a03-9f6038a0d37a\"\n      ],\n      \"labelIds\": [\n        \"23381844-cdf1-4547-8d42-3b369af5b4ef\"\n      ],\n      \"state\": {\n        \"id\": \"49c4401a-3d9e-40f6-a904-2a5eb95e0237\",\n        \"color\": \"#bec2c8\",\n        \"name\": \"Backlog\",\n        \"type\": \"backlog\"\n      },\n      \"team\": {\n        \"id\": \"583b87b7-a8f8-436b-872c-61373503d61d\",\n        \"key\": \"PD\",\n        \"name\": \"Product & Design\"\n      },\n      \"labels\": [\n        {\n          \"id\": \"23381844-cdf1-4547-8d42-3b369af5b4ef\",\n          \"color\": \"#4CB782\",\n          \"name\": \"bug\"\n        }\n      ]\n    },\n    \"url\": \"https://linear.app/n8n/issue/PD-647/test-event\",\n    \"type\": \"Issue\",\n    \"organizationId\": \"1c35bbc6-9cd4-427e-8bc5-e5d370a9869f\",\n    \"webhookTimestamp\": 1687871714230\n  }\n]"
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "750acf22-5fc7-40b6-8989-aa8ba1cb207b",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "notes": "Keep urgent bugs only",
+      "position": [
+        960,
+        700
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.data.priority }}",
+              "value2": 3,
+              "operation": "largerEqual"
+            }
+          ],
+          "string": [
+            {
+              "value1": "={{ $json.data.labels[0].name }}",
+              "value2": "bug"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "8ce7bb41-30f6-4d28-a5c7-ae5cb856ecc2",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "notes": "Transform title",
+      "position": [
+        1180,
+        700
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "title",
+              "value": "={{ $json.data.title.toTitleCase() }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "b9c6f60a-5b69-4bf5-9514-9c9dc9813595",
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1500,
+        700
+      ],
+      "parameters": {
+        "text": "=<!channel> New urgent bug *<{{ $json.url }}|{{ $json.title }}>*",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#important bugs"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "6",
+          "name": "Idea Bot"
+        }
+      },
+      "typeVersion": 2
+    }
+  ],
+  "connections": {
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linear Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

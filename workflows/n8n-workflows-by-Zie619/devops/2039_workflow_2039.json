@@ -1,0 +1,342 @@
+{
+  "meta": {
+    "instanceId": "0bd9e607aabfd58640f9f5a370e768a7755e93315179f5bcc6d1f8f114b3567a"
+  },
+  "nodes": [
+    {
+      "id": "97b36168-7fa8-4a97-a6cc-c42496918c4c",
+      "name": "Search Person in CRM",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        -880,
+        400
+      ],
+      "parameters": {
+        "term": "={{ $json.from.value[0].address }}",
+        "limit": 1,
+        "resource": "person",
+        "operation": "search",
+        "additionalFields": {
+          "includeFields": ""
+        }
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "MdJQDtRDHnpwuVYP",
+          "name": "Pipedrive LinkedUp"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a17582b-9375-4a01-87d9-a50f573b83db",
+      "name": "In campaign?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -420,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.in_campaign }}",
+              "value2": "True"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a8d509f-8ac2-4f45-a905-f34552833381",
+      "name": "Get person from CRM",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        -640,
+        400
+      ],
+      "parameters": {
+        "personId": "={{ $json.id }}",
+        "resource": "person",
+        "operation": "get",
+        "resolveProperties": true
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "MdJQDtRDHnpwuVYP",
+          "name": "Pipedrive LinkedUp"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9c6f3d3-1a6d-4144-8e77-3a3c6e5282d8",
+      "name": "Is interested?",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        -180,
+        380
+      ],
+      "parameters": {
+        "model": "gpt-4",
+        "prompt": {
+          "messages": [
+            {
+              "content": "=You are the best sales development representative in the world. You send cold email messages daily to CEOs and founders of companies. You do this to persuade them to make contact. This could be a phone call or a video meeting. \n\nYour task is to assess whether someone is interested in meeting up or calling sometime. You do this by attentively evaluating their response.\n\nThis is the email:\n{{ $('Get email').item.json.text }}\n\nThe response format should be:\n{\"interested\": [yes/no],\n\"reason\": reason\n}\n\nJSON:"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "chat"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qPBzqgpCRxncJ90K",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1eb438d-f002-4082-8481-51565df13f5c",
+      "name": "Get email",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1100,
+        400
+      ],
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "email",
+              "stringValue": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "78461c36-ba54-4f0f-a38e-183bfafa576c",
+      "name": "Create deal in CRM",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        460,
+        360
+      ],
+      "parameters": {
+        "title": "={{ $('Get person from CRM').item.json.Name }} Deal",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "MdJQDtRDHnpwuVYP",
+          "name": "Pipedrive LinkedUp"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "efe07661-9afc-4184-b558-e1f547b6721f",
+      "name": "IF interested",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        240,
+        380
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.interested }}",
+              "value2": "yes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7c2b7b59-9d68-4d8c-9b9f-a36ea47526c9",
+      "name": "Get response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        20,
+        380
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let interested = JSON.parse($json[\"message\"][\"content\"]).interested\nlet reason = JSON.parse($json[\"message\"][\"content\"]).reason\n\nreturn {json:{\n  interested: interested,\n  reason: reason\n}}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53f51f8c-5995-4bcd-a038-3018834942e6",
+      "name": "Email box 1",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -1300,
+        400
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": []
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb1254ec-676a-4edc-bf4a-a1c66bac78bb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1880,
+        360
+      ],
+      "parameters": {
+        "width": 452.37174177689576,
+        "height": 462.1804790107177,
+        "content": "## 워크플로우에 대해  \n워크플로우는 콜드 이메일 캠페인에서 받은 모든 답변을 읽고, 리드가 미팅에 관심이 있는지 확인합니다. 리드가 관심이 있으면, Pipedrive에서 거래를 생성합니다. 필요한 만큼 이메일 인박스를 추가할 수 있습니다!  \n\n## 설정:  \n- Gmail, OpenAI 및 Pipedrive 노드에 자격 증명을 추가하세요.  \n- Pipedrive에서 persons에 in_campaign 필드를 추가하세요. Pipedrive에서 오른쪽 상단의 자격 증명을 클릭한 후, 회사 설정 > 데이터 필드 > Person으로 이동하여 새 커스텀 필드를 추가하세요. 단일 옵션 [TRUE/FALSE].  \n- 이메일 인박스가 하나만 있으면, Gmail 노드 중 하나를 삭제할 수 있습니다.  \n- 이메일 인박스가 두 개 이상 있으면, Gmail 노드를 원하는 만큼 복제할 수 있습니다. Get email 노드에 연결하기만 하면 됩니다!  \n- Gmail 인박스 노드에서 라벨 이름 아래에 Inbox을 선택하고 Simplify를 해제하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c1aaee97-11f4-4e9d-9a71-90ca3f5773a9",
+      "name": "Email box 2",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -1300,
+        600
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": []
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get email": {
+      "main": [
+        [
+          {
+            "node": "Search Person in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email box 1": {
+      "main": [
+        [
+          {
+            "node": "Get email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email box 2": {
+      "main": [
+        [
+          {
+            "node": "Get email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get response": {
+      "main": [
+        [
+          {
+            "node": "IF interested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "In campaign?": {
+      "main": [
+        [
+          {
+            "node": "Is interested?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF interested": {
+      "main": [
+        [
+          {
+            "node": "Create deal in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is interested?": {
+      "main": [
+        [
+          {
+            "node": "Get response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get person from CRM": {
+      "main": [
+        [
+          {
+            "node": "In campaign?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Person in CRM": {
+      "main": [
+        [
+          {
+            "node": "Get person from CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

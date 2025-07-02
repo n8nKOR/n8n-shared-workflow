@@ -1,0 +1,456 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9"
+  },
+  "nodes": [
+    {
+      "id": "24be8907-684e-4b57-9642-6f4a45ca7af3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        -280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 660,
+        "content": "## 1. MCP 서버 트리거 설정\n\n[MCP Server Trigger에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5845d0a-648f-4bc1-b087-bc0d17506ed3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        -400
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 100,
+        "content": "항상 서버를 인증하세요! 프로덕션에 배포하기 전에, MCP 서버 트리거에 인증을 활성화하는 것이 항상 권고됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe9f1c8e-8334-4732-be3a-5ee49036e11e",
+      "name": "FileSystem MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -180,
+        -140
+      ],
+      "webhookId": "0d93cfd5-2fbf-457e-9535-5bfc9a73ba9e",
+      "parameters": {
+        "path": "0d93cfd5-2fbf-457e-9535-5bfc9a73ba9e"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb49782f-d8de-480b-a470-e37adb2e3036",
+      "name": "ListDirectory",
+      "type": "n8n-nodes-base.executeCommandTool",
+      "position": [
+        -300,
+        60
+      ],
+      "parameters": {
+        "command": "=ls /home/node/{{ $fromAI('path', 'optional, leave blank for project root directory.') }}",
+        "toolDescription": "List directories under the project root folder. The project root directory is /home/node/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8fa93054-bcf5-4fbc-9825-df16be063eb2",
+      "name": "CreateDirectory",
+      "type": "n8n-nodes-base.executeCommandTool",
+      "position": [
+        -200,
+        160
+      ],
+      "parameters": {
+        "command": "=mkdir -p /home/node/{{ $fromAI('filename', 'name of directory. Will be scoped under the /home/node/ project root directory. Optionally use path to create within subdirectories') }}",
+        "toolDescription": "Create directories under the project root folder. The project root folder is /home/node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aafe884d-0e6e-476a-92fe-b2111f624417",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        400,
+        40
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "operation"
+            },
+            {
+              "name": "filenames",
+              "type": "array"
+            },
+            {
+              "name": "contents",
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d85925b6-d58d-43b5-a6ca-3e43cbc81121",
+      "name": "Operation",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        580,
+        40
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "writeOneOrMultipleFiles",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "c1da2138-e2df-46d4-b1f4-97525c05e778",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "writeOneOrMultipleFiles"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "readOneOrMultipleFiles",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "cc02a5a2-609c-4dbe-bdb6-45f145947e47",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "readOneOrMultipleFiles"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "e9ec2928-5e33-4213-a53a-92b7d840d49e",
+      "name": "readOneOrMultipleFiles",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [
+        840,
+        140
+      ],
+      "parameters": {
+        "command": "=cat {{ $json.filenames.join(' ') }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "77ba2a48-b4b9-4a23-818d-e028a7762514",
+      "name": "ReadFiles",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        40,
+        160
+      ],
+      "parameters": {
+        "name": "readFil",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "=Call this tool to read the contents of a file. Include file extension.",
+        "workflowInputs": {
+          "value": {
+            "contents": "[]",
+            "filenames": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('filenames', `An array of filenames`, 'string') }}",
+            "operation": "readOneOrMultipleFiles"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filenames",
+              "type": "array",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filenames",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contents",
+              "type": "array",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "contents",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2ddf9a9a-cade-41c0-a068-482345452d4b",
+      "name": "WriteFiles",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        140,
+        60
+      ],
+      "parameters": {
+        "name": "write_file",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Call this tool to write contents to one or more files. Filenames and Contents are matched by their respective Array Indexes. Eg. To write to a single file, use { filenames: [<filename1>,<filename2>], contents: [<content1>,<content2>] } ",
+        "workflowInputs": {
+          "value": {
+            "contents": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('contents', `An array of strings for content to be written`, 'string') }}",
+            "filenames": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('filenames', `An array of strings for filenames`, 'string') }}",
+            "operation": "writeOneOrMultipleFiles"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filenames",
+              "type": "array",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filenames",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contents",
+              "type": "array",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "contents",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a5d9e11b-0583-4c67-b30b-be1d4185b891",
+      "name": "writeOneOrMultipleFiles",
+      "type": "n8n-nodes-base.executeCommand",
+      "position": [
+        840,
+        -60
+      ],
+      "parameters": {
+        "command": "={{\n$json.filenames.map((filename,idx) =>\n  `echo \"${$json.contents[idx] ?? ''}\" > /home/node/${filename}`\n).join('\\n')\n}}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de2f715c-b6d1-4702-9d39-2527108b5706",
+      "name": "SearchDirectory",
+      "type": "n8n-nodes-base.executeCommandTool",
+      "position": [
+        -80,
+        240
+      ],
+      "parameters": {
+        "command": "=find /home/node/ -name \"{{ $fromAI('filename', 'A name search paramter for the linux find tool') }}\"\n",
+        "toolDescription": "Search the project folder for a file by name. The project root directory is /home/node/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a4918bb1-8882-45c8-a05c-a3e22912cc0f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 660,
+        "content": "## 2. 더 복잡한 명령을 위한 맞춤형 워크플로우 도구 사용\n\n[실행 명령 도구에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executecommand/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ebf6c15b-e4e0-4db0-bb4e-36e204fb6a47",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -740
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 1120,
+        "content": "## 직접 해보세요!\n### 이 n8n은 간단한 FileSystem MCP 서버를 구축하는 방법을 보여줍니다. 이 서버에 연결하면 MCP 클라이언트와 에이전트가 로컬 머신 또는 원격 서버의 디렉터리와 파일을 나열, 읽기, 생성할 수 있습니다.\n\n이 MCP 예제는 공식 MCP 참조 구현을 기반으로 하며, 여기에서 찾을 수 있습니다 - https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem\n\n### 작동 원리\n* MCP 서버 트리거가 사용되며, 5개의 도구에 연결됩니다: 3개의 Execute Command 도구와 2개의 커스텀 워크플로 도구.\n* 3개의 Execute Command 도구는 디렉터리 나열, 검색 및 생성을 허용합니다.\n* 2개의 커스텀 워크플로 도구는 디스크에 파일을 읽고 쓰는 데 사용됩니다.\n* MCP 에이전트가 대상 서버에서 임의의 Linux 명령을 실행하지 못하도록 특별히 주의했습니다. 이는 에이전트가 원시 명령이 아닌 파일명과 경로와 같은 매개변수만 제공하도록 제한하여 달성됩니다.\n\n### 사용 방법\n* 이 Filesystem MCP 서버는 n8n 인스턴스를 호스팅하는 서버에 쓰기 작업을 수행합니다 - 이는 로컬 머신 또는 원격 서버일 수 있습니다. 대상 파일 시스템이 이 둘 중 하나가 아닌 경우, 명령을 수정하여 원하는 서버에 연결하세요.\n* MCP 클라이언트를 연결하려면 n8n 지침을 따르세요 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/#integrating-with-claude-desktop\n* MCP 클라이언트에서 다음 쿼리를 시도하세요:\n  * \"프로젝트 디렉터리 아래의 모든 폴더를 나열해 주세요.\"\n  * \"Slack에 알림을 보내는 bash 스크립트를 생성해 주세요.\"\n  * \"4월 22일 로그 파일을 검색하여 내용을 읽어주세요. 장애의 원인은 무엇이었나요?\"\n\n### 요구 사항\n* 이 예제 템플릿의 경우 Linux 파일 시스템이 필요합니다. Windows에서 작업하는 경우 자유롭게 수정하세요.\n* MCP 클라이언트 또는 에이전트(예: Claude Desktop)를 사용하세요 - https://claude.ai/download\n\n### 이 워크플로 커스터마이징\n* 파일 이동 및 이름 변경을 구현하려면 MCP 서버에 더 많은 커스텀 워크플로 도구를 추가하세요.\n* 프로덕션 환경에서 이 MCP 서버를 다른 사람과 공유하기 전에 자격 증명 요구 설정을 잊지 마세요!\n\n### 출력"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Operation": {
+      "main": [
+        [
+          {
+            "node": "writeOneOrMultipleFiles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "readOneOrMultipleFiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReadFiles": {
+      "ai_tool": [
+        [
+          {
+            "node": "FileSystem MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WriteFiles": {
+      "ai_tool": [
+        [
+          {
+            "node": "FileSystem MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListDirectory": {
+      "ai_tool": [
+        [
+          {
+            "node": "FileSystem MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreateDirectory": {
+      "ai_tool": [
+        [
+          {
+            "node": "FileSystem MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SearchDirectory": {
+      "ai_tool": [
+        [
+          {
+            "node": "FileSystem MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

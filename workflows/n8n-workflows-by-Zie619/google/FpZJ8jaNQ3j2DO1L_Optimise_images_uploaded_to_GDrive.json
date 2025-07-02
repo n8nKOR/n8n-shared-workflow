@@ -1,0 +1,280 @@
+{
+  "id": "FpZJ8jaNQ3j2DO1L",
+  "meta": {
+    "instanceId": "cb484ba7b742928a2048bf8829668bed5b5ad9787579adea888f05980292a4a7"
+  },
+  "name": "Optimise images uploaded to GDrive",
+  "nodes": [
+    {
+      "id": "a6fac2bb-4079-4872-9cc9-17b1016d2fcc",
+      "name": "Check GDrive for new images",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        500,
+        160
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0cae553-e4c1-408b-b11a-ceda4ff1aaa4",
+      "name": "Download image",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        700,
+        160
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "006ba31a-f42b-460c-87e1-66c5345fb6d7",
+      "name": "Optimise - Send image to TinyPNG",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        940,
+        320
+      ],
+      "parameters": {
+        "url": "https://api.tinify.com/shrink",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic "
+            }
+          ]
+        },
+        "inputDataFieldName": "data"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "e380304e-1c94-4841-bc1c-73047e4c2501",
+      "name": "Get optimised image from tinyPNG",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1140,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $json.headers.location }}",
+        "options": {}
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "f4db56cf-e362-41da-b2c2-da59b71a103f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 459.2991776576996,
+        "height": 146.4269155371431,
+        "content": "## 구글 드라이브 폴더에 업로드된 이미지를 자동으로 최적화\n\n이미지가 구글 드라이브 폴더에 추가될 때마다, 이 워크플로우가 이를 tinypng.com으로 보내 크기를 최적화하고, 사용자가 선택한 구글 드라이브 위치에 다시 저장합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9e2dd81-245d-4328-adbc-a1f17100d590",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        120
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 463.09809221779403,
+        "height": 176.7894351639415,
+        "content": "### 1. 사전 설정: Google Drive 자격 증명\n\n**a.** 먼저 Google Drive 자격 증명을 설정해야 합니다. 가장 좋은 방법은 [n8n 문서를 읽는 것](https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/)입니다.  \n**b.** GDrive 계정에 성공적으로 연결되면, 모든 3개의 Drive 노드를 그 자격 증명을 사용하여 연결하도록 설정하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "285b5324-07d5-4f17-b6cc-9013e60644ad",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -60
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 411.49840818526235,
+        "height": 189.2115813199212,
+        "content": "2. n8n이 새 파일을 감시할 Google Drive 폴더 선택\n\na. Google Drive에 가서 n8n이 새 이미지를 감시할 폴더를 생성하세요  \nb. 그런 다음 Google Drive 트리거 노드에서 그 폴더를 선택하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b574c32-baec-48ec-9cab-41d9f9813c6f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        100
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 322.632285684791,
+        "height": 189.2115813199212,
+        "content": "### 3. tinypng.com용 API 키 생성\n\n**a.** [tinypng.com](https://tinypng.com/developers)을 방문하여 API 키를 요청하세요  \n**b.** \"Authorisation\" 매개변수 값을 자신의 API 키로 업데이트하세요. 형식은 \"Basic YOUR_API_KEY_IN_BASE_64\"일 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d3740bb8-f296-4b81-816e-ebc6e42927ad",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1380,
+        240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 322.632285684791,
+        "height": 239.85571564814694,
+        "content": "### 4. 최적화된 이미지를 업로드하고 저장할 Google Drive 폴더를 선택하세요\n\n**a.** 마지막으로, 최적화된 이미지를 저장할 폴더를 생성하고 선택하세요\n\n**b.** OPTIONAL: 설정한 이름의 형식을 변경할 수도 있습니다. 기본적으로 원본 파일 이름 뒤에 -optimised를 추가합니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b69a925f-9938-4672-9329-4f8895ea9c79",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1480,
+        520
+      ],
+      "parameters": {
+        "name": "name.png",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7cdfcaa5-cbce-4582-9563-c72ba8d425b9",
+  "connections": {
+    "Download image": {
+      "main": [
+        [
+          {
+            "node": "Optimise - Send image to TinyPNG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check GDrive for new images": {
+      "main": [
+        [
+          {
+            "node": "Download image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get optimised image from tinyPNG": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Optimise - Send image to TinyPNG": {
+      "main": [
+        [
+          {
+            "node": "Get optimised image from tinyPNG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

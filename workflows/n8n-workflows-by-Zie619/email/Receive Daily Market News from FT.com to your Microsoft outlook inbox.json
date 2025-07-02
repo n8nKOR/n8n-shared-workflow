@@ -1,0 +1,263 @@
+{
+  "meta": {
+    "instanceId": "6045c639951d83c8706b0dd8d6330164bda01fe58f103cedc2c276bf1f9c11f1"
+  },
+  "nodes": [
+    {
+      "id": "d2a24a9b-9cf3-4de0-82e7-5d858658d4b4",
+      "name": "Extract specific content",
+      "type": "n8n-nodes-base.html",
+      "notes": "Extract selected headlines, editor's picks, spotlight etc.",
+      "position": [
+        800,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "cleanUpText": true
+        },
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Headline #1",
+              "cssSelector": "#site-content > div:nth-child(1) > section > div > div > div.layout-desktop__grid.layout-desktop__grid--span4.layout-desktop__grid--column-start-1.layout-desktop__grid--row-start-1.layout-desktop__grid--with-border.layout--default > div > div > div > div.story-group-stacked__primary-story > div > div > div > div > div.primary-story__teaser"
+            },
+            {
+              "key": "Headline #2",
+              "cssSelector": "#site-content > div:nth-child(1) > section > div > div > div.layout-desktop__grid.layout-desktop__grid--span6.layout-desktop__grid--column-start-5.layout-desktop__grid--row-start-1.layout-desktop__grid--with-border.layout--default > div > div > div > div > div > div.story-group__article.story-group__article--featured > div > div.featured-story-content > div.headline.js-teaser-headline.headline--scale-5.headline--color-black > a > span"
+            },
+            {
+              "key": "Editor's Picks",
+              "cssSelector": "#site-content > div:nth-child(1) > section > div > div > div.layout-desktop__grid.layout-desktop__grid--span2.layout-desktop__grid--column-start-11.layout-desktop__grid--row-start-1.layout--default > div"
+            },
+            {
+              "key": "Top Stories",
+              "cssSelector": "#site-content > div:nth-child(3) > section > div",
+              "skipSelectors": "h2"
+            },
+            {
+              "key": "Spotlight",
+              "cssSelector": "#site-content > div:nth-child(6) > section",
+              "skipSelectors": "h2"
+            },
+            {
+              "key": "Various News",
+              "cssSelector": "#site-content > div:nth-child(8) > section",
+              "skipSelectors": "h2"
+            },
+            {
+              "key": "Europe News",
+              "cssSelector": "#site-content > div:nth-child(13) > section",
+              "skipSelectors": "h2"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "38af5df2-65ce-4f04-aed3-6f71d81a37df",
+      "name": "Get financial news online",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Url : https://www.ft.com/",
+      "position": [
+        580,
+        340
+      ],
+      "parameters": {
+        "url": "https://www.ft.com/",
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "764b2209-bf20-4feb-b000-fa261459a617",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        360,
+        340
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "96b337ba-6fe7-47ec-8385-58bfc6c789cb",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1200,
+        520
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "450x4z8bKvomb0tZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "925eabf3-3619-4da2-be2c-bda97c605d4d",
+      "name": "Gather the elements",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1020,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5412a5ee-dbbe-4fcc-98a5-6fafc37b94d1",
+              "name": "News together",
+              "type": "string",
+              "value": "=Yahoo news :\n\n{{ $json['Headline '] }};\n\n{{ $('HTML').item.json['News #1'] }};\n\n{{ $('HTML').item.json['News #2'] }};\n\nFinancial times news :\n\n{{ $('Extract specific content').item.json['Headline #1'] }};\n\n{{ $('Extract specific content').item.json['Headline #2'] }};\n\n{{ $('Extract specific content').item.json['Editor\\'s Picks'] }};\n\n{{ $('Extract specific content').item.json['Top Stories'] }};\n\n{{ $('Extract specific content').item.json.Spotlight }};\n\n{{ $('Extract specific content').item.json['Various News'] }};\n\n{{ $('Extract specific content').item.json['Europe News'] }};\n\n"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5445b14f-25e8-4759-82d4-985961ca7fdd",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1200,
+        340
+      ],
+      "parameters": {
+        "text": "=Here are the news to summarise :\n\n{{ $json['News together'] }}",
+        "options": {
+          "systemMessage": "You role is to summarise the financial news from today. The summary will help an investor to have a clear view of the market, and to make better choice. \n\nYou will write the body of an e-mail using a well structured html format"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "30b76eac-d646-44d8-bc41-46aa2d9fe05f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        200
+      ],
+      "parameters": {
+        "width": 683.6774193548385,
+        "height": 581.4193548387093,
+        "content": "# 금융 뉴스 요약 워크플로우\n\n이 워크플로는 매일 오전 7:00에 지정된 수신자에게 선별된 금융 뉴스를 이메일로 자동 전달합니다. 관련 금융 뉴스 기사를 추출하여 내용을 구성하고, Microsoft Outlook을 통해 간결한 요약 형식으로 보냅니다.\n\n### 워크플로우 단계\n1. **일정 트리거**  \n   워크플로를 매일 오전 7:00에 활성화하도록 설정합니다.\n2. **금융 뉴스 가져오기**  \n   HTTP Request 노드를 사용하여 [ft.com](https://www.ft.com/)에서 금융 뉴스 콘텐츠를 가져옵니다.\n3. **뉴스 헤드라인 및 섹션 추출**  \n   CSS 선택자를 사용하여 HTML 페이지의 특정 섹션을 파싱하여 주요 헤드라인과 섹션을 수집합니다:  \n   - 헤드라인 #1, 헤드라인 #2  \n   - 편집자 추천  \n   - 등.\n4. **뉴스 콘텐츠 집계**  \n   추출된 모든 뉴스 섹션을 하나의 데이터 세트로 결합하여 관련 카테고리 아래에 내용을 구성합니다.\n5. **요약을 위한 AI 에이전트**  \n   Google Gemini Chat Model이 HTML 형식으로 구조화된 요약을 생성하여 투자자에게 명확한 시장 개요를 제공합니다.\n6. **이메일 발송**  \n   요약된 콘텐츠를 Microsoft Outlook을 통해 \"오늘의 금융 뉴스\"라는 제목으로 보내고, HTML 형식으로 명확성과 가독성을 높입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f2b6e9a-8b14-4083-a05c-3b76aae601a8",
+      "name": "Send the summary by e-mail",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        1540,
+        340
+      ],
+      "parameters": {
+        "subject": "Financial news from today",
+        "bodyContent": "=News of the day : \n\n{{ $json.output }}",
+        "toRecipients": "",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "8asOQiRWBGic8ei8",
+          "name": "Microsoft Outlook account"
+        }
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send the summary by e-mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get financial news online",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather the elements": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract specific content": {
+      "main": [
+        [
+          {
+            "node": "Gather the elements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get financial news online": {
+      "main": [
+        [
+          {
+            "node": "Extract specific content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

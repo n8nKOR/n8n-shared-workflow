@@ -1,0 +1,163 @@
+{
+  "id": "AvXlqUiuc1qJSwxf",
+  "meta": {
+    "instanceId": "14e4c77104722ab186539dfea5182e419aecc83d85963fe13f6de862c875ebfa"
+  },
+  "name": "Forward Filtered Gmail Notifications to Telegram Chat",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "99441348-1d5d-459f-961f-48bd593144f2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1000,
+        "height": 300,
+        "content": "# 필터링된 Gmail 알림을 Telegram 채팅으로 전달"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eadf565c-e753-4682-a8c2-6bc630a30a27",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1000,
+        "height": 200,
+        "content": "이 n8n 워크플로는 이메일 제목에 특정 키워드(예: \"Urgent\" 또는 \"Server Down\")가 포함된 경우에만 들어오는 Gmail 이메일을 Telegram 채팅으로 자동 전달합니다. 워크플로는 발신자, 제목, 메시지 본문과 같은 주요 세부 정보를 추출하여 지정된 Telegram 채팅으로 형식화된 메시지로 보냅니다. 이는 실시간 알림, 보안 경고, 또는 Telegram에서 직접 중요한 이메일을 모니터링하는 데 유용하며, 불필요한 이메일을 필터링합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb2a78d7-91ba-4e8c-a9f1-af270a50bd8f",
+      "name": "Incoming Email Monitor",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        20,
+        100
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5V09QSJCeHoQoKUp",
+          "name": "SM MaryP (Gmail)"
+        }
+      },
+      "notesInFlow": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "addffc7b-ef58-4fb5-9275-3db6fd84f4c0",
+      "name": "Email Validation Check",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        340,
+        100
+      ],
+      "parameters": {
+        "options": {
+          "ignoreCase": false
+        },
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "2496d01f-dbd5-4e23-84c3-f78decb87697",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Urgent"
+            },
+            {
+              "id": "274e9e05-5c74-487e-851d-0ca62210cb99",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Server Down"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e87d46b6-efc6-466f-a708-bfbf34bf001b",
+      "name": "Send Telegram Message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        700,
+        80
+      ],
+      "webhookId": "c8f1d16f-b698-4af9-a795-9aaa277c2bf6",
+      "parameters": {
+        "text": "=From : {{ $json.From }}\nSubject :{{ $json.Subject }}\nMessage : {{ $json.snippet }}\n",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "notesInFlow": false,
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "caf5eedb-4c6b-4bfa-9a0a-2d868291a83c",
+  "connections": {
+    "Email Validation Check": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming Email Monitor": {
+      "main": [
+        [
+          {
+            "node": "Email Validation Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

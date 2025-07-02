@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "instanceId": "c6511943b220d4ab672ac957465b13db475def5fbbd0b0e41240952f5fd0c300"
+  },
+  "nodes": [
+    {
+      "id": "e0721f8a-d157-4ec4-91b3-94060a841dc8",
+      "name": "QuickChart",
+      "type": "n8n-nodes-base.quickChart",
+      "position": [
+        240,
+        -40
+      ],
+      "parameters": {
+        "data": "={{ $json.jsonData.salesData }}",
+        "chartType": "line",
+        "labelsMode": "array",
+        "labelsArray": "={{ $json.jsonData.labels }}",
+        "chartOptions": {},
+        "datasetOptions": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b178ca51-357f-4731-8953-75e2370edc2d",
+      "name": "Edit Fields: Set JSON data to test",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        -40
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b3ae0ac-7fa5-406c-8e61-d6a9a6c27f07",
+              "name": "jsonData",
+              "type": "object",
+              "value": "={ \"reportTitle\": \"Quarterly Sales\", \"labels\": [\"Q1\", \"Q2\", \"Q3\", \"Q4\"], \"salesData\": [1250, 1800, 1550, 2100] }"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "393665db-f6a6-4294-afd8-3a9f32192c64",
+      "name": "Google Drive: Upload File",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        520,
+        -40
+      ],
+      "parameters": {
+        "name": "=chart.{{ $binary.data.fileExtension }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Vt3z79hk8lh9TUQq",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c4f2df73-50dc-4b9f-bcb8-43644c0cbed9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -600,
+        -740
+      ],
+      "parameters": {
+        "width": 1460,
+        "height": 1060,
+        "content": "## 차트 생성기\n\n**JSON 데이터에서 동적 선 차트를 생성하여 Google Drive에 업로드**\n\n### 사용 및 사용자 정의 방법\n\n* **입력 데이터 변경:** `Edit Fields: Set JSON data to test` 노드 내의 `labels` 및 `salesData` 배열을 수정하여 사용자 고유 데이터를 사용하세요. 레이블 수를 데이터 포인트 수와 일치시키세요.\n* **실제 데이터 소스 사용:** `Edit Fields: Set JSON data to test` 노드를 다음과 같은 노드로 교체하여 실제 소스에서 데이터를 가져오세요:\n    * HTTP Request (API)\n    * Postgres / MongoDB 노드 (데이터베이스)\n    * Google Sheets 노드\n    * 소스 노드의 출력 데이터가 `labels` 및 `salesData` 배열과 유사한 형식으로 제공되도록 하세요. QuickChart 노드 전에 데이터를 올바르게 구조화하기 위해 다른 Set 노드가 필요할 수 있습니다.\n* **차트 유형 변경:** QuickChart 노드에서 `Chart Type` 매개변수를 수정하세요 (예: `line`을 `bar`, `pie`, `doughnut` 등으로 변경).\n* **차트 모양 사용자 정의:** QuickChart 노드 내의 `Chart Options` 매개변수를 탐색하여 제목 추가, 색상 변경, 축 수정 등을 QuickChart의 표준 JSON 구성 옵션을 사용하여 수행하세요.\n* **데이터셋 사용 (복잡한 차트에 권장):** 여러 선/막대 또는 더 많은 제어를 위해 QuickChart 노드에서 데이터셋을 명시적으로 구성하세요:\n    * 최상위 `Data` 필드의 표현식을 제거하세요.\n    * `Dataset Options` -> `Add option` -> `Add dataset`으로 이동하세요.\n    * 데이터셋 내의 `Data` 필드를 `{{ $json.jsonData.salesData }}`와 같은 표현식을 사용하여 설정하세요.\n    * 이 방법으로 여러 데이터셋을 추가할 수 있습니다.\n* **출력 대상 변경:** `Google Drive: Upload File` 노드를 다른 노드로 교체하여 차트 이미지를 다르게 처리하세요:\n    * `Write Binary File`: 차트를 n8n이 실행 중인 로컬 파일 시스템에 저장하세요.\n    * `Slack` / `Discord` / `Telegram`: 차트를 메시징 플랫폼으로 보내세요.\n    * `Move Binary Data`: 이미지를 Base64로 변환하여 HTML에 삽입하거나 웹훅 응답으로 반환하세요.\n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1af3cfc6-f690-4af2-a812-4a4da118a55c",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -400,
+        -40
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "QuickChart": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields: Set JSON data to test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields: Set JSON data to test": {
+      "main": [
+        [
+          {
+            "node": "QuickChart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

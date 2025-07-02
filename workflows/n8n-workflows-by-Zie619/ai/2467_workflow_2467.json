@@ -1,0 +1,581 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9"
+  },
+  "nodes": [
+    {
+      "id": "6d16b5be-8f7b-49f2-8523-9b84c62f2759",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1960,
+        660
+      ],
+      "parameters": {
+        "model": "gpt-4o-2024-08-06",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6084f09-9a4f-478a-ac1a-ab1413628c1f",
+      "name": "Capture Frames",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "python",
+        "pythonCode": "import cv2\nimport numpy as np\nimport base64\n\ndef extract_evenly_distributed_frames_from_base64(base64_string, max_frames=90):\n    # Decode the Base64 string into bytes\n    video_bytes = base64.b64decode(base64_string)\n    \n    # Write the bytes to a temporary file\n    video_path = '/tmp/temp_video.mp4'\n    with open(video_path, 'wb') as video_file:\n        video_file.write(video_bytes)\n    \n    # Open the video file using OpenCV\n    video_capture = cv2.VideoCapture(video_path)\n    \n    # Get the total number of frames in the video\n    total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))\n    \n    # Calculate the step size to take 'max_frames' evenly distributed frames\n    step_size = max(1, total_frames // (max_frames - 1))\n    \n    # List to store selected frames as base64\n    selected_frames_base64 = []\n    \n    for i in range(0, total_frames, step_size):\n        # Set the current frame position\n        video_capture.set(cv2.CAP_PROP_POS_FRAMES, i)\n        \n        # Read the frame\n        ret, frame = video_capture.read()\n        if ret:\n            # Convert frame (NumPy array) to a Base64 string\n            frame_base64 = convert_frame_to_base64(frame)\n            selected_frames_base64.append(frame_base64)\n        if len(selected_frames_base64) >= max_frames:\n            break\n    \n    # Release the video capture object\n    video_capture.release()\n\n    return selected_frames_base64\n\ndef convert_frame_to_base64(frame):\n    # Convert the frame (NumPy array) to JPEG format\n    ret, buffer = cv2.imencode('.jpg', frame)\n    if not ret:\n        return None\n\n    # Encode JPEG image to Base64\n    frame_base64 = base64.b64encode(buffer).decode('utf-8')\n    return frame_base64\n\nbase64_video = _input.item.binary.data.data\nframes_base64 = extract_evenly_distributed_frames_from_base64(base64_video, max_frames=90)\n\nreturn { \"output\": frames_base64 }"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b45e82a4-f304-4733-a9cf-07cae6df13ea",
+      "name": "Split Out Frames",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        920,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83d29c51-a415-476d-b380-1ca5f0d4f521",
+      "name": "Download Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        329,
+        346
+      ],
+      "parameters": {
+        "url": "=https://cdn.pixabay.com/video/2016/05/12/3175-166339863_small.mp4",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0304ebb5-945d-4b0b-9597-f83ae8c1fe31",
+      "name": "Convert to Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        1480,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "toBinary",
+        "sourceProperty": "output"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "32a21e1d-1d8b-411e-8281-8d0e68a06889",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        149,
+        346
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0ad2ea6a-e1f4-4b26-a4de-9103ecbb3831",
+      "name": "Combine Script",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2640,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d9bb91a-3369-4268-882f-f97e73897bb8",
+      "name": "Upload to GDrive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        3040,
+        360
+      ],
+      "parameters": {
+        "name": "=narrating-video-using-vision-ai-{{ $now.format('yyyyMMddHHmmss') }}.mp3",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dBJZL_SCh6F2U7N7kIMsnSiI4QFxn2xD"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yOwz41gMQclOadgu",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "137185f6-ba32-4c68-844f-f50c7a5a261d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        0
+      ],
+      "parameters": {
+        "width": 476.34074202271484,
+        "height": 586.0597334122469,
+        "content": "## 직접 시도해보세요!\n\n### 이 n8n 템플릿은 비디오를 가져와 프레임을 추출한 후, 이를 다중 모달 LLM과 함께 사용하여 스크립트를 생성합니다. 그런 다음 이 스크립트를 동일한 다중 모달 LLM에 전달하여 보이스오버 클립을 생성합니다.\n\n이 템플릿은 [GPT의 시각 기능과 TTS API를 사용한 비디오 처리 및 내레이션](https://cookbook.openai.com/examples/gpt_with_vision_for_video_understanding)에서 영감을 얻었습니다.\n\n* 비디오는 HTTP 노드를 사용하여 다운로드됩니다.\n* Python 코드 노드가 OpenCV를 사용하여 프레임을 추출합니다.\n* Loop 노드가 LLM이 부분 스크립트를 생성하도록 프레임을 배치하는 데 사용됩니다.\n* 모든 부분 스크립트가 결합되어 전체 스크립트를 형성한 후, 이를 OpenAI에 보내서 오디오를 생성합니다.\n* 완성된 보이스오버 클립이 Google Drive에 업로드됩니다.\n\n완성된 제품을 여기서 샘플링하세요: https://drive.google.com/file/d/1-XCoii0leGB2MffBMPpCZoxboVyeyeIX/view?usp=sharing\n\n### 도움이 필요하세요?\n[Discord](https://discord.com/invite/XPKeKXeB7d)에 가입하거나 [Forum](https://community.n8n.io/)에서 물어보세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23700b04-2549-4121-b442-4b92adf7f6d6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 459.41860465116287,
+        "height": 463.313953488372,
+        "content": "## 1. 비디오 다운로드\n\n[HTTP Request 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)\n\n이 데모에서, HTTP Request 노드를 사용하여 Pixabay에서 스톡 비디오를 다운로드하겠습니다. 다른 소스를 사용해도 좋지만, OpenCV에서 지원되는 형식인지 확인하세요 ([문서 보기](https://docs.opencv.org/3.4/dd/d43/tutorial_py_video_display.html))"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a42aeb0-96cd-401c-abeb-c50e0f04f7ad",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 605.2674418604653,
+        "height": 522.6860465116279,
+        "content": "## 2. 비디오를 프레임으로 분할  \n[코드 노드에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/)  \n\n비디오를 시각 트랙과 오디오 트랙의 합으로 생각해야 합니다. 시각 트랙은 기술적으로 연속해서 표시되는 이미지 모음일 뿐이며, 일반적으로 프레임이라고 불립니다. LLM이 비디오를 이해하게 하려면, 보통 시리즈의 프레임을 이미지로 제공하여 처리할 수 있습니다.  \n\n여기서, 우리는 OpenCV라는 컴퓨터 비전 라이브러리를 사용하여 비디오에서 프레임을 추출하기 위해 Python Code 노드를 사용합니다. 성능상의 이유로, 비디오에서 최대 90개의 프레임만 캡처하되, 비디오 전체에 고르게 분포되도록 합니다. 이 단계는 3MB 비디오에서 완료하는 데 약 1-2분이 걸립니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b518461c-13f1-45ae-a156-20ae6051fc19",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        660
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 418.11627906976724,
+        "height": 132.89534883720933,
+        "content": "### 🚨 성능 경고!\n큰 비디오를 사용하거나 많은 수의 프레임을 캡처하는 것은 매우 메모리를 많이 소비하며, n8n 인스턴스를 충돌시킬 수 있습니다. 충분한 메모리를 확보하고 비디오를 미리 최적화하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "585f7a7f-1676-4bc3-a6fb-eace443aa5da",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        118.69767441860472
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1264.8139534883715,
+        "height": 774.3720930232558,
+        "content": "## 3. Vision AI를 사용하여 프레임 배치에 대해 설명하기\n\n[Basic LLM 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainllm/)\n\n우리의 LLM 토큰 한계를 유지하기 위해, 원본 비디오의 청크를 나타내기 위해 프레임을 순차적인 배치로 보내야 합니다. 루프 노드를 사용하여 15개의 프레임 배치를 생성할 것입니다 - 이는 최대 90개의 프레임 때문에, 총 6개의 루프에 완벽하게 맞습니다. 다음으로, 각 프레임을 이진 이미지로 변환하여 Basic LLM 노드에 크기를 조정하고 첨부할 수 있습니다. 지적할 한 가지 팁은 Basic LLM 노드 내에서 이전 생성 반복이 cohesive script를 형성하기 위해 맨 앞에 추가된다는 것입니다. 그렇지 않으면, LLM은 각 프레임 배치에 대해 새로 시작해야 한다고 가정할 것입니다.\n\n웨이트 노드가 서비스 속도 제한 내에 머물기 위해 사용됩니다. 이는 여전히 낮은 티어에 있는 새로운 사용자에게 유용합니다. 이러한 제한이 없다면, 이 웨이트 노드를 제거하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42c002a3-37f6-4dd7-af14-20391b19cb5a",
+      "name": "Stay Within Service Limits",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2280,
+        640
+      ],
+      "webhookId": "677fa706-b4dd-4fe3-ba17-feea944c3193",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5beb17fa-8a57-4c72-9c3b-b7fdf41b545a",
+      "name": "For Every 15 Frames",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1320,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 15
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9a57256a-076a-4823-8cad-3b64a17ff705",
+      "name": "Resize Frame",
+      "type": "n8n-nodes-base.editImage",
+      "position": [
+        1640,
+        500
+      ],
+      "parameters": {
+        "width": 768,
+        "height": 768,
+        "options": {
+          "format": "jpeg"
+        },
+        "operation": "resize"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e776939-1a25-4ea0-8106-c3072d108106",
+      "name": "Aggregate Frames",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1800,
+        500
+      ],
+      "parameters": {
+        "options": {
+          "includeBinaries": true
+        },
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a973a9c-2c7a-43c5-9c45-a14d49b56622",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2500,
+        120.6860465116277
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 769.1860465116274,
+        "height": 487.83720930232533,
+        "content": "## 4. TTS를 사용하여 음성 오버 클립 생성\n\n[OpenAI 노드에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-langchain.openai)\n\n마침내 우리 생성된 스크립트 부분들을 하나로 결합하여 OpenAI의 오디오 생성 기능을 사용하여 전체 스크립트에서 음성 오버를 생성할 수 있습니다. 출력 mp3를 얻은 후, Google Drive와 같은 곳에 업로드하여 나중에 사용할 수 있습니다.\n\n여기 완성된 제품을 들어보세요: https://drive.google.com/file/d/1-XCoii0leGB2MffBMPpCZoxboVyeyeIX/view?usp=sharing"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92e07c18-4058-4098-a448-13451bd8a17a",
+      "name": "Use Text-to-Speech",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2840,
+        360
+      ],
+      "parameters": {
+        "input": "={{ $json.data.map(item => item.text).join('\\n') }}",
+        "options": {
+          "response_format": "mp3"
+        },
+        "resource": "audio"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "0696c336-1814-4ad4-aa5e-b86489a4231e",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        61,
+        598
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 458.1279069767452,
+        "height": 296.8139534883723,
+        "content": "이 데모에서 사용된 비디오는  \n&copy; [Coverr-Free-Footage](https://pixabay.com/users/coverr-free-footage-1281706/) 통해 [Pixabay](https://pixabay.com/videos/india-street-busy-rickshaw-people-3175/)  \n![](https://res.cloudinary.com/daglih2g8/image/upload/f_auto,q_auto/v1/n8n-workflows/jhx2tma2gxaabkeiqlgp#full-width)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81185ac4-c7fd-4921-937f-109662d5dfa5",
+      "name": "Generate Narration Script",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1960,
+        500
+      ],
+      "parameters": {
+        "text": "=These are frames of a video. Create a short voiceover script in the style of David Attenborough. Only include the narration.\n{{\n$('Generate Narration Script').isExecuted\n ? `Continue from this script:\\n${$('Generate Narration Script').all().map(item => item.json.text.replace(/\\n/g,'')).join('\\n')}`\n : ''\n}}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_1"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_2"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_3"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_4"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_5"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_6"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_7"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_8"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_9"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_10"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_11"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_12"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_13"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary",
+              "binaryImageDataKey": "data_14"
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.4
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Resize Frame": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Frames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Frames": {
+      "main": [
+        [
+          {
+            "node": "Split Out Frames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Script": {
+      "main": [
+        [
+          {
+            "node": "Use Text-to-Speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Capture Frames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Frames": {
+      "main": [
+        [
+          {
+            "node": "Generate Narration Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Frames": {
+      "main": [
+        [
+          {
+            "node": "For Every 15 Frames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Binary": {
+      "main": [
+        [
+          {
+            "node": "Resize Frame",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Narration Script",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Text-to-Speech": {
+      "main": [
+        [
+          {
+            "node": "Upload to GDrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Every 15 Frames": {
+      "main": [
+        [
+          {
+            "node": "Combine Script",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Narration Script": {
+      "main": [
+        [
+          {
+            "node": "Stay Within Service Limits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stay Within Service Limits": {
+      "main": [
+        [
+          {
+            "node": "For Every 15 Frames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

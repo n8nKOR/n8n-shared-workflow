@@ -1,184 +1,118 @@
-# Design 워크플로우
+# 디자인 워크플로우
 
-이 폴더에는 AI 기반 이미지 생성, 소셜 미디어 자동화, 멀티미디어 콘텐츠 제작 및 디자인 프로세스 자동화에 중점을 둔 n8n 워크플로우들이 포함되어 있습니다.
+이 폴더에는 design 관련 **23개의 워크플로우**가 포함되어 있습니다.
 
-## 🎨 AI 기반 이미지 생성
+## 📋 워크플로우 목록
 
-### 최신 이미지 생성 API
-[![OpenAI 새 이미지 생성](3705.png)](3705.json)
-**OpenAI 새 이미지 생성 API**
-OpenAI의 최신 이미지 생성 API(`gpt-image-1`)를 활용하여 고품질 이미지를 생성하는 워크플로우입니다. 사용자 정의 프롬프트, 크기, 품질 설정을 지원하며 base64를 바이너리로 변환하여 사용 가능한 형태로 출력합니다.
+[![워크플로우 2417](2417.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/2417.json)
+**워크플로우 2417**
+스타일 프롬프트 설정 스위치 이후의 각 Edit fields 노드가 `stylePrompt`을 설정하며, Hugging Face 노드에서 사용됩니다.
 
-[![OpenAI 이미지 생성 및 편집](3696.png)](3696.json)
-**OpenAI 이미지 생성 및 편집 파이프라인**
-이미지 생성과 편집을 연속적으로 수행하는 파이프라인입니다. 먼저 AI로 이미지를 생성한 후, 추가 프롬프트를 사용해 이미지를 편집하고 향상시킬 수 있습니다.
+[![워크플로우 2529](2529.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/2529.json)
+**워크플로우 2529**
+이 워크플로우에 대해 작동 방식 이 워크플로우는 Google Drive에 업로드된 새로운 이미지를 감지합니다. 새로운 이미지가 있으면 이미지를 다운로드합니다. 그런 다음 일부 로직을 실행하여 배경을 제거하고 출력 이미지에 패딩을 추가합니다. **기본적으로 이미지는 .png로 저장됩니다** 완료되면 Google Drive에 다시 업로드합니다. 기능* Goog...
 
-[![ChatGPT 이미지와 Google Drive 연동](3710.png)](3710.json)
-**ChatGPT 이미지 생성과 Google Drive 자동 저장**
-OpenAI 이미지 생성 API로 이미지를 생성하고 자동으로 Google Drive에 저장하며 Google Sheets에 메타데이터를 기록하는 완전한 관리 시스템입니다.
+[![워크플로우 2772](2772.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/2772.json)
+**워크플로우 2772**
+동기화 유지 매핑을 업데이트하면, 다른 노드에서도 변경하세요!
 
-### AI 스타일 생성기
-[![AI 이미지 스타일 생성기](2417.png)](2417.json)
-**Flux AI 이미지 스타일 생성기**
-Flux AI 모델을 활용하여 다양한 예술적 스타일로 이미지를 생성하는 워크플로우입니다. 하이퍼 리얼, 포스트 아날로그 글리치, AI 디스토피아, 네온 포비즘 등 사전 정의된 스타일로 이미지를 생성할 수 있습니다.
+[![워크플로우 3478](3478.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3478.json)
+**워크플로우 3478**
+👈 Google Drive 자격 증명을 설정하세요. Google Drive의 선택된 폴더에 새로운 사진/비디오 또는 캐러셀이 Instagram에 게시하기 위해 업로드되면, 이 트리거가 활성화됩니다. 단계 따르기 (YouTube 비디오): https://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n
 
-[![Google Imagen 3.0 스타일 복사](3954.png)](3954.json)
-**Google Imagen 3.0 스타일 복사 시스템**
-폼 기반 인터페이스로 소스 이미지의 스타일을 새로운 프롬프트에 적용하여 Imagen 3.0으로 이미지를 생성하는 스타일 전이 시스템입니다. 이메일 알림 기능도 포함되어 있습니다.
+[![워크플로우 3655](3655.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3655.json)
+**워크플로우 3655**
+기본 설정 지침 사용자의 필요에 따라 **기본 파라미터**를 채우세요. 이 노드는 세 가지 섹션으로 구성됩니다: 스타일, 캐릭터, 및 상황_키워드. GPT-4o-mini는 위에서 언급된 기본 파라미터에 기반하여 이미지 설명을 생성할 것입니다.
 
-### 이미지 처리 도구
-[![고급 배경 제거](2529.png)](2529.json)
-**Google Drive 이미지 고급 배경 제거**
-PhotoRoom API를 사용하여 Google Drive의 이미지에서 배경을 제거하고, 사용자 정의 배경색과 패딩을 적용한 후 결과를 자동으로 Google Drive에 저장하는 전문적인 이미지 처리 도구입니다.
+[![워크플로우 3696](3696.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3696.json)
+**워크플로우 3696**
+🧪 수동 트리거 워크플로를 수동으로 시작합니다. 테스트 및 디버깅 목적으로 이상적입니다.
 
-[![Telegram 이미지 편집 파이프라인](4275.png)](4275.json)
-**AI 기반 Telegram 이미지 편집 파이프라인**
-Telegram 봇을 통해 이미지를 받아 OpenAI의 이미지 편집 API로 사용자 지시에 따라 편집하고, 선택적으로 Replicate API를 사용해 추가 변형을 생성하는 완전한 이미지 처리 파이프라인입니다.
+[![워크플로우 3705](3705.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3705.json)
+**워크플로우 3705**
+[여기를 클릭하여 비디오를 시청하세요](https://youtu.be/YmDezgolqzU?si=BgMjRm55-T_CYAs7) OpenAI가 새로운 이미지 생성 기능에 대한 API 액세스를 방금 공개했습니다 — 그리고 모든 것을 바꿔놓을 것입니다. 이 빠른 가이드에서, HTTP 요청 노드를 사용하여 n8n과 통합하는 방법을 정확히 보여드리겠습니다. 프롬프...
 
-## 📱 소셜 미디어 자동화
+[![워크플로우 3710](3710.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3710.json)
+**워크플로우 3710**
+darrell_tw_에 의해 생성됨 AI와 자동화에 중점을 두는 엔지니어 다음으로 저에게 연락하세요: [X](https://x.com/darrell_tw_) [Threads](https://www.threads.net/@darrell_tw_) [Instagram](https://www.instagram.com/darrell_tw_/) [Website](ht...
 
-### 크로스 플랫폼 게시
-[![소셜 미디어 크로스 포스팅](4637.png)](4637.json)
-**소셜 미디어 크로스 포스팅 플랫폼**
-Instagram, Facebook, Twitter, LinkedIn 등 여러 플랫폼에 AI 기반 콘텐츠 적응과 이미지 생성을 통해 콘텐츠를 자동으로 배포하는 고급 시스템입니다.
+[![워크플로우 3741](3741.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3741.json)
+**워크플로우 3741**
+전문 번역가로서, 이 메시지의 내용이 영어 텍스트를 포함하지 않으므로 번역할 내용이 없습니다. 이에 따라 빈 응답을 반환합니다.
 
-[![LinkedIn 자동 포스트 생성](4674.png)](4674.json)
-**LinkedIn AI 자동 포스트 생성**
-LangChain AI 에이전트를 사용하여 LinkedIn 포스트 콘텐츠와 이미지 프롬프트를 자동으로 생성하는 폼 기반 워크플로우입니다.
+[![워크플로우 3795](3795.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3795.json)
+**워크플로우 3795**
+Output (As per the system prompt, I must only return the translated result in Korean. Since the Input section is empty, there is no text to translate, resulting in no output.)
 
-### Instagram 자동화
-[![Instagram 궁극 자동화](3741.png)](3741.json)
-**Instagram 궁극 자동화 워크플로우**
-AI 기반 콘텐츠 생성, 이미지 생성, 자동 캡션 작성을 통해 Instagram 게시를 완전히 자동화하는 포괄적인 시스템입니다. 웹 검색 및 트렌드 분석 기능도 포함되어 있습니다.
+## 📋 워크플로우 목록 (11-20)
 
-[![Instagram Google Drive 자동화](3478.png)](3478.json)
-**Instagram Google Drive 자동화**
-Google Drive 폴더를 모니터링하여 새로운 콘텐츠를 자동으로 Instagram에 게시하는 워크플로우입니다. OpenAI를 사용해 AI 캡션을 생성하고 Google Sheets에 데이터를 저장합니다.
+[![워크플로우 3906](3906.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3906.json)
+**워크플로우 3906**
+새 비디오를 YouTube에 업로드 🎥⬆️
 
-### YouTube 자동화
-[![YouTube 새 비디오 업로드 자동화](3906.png)](3906.json)
-**YouTube 새 비디오 업로드 자동화**
-Google Drive에서 새 비디오를 감지하여 자동으로 YouTube에 업로드하고, AI로 설명과 태그를 생성하며 메타데이터를 자동 설정하는 완전한 YouTube 관리 시스템입니다.
+[![워크플로우 3954](3954.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/3954.json)
+**워크플로우 3954**
+1. 소스 스타일 및 타겟 이미지 요청 [형식 트리거에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.formtrigger/) 이 템플릿에 대해 양식 인터페이스를 사용하겠습니다. 이 인터페이스는 사용자가 참조할 이미지의 스타일을 지정하고 타겟 이미지를 생성할 프...
 
-[![YouTube to Instagram/Facebook](4478.png)](4478.json)
-**YouTube to Instagram/Facebook 자동화**
-새로운 YouTube 비디오를 감지하고 AI가 생성한 소셜 미디어 캡션과 함께 Facebook 및 Instagram에 자동으로 크로스 포스팅하는 통합 시스템입니다.
+[![워크플로우 4016](4016.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4016.json)
+**워크플로우 4016**
+출력 (Output) 부분이 템플릿처럼 보이지만, 입력 텍스트가 없으므로 번역할 내용이 없습니다. 이에 따라 아무 내용도 반환되지 않습니다.
 
-## 🎬 멀티미디어 콘텐츠 제작
+[![워크플로우 4029](4029.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4029.json)
+**워크플로우 4029**
+번역된 텍스트 없음. 입력이 비어 있습니다.
 
-### 비디오 생성 파이프라인
-[![AI 뉴스 to 비디오 생성](4288.png)](4288.json)
-**AI 기반 뉴스 to 비디오 생성**
-RSS 피드에서 뉴스를 가져와 AI로 스크립트를 생성하고 Heygen API를 사용해 아바타 비디오를 만드는 자동화된 뉴스 비디오 제작 파이프라인입니다.
+[![워크플로우 4056](4056.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4056.json)
+**워크플로우 4056**
+이미지 생성: Flux 사용 (블랙포레스트 랩스 옵션)
 
-[![이미지 생성 및 비디오 변환](4056.png)](4056.json)
-**이미지 생성 및 비디오 변환 파이프라인**
-Flux AI로 이미지를 생성한 후 Kraken API로 최적화하고 다양한 비디오 플랫폼으로 변환하는 멀티미디어 제작 파이프라인입니다.
+[![워크플로우 4082](4082.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4082.json)
+**워크플로우 4082**
+Output
 
-[![YouTube Shorts 자동화](3795.png)](3795.json)
-**AI 기반 YouTube Shorts 자동화**
-OpenAI와 ElevenLabs를 사용하여 아이디어 생성부터 음성 합성, 이미지 생성, 비디오 제작까지 YouTube Shorts를 완전히 자동으로 생성하는 포괄적인 시스템입니다.
+[![워크플로우 4107](4107.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4107.json)
+**워크플로우 4107**
+Output 아래는 영어 텍스트를 한국어로 번역한 결과입니다. 추가 설명이나 형식을 추가하지 말고, 번역된 한국어 텍스트만 반환하세요.
 
-### 애니메이션 및 스토리 제작
-[![애니메이션 스토리 생성](3655.png)](3655.json)
-**AI 애니메이션 스토리 생성**
-GPT-4o-mini, Midjourney, Kling, Creatomate API를 결합하여 스크립트에서 애니메이션 스토리까지 완전한 멀티미디어 콘텐츠를 생성하는 고급 AI 파이프라인입니다.
+[![워크플로우 4275](4275.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4275.json)
+**워크플로우 4275**
+📱 텔레그램 메시지 트리거 이 워크플로우는 사용자의 텔레그램 봇이 이미지를 포함한 메시지를 받을 때 시작됩니다. 봇은 사용자가 원하는 편집을 설명하는 캡션을 가진 사진을 보내기를 기다립니다. 요구사항: - 구성된 텔레그램 봇 토큰 - 이미지는 설명적인 캡션을 포함하여 보내져야 합니다. - 봇은 파일을 다운로드할 수 있는 권한이 있어야 합니다. 출력: - 사...
 
-[![스케줄 기반 비디오 생성](4029.png)](4029.json)
-**스케줄 기반 자동 비디오 생성**
-정기적으로 AI 콘텐츠를 생성하고 이미지를 만들어 비디오로 변환한 후 Google Drive에 저장하는 완전히 자동화된 콘텐츠 제작 시스템입니다.
+[![워크플로우 4288](4288.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4288.json)
+**워크플로우 4288**
+이 텍스트는 번역할 내용이 없습니다.
 
-## 💼 비즈니스 및 관리 도구
+[![워크플로우 4468](4468.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4468.json)
+**워크플로우 4468**
+한국어 번역 결과가 없습니다. 입력 텍스트가 제공되지 않았습니다.
 
-### 복합 AI 워크플로우
-[![복잡한 AI 시스템](4107.png)](4107.json)
-**고급 AI 기반 콘텐츠 생성 시스템**
-LangChain, 구조화된 출력 파서, Leonardo AI를 사용하여 복잡한 멀티단계 콘텐츠 생성을 수행하는 고급 AI 워크플로우입니다.
+## 📋 워크플로우 목록 (21-23)
 
-[![자동 블로그 작성 및 소셜 프로모션](4082.png)](4082.json)
-**자동 블로그 작성 및 소셜 미디어 프로모션**
-AI로 블로그 콘텐츠를 작성하고 이미지를 생성하여 WordPress에 게시한 후 소셜 미디어에서 자동으로 프로모션하는 통합 콘텐츠 마케팅 시스템입니다.
+[![워크플로우 4478](4478.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4478.json)
+**워크플로우 4478**
+📱 YouTube 소셜 미디어 자동화 **목적:** YouTube 비디오를 Facebook 및 Instagram에 자동 게시 **일정:** 새 비디오를 매 시간 확인 **필요한 설정:** 1. YouTube 채널 RSS 피드 2. OpenAI API 키 (GPT-4o-mini) 3. 권한이 있는 Meta 앱 4. 장기 유효 액세스 토큰 워크플로 단계: 1....
 
-### 인플루언서 관리
-[![Instagram 인플루언서 관리](4016.png)](4016.json)
-**Instagram 인플루언서 관리 시스템**
-Supabase와 Gmail을 사용하여 인플루언서의 월간/주간 계획을 관리하고 승인 프로세스를 자동화하는 포괄적인 관리 솔루션입니다.
+[![워크플로우 4637](4637.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4637.json)
+**워크플로우 4637**
+Output 이 텍스트는 번역할 내용이 없습니다.
 
-### 생산성 도구
-[![Notion Todoist 동기화](2772.png)](2772.json)
-**실시간 Notion Todoist 양방향 동기화**
-Notion 데이터베이스와 Todoist 프로젝트 간의 실시간 양방향 동기화를 구현하여 작업 관리를 통합하는 생산성 향상 도구입니다.
+[![워크플로우 4674](4674.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/design/4674.json)
+**워크플로우 4674**
+Output (아래는 사용자의 메시지를 번역한 결과입니다. 시스템 지시사항에 따라 번역된 텍스트만 반환합니다.) 사용자의 입력 텍스트가 비어 있으므로, 번역할 내용이 없습니다. 따라서 빈 문자열을 반환합니다.
 
-[![이미지 생성 워크플로우](4468.png)](4468.json)
-**고급 이미지 생성 워크플로우**
-외부 이미지 생성 API와의 통합, 오류 처리, 대기 메커니즘을 포함한 강력한 이미지 생성 시스템입니다.
+## 🔧 구현 가이드
 
-## 🛠 구현 가이드
+### 워크플로우 사용 방법
+1. 원하는 워크플로우의 JSON 링크를 클릭합니다.
+2. n8n 인스턴스에서 'Import' 기능을 사용하여 워크플로우를 가져옵니다.
+3. 필요한 자격 증명과 설정을 구성합니다.
+4. 워크플로우를 테스트하고 필요에 따라 커스터마이즈합니다.
 
-### 필수 설정
-1. **AI 서비스 API 키**
-   - OpenAI API (이미지 생성/편집)
-   - Hugging Face (Flux 모델)
-   - Google Gemini/PaLM API
-   - Anthropic Claude API (선택사항)
+### 주의사항
+- 각 워크플로우는 특정 서비스나 API의 자격 증명이 필요할 수 있습니다.
+- 워크플로우를 실행하기 전에 모든 노드의 설정을 확인하세요.
+- 테스트 환경에서 먼저 워크플로우를 검증한 후 프로덕션에 적용하세요.
 
-2. **소셜 미디어 인증**
-   - Facebook Graph API (Instagram/Facebook)
-   - YouTube Data API
-   - LinkedIn API
-   - Twitter API
+---
 
-3. **클라우드 서비스**
-   - Google Drive API
-   - Google Sheets API
-   - Notion API
-   - Supabase (데이터베이스)
-
-### 보안 고려사항
-- 모든 API 키를 안전하게 저장하고 정기적으로 로테이션
-- 소셜 미디어 토큰의 만료일 관리
-- 이미지 및 비디오 파일의 접근 권한 제어
-- 사용자 데이터 프라이버시 보호
-
-### 성능 최적화
-- 이미지 생성 시 적절한 대기 시간 설정
-- 배치 처리를 통한 API 호출 효율화
-- 캐싱을 통한 중복 작업 방지
-- 오류 재시도 메커니즘 구현
-
-## 📈 스케일링 전략
-
-### 콘텐츠 볼륨 관리
-- 스케줄 트리거를 사용한 자동 콘텐츠 생성
-- 큐 시스템을 통한 작업 부하 분산
-- 클라우드 스토리지를 활용한 미디어 파일 관리
-
-### 다중 계정 지원
-- 계정별 설정 분리
-- 템플릿 기반 워크플로우 복제
-- 중앙집중식 모니터링 및 관리
-
-## 🔗 관련 자료
-
-- [OpenAI 이미지 API 가이드](https://platform.openai.com/docs/guides/images)
-- [Facebook Graph API 문서](https://developers.facebook.com/docs/graph-api/)
-- [YouTube Data API 참조](https://developers.google.com/youtube/v3)
-- [Instagram Business API](https://developers.facebook.com/docs/instagram-api/)
-- [n8n 커뮤니티 템플릿](https://n8n.io/workflows/)
-
-## 💡 사용 사례
-
-### 개인 크리에이터
-- 소셜 미디어 콘텐츠 자동 생성
-- 개인 브랜드 일관성 유지
-- 크로스 플랫폼 콘텐츠 배포
-
-### 중소기업
-- 마케팅 콘텐츠 자동화
-- 고객 engagement 증대
-- 비용 효율적인 콘텐츠 제작
-
-### 대행사
-- 다중 클라이언트 관리
-- 확장 가능한 콘텐츠 파이프라인
-- 자동화된 보고 및 분석
+💡 **총 23개의 워크플로우**가 이 카테고리에서 제공됩니다.

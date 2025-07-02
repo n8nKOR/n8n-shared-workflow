@@ -1,0 +1,148 @@
+{
+  "nodes": [
+    {
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1160,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        420
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 200,
+        "content": "데이터가 노드에 삽입할 수 있는 올바른 형식이 아닌 경우가 많습니다. set 노드를 사용하여 이를 수정할 수 있습니다.\n\n`Execute Workflow` 버튼을 클릭하고, 노드들을 더블 클릭하여 입력 및 출력 항목을 확인하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Create or Update record in Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1920,
+        480
+      ],
+      "parameters": {
+        "range": "A:C",
+        "options": {},
+        "sheetId": "13_bAEYNTzVXVY6SfAkBa9ijtJGSxPd8D-hcXXwXtdDo",
+        "operation": "upsert",
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8",
+          "name": "Sheets"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        360
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 280,
+        "content": "이곳은 Google Sheets가 기대하는 형식으로 데이터를 넣는 곳입니다.  \n이는 필드 이름을 `name`에서 `Full name`으로 변경하고, `ID`와 `Email`을 제외한 모든 필드를 삭제하며, `Created time` 필드를 추가하는 것을 의미합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Set - Prepare fields",
+      "type": "n8n-nodes-base.set",
+      "notes": "Prepare fields",
+      "position": [
+        1620,
+        480
+      ],
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "ID",
+              "value": "={{$json[\"id\"]}}"
+            }
+          ],
+          "string": [
+            {
+              "name": "Full name",
+              "value": "={{$json[\"name\"]}}"
+            },
+            {
+              "name": "Email",
+              "value": "={{$json[\"email\"]}}"
+            },
+            {
+              "name": "Created time",
+              "value": "={{$now}}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "notesInFlow": false,
+      "typeVersion": 1
+    },
+    {
+      "name": "Customer Datastore - Generate some data",
+      "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "position": [
+        1340,
+        480
+      ],
+      "parameters": {
+        "operation": "getAllPeople"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Set - Prepare fields": {
+      "main": [
+        [
+          {
+            "node": "Create or Update record in Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Customer Datastore - Generate some data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Datastore - Generate some data": {
+      "main": [
+        [
+          {
+            "node": "Set - Prepare fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

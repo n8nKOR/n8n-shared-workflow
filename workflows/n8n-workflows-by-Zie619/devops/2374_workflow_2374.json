@@ -1,0 +1,983 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9"
+  },
+  "nodes": [
+    {
+      "id": "5961a808-a873-497e-bc42-5b760ded1571",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        380,
+        360
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7fa03eaa-7865-46ce-9f58-7e19fc0ec89b",
+      "name": "Hacker News",
+      "type": "n8n-nodes-base.hackerNews",
+      "position": [
+        1200,
+        400
+      ],
+      "parameters": {
+        "articleId": "={{ $('Set Variables').item.json.story_id }}",
+        "additionalFields": {
+          "includeComments": true
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82675738-9df7-47a3-8363-264bb09255f4",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1560,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6800be57-40da-4d80-ac35-304403423263",
+      "name": "Get Comments",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1380,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "91110cf7-1932-43ca-b24e-9d4ed40447e6",
+              "name": "data",
+              "type": "array",
+              "value": "={{\n$json.children.flatMap(item => {\n  return [\n    { id: item.id, story_id: item.story_id, story_title: $json.title, author: item.author, text: item.text },\n    ...item.children.flatMap(item1 => {\n         return [\n           { id: item1.id, story_id: item1.story_id, story_title: $json.title, author: item1.author, text: item1.text },\n           ...item1.children.flatMap(item2 => {\n               return [\n                 { id: item2.id, story_id: item2.story_id, story_title: $json.title, author: item2.author, text: item2.text },\n                 ...item2.children.flatMap(item3 => {\n                     return [\n                       { id: item3.id, story_id: item3.story_id, story_title: $json.title, author: item3.author, text: item3.text },\n                       ...item3.children.flatMap(item4 => {\n                          return { id: item4.id, story_id: item4.story_id, story_title: $json.title, author: item4.author, text: item4.text }\n                       })\n                     ]\n                 })\n               ]\n           })\n        ]\n    })\n  ]\n})\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "18e1b980-1d98-4a89-8cc6-f4793c004d9f",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        1960,
+        320
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "hn_comments",
+          "cachedResultName": "hn_comments"
+        }
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "NyinAS3Pgfik66w5",
+          "name": "QdrantApi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4ce1342-1460-4650-8338-055979339f46",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1960,
+        480
+      ],
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00301fd6-8766-40f7-99eb-7f8af9a51b29",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        2080,
+        480
+      ],
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "item_id",
+                "value": "={{ $json.id }}"
+              },
+              {
+                "name": "item_author",
+                "value": "={{ $json.author }}"
+              },
+              {
+                "name": "story_id",
+                "value": "={{ $json.story_id }}"
+              },
+              {
+                "name": "story_title",
+                "value": "={{ $json.story_title }}"
+              }
+            ]
+          }
+        },
+        "jsonData": "={{ $json.text }}",
+        "jsonMode": "expressionData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c76d3aea-0906-4ed4-a828-47ad5775364c",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        2080,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "chunkSize": 4000
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "50735ca9-90eb-408a-9bca-97eea1a310d1",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        620,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b77516d-acb5-41af-9346-a67acecd0419",
+              "name": "story_id",
+              "type": "string",
+              "value": "41123155"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "376a1a66-1d22-4969-af11-d1a9d474b67b",
+      "name": "Clear Existing Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        860,
+        360
+      ],
+      "parameters": {
+        "url": "http://qdrant:6333/collections/hn_comments/points/delete",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"filter\": {\n        \"must\": [\n            {\n                \"key\": \"metadata.story_id\",\n                \"match\": {\n                    \"value\": \"{{ $('Set Variables').item.json.story_id }}\"\n                }\n            }\n        ]\n    }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "qdrantApi"
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "NyinAS3Pgfik66w5",
+          "name": "QdrantApi account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e8bcf7d8-aa25-499e-a64f-4d20caf1d6d4",
+      "name": "Get Payload of Points",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1822,
+        1100
+      ],
+      "parameters": {
+        "url": "=http://qdrant:6333/collections/hn_comments/points",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{\n  {\n    \"ids\": $json.points,\n    \"with_payload\": true\n  }\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "qdrantApi"
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "NyinAS3Pgfik66w5",
+          "name": "QdrantApi account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "57cbc8e5-dd89-4c2a-9906-2bd0c2bbdede",
+      "name": "Clusters To List",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1602,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "20b76291-f8fa-4aa7-8f1a-ff423ac3cb7f",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2242,
+        1320
+      ],
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07fc19b3-33b4-42be-bda9-f1436d4e9e6f",
+      "name": "Only Clusters With 3+ points",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1602,
+        1260
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "328f806c-0792-4d90-9bee-a1e10049e78f",
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              },
+              "leftValue": "={{ $json.points }}",
+              "rightValue": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "80583492-c454-4b9d-8df9-ded7d50930f2",
+      "name": "Set Variables1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        582,
+        1200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e58a9fa-a14d-4a6c-8cc8-8ec947c791fb",
+              "name": "story_id",
+              "type": "string",
+              "value": "={{ $json.story_id || 41123155 }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2cfb3a7a-01d2-4eee-b9f8-d19e81829882",
+      "name": "Prep Output For Export",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2842,
+        1200
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={{ {\n  ...$json.output,\n  \"Story ID\": $('Set Variables1').item.json.story_id,\n  \"Story Title\": $('Get Payload of Points').item.json.result[0].payload.metadata.story_title,\n  \"Number of Responses\": $('Get Payload of Points').item.json.result.length,\n  \"Raw Responses\": $('Get Payload of Points').item.json.result.map(item =>\n    [\n      item.payload.metadata.item_id,\n      item.payload.metadata.story_id,\n      item.payload.metadata.story_title,\n      item.payload.metadata.item_author,\n      item.payload.content.replaceAll('\"', '\\\"').replaceAll('\\n', ' ').substring(0, 500)\n    ]\n   ).join('\\n')\n} }}\n"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ade302fd-93ad-4d96-9852-e4108ba435af",
+      "name": "Export To Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3062,
+        1200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Story ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Story ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Insight",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Insight",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Sentiment",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Number of Responses",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Number of Responses",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Raw Responses",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Raw Responses",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {
+          "useAppend": true
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=1CPA_SNpWr2OjZ2KMi49fZ6MA9yC9uik8PMOILan7qYE"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "22d54081-7a52-40f2-837c-0c8df05e1fe4",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        382,
+        1200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b1e6eb2b-4627-4c69-a2ce-6bb8451d6359",
+      "name": "Trigger Insights",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        2780,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": "={{ $workflow.id }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f25e8b2a-5ce4-4e02-8e08-e3dd98072d0e",
+      "name": "Prep Values For Trigger",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2580,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "24dd90ad-390f-444e-ba6c-8c06a41e836e",
+              "name": "story_id",
+              "type": "string",
+              "value": "={{ $('Set Variables').item.json.story_id }}"
+            }
+          ]
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d0270fa8-5ebc-4573-b070-05d19dd3302a",
+      "name": "Find Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        982,
+        1160
+      ],
+      "parameters": {
+        "url": "=http://qdrant:6333/collections/hn_comments/points/scroll",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"limit\": 500,\n  \"filter\":{\n    \"must\": [\n      {\n        \"key\": \"metadata.story_id\",\n        \"match\": { \"value\": {{ $('Set Variables1').item.json.story_id }} }\n      }\n    ]\n  },\n  \"with_vector\":true\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "qdrantApi"
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "NyinAS3Pgfik66w5",
+          "name": "QdrantApi account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ca3c040e-bfe1-4f4d-9c4e-154c2010f89b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2440,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 595.5213902293318,
+        "height": 429.11782776909047,
+        "content": "## 4단계. Insights 하위 워크플로우 트리거  \n[워크플로우 트리거에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow)  \n\n하위 워크플로우는 설문조사에 대한 분석을 트리거하는 데 사용됩니다. 이 분리는 선택사항이지만, 여기에서 두 부분 프로세스를 더 잘 설명하기 위해 사용됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdf04343-abfa-4705-9828-e246c96ffa2a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1780,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 638.5221986278162,
+        "height": 741.0186923170972,
+        "content": "## 3단계. Qdrant에 댓글 저장  \n[ Qdrant Vector Store에 대해 더 알아보기 ](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreqdrant/)  \n\n벡터 데이터베이스는 데이터 저장에 훌륭한 방법입니다. 유사성 검색에 관심이 있으시면 여기서 적용되는데, 비슷한 댓글을 그룹화하여 패턴을 찾기 때문입니다. Qdrant은 강력한 벡터 데이터베이스로, 견고한 API 구현과 고급 필터링 기능 때문에 선택된 도구입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14f6872b-1c51-4359-a39f-cc6ba2ff29fb",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656.0317138444963,
+        "height": 441.0753369736108,
+        "content": "## 2단계. HN API를 사용하여 댓글 가져오기  \n[HTTP Request Node에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hackernews)  \n\nHN 스토리의 모든 댓글을 HN API 노드를 사용하여 스크래핑합니다. 추가 단계로 댓글 트리를 평탄화하여 답글이 최상위 댓글로 간주되도록 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "62935316-310a-4ce9-ac5f-8820666e2290",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 787.3314861380661,
+        "height": 465.52420584035275,
+        "content": "## 1단계. 새롭게 시작하기\n이 데모를 위해, 우리는 선택된 HN 스토리를 위한 Qdrant 벡터 저장소의 기존 레코드를 삭제할 것입니다. 이를 Qdrant의 delete points API를 사용하여 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a5e93a02-555c-48a3-afae-344a4884908b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        269,
+        1005
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 551.2710561574413,
+        "height": 407.9295477646979,
+        "content": "## 5단계. 통찰 서브워크플로우  \n[Workflow Triggers에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflowtrigger)  \n\n이 서브워크플로우는 스토리 ID를 사용하여 우리의 Qdrant 벡터 저장소에서 관련 댓글 레코드를 찾습니다. 우리의 목표는 특정 HN 스토리에 대한 커뮤니티의 합의를 파악하는 통찰을 찾는 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37217a2d-aca4-499b-9d6b-a1d4c6684194",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        920
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600.1809497875241,
+        "height": 482.99934349707576,
+        "content": "## 6단계. 댓글에 클러스터링 알고리즘 적용  \n[ n8n에서 Python 사용에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code)  \n\n우리는 원하는 HN 스토리 댓글에 대한 벡터 임베딩을 검색하고, 그에 대해 고급 클러스터링 알고리즘을 수행할 것입니다. 이 강력한 기술은 유사한 임베딩을 클러스터로 빠르게 그룹화하여 인기 피드백, 의견 및 문제점을 발견하는 데 사용할 수 있습니다!  \n\n이는 Python Code Node 덕분에 가능합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fcccc9a8-ee9f-41b7-b7d6-e8fbbe19dfa3",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1466,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 598.5585287222906,
+        "height": 605.9905193915599,
+        "content": "## 7단계. 클러스터별 댓글 내용 가져오기\n\n[Code Node 사용에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/)\n\nQdrant point IDs가 우리의 코드 노드에 의해 그룹화되어 반환된 상태에서, 남은 일은 각 항목의 페이로드를 가져오는 것입니다. 클러스터링 알고리즘은 완벽하지 않으므로 데이터에 따라 약간의 조정이 필요할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "78e9cd03-dea4-4b11-947f-a00d7bb5f8cf",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2086,
+        929
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 587.6069484146701,
+        "height": 583.305275883189,
+        "content": "## 8단계. 그룹화된 댓글로부터 통찰 얻기\n\n[정보 추출기 노드 사용에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.information-extractor)\n\n다음으로, 우리는 우리의 최첨단 LLM을 사용하여 우리의 댓글 그룹에 대한 통찰을 생성할 것입니다. 이렇게 하면, HN 스토리에서 논의된 많은 주요 주제를 다루는 더 세부적인 결과를 얻을 수 있을 것입니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5427741-6015-4af5-8e45-f6fc6f5c4133",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2706,
+        940
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 572.5638733479158,
+        "height": 464.4019616956416,
+        "content": "## 9단계. 인사이트 시트에 작성  \n마침내, 우리 완료된 인사이트가 워크플로우에서 이전에 만든 인사이트 시트에 추가됩니다.  \n\n샘플 시트를 여기에서 찾을 수 있습니다: https://docs.google.com/spreadsheets/d/e/2PACX-1vQXaQU9XxsxnUIIeqmmf1PuYRuYtwviVXTv6Mz9Vo6_a4ty-XaJHSeZsptjWXS3wGGDG8Z4u16rvE7l/pubhtml"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a66b7e6d-0602-4f6b-a9f6-76a63d590956",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        313.32160655630304
+      ],
+      "parameters": {
+        "width": 226.36363118160727,
+        "height": 296.5755172289686,
+        "content": "🚨 스토리 ID를 여기에 설정하세요! 유효한 HN 스토리 ID여야 합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42f93189-4bd8-4487-975a-f1c8f8365242",
+      "name": "Apply K-means Clustering Algorithm",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1202,
+        1160
+      ],
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import numpy as np\nfrom sklearn.cluster import KMeans\n\n# get vectors for all answers\npoint_ids = [item.id for item in _input.first().json.result.points]\nvectors = [item.vector.to_py() for item in _input.first().json.result.points]\nvectors_array = np.array(vectors)\n\n# apply k-means clustering where n_clusters = 5\n# this is a max and we'll discard some of these clusters later\nkmeans = KMeans(n_clusters=min(len(vectors), 5), random_state=42).fit(vectors_array)\nlabels = kmeans.labels_\nunique_labels = set(labels)\n\n# Extract and print points in each cluster\nclusters = {}\nfor label in set(labels):\n    clusters[label] = vectors_array[labels == label]\n\n# return Qdrant point ids for each cluster\n# we'll use these ids to fetch the payloads from the vector store.\noutput = []\nfor cluster_id, cluster_points in clusters.items():\n    points = [point_ids[i] for i in range(len(labels)) if labels[i] == cluster_id]\n    output.append({\n        \"id\": f\"Cluster {cluster_id}\",\n        \"total\": len(cluster_points),\n        \"points\": points\n    })\n\nreturn {\"json\": {\"output\": output } }"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4ddeab09-e401-41ad-861f-560b9e92bf89",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        40
+      ],
+      "parameters": {
+        "width": 400.381109509268,
+        "height": 612.855812336249,
+        "content": "## 직접 해보세요!\n\n### 이 워크플로는 HN Story 댓글에서 고도로 상세한 커뮤니티 인사이트를 생성합니다. 많은 수의 댓글을 다룰 때 가장 잘 작동합니다.\n\n* HN Story 댓글을 가져와 Qdrant 벡터스토어에서 벡터화합니다.\n* K-means 클러스터링 알고리즘을 사용하여 토론에서 인기 있는 주제의 클러스터를 식별합니다. \n* 각 유효한 클러스터를 LLM으로 분석하고 요약합니다.\n* LLM 응답과 클러스터 결과를 시트로 다시 내보냅니다.\n\n여기에서 참조 Google 시트를 확인하세요: https://docs.google.com/spreadsheets/d/e/2PACX-1vQXaQU9XxsxnUIIeqmmf1PuYRuYtwviVXTv6Mz9Vo6_a4ty-XaJHSeZsptjWXS3wGGDG8Z4u16rvE7l/pubhtml\n\n### 도움이 필요하신가요?\n[Discord](https://discord.com/invite/XPKeKXeB7d)에 가입하거나 [Forum](https://community.n8n.io/)에서 물어보세요!\n\n즐겁게 해킹하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eea1b301-f030-48a9-bcfc-63fe3e1aac0d",
+      "name": "Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        2260,
+        1140
+      ],
+      "parameters": {
+        "text": "=The {{ $json.result.length }} comments were:\n{{\n$json.result.map(item =>\n`* Commenter \"${item.payload.metadata.item_author}\" says the following: \"${item.payload.content.replaceAll('\"', '\\\"').replaceAll('\\n', ' ')}\"`\n).join('\\n')\n}}",
+        "options": {
+          "systemPromptTemplate": "=You help summarise a selection of forum comments for an article called \"{{ $json.result[0].payload.metadata.story_title }}\".\nThe {{ $json.result.length }} comments were selected because their contents were similar in context.\n\nYour task is to: \n* summarise the given comments into a short paragraph. Provide an insight from this summary and what we could learn from the comments.\n* determine if the overall sentiment of all the listed responses to be either strongly negative, negative, neutral, positive or strongly positive."
+        },
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n\t\"Insight\": \"\",\n    \"Sentiment\": \"\",\n    \"Suggested Improvements\": \"\"\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bee4dd57-c907-418f-ad87-21c6ce4e6698",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        660
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 323.2987132716669,
+        "height": 80,
+        "content": "이것을 한 번만 실행하세요!  \n만약 어떤 이유로 여러 번 실행해야 한다면, 먼저 기존 데이터를 삭제하십시오."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "429e080d-5a94-442c-a2b0-6a12f03a8a98",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        1440
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 323.2987132716669,
+        "height": 110.05160146874424,
+        "content": "첫 번째 실행? 첫 번째 실행 시 약간의 지연이 발생합니다. 왜냐하면 코드 노드가 필요한 패키지를 다운로드해야 하기 때문입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hacker News": {
+      "main": [
+        [
+          {
+            "node": "Get Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Comments": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Comments": {
+      "main": [
+        [
+          {
+            "node": "Apply K-means Clustering Algorithm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Clear Existing Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables1": {
+      "main": [
+        [
+          {
+            "node": "Find Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clusters To List": {
+      "main": [
+        [
+          {
+            "node": "Only Clusters With 3+ points",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Prep Values For Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Payload of Points": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Prep Output For Export",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Output For Export": {
+      "main": [
+        [
+          {
+            "node": "Export To Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Existing Comments": {
+      "main": [
+        [
+          {
+            "node": "Hacker News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Values For Trigger": {
+      "main": [
+        [
+          {
+            "node": "Trigger Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Variables1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Clusters With 3+ points": {
+      "main": [
+        [
+          {
+            "node": "Get Payload of Points",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply K-means Clustering Algorithm": {
+      "main": [
+        [
+          {
+            "node": "Clusters To List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

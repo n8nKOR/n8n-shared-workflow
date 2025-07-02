@@ -1,0 +1,473 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "dbaac3bd-6049-4f2e-8782-98b1656d8331",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -500,
+        -20
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6605c1b6-4723-4aeb-9ade-ac05350e7631",
+      "name": "Get Term Dates Excel",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -140,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.westminster.ac.uk/sites/default/public-files/general-documents/undergraduate-term-dates-2025%E2%80%932026.xlsx",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ed83ae3c-ebf7-42b5-9317-4e1fbd88905c",
+      "name": "Extract Key Events and Dates",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        640,
+        -20
+      ],
+      "parameters": {
+        "text": "={{ $json.target_sheet }}",
+        "options": {
+          "systemPromptTemplate": "Capture the values as seen. Do not convert dates."
+        },
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"array\",\n\t\"items\": {\n\t  \"type\": \"object\",\n      \"properties\": {\n        \"week_number\": { \"type\": \"number\" },\n        \"week_beginning\": { \"type\": \"string\" },\n        \"title\": { \"type\": \"string\" }\n      }\n\t}\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "78af1a09-6aa7-48f9-af2a-539a739c6571",
+      "name": "Extract Target Sheet",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0dd68450-2492-490a-ade1-62311eb541ef",
+              "name": "target_sheet",
+              "type": "string",
+              "value": "={{ $json.result[0].data.split('##')[9] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4bec1392-c262-4256-8199-54c101f281c2",
+      "name": "Fix Dates",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c6f0fa0e-1cbf-4da9-8928-a11502da0991",
+              "name": "week_beginning",
+              "type": "string",
+              "value": "={{\nnew Date(2025,8,15,0,0,0).toDateTime().toUTC()\n  .plus({ 'day': $json.week_beginning - 45915 })\n}}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0df44568-4bc6-46ed-9419-5462f528dbc3",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        740,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-pro-preview-03-25"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13aa069f-dc32-4a57-9a57-29264a09c80d",
+      "name": "Create ICS File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        2100,
+        -20
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "={{ $('Get Term Dates Excel').first().binary.data.fileName }}.ics",
+          "mimeType": "text/calendar"
+        },
+        "operation": "toBinary",
+        "sourceProperty": "data"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6cf27afd-8f16-40c7-bbc3-bba7fcf76097",
+      "name": "Events to ICS Document",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1720,
+        0
+      ],
+      "parameters": {
+        "language": "python",
+        "pythonCode": "from datetime import datetime, timedelta\nimport base64\n\nasync def json_array_to_ics_pyodide(json_array, prodid=\"-//My Application//EN\"):\n    \"\"\"\n    Converts a JSON array of calendar events to ICS file content in a Pyodide environment.\n\n    Args:\n        json_array: A list of dictionaries, where each dictionary represents an event\n                    and contains keys like \"week_number\", \"week_beginning\", and \"title\".\n                    It's expected that \"week_beginning\" is an ISO 8601 formatted\n                    date string.\n        prodid: The product identifier string for the ICS file.\n\n    Returns:\n        A string containing the content of the ICS file.\n    \"\"\"\n    ical = [\"BEGIN:VCALENDAR\",\n            \"VERSION:2.0\",\n            f\"PRODID:{prodid}\"]\n\n    for event_data in json_array:\n        week_number = event_data.get(\"week_number\")\n        week_beginning_str = event_data.get(\"week_beginning\")\n        title = event_data.get(\"title\")\n\n        if week_beginning_str and title:\n            try:\n                # Parse the week_beginning string to a datetime object\n                week_beginning = datetime.fromisoformat(week_beginning_str.replace('Z', '+00:00'))\n\n                # Calculate the end of the week (assuming events last for the whole week)\n                week_ending = week_beginning + timedelta(days=7)\n\n                uid = f\"week-{week_number}-{week_beginning.strftime('%Y%m%d')}@my-application\"\n                dtstamp = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')\n                dtstart = week_beginning.strftime('%Y%m%d')\n                dtend = week_ending.strftime('%Y%m%d')\n                summary = title\n\n                ical.extend([\n                    \"BEGIN:VEVENT\",\n                    f\"UID:{uid}\",\n                    f\"DTSTAMP:{dtstamp}\",\n                    f\"DTSTART;VALUE=DATE:{dtstart}\",\n                    f\"DTEND;VALUE=DATE:{dtend}\",\n                    f\"SUMMARY:{summary}\",\n                    \"END:VEVENT\"\n                ])\n\n                # You can add more properties here if your JSON data contains them,\n                # for example:\n                # if \"description\" in event_data:\n                #     ical.append(f\"DESCRIPTION:{event_data['description']}\")\n                # if \"location\" in event_data:\n                #     ical.append(f\"LOCATION:{event_data['location']}\")\n\n            except ValueError as e:\n                print(f\"Error processing event with week_beginning '{week_beginning_str}': {e}\")\n                continue  # Skip to the next event if there's a parsing error\n\n    ical.append(\"END:VCALENDAR\")\n    return \"\\r\\n\".join(ical)\n\nics_content = await json_array_to_ics_pyodide([item.json for item in _input.all()])\nics_bytes = ics_content.encode('utf-8')\nbase64_bytes = base64.b64encode(ics_bytes)\nbase64_string = base64_bytes.decode('utf-8')\n\nreturn {\n  \"data\": base64_string\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e5c94c64-4262-4951-a772-75af431e578a",
+      "name": "Sort Events by Date",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        1520,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "week_beginning"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bbe74bb-cd20-4116-9272-12be8ac54700",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 780,
+        "height": 500,
+        "content": "## 1. Cloudflare®️ Markdown 변환을 사용하여 Excel 파일 파싱\n\n[Cloudflare의 Markdown 변환 서비스에 대해 자세히 알아보기](https://developers.cloudflare.com/workers-ai/markdown-conversion/)\n\n오늘날의 LLMs은 Excel 파일을 직접 파싱할 수 없으므로, 가장 좋은 방법은 스프레드시트를 그들이 처리할 수 있는 형식, 즉 마크다운으로 변환하는 것입니다. 이를 위해 Cloudflare의 최신 문서 변환 서비스를 사용할 수 있습니다. 이 서비스는 이 작업을 위해 특별히 설계되었습니다. 결과적으로 시트가 마크다운 테이블로 전사됩니다.\n\n**Markdown 변환 서비스**는 현재 작성 시점에서 무료로 사용할 수 있지만 Cloudflare 계정이 필요합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18fc9626-1c55-4893-8e72-06c48754ceb8",
+      "name": "Markdown Conversion Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        80,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/tomarkdown",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "files",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "nodeCredentialType": "cloudflareApi"
+      },
+      "credentials": {
+        "cloudflareApi": {
+          "id": "qOynkQdBH48ofOSS",
+          "name": "Cloudflare account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5f71bc64-985c-43c4-bdfa-3cfda7e9c060",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 540,
+        "content": "## 2. AI를 사용하여 용어 날짜를 이벤트로 추출  \n[Information Extractor에 대해 자세히 알아보기](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.information-extractor)  \n\n데이터 입력은 아마도 AI/LLMs가 필요한 가장 큰 이유일 것입니다. 이 시간 소비적이고 단조로운 작업은 몇 초 만에 높은 정확도로 완료될 수 있습니다. 여기서, 우리는 AI에게 용어 날짜를 포함한 각 이벤트를 구조화된 출력으로 이벤트 목록에 추출하도록 요청합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e9083886-81e3-483e-b959-12ce9005d862",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 480,
+        "content": "## 3. 이벤트를 사용하여 ICS 문서 생성\n\n[코드 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/)\n\n이제 우리 이벤트를 가지고 있습니다. 이벤트를 넣을 캘린더를 만들어 봅시다. 이제 코드를 사용하여 간단한 ICS 문서를 구성할 수 있습니다. 이는 iCal, Google Calendar, Outlook으로 가져올 수 있는 형식입니다. 이러한 작업의 경우, Code 노드가 사용자 정의 변환을 처리하는 데 가장 적합합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04a7c856-88b4-4daa-a56f-6e2741907e4c",
+      "name": "Events to Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1000,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cab455c9-b15d-440d-9f30-7afe1af23ea8",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 480,
+        "content": "## 4. ICS 이진 파일 가져오기용 생성\n\n[Convert to File 노드에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.converttofile)\n\n마침내 우리의 ICS 문서가 준비되면, \"Convert to File\" 노드를 사용하여 ICS 이진 파일을 생성할 수 있으며, 이를 팀 멤버, 동급생 또는 심지어 강사와 공유할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0861ef1-08f4-49e9-a700-a7224296cc72",
+      "name": "Send Email with Attachment",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2340,
+        -20
+      ],
+      "webhookId": "835ef864-60c4-4b84-84ee-104ee10644eb",
+      "parameters": {
+        "sendTo": "jim@example.com",
+        "message": "=Hey,\n\nPlease find attached calendar for Undergraduate terms dates 2025/2026.\n\nThanks",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        },
+        "subject": "Undergraduate Terms Dates Calendar 2025/2026",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Sf5Gfl9NiFTNXFWb",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "85c4d928-83c7-445a-8e9b-d9daef05ae1d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 280,
+        "height": 80,
+        "content": "Cloudflare 계정 필요\n\n사용자의 Cloudflare {ACCOUNT_ID}를 URL에 추가하세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a2d8e78-0b15-498f-bc96-bbbac1da1f21",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1020,
+        -880
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1380,
+        "content": "## 시도해 보세요!\n### 이 n8n 템플릿은 대학의 학기 일정을 포함한 XLSX 파일을 가져와 AI를 사용하여 관련 이벤트를 추출하고, 추출된 이벤트를 ICS 파일로 변환하여 iCal, Google Calendar 또는 Outlook으로 가져올 수 있습니다.\n\n수동으로 중요한 학기 일정을 캘린더에 추가하는 일은 그만둬요! 이 간단한 AI/LLM 기반 문서 이해 및 추출 템플릿으로 자동화하세요. 이 멋진 사례는 Excel 파일이 주로 사용되는 다양한 시나리오에 적용할 수 있습니다.\n\n### 작동 원리\n* 학기 일정 Excel 파일(xlsx)은 HTTP 요청 노드를 사용하여 대학 웹사이트에서 워크플로로 가져옵니다.\n* Excel 파일을 구문 분석하기 위해 외부 서비스인 [Cloudflare의 Markdown 변환 서비스](https://developers.cloudflare.com/workers-ai/markdown-conversion/)를 사용합니다. 이는 Excel 시트를 LLM이 읽을 수 있는 Markdown 테이블로 변환합니다.\n* Markdown에서 이벤트를 추출하고 날짜를 추출하기 위해 구조화된 출력의 Information Extractor 노드를 사용합니다. LLM은 레이아웃을 이해할 수 있으므로 한 행에 여러 데이터 포인트가 있을 수 있습니다.\n* 추출된 데이터를 활용할 수 있는 무한한 가능성이 있습니다! 이 데모에서는 추출된 이벤트를 ICS 파일로 생성하여 캘린더에 가져오도록 하겠습니다. Python 코드 노드를 사용하여 이벤트를 ICS 사양에 결합하고 \"Convert to File\" 노드를 사용하여 ICS 바이너리를 생성합니다.\n* 마지막으로, ICS 파일을 이메일로 다른 학생이나 강사에게 배포하여 다가오는 학기에 매우 유용하게 사용할 수 있습니다!\n\n### 사용 방법\n* 올바른 Excel 파일을 다운로드하고 \"Get Term Dates Excel\"의 URL 매개변수를 필요에 따라 수정하세요.\n* Gmail 노드를 자신의 이메일이나 다른 이메일로 업데이트하세요. 대안으로, ICS 파일을 Google Drive나 학생 포털에 보내세요.\n\n### 요구 사항\n* Markdown 변환 서비스를 사용하려면 Cloudflare 계정이 필요합니다.\n* LLM 문서 이해 및 추출을 위해 Gemini이 필요합니다.\n* 이메일 전송을 위해 Gmail이 필요합니다.\n\n### 워크플로 사용자 정의\n* 이 템플릿은 대학의 다른 Excel 파일에도 작동합니다. 어떤 파일은 더 복잡할 수 있으므로 다양한 파서와 추출 도구 및 전략을 실험하세요.\n\n### 도움이 필요하신가요?\n[n8n Discord](https://discord.com/invite/XPKeKXeB7d) 또는 [Forum](https://community.n8n.io/)에 참여하세요!\n\n즐거운 해킹!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fix Dates": {
+      "main": [
+        [
+          {
+            "node": "Sort Events by Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ICS File": {
+      "main": [
+        [
+          {
+            "node": "Send Email with Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Events to Items": {
+      "main": [
+        [
+          {
+            "node": "Fix Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort Events by Date": {
+      "main": [
+        [
+          {
+            "node": "Events to ICS Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Target Sheet": {
+      "main": [
+        [
+          {
+            "node": "Extract Key Events and Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Term Dates Excel": {
+      "main": [
+        [
+          {
+            "node": "Markdown Conversion Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Events to ICS Document": {
+      "main": [
+        [
+          {
+            "node": "Create ICS File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Key Events and Dates",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown Conversion Service": {
+      "main": [
+        [
+          {
+            "node": "Extract Target Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Key Events and Dates": {
+      "main": [
+        [
+          {
+            "node": "Events to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Term Dates Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

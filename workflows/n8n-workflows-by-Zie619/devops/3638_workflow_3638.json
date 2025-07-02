@@ -1,0 +1,1347 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "4bdd4360-b518-4b46-81fa-0d3183ce642d",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        680,
+        260
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "operation"
+            },
+            {
+              "name": "query"
+            },
+            {
+              "name": "employeeId"
+            },
+            {
+              "name": "values",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "74bdcff0-0615-4d81-82ff-ff8340939399",
+      "name": "Operation",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1040,
+        260
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "searchEmployee",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "81b134bc-d671-4493-b3ad-8df9be3f49a6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('When Executed by Another Workflow').first().json.operation }}",
+                    "rightValue": "searchEmployees"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "getEmployeeById",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8d57914f-6587-4fb3-88e0-aa1de6ba56c1",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('When Executed by Another Workflow').first().json.operation }}",
+                    "rightValue": "getEmployeeById"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "updateEmployee",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7c38f238-213a-46ec-aefe-22e0bcb8dffc",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('When Executed by Another Workflow').first().json.operation }}",
+                    "rightValue": "updateEmployee"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "8850cd57-9bc1-43b7-9366-7d91afc7bc42",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 660,
+        "content": "## 1. MCP 서버 트리거 설정\n\n[MCP 서버 트리거에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ad541df3-44ed-4ef4-af91-841dc9986b4c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 260,
+        "content": "## 2. 기존 API를 활용하여 MCP 서버 구축\n\n[HTTP Request Node에 대해 더 읽기](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest)\n\nN8N은 모든 조직이 기존 API를 활용하여 자신의 MCP 서버를 빠르게 구축하고 호스팅할 수 있게 합니다. PayCaptain.com에 대한 간단한 예입니다 - 현대 기업을 위한 클라우드 기반 급여 소프트웨어입니다.\n\n이 도구 세트로 Paycaptain 고객은 Claude Desktop과 같은 좋아하는 MCP 클라이언트 내에서 직원 관리를 간소화할 수 있습니다. 게다가 n8n은 배포도 처리하므로 이 MCP 서버가 전체 부서를 서비스할 수 있습니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "962cb379-8916-4a9f-8a7b-5aa9d31d5d88",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 100,
+        "content": "항상 서버를 인증하세요! 프로덕션으로 가기 전에, MCP 서버 트리거에서 인증을 활성화하는 것이 항상 조언됩니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "27163110-36d7-46f3-92fc-dce7d000655e",
+      "name": "Paycaptain MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        80,
+        40
+      ],
+      "webhookId": "5f6728df-d3e8-48bb-9a38-0f2e54c7962c",
+      "parameters": {
+        "path": "5f6728df-d3e8-48bb-9a38-0f2e54c7962c"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13a69580-de33-489a-85c8-582877efbfe0",
+      "name": "Update Employee",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        380,
+        260
+      ],
+      "parameters": {
+        "name": "updateEmployee",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Updates an employee's details.",
+        "workflowInputs": {
+          "value": {
+            "query": "null",
+            "values": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values', ``, 'string') }}",
+            "operation": "updateEmployee",
+            "employeeId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('employeeId', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "employeeId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "employeeId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "68c066f0-657c-46cb-a9fe-b31e9850c512",
+      "name": "Get Employee",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        240,
+        360
+      ],
+      "parameters": {
+        "name": "getEmployeeById",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Returns an employee's details by employee ID.",
+        "workflowInputs": {
+          "value": {
+            "query": "null",
+            "values": "null",
+            "operation": "getEmployeeById",
+            "employeeId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('employeeId', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "employeeId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "employeeId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "object",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "87661e95-b618-4701-b0f3-9f0532d5fc75",
+      "name": "Get Employees",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1380,
+        60
+      ],
+      "parameters": {
+        "url": "https://api.paycaptain.com/employees",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $request.qs.page + 1 }}"
+                  }
+                ]
+              },
+              "maxRequests": 3,
+              "requestInterval": 1000,
+              "limitPagesFetched": true
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "company",
+              "value": "paycaptain"
+            },
+            {
+              "name": "page",
+              "value": "={{ $json.page ?? 1 }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "sPolCkoJ1zhzWabJ",
+          "name": "JWT TOKEN"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "866868e2-e0b0-4d8d-bf3c-57d68fea8b86",
+      "name": "Search Employees",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        100,
+        260
+      ],
+      "parameters": {
+        "name": "searchEmployees",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Searches for and returns an employee's details.",
+        "workflowInputs": {
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "values": "null",
+            "operation": "searchEmployees",
+            "employeeId": "null"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "employeeId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "employeeId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "object",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "679a2413-448f-43d8-98fc-7fd8b83775e7",
+      "name": "Log Call",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        860,
+        260
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "query": "={{ $json.query }}",
+            "values": "={{ $json.values.toJsonString() }}",
+            "operation": "={{ $json.operation }}",
+            "timestamp": "={{ $now.toISO() }}",
+            "employeeId": "={{ $json.employeeId }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "employeeId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "employeeId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "values",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "values",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ls_3pmzIafl1NUAzzflkJgyq1smPW6vfGjbVuVzdkac/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1Ls_3pmzIafl1NUAzzflkJgyq1smPW6vfGjbVuVzdkac",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ls_3pmzIafl1NUAzzflkJgyq1smPW6vfGjbVuVzdkac/edit?usp=drivesdk",
+          "cachedResultName": "98. MCP Audit"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XHvC7jIRR8A2TlUl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "7723947c-94a3-4bf1-b6c8-b595027a33dc",
+      "name": "Filter Matches",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1580,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "baa681eb-d6d9-450b-99ab-58d33e81cef4",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{\n[\n  $json.hrEmployeeId,\n  $json.payrollCode,\n  $json.firstName + ' ' + $json.lastName,\n  $json.email,\n  $json.niNumber,\n  $json.mailingCity,\n  $json.jobTitle,\n  $json.jobGrade,\n  $json.department,\n  $json.team\n]\n  .join(' ')\n  .toLowerCase()\n}}",
+              "rightValue": "={{ $('When Executed by Another Workflow').first().json.query.toLowerCase() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f4d1ddd9-dde7-437f-9aa2-969ea0832f71",
+      "name": "Aggregate Search Results",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2020,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "45076cec-f554-44ae-b314-e43ba080abb5",
+      "name": "Get Employees1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1380,
+        260
+      ],
+      "parameters": {
+        "url": "https://api.paycaptain.com/employees",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $request.qs.page + 1 }}"
+                  }
+                ]
+              },
+              "maxRequests": 3,
+              "requestInterval": 1000,
+              "limitPagesFetched": true
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "company",
+              "value": "paycaptain"
+            },
+            {
+              "name": "page",
+              "value": "={{ $json.page ?? 1 }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "sPolCkoJ1zhzWabJ",
+          "name": "JWT TOKEN"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b6f3a56f-5cd2-4f4d-904b-49e82ec591b8",
+      "name": "Filter Matching ID",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1580,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cfb2ba5b-14c0-4867-be4d-180306c896ae",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.hrEmployeeId }}",
+              "rightValue": "={{ $('When Executed by Another Workflow').first().json.employeeId }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ecc2d8d5-4a23-4bfd-840b-63c28980462f",
+      "name": "Strip Sensitive Fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1800,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e20217cf-7c70-4907-9da6-a114104a099e",
+              "name": "company",
+              "type": "string",
+              "value": "={{ $json.company }}"
+            },
+            {
+              "id": "2dfe8342-c442-4ac3-90bd-92fe7d38d407",
+              "name": "hrEmployeeId",
+              "type": "string",
+              "value": "={{ $json.hrEmployeeId }}"
+            },
+            {
+              "id": "57fe4519-246b-44aa-a0c9-22e1e865041c",
+              "name": "payrollCode",
+              "type": "string",
+              "value": "={{ $json.payrollCode }}"
+            },
+            {
+              "id": "d296021c-09b2-43b2-8b8e-ebb5d7d9d14d",
+              "name": "firstName",
+              "type": "string",
+              "value": "={{ $json.firstName }}"
+            },
+            {
+              "id": "661e0049-d28f-4f78-83fc-7a1b21f742c2",
+              "name": "lastName",
+              "type": "string",
+              "value": "={{ $json.lastName }}"
+            },
+            {
+              "id": "59f7fd87-ba84-426a-ad61-c682cf8227bf",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "id": "9769c078-c5f5-4d56-b467-765dd73444f9",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "id": "e387bc11-dccf-4baf-b87f-a2abb5f61b5d",
+              "name": "mailingStreet",
+              "type": "string",
+              "value": "={{ $json.mailingStreet }}"
+            },
+            {
+              "id": "415451c5-c3c1-42d4-9f5b-829277bfb7f3",
+              "name": "mailingStateProvince",
+              "type": "string",
+              "value": "={{ $json.mailingStateProvince }}"
+            },
+            {
+              "id": "cf2a83f4-28a8-44bd-9d06-780db1406f8f",
+              "name": "mailingPostalCode",
+              "type": "string",
+              "value": "={{ $json.mailingPostalCode }}"
+            },
+            {
+              "id": "94ee2e05-9969-43f2-a732-57356f8b4dfe",
+              "name": "mailingCountry",
+              "type": "string",
+              "value": "={{ $json.mailingCountry }}"
+            },
+            {
+              "id": "b01a56c9-fc42-4bff-9443-27075699986f",
+              "name": "location",
+              "type": "string",
+              "value": "={{ $json.location }}"
+            },
+            {
+              "id": "b9175d72-6976-4765-b773-f4521668d130",
+              "name": "department",
+              "type": "string",
+              "value": "={{ $json.department }}"
+            },
+            {
+              "id": "d784e800-e13b-4d43-907c-11aaaf4ee24f",
+              "name": "team",
+              "type": "string",
+              "value": "={{ $json.team }}"
+            },
+            {
+              "id": "1ff68eb6-35f9-4a2d-9a37-14b3a6f6e0ee",
+              "name": "jobGrade",
+              "type": "string",
+              "value": "={{ $json.jobGrade }}"
+            },
+            {
+              "id": "5628bbf8-872d-4e3a-bf37-c36f13c0f4b1",
+              "name": "jobTitle",
+              "type": "string",
+              "value": "={{ $json.jobTitle }}"
+            },
+            {
+              "id": "34f26d59-43b3-4f2c-955b-f6d5ab22a083",
+              "name": "jobEffectiveDate",
+              "type": "string",
+              "value": "={{ $json.jobEffectiveDate }}"
+            },
+            {
+              "id": "e3023e94-fbc8-4e9b-b106-687ea533e3f8",
+              "name": "contractType",
+              "type": "string",
+              "value": "={{ $json.contractType }}"
+            },
+            {
+              "id": "d3dcf24c-5e9b-40e5-9f54-fca930ab1528",
+              "name": "normalWeeklyHours",
+              "type": "number",
+              "value": "={{ $json.normalWeeklyHours }}"
+            },
+            {
+              "id": "65ed75a6-1ec1-456f-b19b-4492e31f5c18",
+              "name": "daysWorkedPerWeek",
+              "type": "number",
+              "value": "={{ $json.daysWorkedPerWeek }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "77a71a55-f0cf-4f76-b697-b31dba447f30",
+      "name": "Strip Sensitive Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1800,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e20217cf-7c70-4907-9da6-a114104a099e",
+              "name": "company",
+              "type": "string",
+              "value": "={{ $json.company }}"
+            },
+            {
+              "id": "2dfe8342-c442-4ac3-90bd-92fe7d38d407",
+              "name": "hrEmployeeId",
+              "type": "string",
+              "value": "={{ $json.hrEmployeeId }}"
+            },
+            {
+              "id": "57fe4519-246b-44aa-a0c9-22e1e865041c",
+              "name": "payrollCode",
+              "type": "string",
+              "value": "={{ $json.payrollCode }}"
+            },
+            {
+              "id": "d296021c-09b2-43b2-8b8e-ebb5d7d9d14d",
+              "name": "firstName",
+              "type": "string",
+              "value": "={{ $json.firstName }}"
+            },
+            {
+              "id": "661e0049-d28f-4f78-83fc-7a1b21f742c2",
+              "name": "lastName",
+              "type": "string",
+              "value": "={{ $json.lastName }}"
+            },
+            {
+              "id": "59f7fd87-ba84-426a-ad61-c682cf8227bf",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "id": "9769c078-c5f5-4d56-b467-765dd73444f9",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "id": "e387bc11-dccf-4baf-b87f-a2abb5f61b5d",
+              "name": "mailingStreet",
+              "type": "string",
+              "value": "={{ $json.mailingStreet }}"
+            },
+            {
+              "id": "415451c5-c3c1-42d4-9f5b-829277bfb7f3",
+              "name": "mailingStateProvince",
+              "type": "string",
+              "value": "={{ $json.mailingStateProvince }}"
+            },
+            {
+              "id": "cf2a83f4-28a8-44bd-9d06-780db1406f8f",
+              "name": "mailingPostalCode",
+              "type": "string",
+              "value": "={{ $json.mailingPostalCode }}"
+            },
+            {
+              "id": "94ee2e05-9969-43f2-a732-57356f8b4dfe",
+              "name": "mailingCountry",
+              "type": "string",
+              "value": "={{ $json.mailingCountry }}"
+            },
+            {
+              "id": "b01a56c9-fc42-4bff-9443-27075699986f",
+              "name": "location",
+              "type": "string",
+              "value": "={{ $json.location }}"
+            },
+            {
+              "id": "b9175d72-6976-4765-b773-f4521668d130",
+              "name": "department",
+              "type": "string",
+              "value": "={{ $json.department }}"
+            },
+            {
+              "id": "d784e800-e13b-4d43-907c-11aaaf4ee24f",
+              "name": "team",
+              "type": "string",
+              "value": "={{ $json.team }}"
+            },
+            {
+              "id": "1ff68eb6-35f9-4a2d-9a37-14b3a6f6e0ee",
+              "name": "jobGrade",
+              "type": "string",
+              "value": "={{ $json.jobGrade }}"
+            },
+            {
+              "id": "5628bbf8-872d-4e3a-bf37-c36f13c0f4b1",
+              "name": "jobTitle",
+              "type": "string",
+              "value": "={{ $json.jobTitle }}"
+            },
+            {
+              "id": "34f26d59-43b3-4f2c-955b-f6d5ab22a083",
+              "name": "jobEffectiveDate",
+              "type": "string",
+              "value": "={{ $json.jobEffectiveDate }}"
+            },
+            {
+              "id": "e3023e94-fbc8-4e9b-b106-687ea533e3f8",
+              "name": "contractType",
+              "type": "string",
+              "value": "={{ $json.contractType }}"
+            },
+            {
+              "id": "d3dcf24c-5e9b-40e5-9f54-fca930ab1528",
+              "name": "normalWeeklyHours",
+              "type": "number",
+              "value": "={{ $json.normalWeeklyHours }}"
+            },
+            {
+              "id": "65ed75a6-1ec1-456f-b19b-4492e31f5c18",
+              "name": "daysWorkedPerWeek",
+              "type": "number",
+              "value": "={{ $json.daysWorkedPerWeek }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "86f73b12-afc8-4694-a79d-45c908cc88dd",
+      "name": "Update Employee1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1800,
+        460
+      ],
+      "parameters": {
+        "url": "https://api.paycaptain.com/employee",
+        "method": "POST",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $request.qs.page + 1 }}"
+                  }
+                ]
+              },
+              "maxRequests": 3,
+              "requestInterval": 1000,
+              "limitPagesFetched": true
+            }
+          }
+        },
+        "jsonBody": "={{\n{\n  hrEmployeeId: $('When Executed by Another Workflow').item.json.employeeId,\n  ..\n}\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "sPolCkoJ1zhzWabJ",
+          "name": "JWT TOKEN"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "122fe6f7-3bcd-4f29-a95c-c727a799e1fd",
+      "name": "Valid Fields Only",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1380,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4f3d0703-21f3-4ca1-bf7a-9c80d9efc936",
+              "name": "values",
+              "type": "object",
+              "value": "={{\n([\n  \"firstname\",\n  \"middlename\",\n  \"lastname\",\n  \"mailingStreet\",\n  \"mailingCity\",\n  \"mailingStateProvince\",\n  \"mailingPostalCode\",\n  \"mailingCountry\",\n  \"email\",\n  \"phone\",\n  \"niNumber\",\n  \"location\",\n  \"department\",\n  \"team\",\n  \"jobGrade\",\n  \"jobTitle\",\n]\n  .reduce((acc, key) => ({\n    ...acc,\n    [key]: $('When Executed by Another Workflow').item.json.values[key] ?? undefined\n  }), {}))\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "13e5f143-1abf-444c-b86c-ae51fe839894",
+      "name": "Has Valid Request?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1580,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "54d35a49-e698-427d-9fca-280b83f2827d",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.values }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b98f1d73-a994-4040-b421-75e626ec4ce6",
+      "name": "Get Error Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1800,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b33ebf1d-d0e8-4dda-90e7-b53c21b2a410",
+              "name": "response",
+              "type": "string",
+              "value": "=Request included fields which cannot be updated. Editable fields are: {{ [\n  \"firstname\",\n  \"middlename\",\n  \"lastname\",\n  \"mailingStreet\",\n  \"mailingCity\",\n  \"mailingStateProvince\",\n  \"mailingPostalCode\",\n  \"mailingCountry\",\n  \"email\",\n  \"phone\",\n  \"niNumber\",\n  \"location\",\n  \"department\",\n  \"team\",\n  \"jobGrade\",\n  \"jobTitle\",\n].join(', ')}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "cb140f3f-571c-49a4-a24d-dcee11c5b7e1",
+      "name": "Get Success Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2020,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1d245c9-b1e5-4cec-a901-4a6ecc9bd98d",
+              "name": "response",
+              "type": "string",
+              "value": "ok"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "39cd1188-5f2e-45ce-8bbc-0586812491ec",
+      "name": "Aggregate Get Response",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2020,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9c1ed21-29e4-41a6-9855-36f1568f7944",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 220,
+        "content": "웹사이트: https://paycaptain.com  \n개발자 허브: https://developer.paycaptain.com  \n\n알아두세요: PayCaptain은 n8n London Meetups를 후원합니다 - 확실히 확인하세요!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "efc7ab35-202d-4a1f-98ce-7ae310c22250",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -540,
+        -640
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 1180,
+        "content": "## 시도해 보세요!\n\n### 이 n8n은 어떤 조직이든 고객이나 내부 직원에게 MCP 서버를 빠르고 쉽게 구축하여 제공하여 생산성을 향상시킬 수 있음을 보여줍니다.\n\n이 MCP 예제는 PayCaptain.com을 예로 들어 직원 데이터를 검색하고 업데이트할 수 있는 MCP 서버를 만드는 방법을 보여줍니다.\n\n### 작동 원리\n* MCP 서버 트리거를 사용하고 Search Employee, Get Employee by ID, Update Employee의 3가지 맞춤 워크플로우 도구에 연결합니다.\n* 각 도구는 해당 작업을 수행하기 위해 PayCaptain API를 호출합니다. 민감한 데이터를 제거하고 과도한 공유를 방지하기 위해 추가적인 주의를 기울입니다.\n* Update Employee 도구는 읽기 전용으로 유지되는 필드를 업데이트하지 않도록 보호합니다. MCP 서버를 제어하면 도구의 동작을 결정할 수 있습니다.\n* 마지막으로, 모든 작업을 나중에 감사하기 위해 Google Sheet 노드를 사용하여 기록합니다. 이는 약간의 지연을 초래할 수 있지만 민감한 데이터에 접근할 경우 권장됩니다.\n\n### 사용 방법\n* 이 MCP 서버는 호환되는 MCP 클라이언트가 PayCaptain 직원 데이터베이스를 관리할 수 있게 합니다. 사용하려면 PayCaptain 계정과 개발자 키가 필요합니다.\n* MCP 클라이언트를 연결하려면 n8n 지침을 따르세요 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/#integrating-with-claude-desktop\n* MCP 클라이언트에서 다음 쿼리를 시도해 보세요:\n  * \"Sarah가 회사에 언제 입사했나요?\"\n  * \"Jack이 수요일이나 금요일에 일하나요?\"\n  * \"Tracy의 NI 번호를 ABCD123456으로 업데이트해 주세요\"\n\n### 요구 사항\n* PayCaptain 계정과 개발자 키.\n* 작업을 나중에 감사하기 위해 Google Sheets.\n* MCP 클라이언트 또는 에이전트(예: Claude Desktop) - https://claude.ai/download\n\n### 이 워크플로우 사용자 정의\n* 사용자 사례에 따라 필요한 직원 속성을 추가하거나 제거하세요.\n* Google Sheets가 너무 느리면 MCP 서버 호출을 기록하기 위해 더 빠른 서비스의 API 호출을 고려하세요.\n* 프로덕션 환경에 배포하거나 이 MCP 서버를 타인과 공유하기 전에 자격 증명 요구 설정을 잊지 마세요!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Log Call": {
+      "main": [
+        [
+          {
+            "node": "Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operation": {
+      "main": [
+        [
+          {
+            "node": "Get Employees",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Employees1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Valid Fields Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Employee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Paycaptain MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Employees": {
+      "main": [
+        [
+          {
+            "node": "Filter Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Matches": {
+      "main": [
+        [
+          {
+            "node": "Strip Sensitive Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Employees1": {
+      "main": [
+        [
+          {
+            "node": "Filter Matching ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Employee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Paycaptain MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Employees": {
+      "ai_tool": [
+        [
+          {
+            "node": "Paycaptain MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Employee1": {
+      "main": [
+        [
+          {
+            "node": "Get Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Fields Only": {
+      "main": [
+        [
+          {
+            "node": "Has Valid Request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Matching ID": {
+      "main": [
+        [
+          {
+            "node": "Strip Sensitive Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Valid Request?": {
+      "main": [
+        [
+          {
+            "node": "Update Employee1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strip Sensitive Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strip Sensitive Fields1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Get Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Log Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

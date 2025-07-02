@@ -1,0 +1,889 @@
+{
+  "id": "wZBgoWrBZveMmzYi",
+  "meta": {
+    "instanceId": "147b9b53621dbd6fca5f762b57fc3fabf293d676d0c08463ec52c91332ab391f",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Turn YouTube Videos into Summaries, Transcripts, and Visual Insights",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "61c56de7-0d8e-44fe-baf3-3e33ddd35b21",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1340,
+        120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4e43030c-16cd-4b77-8c58-c3b703646a16",
+      "name": "Set: Define Initial Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -840,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72590fa0-cf12-4249-80fc-7aaec9992390",
+              "name": "automationID",
+              "type": "string",
+              "value": "optional-enter-reference-tracking-identifier"
+            },
+            {
+              "id": "24e9b1c3-2955-4e0b-9b4b-a6b9d046fb72",
+              "name": "apiKey",
+              "type": "string",
+              "value": "enter-your-api-key-here"
+            },
+            {
+              "id": "b6600a42-1b8d-486a-a51d-0868bc45452e",
+              "name": "youtubeURL",
+              "type": "string",
+              "value": "https://www.youtube.com/watch?v=Ovg_KfKxnC8"
+            },
+            {
+              "id": "ce9a9a40-5ae4-4106-ae61-0daba2ec185f",
+              "name": "promptType",
+              "type": "string",
+              "value": "transcript"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "add611c6-c053-464c-b12b-f0f20b4c3c4f",
+      "name": "Switch: What kind of question do we want to ask?",
+      "type": "n8n-nodes-base.switch",
+      "onError": "continueRegularOutput",
+      "position": [
+        -200,
+        60
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Transcript",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "4ba139e4-2fd7-473f-869d-f27a1a2f3823",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.promptType.toLowerCase() }}",
+                    "rightValue": "transcript"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Transcript with Timestamps",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "486f3c1c-7203-4bc5-a796-87939d4360c5",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.promptType.toLowerCase() }}",
+                    "rightValue": "timestamps"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Summary",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "814597ad-12ff-450d-a4bc-cd2eb2836d8f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.promptType.toLowerCase() }}",
+                    "rightValue": "summary"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Scene Description",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "759debf2-3dfb-4bdd-b41f-7ef0a709e25e",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.promptType.toLowerCase() }}",
+                    "rightValue": "scene"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Clips",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "5c66a390-2566-461d-b9bc-b0e7ebdc4af8",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.promptType.toLowerCase() }}",
+                    "rightValue": "clips"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "96b6a6c7-3b4f-412d-b200-526971782346",
+      "name": "Set: Scene Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8be68e95-53df-492f-a88a-14c06f51f531",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Please provide a detailed description of the scene in the video, including:\n\nSetting: Where the scene takes place (e.g., indoors, outdoors, specific location). Be specific - is it a forest, a city street, a living room?\n\nObjects: Prominent objects visible in the scene (e.g., furniture, vehicles, natural elements). Include details like color, size, and material if discernible.\n\nPeople: Description of any people present, including their appearance (clothing, hair, etc.), approximate age, and any actions they are performing.\n\nLighting: The overall lighting of the scene (e.g., bright, dim, natural, artificial). Note any specific light sources (lamps, sunlight).\n\nColors: Dominant colors and color palettes used in the scene.\n\nCamera Angle/Movement: Describe the camera perspective (e.g., close-up, wide shot, aerial view) and any camera movement (panning, zooming, static).\n\nStart output directly with the response -- do not include any introductory text or explanations."
+            },
+            {
+              "id": "bfa3b421-643d-4a52-93e9-0830f794140b",
+              "name": "model",
+              "type": "string",
+              "value": "gemini-1.5-flash"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7506b5fa-be12-4d34-8583-027bc782db0d",
+      "name": "Set: Summarize Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8be68e95-53df-492f-a88a-14c06f51f531",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Provide a concise summary of the main points in nested bullets, using quotes only when absolutely essential for clarity. Start output directly with the response."
+            },
+            {
+              "id": "ccc44699-0918-4837-89a6-c763b157fc8c",
+              "name": "model",
+              "type": "string",
+              "value": "gemini-1.5-flash"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2aaf482d-af31-4cd8-9014-7b77efbf3021",
+      "name": "Set: Transcript Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        -380
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8be68e95-53df-492f-a88a-14c06f51f531",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Transcribe the video. Return only the spoken dialogue, verbatim. Omit any additional text or descriptions."
+            },
+            {
+              "id": "b445c2da-934f-4a78-a57b-f383d8950f8a",
+              "name": "model",
+              "type": "string",
+              "value": "gemini-1.5-flash"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "75a6ac10-00c2-45ab-88b7-dfec3cd58bf2",
+      "name": "Set: Fallback",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8be68e95-53df-492f-a88a-14c06f51f531",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Summarize this YouTube video with a focus on actionable insights. Use nested bullets and include relevant quotes. Specifically, highlight any recommended tools, strategies, or resources mentioned."
+            },
+            {
+              "id": "da626eb8-a097-4a65-834d-4d1709aed260",
+              "name": "model",
+              "type": "string",
+              "value": "gemini-1.5-flash"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "29ef7f9f-34c9-46f5-96f9-17b42feea381",
+      "name": "Set: Transcript with Timestamps Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8be68e95-53df-492f-a88a-14c06f51f531",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Generate a timestamped transcript of the video. Each line must follow this format precisely:  [hh:mm:ss] Dialogue. Return only the timestamp and spoken content; omit any other text or formatting.  "
+            },
+            {
+              "id": "98ca7af8-0fbd-4ba8-8fc8-f914e5bbe48a",
+              "name": "model",
+              "type": "string",
+              "value": "gemini-1.5-flash"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e10524ed-09dd-4c0f-86b0-9161fa347821",
+      "name": "Set: Scene Clips",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        420
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8be68e95-53df-492f-a88a-14c06f51f531",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Extract shareable clips for social media. Each clip must include:\n\n* **Timestamp:** [hh:mm:ss]-[hh:mm:ss]\n* **Transcript:** Verbatim dialogue/text within the clip.\n* **Rationale:**  A concise explanation (under 20 words) of the clip's social media appeal (e.g., \"humorous,\" \"controversial,\" \"inspiring,\" \"informative\").  Focus on virality, engagement potential (shares, likes, comments).\n\nStart output directly with the response -- do not include any introductory text or explanations."
+            },
+            {
+              "id": "0493ffa7-4fef-4e48-b9d7-7f0891660325",
+              "name": "model",
+              "type": "string",
+              "value": "gemini-1.5-flash"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "be66d323-9035-4123-8086-dde14e528dc8",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2340,
+        -600
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 820,
+        "content": "# 이 워크플로우를 사용하는 방법\n\n비디오 개요: [https://www.youtube.com/watch?v=Ovg_KfKxnC8](https://www.youtube.com/watch?v=Ovg_KfKxnC8)\n\n이 워크플로우를 사용하면 YouTube 비디오를 쉽게 분석할 수 있습니다. 요약이나 대본을 요청하는 것으로 시작한 다음, 필요에 맞게 프롬프트를 세밀하게 조정하여 작업 중인 콘텐츠 유형에 맞춰보세요.\n\n더 인상적인 점은? 비디오에서 일어나는 일에 대해 구체적인 질문을 할 수 있습니다. 사람, 장면, 시각적 세부 사항을 식별할 수 있습니다. 이 정도의 통찰력을 추출할 수 있는 기능은 게임을 바꾸는 수준입니다.\n\n이 워크플로우는 매우 유연합니다. 설정한 값에 따라 작업이 조정됩니다. 하나의 플로우로 대본을 생성하거나, 상세한 YouTube 설명을 만들고, 요약 블로그 게시물을 작성할 수 있습니다.\n\n트리거도 유연합니다. 수동으로 실행하거나, 웹훅에 연결하거나, Airtable이나 다른 시스템을 통해 자동화할 수 있습니다. 출력은 Notion, Google Docs, CMS 플랫폼 등 어디든 보낼 수 있으며, 아니면 n8n에서 즉시 분석을 위해 그대로 유지할 수 있습니다.\n\n이 워크플로우는 n8n 1.82.3을 사용하여 만들어졌습니다.\n\n## 요구사항\n* [Google API 키](https://console.developers.google.com/) (또는 [AI Studio](https://aistudio.google.com/apikey)를 통해 얻을 수 있음)\n\n## 테스트\n* 이 워크플로우는 길이가 짧은 숏즈부터 약 1시간 정도의 다양한 공개 YouTube 비디오에서 테스트되었습니다.\n\n## 미래 지향성\n* 이 워크플로우는 gemini-1.5-flash와 함께 사용하도록 만들어졌습니다. 미래에는 프롬프트 설정 노드를 업데이트하여 다른 모델을 사용하고, HTTP 노드에 사용할 API 엔드포인트를 추가할 수 있습니다.\n\n## 문서\n* [Gemini API로 비전 기능 탐색](https://ai.google.dev/gemini-api/docs/vision?lang=python)\n* [가격 책정](https://ai.google.dev/gemini-api/docs/pricing)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8f5541c-d267-4998-bb31-32f2684b0874",
+      "name": "Set Fields: Define Outcome",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2800,
+        120
+      ],
+      "parameters": {
+        "include": "except",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "300bfbe7-8d13-41ba-8828-17bba1d0eabe",
+              "name": "answerAIGenerated",
+              "type": "string",
+              "value": "={{ $json.candidates?.[0]?.content?.parts?.[0]?.text ? $json.candidates[0].content.parts[0].text : ($json.error ? $json.error : \"No content or error found\") }}"
+            },
+            {
+              "id": "a54eeb5d-e4de-4fd9-a15c-be51cc414c46",
+              "name": "promptTokenCount",
+              "type": "string",
+              "value": "={{ $json.usageMetadata?.promptTokenCount ? $json.usageMetadata.promptTokenCount : ($json.error ? $json.error : \"No content or error found\") }}"
+            },
+            {
+              "id": "dd590788-069e-48d9-adb2-6a5d10f8af2f",
+              "name": "candidatesTokenCount",
+              "type": "string",
+              "value": "={{ $json.usageMetadata?.candidatesTokenCount ? $json.usageMetadata.candidatesTokenCount : ($json.error ? $json.error : \"No content or error found\") }}"
+            },
+            {
+              "id": "23766495-25df-4d3d-bc62-9e79a860ee19",
+              "name": "totalTokenCount",
+              "type": "string",
+              "value": "={{ $json.usageMetadata?.totalTokenCount ? $json.usageMetadata.totalTokenCount : ($json.error ? $json.error : \"No content or error found\") }}"
+            },
+            {
+              "id": "cfad5ba2-a2c5-48ff-b64b-9131a51fd23c",
+              "name": "modelVersionUsed",
+              "type": "string",
+              "value": "={{ $json.modelVersion ? $json.modelVersion : ($json.error ? $json.error : \"No content or error found\") }}"
+            }
+          ]
+        },
+        "excludeFields": "candidates, usageMetadata",
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "062b5d41-27bb-4e67-8ffa-6e3e392fb437",
+      "name": "HTTP Request to Google",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1740,
+        120
+      ],
+      "parameters": {
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/{{ $json.model }}:generateContent?key={{ $json.apiKey }}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": {{ JSON.stringify($json.prompt) }} },\n      { \"file_data\": { \"file_uri\": \"{{ $json.youtubeURL }}\" } }\n    ]\n  }]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "0a204e60-674a-453d-81e1-9eb59a3214e2",
+      "name": "Set: Merged Values",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1380,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "48ed5162-61e1-4077-a13a-b2cf135fc11e",
+      "name": "If: Was an error detected?",
+      "type": "n8n-nodes-base.if",
+      "disabled": true,
+      "position": [
+        2560,
+        780
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "148e9a72-f826-468c-86a3-471873717ed4",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.error }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f9c0ef37-da99-4100-bd04-b5f2ac93a694",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2340,
+        280
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 3580,
+        "content": "## 프롬프트 영감 아이디어\n\n이 프롬프트들을 워크플로우에 대한 영감으로 사용하세요. 아이디어를 반복적으로 시도하는 빠른 방법은 [https://aistudio.google.com/](https://aistudio.google.com/)에서 시도하는 것입니다.\n\n### 📝 필수 비디오 요약기 (빠른 콘텐츠 소화)\n이 YouTube 비디오의 주요 포인트를 중첩된 불릿으로 간결하게 요약하세요. 명확성을 위해 절대적으로 필요한 경우에만 인용 부호를 사용하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### 🚀 완전 YouTube SEO 패키지 생성기 (콘텐츠 마케팅)\n\n다음 transcript를 기반으로 완전한 YouTube 패키지(제목, 설명, 키워드, 타임스탬프)를 생성하세요:\n\n**지침:**\n\n* **제목:** 비디오의 내용을 정확하게 반영하고 시청자를 끌어들일 수 있는 간결한 제목(60자 이내)을 작성하세요.  \n* **설명:** 비디오에서 다루는 주요 주제를 요약하는 자세한 설명(약 150-200단어)을 작성하세요. 이 설명은:\n    * 시청자가 배우거나 얻을 수 있는 가치 제안을 명확히 설명합니다(무엇을 배울지 또는 얻을지).\n    * 검색성을 높이기 위해 관련 키워드를 포함합니다.\n    * 강력한 행동 유도 문구를 포함합니다(예: 구독, 웹사이트 방문, 소셜 미디어 팔로우).\n    * 선택적으로 시청자의 주의를 끌기 위한 짧고 흥미로운 후크를 맨 앞에 포함합니다.\n* **키워드:** 비디오의 내용을 정확하게 설명하고 검색 결과에서 시청자가 찾을 수 있도록 도울 관련 키워드 및 태그 목록(약 10-15개)을 생성하세요. 고려 사항:\n    * 논의된 구체적인 주제\n    * 관련 용어 및 개념\n    * 산업 용어(적용 가능 시)\n    * 언급된 사람이나 제품 이름\n* **타임스탬프:** 비디오 내 주요 주제나 섹션에 대한 타임스탬프를 생성하세요. 쉽게 탐색할 수 있도록 명확하게 형식화하세요. 예:\n    * 0:00 서론\n    * 1:15 주제 1\n    * 3:45 주제 2 ...등.  \n\n**중요 고려 사항:**\n\n* **대상 청중:** 대상 청중은 [대상 청중 설명 – 예: Python 초보자, 경험이 풍부한 마케터, 정원에 관심 있는 사람]로 가정하세요.\n* **전체 톤:** 전체 패키지의 톤은 [원하는 톤 지정 – 예: 정보적이고 교육적인, 열정적이고 매력적인, 유머러스하고 가벼운]이어야 합니다.\n* **비디오 목적:** 비디오의 주요 목표는 [비디오의 목적 명시 – 예: 기술 가르침, 정보 제공, 오락, 설득]입니다.\n\n**선택 사항:**\n* 비디오가 제품, 서비스 또는 다른 콘텐츠를 홍보하는 경우, 설명에 관련 링크를 포함하세요.\n* 포함해야 할 특정 구절이나 브랜딩 요소가 있는 경우, 여기서 지정하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### 🗺️ 구조화된 비디오 콘텐츠 맵 (교육 조직)\n\n이 YouTube 비디오의 주요 포인트를 서론 텍스트 없이 요약하세요. 다음 구조를 따르세요:\n\n주요 주제\n* 주요 테마에 따라 Level 2 헤더(##)를 사용하여 콘텐츠를 구성하세요.\n\n각 헤더 아래:\n* 가장 필수적인 개념만 간결한 불릿으로 나열하세요.\n* 명확성을 유지하면서 기술적 정확성을 확보하세요.\n\n적용 가능한 경우 다음 순서로 섹션을 구성하세요:\n* 개요 & 맥락\n* 핵심 개념 & 기능\n* 작동 방식\n* 이점 & 단점\n\n형식 규칙:\n* 구조화된 가독성을 위해 Markdown을 사용하세요.\n* 불릿을 간단하게 유지하세요(중첩 피함).\n* 요약, 결론 또는 추가 설명은 포함하지 마세요 -- 단지 구조화된 콘텐츠만.\n\n### 🎯 목표 지향 학습 요약 (개인 발전)\n\n[특정 목표, 예: \"공공 연설 기술 향상\", \"웹 개발의 최신 트렌드\"]에 대해 배우고 있습니다. 이 목표를 달성하는 데 도움이 되는 관련 정보를 중첩된 불릿과 인용 부호를 사용하여 요약하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### ⚙️ 실행 가능한 통찰 프레임워크 (구현 계획)\n\n실제 적용과 추천에 초점을 맞춰 실행 가능한 통찰을 추출하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\nMarkdown을 사용하여 요약을 형식화하고 다음 구조를 따르세요:\n\n문제 진술\n* 다루는 핵심 문제나 주제를 요약하세요.\n\n주요 해결책 & 추천\n* 각 주요 해결책이나 추천에 대해 별도의 ## 헤더를 사용하세요.\n\n구현 단계:\n* 각 해결책 아래에 주요 단계를 불릿으로 나열하세요.\n\n예상 결과 & 이점:\n* 각 해결책의 잠재적 영향과 이점을 설명하세요.\n\n자원 & 도구\n* 언급된 관련 도구, 프레임워크 또는 자원을 나열하세요.\n\n### 💡 개념 추출기 with Supporting Quotes (깊이 있는 콘텐츠 분석)\n\n중첩된 불릿을 사용하여 제시된 핵심 개념을 추출하세요. 각 개념에 대해 지지하는 인용 부호를 포함하세요. [특정 주제/영역, 예: \"AI의 마케팅 영향\", \"효과적인 커뮤니케이션 원리\" 등]에 초점을 맞추세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### 👥 대상 청중 맞춤 비디오 분석 (전문 발전)\n\n[대상 청중 지정, 예: \"소프트웨어 엔지니어\", \"마케팅 전문가\", \"일반 독자\"]을 위한 이 비디오를 분석하세요.\n\nMarkdown을 사용하여 요약을 형식화하고 다음 구조를 따르세요:\n\n주요 주제\n주요 포인트를 Level 2 헤더(##) 아래에 구성하세요. 필수적인 통찰에 초점을 맞추세요.\n제안 섹션(필요에 따라 조정):\n개요 (맥락 & 배경)\n주요 개념 & 기능\n작동 방식 (기술적 또는 실질적 설명)\n이점 & 도전 과제\n주요 지침:\n\n[대상 청중]과 그들의 예상 전문성 수준에 맞게 콘텐츠를 조정하세요.\n명확성과 간결성을 위해 불릿을 사용하세요.\n중요한 아이디어를 강조하기 위해 키 용어를 볼드 처리하세요.\n기술적 정확성을 확보하고, 필요한 경우 복잡한 아이디어를 간소화하세요.\n비교 시 테이블을 사용하세요.\n길이 지침:\n\n약 [원하는 길이 지정, 예: \"200단어\", \"500단어\", \"한 페이지\"]로 요약하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### 🧠 지식 확장 분석기 (고급 학습 & 분석)\n\n[관련 배경 지식 간략히 명시]를 이미 이해하고 있다고 가정하고, 이 지식을 기반으로 구체적인 통찰을 제공하세요. 중첩된 불릿과 관련 인용 부호를 사용하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### 🔍 주장 분석 청사진 (비판적 사고)\n\n이 비디오에서 제시된 주장을 분석하세요. 주요 주장과 지지 증거를 중첩된 불릿으로 요약하세요. 주요 포인트를 설명하기 위해 직접 인용 부호를 포함하세요. 잠재적 반대 주장이나 추론의 약점을 식별하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### ⚖️ YouTube 주장 분석기 (토론 & 수사학)\n\n이 YouTube 비디오에서 제시된 주장을 분석하세요. 주요 주장과 지지 증거를 중첩된 불릿으로 요약하세요. 주요 포인트를 설명하기 위해 직접 인용 부호를 포함하세요. 잠재적 반대 주장이나 추론의 약점을 식별하세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요.\n\n### 🎭 수사학 기법 평가기 (커뮤니케이션 분석)\n\n스피커의 [예: 프레젠테이션 스타일, 설득 기법, 수사학 사용]을 분석하세요. 중첩된 불릿을 사용하고, 관찰을 설명하기 위해 특정 인용 부호를 포함하세요. 이러한 기법이 비디오의 전체 메시지에 어떻게 기여하거나(또는 해를 끼치는지) 초점을 맞추세요.\n\n출력은 응답으로 직접 시작하세요 -- 서론 텍스트나 설명을 포함하지 마세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d15f5fa4-731d-4d63-a065-e81a5248e8d8",
+      "name": "Code: Merge data from prior nodes with HTTP Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2340,
+        120
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    ...$json, // Keep data from http request\n    ...$('Set: Merged Values').item.json, // Keep data from before http request\n  }\n};\n\n\n\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "eb3b45bc-c59e-45f7-a352-97f62ae079f2",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1080,
+        -80
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 520,
+        "content": "## ✏️ 플로우에서 사용할 값 설정  \n1. automationID: 이를 사용하여 자동화를 참조합니다. 많은 플로우가 실행될 때 문제 해결에 유용합니다.  \n2. apiKey: Google의 API 키  \n3. youtubeURL: 처리할 비디오의 공용 URL  \n4. promptType: 스위치 노드에서 사용되며, API 호출의 일부로 어떤 프롬프트가 보내질지 결정합니다."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "440539da-e658-404f-8f85-9e28e9acffc9",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        -80
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 520,
+        "content": "## ℹ️ promptType 값에 기반하여 API 호출에서 전달될 프롬프트 결정하세요"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba3f3e35-d691-449e-9f62-d2246223ff5e",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -580
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1520,
+        "content": "## ✏️ 프롬프트 및 모델 값 설정  \n1. prompt: 비디오에 대해 무엇을 알고 싶나요  \n2. model: 어떤 모델을 사용할지 (gemini-1.5-flash)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b33de065-16d5-4b29-8117-91cfd9d9034a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -60
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 520,
+        "content": "HTTP 노드에서 값을 참조하기 쉽게 만들기"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eb6788d8-4b99-42e5-b0c1-0430a8d786e6",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2420,
+        580
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 520,
+        "content": "## ℹ️ 오류가 발생할 때 특별한 처리를 추가하려면 (선택사항)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "432ef0bf-8c85-4f72-a771-42b3b2173094",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -60
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 520,
+        "content": "## ℹ️ 이전 노드에서 설정된 값을 사용하여 Google 엔드포인트에 호출합니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57f29827-7f1f-4b73-b700-51af8bd1e582",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        -60
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 520,
+        "content": "## ℹ️ Google에서 반환된 데이터를 이전 노드에서 설정된 값과 병합하여 이전 데이터가 손실되지 않도록"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c42daf8b-2d9e-4258-91be-97b830c4eff4",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2700,
+        -60
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 520,
+        "content": "## ℹ️ 반환된 데이터를 의미 있는 이름으로 지정해 줍니다; 후속 노드에 제공되는 데이터의 양을 간소화합니다"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb246216-645d-4c01-adc7-9b2be2920bcd",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        280
+      ],
+      "parameters": {
+        "width": 360,
+        "content": "#### 💡 Trigger Ideas  \n사용 사례에 맞게 트리거를 변경할 수 있습니다. 가끔 실행해야 할 경우, 현재 형식으로 유지할 수 있습니다. 자동화의 일부로 더 자주 실행하기 위해 n8n의 YouTube 노드, 양식, 웹훅 등 중 하나를 시도해 보세요."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba228de2-c2de-475c-95c3-20ef712edcc9",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3120,
+        100
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 240,
+        "content": "#### 💡 다음 단계 아이디어\n웹훅을 사용하여 데이터를 다른 목적지로 보내거나 n8n의 다른 노드를 사용하여 Airtable, Notion 등으로 보내세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5d83e29e-caf0-4c3a-be04-9da966904a5a",
+  "connections": {
+    "Set: Fallback": {
+      "main": [
+        [
+          {
+            "node": "Set: Merged Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Scene Clips": {
+      "main": [
+        [
+          {
+            "node": "Set: Merged Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Scene Prompt": {
+      "main": [
+        [
+          {
+            "node": "Set: Merged Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Merged Values": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request to Google",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Summarize Prompt": {
+      "main": [
+        [
+          {
+            "node": "Set: Merged Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request to Google": {
+      "main": [
+        [
+          {
+            "node": "Code: Merge data from prior nodes with HTTP Output",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If: Was an error detected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Transcript Prompt": {
+      "main": [
+        [
+          {
+            "node": "Set: Merged Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Define Initial Variables": {
+      "main": [
+        [
+          {
+            "node": "Switch: What kind of question do we want to ask?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set: Define Initial Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Transcript with Timestamps Prompt": {
+      "main": [
+        [
+          {
+            "node": "Set: Merged Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: What kind of question do we want to ask?": {
+      "main": [
+        [
+          {
+            "node": "Set: Transcript Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Transcript with Timestamps Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Summarize Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Scene Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Scene Clips",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Merge data from prior nodes with HTTP Output": {
+      "main": [
+        [
+          {
+            "node": "Set Fields: Define Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

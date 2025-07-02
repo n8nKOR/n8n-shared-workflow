@@ -1,171 +1,110 @@
-# SecOps Workflows
+# SecOps 워크플로우
 
-이 폴더에는 보안 운영(SecOps) 관련 n8n 워크플로우들이 포함되어 있습니다. 이 워크플로우들은 위협 탐지, 사고 대응, 보안 모니터링, 취약점 스캔 등 다양한 사이버보안 업무를 자동화합니다.
+이 폴더에는 secops 관련 **21개의 워크플로우**가 포함되어 있습니다.
 
-## 🔍 위협 인텔리전스 및 분석
+## 📋 워크플로우 목록
 
-[![VirusTotal & Greynoise 스캐너](1971.png)](1971.json)
-**VirusTotal & Greynoise URL/IP 스캔 자동화**
-URL과 IP 주소를 VirusTotal과 Greynoise API로 자동 스캔하여 위협 분석을 수행하고, 결과를 Slack과 이메일로 보고하는 종합적인 위협 인텔리전스 워크플로우입니다.
+[![워크플로우 1971](1971.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1971.json)
+**워크플로우 1971**
+양식 입력 개요 - **목적**: 다른 부서에 전체 위협 플랫폼을 사용하도록 강요하는 대신, URL로 접근 가능한 양식을 통해 다른 부서가 항목을 제출할 수 있도록 하는 우리 Threat Intel 워크플로우와의 상호작용을 간소화합니다. - **양식 접근 URL**: - **실행 모드**: `https://n8n.domain.com/webhook/test/...
 
-[![CrowdStrike 탐지 분석](1973.png)](1973.json)
-**CrowdStrike 위협 탐지 분석 및 티켓 생성**
-CrowdStrike에서 새로운 위협 탐지를 자동으로 가져와 VirusTotal로 강화 분석한 후, Jira 티켓을 생성하고 Slack으로 보안팀에 알림을 발송합니다.
+[![워크플로우 1973](1973.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1973.json)
+**워크플로우 1973**
+![CrowdStrike](https://i.imgur.com/bXWeemY.png) 워크플로 개요 이 n8n 워크플로는 CrowdStrike에서 감지된 사이버보안 위협에 대한 대응을 간소화하고 자동화하도록 설계된 견고한 오케스트레이션 도구입니다. 매일 실행되며, 스크립트는 시스템적으로 새로운 감지 데이터를 수집하고, VirusTotal의 외부 인텔리전스를...
 
-[![MITRE ATT&CK 분석](2840.png)](2840.json)
-**MITRE ATT&CK 기반 SIEM 분석**
-MITRE ATT&CK 프레임워크와 Qdrant 벡터 데이터베이스를 활용하여 SIEM 알림을 자동으로 분석하고, AI로 TTP(Tactics, Techniques, Procedures)를 매핑하여 Zendesk 티켓을 업데이트합니다.
+[![워크플로우 1974](1974.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1974.json)
+**워크플로우 1974**
+![쇼단](https://i.imgur.com/PcOuvAL.png) 워크플로 개요 이 n8n 워크플로는 Palo Alto의 피드에서 보안 권고를 가져와 귀하의 제품과 관련되지 않은 알림을 필터링하여 보안 감독을 간소화하도록 설계되었습니다. 동적 필터 시스템을 활용하여 관련되지 않은 권고를 제외하여 팀이 관련 보안 업데이트만 받을 수 있도록 합니다. 이메일...
 
-[![위협 피드 다이제스트](4678.png)](4678.json)
-**AI 기반 보안/프라이버시/컴플라이언스 뉴스 다이제스트**
-RSS 피드에서 보안, 프라이버시, 컴플라이언스 관련 뉴스를 수집하고 AI로 분석하여 카테고리별로 요약된 뉴스레터를 자동 생성합니다.
+[![워크플로우 1977](1977.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1977.json)
+**워크플로우 1977**
+![Shodan](https://i.imgur.com/tK0RXSK.png) 포트 서비스 데이터를 마크다운 테이블 형식으로 개방된 포트를 식별한 후, 다음 단계는 이 정보를 깔끔하게 구성하는 것입니다. 이 노드는 이전 단계에서 수집된 데이터를 `마크다운 테이블 형식`으로 변환합니다. 가독성을 위해 중요하며, 포트와 서비스 정보를 더 쉽게 분석할 수 있게 합...
 
-## 🛡️ 사고 대응 및 포렌식
+[![워크플로우 1992](1992.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1992.json)
+**워크플로우 1992**
+![예정](https://i.imgur.com/PcOuvAL.png) 워크플로 개요 이 n8n 워크플로는 URLScan.io와 VirusTotal을 사용하여 잠재적인 피싱 URL을 분석하여 사이버 보안 조치를 강화하도록 설계되었습니다. 자동으로 들어오는 메시지의 URL을 처리하고 악성 콘텐츠를 평가하도록 설계되었습니다. 이 워크플로는 특히 `Outlook`...
 
-[![피싱 이메일 탐지](2665.png)](2665.json)
-**피싱 이메일 탐지 및 자동 티켓 생성**
-Gmail과 Outlook에서 수신된 이메일을 실시간으로 분석하여 피싱 의심 이메일을 탐지하고, ChatGPT로 분석한 후 Jira 티켓을 자동 생성합니다.
+[![워크플로우 1993](1993.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1993.json)
+**워크플로우 1993**
+![greynoise](https://i.imgur.com/4vSwTkY.png) 🚦 GreyNoise 데이터를 이용한 고급 위협 우선순위화 이 워크플로의 이 섹션에서, GreyNoise 데이터의 통합, 특히 `GreyNoise` 노드에서, 위협 우선순위화 프로세스를 정제하는 데 중추적인 역할을 합니다. 이 노드의 GreyNoise 상호작용은 각 알림이 I...
 
-[![여권 사진 검증](2420.png)](2420.json)
-**AI 기반 여권 사진 유효성 검증**
-Google Drive에서 여권 사진을 가져와 Google Gemini AI를 사용하여 UK 정부 기준에 따른 유효성을 자동 검증하는 신원 확인 워크플로우입니다.
+[![워크플로우 1997](1997.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/1997.json)
+**워크플로우 1997**
+이 설정에서, 귀하의 ID 제공자로부터 다음을 검색해야 합니다: - 인증 URL - 토큰 URL - 사용자 정보 URL - 이 흐름을 위해 생성한 클라이언트 ID - 사용할 스코프, 최소한 "openid" 스코프 PKCE를 사용하지 않으려면, 다음을 채워야 합니다: - 클라이언트 시크릿 - 리디렉트 URI (웹훅 URI임)
 
-## 🌐 네트워크 보안 모니터링
+[![워크플로우 2054](2054.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2054.json)
+**워크플로우 2054**
+정보 가져오기 이 섹션은 가능한 모든 오류를 확인하고 우리의 경고를 생성하기 위해 필요한 모든 데이터를 가져옵니다.
 
-[![Meraki 네트워크 모니터링](2054.png)](2054.json)
-**Cisco Meraki 네트워크 상태 모니터링**
-Cisco Meraki API를 통해 네트워크 지연시간과 패킷 손실을 실시간 모니터링하고, 임계값 초과 시 Microsoft Teams로 즉시 알림을 발송합니다.
+[![워크플로우 2420](2420.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2420.json)
+**워크플로우 2420**
+1. 사진 가져오기 및 검증 [Google Drive 사용에 대해 더 알아보기](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googledrive) 이번 데모에서, 5개의 서로 다른 초상화를 가져와 AI 비전 모델을 테스트하겠습니다. 편의를 위해 Google Drive를 사용할 테지만...
 
-## 🔐 취약점 스캔 및 평가
+[![워크플로우 2435](2435.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2435.json)
+**워크플로우 2435**
+여러 GitHub 리포지토리 모니터링 이 워크플로는 웹훅 사용으로 인해 폴링 없이 여러 GitHub 리포지토리를 동시에 모니터링할 수 있게 합니다. 또한 프로그래밍적으로 감시 목록에 리포지토리를 추가 및 삭제할 수 있게 하여 관리를 편리하게 합니다.
 
-[![웹사이트 보안 스캐너](3314.png)](3314.json)
-**AI 기반 웹사이트 보안 스캐너**
-웹사이트의 보안 헤더, 설정, 클라이언트 사이드 취약점을 OpenAI를 활용하여 종합적으로 분석하고 상세한 보안 보고서를 이메일로 발송합니다.
+## 📋 워크플로우 목록 (11-20)
 
-## 📊 보안 운영 자동화
+[![워크플로우 2511](2511.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2511.json)
+**워크플로우 2511**
+![Imgur](https://uploads.n8n.io/templates/qualys.png) Qualys 측에서 수행되는 쿼리에 대한 자세한 정보는 [스캔 관리 문서](https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/scans/index.htmt=vm_scans%2Fmanage_vm...
 
-[![보안 감사 자동화](1974.png)](1974.json)
-**보안 감사 및 컴플라이언스 체크**
-정기적인 보안 감사를 자동화하고 컴플라이언스 요구사항 준수 여부를 확인하여 보안 담당자에게 보고합니다.
+[![워크플로우 2656](2656.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2656.json)
+**워크플로우 2656**
+우리는 여기서 작물 데이터셋과 함께 작업하고 있습니다: 데이터셋에 있는 기존 (이상 사항이 아닌) 작물 이미지들은: - '진주 기장(바즈라)', - '담배 식물', - '체리', - '목화', - '바나나', - '오이', - '옥수수', - '밀', - '정향', - '수수', - '올리브 나무', - '대두', - '커피 나무', - '벼', - '레몬...
 
-[![위협 헌팅 자동화](1977.png)](1977.json)
-**자동화된 위협 헌팅**
-다양한 보안 도구에서 수집된 로그와 이벤트를 분석하여 숨겨진 위협을 찾아내는 능동적 위협 헌팅 워크플로우입니다.
+[![워크플로우 2665](2665.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2665.json)
+**워크플로우 2665**
+![지메일](https://uploads.n8n.io/templates/gmail.png) 지메일 통합 및 데이터 추출 이 워크플로의 이 섹션은 **Gmail Trigger** 노드를 사용하여 지메일 계정에 연결되며, 실시간으로 들어오는 이메일을 캡처하며, 매 분마다 확인을 수행합니다. 이메일이 감지되면, 그 주요 구성 요소—예를 들어 제목, 수신자, 본문...
 
-[![보안 이벤트 상관분석](1992.png)](1992.json)
-**보안 이벤트 상관분석 및 우선순위화**
-여러 보안 솔루션에서 발생하는 이벤트들을 상관분석하여 실제 위협과 거짓 양성을 구분하고 우선순위를 매깁니다.
+[![워크플로우 2666](2666.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2666.json)
+**워크플로우 2666**
+![hctiapi](https://uploads.n8n.io/templates/hctiapi2.png) 이메일 본문 스크린샷 생성 **스크린샷 HTML** 노드는 이메일의 HTML 본문을 **hcti.io** API로 보내, 이메일 레이아웃을 시각적으로 나타내는 스크린샷을 생성합니다. **스크린샷 가져오기** 노드는 이 이미지를 가져와, 후속 단계에서 첨부...
 
-[![침해지표(IOC) 관리](1993.png)](1993.json)
-**침해지표(IOC) 수집 및 배포**
-다양한 위협 인텔리전스 소스에서 IOC를 수집하고 검증한 후 보안 도구들에 자동으로 배포하여 탐지 규칙을 업데이트합니다.
+[![워크플로우 2676](2676.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2676.json)
+**워크플로우 2676**
+**이메일 헤더 분석 워크플로우 테스트** 이 워크플로우의 이 섹션은 설정이 타사 플랫폼용 API로 배포되기 전에 Outlook 이메일 클라이언트와 올바르게 작동하는지 확인하기 위한 테스트 목적으로 설계되었습니다. 프로세스는 `Trigger on New Email` 노드에서 시작되며, 이 노드는 Outlook 사서함의 지정된 폴더를 모니터링하고 새 이메일이...
 
-[![보안 대시보드 자동화](1997.png)](1997.json)
-**실시간 보안 대시보드 생성**
-보안 메트릭과 KPI를 실시간으로 수집하여 경영진과 보안팀을 위한 대시보드를 자동으로 생성하고 업데이트합니다.
+[![워크플로우 2677](2677.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2677.json)
+**워크플로우 2677**
+![](https://uploads.n8n.io/templates/gmaillogo.png) **이메일 헤더 분석 워크플로우 테스트** 이 워크플로우의 이 섹션은 설정이 타사 플랫폼의 API로 배포되기 전에 귀하의 Gmail 이메일 클라이언트와 올바르게 작동하는지 확인하기 위한 테스트 목적으로 설계되었습니다. 프로세스는 `Gmail Trigger` 노드에서...
 
-## 🔄 지속적 보안 모니터링
+[![워크플로우 2694](2694.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2694.json)
+**워크플로우 2694**
+워크플로를 일주일에 한 번 트리거합니다.
 
-[![보안 로그 분석](2435.png)](2435.json)
-**중앙집중식 보안 로그 분석**
-다양한 시스템과 애플리케이션의 보안 로그를 중앙에서 수집하고 분석하여 이상 행위를 탐지하고 알림을 발송합니다.
+[![워크플로우 2840](2840.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2840.json)
+**워크플로우 2840**
+![n8n](https://uploads.n8n.io/templates/qdrantlogo.png) 벡터 스토어를 임베드하세요 벡터 스토어에 데이터를 제공하려면 JSON 형식으로 전달하고 올바르게 설정되었는지 확인하세요. 이 플로우는 Google Drive에서 JSON 파일을 가져와 JSON 데이터를 추출한 후 qdrant 컬렉션으로 전달합니다.
 
-[![접근 제어 모니터링](2511.png)](2511.json)
-**특권 계정 접근 모니터링**
-특권 계정의 로그인 및 활동을 실시간으로 모니터링하고, 비정상적인 접근 패턴을 탐지하여 보안팀에 즉시 알림합니다.
+[![워크플로우 2925](2925.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/2925.json)
+**워크플로우 2925**
+VPS 업그레이드 알림 이 워크플로는 매일 서버에 업그레이드 가능한 패키지가 있는지 확인하고, 있으면 이메일로 알려줄 것입니다.
 
-[![데이터 유출 방지](2656.png)](2656.json)
-**데이터 유출 탐지 및 대응**
-민감한 데이터의 무단 접근이나 유출 시도를 탐지하고 자동으로 차단 조치를 취하며 사고 대응팀에 알림을 발송합니다.
+[![워크플로우 3314](3314.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/3314.json)
+**워크플로우 3314**
+빠른 설정 가이드 1. **OpenAI API 자격 증명 추가** - 설정 → 자격 증명 → 새로 만들기 → OpenAI API로 이동 - platform.openai.com에서 API 키를 입력하세요 2. **Gmail 자격 증명 추가** - 설정 → 자격 증명 → 새로 만들기 → Gmail OAuth2 API로 이동 - OAuth 설정 프로세스를 완료하...
 
-[![보안 정책 준수](2666.png)](2666.json)
-**보안 정책 준수 모니터링**
-조직의 보안 정책 준수 여부를 자동으로 점검하고 위반 사항을 탐지하여 담당자에게 알림하고 시정조치를 요청합니다.
+## 📋 워크플로우 목록 (21-21)
 
-[![악성코드 분석](2676.png)](2676.json)
-**자동 악성코드 분석 및 대응**
-의심스러운 파일을 자동으로 샌드박스에서 분석하고 악성코드 여부를 판단하여 적절한 격리 및 제거 조치를 실행합니다.
-
-[![보안 인시던트 관리](2677.png)](2677.json)
-**보안 인시던트 생명주기 관리**
-보안 인시던트의 발생부터 해결까지 전체 생명주기를 자동으로 관리하고 각 단계별 담당자에게 적절한 알림을 발송합니다.
-
-[![취약점 관리](2694.png)](2694.json)
-**취약점 스캔 및 패치 관리**
-시스템과 애플리케이션의 취약점을 정기적으로 스캔하고 패치 우선순위를 결정하여 IT팀에 패치 일정을 자동으로 배정합니다.
-
-[![보안 교육 자동화](2925.png)](2925.json)
-**직원 보안 교육 및 피싱 테스트**
-직원들을 대상으로 한 보안 인식 교육과 모의 피싱 테스트를 자동화하고 결과를 분석하여 추가 교육이 필요한 직원을 식별합니다.
-
----
-
-## 🎯 주요 특징
-
-- **21개의 보안 운영 워크플로우**: 위협 탐지부터 사고 대응까지 전 영역 커버
-- **위협 인텔리전스 통합**: VirusTotal, Greynoise, CrowdStrike 등 주요 플랫폼 연동
-- **AI 기반 분석**: OpenAI, Google Gemini를 활용한 지능형 위협 분석
-- **MITRE ATT&CK 매핑**: 표준 프레임워크 기반 위협 분류 및 대응
-- **자동 티켓팅**: Jira, Zendesk와 연동한 사고 관리 자동화
-- **실시간 알림**: Slack, Teams, 이메일을 통한 즉시 알림
-- **다중 플랫폼 지원**: 클라우드와 온프레미스 환경 모두 지원
-
-## 📋 보안 운영별 사용 가이드
-
-### 위협 탐지 및 분석
-- **VirusTotal & Greynoise 스캐너**: 의심스러운 URL이나 IP 주소 즉시 분석
-- **CrowdStrike 연동**: EDR 탐지 이벤트 자동 분석 및 대응
-- **MITRE ATT&CK 매핑**: 공격 기법 자동 분류 및 맥락 정보 제공
-
-### 사고 대응
-- **피싱 이메일 탐지**: 의심 이메일 자동 분석 및 격리
-- **보안 인시던트 관리**: 사고 발생부터 해결까지 전체 프로세스 자동화
-- **침해지표 관리**: IOC 수집, 검증, 배포 자동화
-
-### 보안 모니터링
-- **네트워크 모니터링**: Cisco Meraki 장비 상태 실시간 감시
-- **접근 제어**: 특권 계정 활동 모니터링
-- **데이터 유출 방지**: 민감 데이터 접근 패턴 분석
-
-### 취약점 관리
-- **웹사이트 보안 스캔**: 웹 애플리케이션 보안 취약점 자동 진단
-- **시스템 취약점 스캔**: 인프라 보안 상태 정기 점검
-- **패치 관리**: 취약점 우선순위 기반 패치 일정 자동 생성
+[![워크플로우 4678](4678.png)](https://raw.githubusercontent.com/n8nKOR/n8n-shared-workflow/refs/heads/main/workflows/n8nworkflows/secops/4678.json)
+**워크플로우 4678**
+📬 매일 보안 뉴스레터
 
 ## 🔧 구현 가이드
 
-### 1단계: 위협 인텔리전스 설정
-- VirusTotal, Greynoise API 키 설정
-- CrowdStrike API 연동 구성
-- 기본 위협 탐지 워크플로우 활성화
+### 워크플로우 사용 방법
+1. 원하는 워크플로우의 JSON 링크를 클릭합니다.
+2. n8n 인스턴스에서 'Import' 기능을 사용하여 워크플로우를 가져옵니다.
+3. 필요한 자격 증명과 설정을 구성합니다.
+4. 워크플로우를 테스트하고 필요에 따라 커스터마이즈합니다.
 
-### 2단계: 사고 대응 프로세스 구축
-- Jira/Zendesk 티켓팅 시스템 연동
-- Slack/Teams 알림 채널 설정
-- 에스컬레이션 규칙 정의
+### 주의사항
+- 각 워크플로우는 특정 서비스나 API의 자격 증명이 필요할 수 있습니다.
+- 워크플로우를 실행하기 전에 모든 노드의 설정을 확인하세요.
+- 테스트 환경에서 먼저 워크플로우를 검증한 후 프로덕션에 적용하세요.
 
-### 3단계: 모니터링 대시보드 구성
-- 보안 메트릭 수집 자동화
-- 실시간 대시보드 생성
-- 보고서 자동 생성 및 배포
+---
 
-### 4단계: 지속적 개선
-- 워크플로우 성능 모니터링
-- 거짓 양성 최소화 튜닝
-- 새로운 위협에 대한 탐지 규칙 업데이트
-
-## ⚠️ 보안 고려사항
-
-- **API 키 관리**: 모든 API 키는 n8n 자격 증명 관리자에 안전하게 저장
-- **데이터 암호화**: 전송 중 및 저장 중 데이터 암호화 적용
-- **접근 제어**: 워크플로우 접근 권한을 최소한의 필요 인원으로 제한
-- **로그 관리**: 모든 보안 활동에 대한 감사 로그 유지
-- **정기 검토**: 워크플로우의 보안 설정 정기적 검토 및 업데이트
-
-## 🔗 관련 자료
-
-- [MITRE ATT&CK 프레임워크](https://attack.mitre.org/)
-- [VirusTotal API 문서](https://developers.virustotal.com/)
-- [CrowdStrike API 가이드](https://falcon.crowdstrike.com/documentation)
-- [NIST 사이버보안 프레임워크](https://www.nist.gov/cyberframework)
-- [n8n 보안 모범 사례](https://docs.n8n.io/security/)
+💡 **총 21개의 워크플로우**가 이 카테고리에서 제공됩니다.

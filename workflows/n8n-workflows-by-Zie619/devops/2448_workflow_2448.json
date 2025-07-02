@@ -1,0 +1,517 @@
+{
+  "meta": {
+    "instanceId": "04ab549d8bbb435ec33b81e4e29965c46cf6f0f9e7afe631018b5e34c8eead58"
+  },
+  "nodes": [
+    {
+      "id": "b1b6eb50-9d42-484d-9488-0607be2143d8",
+      "name": "Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -160,
+        -200
+      ],
+      "parameters": {
+        "url": "https://api.fastmail.com/jmap/session",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BWkbkxgDD4hkRCvs",
+          "name": "Fastmail Masked E-Mail Addresses"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aca05a94-07dd-4408-8d87-47e788a5f0a8",
+      "name": "get all masked emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "https://api.fastmail.com/.well-known/jmap\n\nhttps://api.fastmail.com/jmap/session",
+      "position": [
+        700,
+        -200
+      ],
+      "parameters": {
+        "url": "https://api.fastmail.com/jmap/api/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"using\": [\"urn:ietf:params:jmap:core\", \"https://www.fastmail.com/dev/maskedemail\"],\n  \"methodCalls\": [\n    [\n      \"MaskedEmail/get\",\n      {\n        \"accountId\": \"{{ $('Session').item.json.primaryAccounts['https://www.fastmail.com/dev/maskedemail'] }}\"\n      },\n      \"c1\"\n    ]\n  ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BWkbkxgDD4hkRCvs",
+          "name": "Fastmail Masked E-Mail Addresses"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c4337bb4-1c16-4381-abe4-f0699099f326",
+      "name": "create random masked email",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "https://api.fastmail.com/.well-known/jmap\n\nhttps://api.fastmail.com/jmap/session",
+      "position": [
+        540,
+        40
+      ],
+      "parameters": {
+        "url": "https://api.fastmail.com/jmap/api/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"using\": [\n    \"urn:ietf:params:jmap:core\",\n    \"https://www.fastmail.com/dev/maskedemail\"\n  ],\n  \"methodCalls\": [\n    [\n      \"MaskedEmail/set\",\n      {\n        \"accountId\": \"{{ $('Session').item.json.primaryAccounts['https://www.fastmail.com/dev/maskedemail'] }}\",\n        \"create\": {\n          \"maskedEmailId1\": {\n            \"description\": \"Test via N8n\",\n            \"state\": \"{{ $('Webhook').item.json.body.state }}\",\n            \"id\": \"{{ $('Webhook').item.json.body.id }}\",\n            \"email\": \"{{ $('Webhook').item.json.body.email }}\"\n          }\n        }\n      },\n      \"c1\"\n    ]\n  ]\n}\n",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BWkbkxgDD4hkRCvs",
+          "name": "Fastmail Masked E-Mail Addresses"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bbfae2d8-d23a-4244-8566-c3da9cc2e34d",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1320,
+        -200
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "af8ac7a4-116f-41ef-b6c0-72006fb47474",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        60,
+        -200
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "pending",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Webhook').item.json.body.state }}",
+                    "rightValue": "pending"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "enabled",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "56e6f1b8-0331-4c2d-aa90-e639752cfa9d",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Webhook').item.json.body.state }}",
+                    "rightValue": "enabled"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "deleted",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "32f59847-a58c-4d8b-b1ae-48b8d4dad1a3",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Webhook').item.json.body.state }}",
+                    "rightValue": "deleted"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "disabled",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "cc39f7c0-3960-49d9-ae21-9f1f35714015",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Webhook').item.json.body.state }}",
+                    "rightValue": "disabled"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "ceca9fc2-e2f4-4578-8313-c987d08e9393",
+      "name": "disabled",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "https://api.fastmail.com/.well-known/jmap\n\nhttps://api.fastmail.com/jmap/session",
+      "position": [
+        540,
+        500
+      ],
+      "parameters": {
+        "url": "https://api.fastmail.com/jmap/api/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"using\": [\n    \"urn:ietf:params:jmap:core\",\n    \"https://www.fastmail.com/dev/maskedemail\"\n  ],\n  \"methodCalls\": [\n    [\n      \"MaskedEmail/set\",\n      {\n        \"accountId\": \"{{ $('Session').item.json.primaryAccounts['https://www.fastmail.com/dev/maskedemail'] }}\",\n        \"update\": {\n          \"{{ $('Webhook').item.json.body.id }}\": {\n            \"state\": \"{{ $('Webhook').item.json.body.state }}\"\n          }\n        }\n      },\n      \"c1\"\n    ]\n  ]\n}\n",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BWkbkxgDD4hkRCvs",
+          "name": "Fastmail Masked E-Mail Addresses"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c0467dec-a29e-42a0-8f81-fb12b0428974",
+      "name": "delete",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "https://api.fastmail.com/.well-known/jmap\n\nhttps://api.fastmail.com/jmap/session",
+      "position": [
+        540,
+        280
+      ],
+      "parameters": {
+        "url": "https://api.fastmail.com/jmap/api/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"using\": [\n      \"urn:ietf:params:jmap:core\",\n      \"https://www.fastmail.com/dev/maskedemail\"\n    ],\n    \"methodCalls\": [\n      [\n        \"MaskedEmail/set\",\n        {\n          \"accountId\": \"{{ $('Session').item.json.primaryAccounts['https://www.fastmail.com/dev/maskedemail'] }}\",\n          \"destroy\": [\n            \"{{ $('Webhook').item.json.body.id }}\"\n          ]\n        },\n        \"c1\"\n      ]\n    ]\n  }\n  ",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BWkbkxgDD4hkRCvs",
+          "name": "Fastmail Masked E-Mail Addresses"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "be0cdbe5-4607-44d5-8c51-7f8f1dcb4551",
+      "name": "gather masked email list",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        920,
+        -200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06210f93-1b2b-4bad-8a1d-263e57f651ca",
+              "name": "data",
+              "type": "array",
+              "value": "={{ $json.methodResponses[0][1].list }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "bd4134cf-b684-4b6e-bb58-a70ff068e2fd",
+      "name": "create html template",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        1120,
+        -200
+      ],
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Masked Email Addresses</title>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            margin: 40px;\n            backgrouand-color: #f4f4f9;\n        }\n        h1 {\n            text-align: center;\n            color: #333;\n        }\n        .button-container, .filter-container, .table-container {\n            margin-bottom: 20px;\n            text-align: center;\n        }\n        button {\n            padding: 10px 20px;\n            margin: 0 10px;\n            font-size: 0.875em;\n            cursor: pointer;\n            background-color: #4CAF50;\n            color: white;\n            border: none;\n            border-radius: 3px;\n        }\n        .delete-button {\n            background-color: #f44336;\n        }\n        .disabled-button {\n            background-color: #ffa500;\n        }\n        select {\n            padding: 10px;\n            font-size: 0.875em;\n        }\n        table {\n            width: 100%;\n            border-collapse: collapse;\n            margin: 20px 0;\n            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);\n            background: #fff;\n        }\n        th, td {\n            border: 1px solid #ddd;\n            padding: 12px 15px;\n            text-align: left;\n            white-space: nowrap; /* Prevent text from wrapping */\n        }\n        th {\n            background-color: #f5f5f5;\n            color: #333;\n            text-transform: uppercase;\n            letter-spacing: 0.1em;\n            font-size: 0.875em;\n        }\n        tr:nth-child(even) {\n            background-color: #f9f9f9;\n        }\n        tr:hover {\n            background-color: #f1f1f1;\n        }\n        td {\n            font-size: 0.875em;\n        }\n        .action-cell {\n            display: flex;\n            justify-content: flex-end;\n        }\n    </style>\n</head>\n<body>\n    <h1>Masked Email Addresses</h1>\n    <div class=\"button-container\">\n        <button id=\"add-pending\">Add Pending</button>\n        <button id=\"add-enabled\">Add Enabled</button>\n    </div>\n    <div class=\"filter-container\">\n        <label for=\"state-filter\">Filter by State: </label>\n        <select id=\"state-filter\">\n            <option value=\"all\">All</option>\n        </select>\n    </div>\n    <div class=\"table-container\">\n        <table>\n            <thead>\n                <tr>\n                    <th>Email</th>\n                    <th>Description</th>\n                    <th>State</th>\n                    <th>Created By</th>\n                    <th>Created At</th>\n                    <th>Last Message At</th>\n                    <th>For Domain</th>\n                    <th>ID</th>\n                    <th>Actions</th>\n                </tr>\n            </thead>\n            <tbody id=\"table-body\">\n                <!-- Table rows will be populated here -->\n            </tbody>\n        </table>\n    </div>\n    <script>\n        // Convert JSON string to object\n        const responseString = `{{ $json.data.toJsonString() }}`;\n        const maskedEmails = JSON.parse(responseString);\n\n        // Populate the table\n        const tableBody = document.getElementById('table-body');\n        const stateFilter = document.getElementById('state-filter');\n\n        // Extract unique states\n        const uniqueStates = [...new Set(maskedEmails.map(email => email.state))];\n        uniqueStates.forEach(state => {\n            const option = document.createElement('option');\n            option.value = state;\n            option.textContent = state;\n            stateFilter.appendChild(option);\n        });\n\n        function populateTable(filteredEmails) {\n            tableBody.innerHTML = ''; // Clear the table body\n\n            filteredEmails.forEach(email => {\n                const row = document.createElement('tr');\n\n                // Populate table cells\n                const cellKeys = ['email', 'description', 'state', 'createdBy', 'createdAt', 'lastMessageAt', 'forDomain', 'id'];\n                cellKeys.forEach(key => {\n                    const cell = document.createElement('td');\n                    cell.textContent = email[key] !== null && email[key] !== undefined ? email[key] : 'N/A';\n                    row.appendChild(cell);\n                });\n\n                // Add action cell with delete and disable buttons\n                const actionCell = document.createElement('td');\n                actionCell.className = 'action-cell';\n\n                const deleteButton = document.createElement('button');\n                deleteButton.className = 'delete-button';\n                deleteButton.textContent = 'Delete';\n                deleteButton.addEventListener('click', () => updateMaskedEmail(email.id, email.email, 'deleted'));\n                actionCell.appendChild(deleteButton);\n\n                const disabledButton = document.createElement('button');\n                disabledButton.className = 'disabled-button';\n                disabledButton.textContent = 'Disable';\n                disabledButton.addEventListener('click', () => updateMaskedEmail(email.id, email.email, 'disabled'));\n                actionCell.appendChild(disabledButton);\n\n                row.appendChild(actionCell);\n\n                tableBody.appendChild(row);\n            });\n        }\n\n        // Initial population\n        populateTable(maskedEmails);\n\n        // Add event listener to filter dropdown\n        stateFilter.addEventListener('change', function() {\n            const selectedState = this.value;\n            const filteredEmails = selectedState === 'all' ? maskedEmails : maskedEmails.filter(email => email.state === selectedState);\n            populateTable(filteredEmails);\n        });\n\n        // Function to make POST request\n        function createMaskedEmail(state) {\n            fetch('/webhook/MaskedEmail', {\n                method: 'POST',\n                headers: {\n                    'Content-Type': 'application/json'\n                },\n                body: JSON.stringify({ state: state })\n            }).then(response => {\n                if (response.ok) {\n                    alert('New masked email created successfully!');\n                    // Reload the page after successful creation\n                    location.reload();\n                } else {\n                    alert('Error creating masked email');\n                }\n            }).catch(error => {\n                alert('Error: ' + error);\n            });\n        }\n\n        // Function to update masked email\n        function updateMaskedEmail(id, email, state) {\n            fetch('/webhook/MaskedEmail', {\n                method: 'POST',\n                headers: {\n                    'Content-Type': 'application/json'\n                },\n                body: JSON.stringify({ id: id, email: email, state: state })\n            }).then(response => {\n                if (response.ok) {\n                    alert(`Masked email ${state} successfully!`);\n                    // Reload the page after successful update\n                    location.reload();\n                } else {\n                    alert(`Error ${state} masked email`);\n                }\n            }).catch(error => {\n                alert('Error: ' + error);\n            });\n        }\n\n        // Event listeners for the buttons\n        document.getElementById('add-pending').addEventListener('click', () => createMaskedEmail('pending'));\n        document.getElementById('add-enabled').addEventListener('click', () => createMaskedEmail('enabled'));\n\n    </script>\n</body>\n</html>"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a19b8aa6-b139-4011-8027-4cb1e7bef065",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -460,
+        -200
+      ],
+      "webhookId": "6eab7c57-8cb8-4f7e-be2d-e3c23a52683e",
+      "parameters": {
+        "path": "MaskedEmail",
+        "options": {},
+        "responseMode": "responseNode",
+        "authentication": "basicAuth",
+        "multipleMethods": true
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "VqS7TcRinqn3Wsj6",
+          "name": "Webhook"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2c151e0a-1d67-4e84-8a6d-0e9cbe440b14",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -20
+      ],
+      "parameters": {
+        "width": 810.0000000000002,
+        "height": 1181.829268292685,
+        "content": "## 템플릿 설명\n\n이 n8n 워크플로는 Fastmail API를 사용하여 Fastmail 마스킹 이메일 주소를 관리하도록 설계되었습니다. 이 워크플로는 다음 기능을 제공합니다:\n\n1. **모든 마스킹 이메일 검색**: Fastmail 계정과 연관된 모든 마스킹 이메일 주소를 가져옵니다.\n2. **마스킹 이메일 생성**: 지정된 상태(`pending`, `enabled` 등)로 새로운 마스킹 이메일을 생성할 수 있습니다.\n3. **마스킹 이메일 상태 업데이트**: 마스킹 이메일의 상태를 업데이트하여 활성화, 비활성화 또는 삭제할 수 있습니다.\n4. **HTML 템플릿 생성**: 마스킹 이메일을 사용자 친화적인 형식으로 표시하기 위해 HTML 테이블을 구성합니다.\n\n## 작동을 위한 단계\n\n1. **웹훅 노드**: \n   - 이 노드는 마스킹 이메일 관리를 위한 수신 요청을 수신합니다.\n   - 엔드포인트를 보호하기 위해 기본 인증 자격증명이 필요합니다.\n\n2. **세션 노드**: \n   - Fastmail API에서 세션 정보를 얻기 위해 요청을 보냅니다.\n   - Fastmail API 토큰을 사용한 HTTP 헤더 인증 자격증명이 필요합니다.\n\n3. **스위치 노드**: \n   - 수신 마스킹 이메일 요청의 상태(`pending`, `enabled`, `disabled`, `deleted`)에 따라 워크플로를 라우팅합니다.\n   \n4. **HTTP 요청 노드**:\n   - 마스킹 이메일에 대한 다양한 Fastmail API 호출(가져오기, 설정, 업데이트, 삭제)을 처리합니다.\n   - 모든 HTTP 요청 노드에는 Fastmail API 토큰을 사용한 HTTP 헤더 인증 자격증명이 필요합니다.\n\n5. **설정 노드**: \n   - 검색된 마스킹 이메일 목록을 배열로 수집하여 추가 처리를 위해 사용합니다.\n\n6. **HTML 노드**: \n   - 마스킹 이메일 주소를 테이블 형식으로 렌더링하기 위해 HTML 템플릿을 생성합니다.\n\n7. **웹훅 응답 노드**: \n   - 웹훅 요청에 대한 응답으로 클라이언트에게 HTML 테이블을 보냅니다.\n\n### 필요한 자격증명\n\n1. **Fastmail 마스킹 이메일 주소**:\n   - Fastmail API에서 발급된 API 토큰.\n   - Fastmail에 대한 모든 HTTP 호출에서 이 자격증명을 인증에 사용해야 합니다.\n\n## 주의사항\n\n- API 호출 및 웹훅 보안을 올바르게 구성했는지 확인하세요.\n- 올바른 범위로 실제 Fastmail API 자격증명을 사용하세요.\n- 이 워크플로는 n8n 인스턴스에서 Fastmail API가 올바르게 구성되고 접근 가능하다고 가정합니다.\n- n8n 구성에 따라 URL 및 자격증명 ID를 업데이트하세요."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "create random masked email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "create random masked email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "delete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "disabled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get all masked emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delete": {
+      "main": [
+        [
+          {
+            "node": "get all masked emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Session": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "disabled": {
+      "main": [
+        [
+          {
+            "node": "get all masked emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create html template": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get all masked emails": {
+      "main": [
+        [
+          {
+            "node": "gather masked email list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gather masked email list": {
+      "main": [
+        [
+          {
+            "node": "create html template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create random masked email": {
+      "main": [
+        [
+          {
+            "node": "get all masked emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

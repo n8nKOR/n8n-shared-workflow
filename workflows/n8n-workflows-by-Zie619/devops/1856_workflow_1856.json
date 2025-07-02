@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "instanceId": "a2434c94d549548a685cca39cc4614698e94f527bcea84eefa363f1037ae14cd"
+  },
+  "nodes": [
+    {
+      "id": "161c2837-6a3c-4492-93d0-c094b8788362",
+      "name": "On any update in repository",
+      "type": "n8n-nodes-base.githubTrigger",
+      "position": [
+        620,
+        520
+      ],
+      "webhookId": "9f16fefe-dacf-48b8-a576-48ed0599e911",
+      "parameters": {
+        "owner": "dummydavid",
+        "events": [
+          "*"
+        ],
+        "repository": "DemoRepo"
+      },
+      "credentials": {
+        "githubApi": {
+          "id": "20",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2703e869-60e0-4906-9fd2-35a5e54aae1f",
+      "name": "Turn a light red",
+      "type": "n8n-nodes-base.homeAssistant",
+      "position": [
+        840,
+        520
+      ],
+      "parameters": {
+        "domain": "light",
+        "service": "turn_on",
+        "resource": "service",
+        "operation": "call",
+        "serviceAttributes": {
+          "attributes": [
+            {
+              "name": "entity_id",
+              "value": "light.lamp"
+            },
+            {
+              "name": "rgb_color",
+              "value": "={{[255,0,0]}}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "homeAssistantApi": {
+          "id": "21",
+          "name": "home.davidsha.me"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bbbd01eb-9409-414e-bc85-c615add05580",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        420
+      ],
+      "parameters": {
+        "width": 378,
+        "height": 351,
+        "content": "## GitHub 리포지토리 업데이트 시 특정 색상의 조명 켜기  \n이 워크플로는 GitHub 리포지토리에 업데이트가 발생할 때 조명을 빨간색으로 켭니다. 기본적으로 업데이트에는 풀 리퀘스트, 이슈, 푸시 등이 포함됩니다.  \n\n### 작동 원리  \n1. `리포지토리 업데이트 시` 노드에서 트리거됩니다.  \n2. Home Assistant를 사용하여 조명을 켜고, 조명을 빨간색으로 설정합니다.  \n\n### 출력"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "33dfde3b-a4b5-468d-8d13-9d3577563f9b",
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        700
+      ],
+      "parameters": {
+        "width": 315,
+        "height": 248,
+        "content": "여기에서 조명 구성  \n당신이 특정 색상으로 변경하고 싶은 조명의 이름이 `light.lamp`이 아닐 가능성이 큽니다. 그런 경우, Home Assistant 인스턴스로 이동하여 조명을 찾아 그 `entity_id`를 기록하세요. 도움을 위해 [여기](https://community.home-assistant.io/t/find-the-entity-id-of-a-yeelight-light-in-manual-mode-or-automatic-mode-doesnt-work/165557) 토론을 참조하세요.  \n\n조명이 변하는 색상을 변경하고 싶다면, [RGB 색상 선택기](https://www.google.com/search?q=rgb+color+picker&oq=rgb+colo&aqs=chrome.0.0i67i433j69i57j0i67l4j0i512l4.6248j0j7&sourceid=chrome&ie=UTF-8)를 사용하여 하세요. 기본 색상은 빨강 (255,0,0)입니다."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "On any update in repository": {
+      "main": [
+        [
+          {
+            "node": "Turn a light red",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
